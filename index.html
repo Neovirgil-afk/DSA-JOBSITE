@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -7,10 +8,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css" />
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
 
 <svg class="flight-layer" viewBox="0 0 1536 760" preserveAspectRatio="none" aria-hidden="true">
   <path id="flightPath" class="flight-path"
@@ -33,32 +33,35 @@
       <span class="logo-tagline">Find your path. Build your future.</span>
     </a>
 
-    <nav class="main-nav" aria-label="Primary">
-      <a href="#" class="active">Find Jobs</a>
-      <a href="#">For Employers</a>
-      <a href="#">Browse Companies</a>
-      <div class="nav-dropdown">
-        <button type="button" class="nav-dropdown-btn">Resources <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <div class="nav-dropdown-panel">
-          <a href="#">Resume Tips</a>
-          <a href="#">Interview Prep</a>
-          <a href="#">Career Guides</a>
-        </div>
-      </div>
-      <a href="#">About Us</a>
-    </nav>
-
-    <div class="header-actions">
-      <a href="#" class="login-link">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="7" width="16" height="13" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 7V5.5A3.5 3.5 0 0 1 11.5 2h1A3.5 3.5 0 0 1 16 5.5V7" stroke="currentColor" stroke-width="1.6"/></svg>
-        Log In
-      </a>
-      <a href="#" class="btn btn-primary">Sign Up</a>
+```
+<nav class="main-nav" aria-label="Primary">
+  <a href="#" class="active">Find Jobs</a>
+  <a href="#">For Employers</a>
+  <a href="#">Browse Companies</a>
+  <div class="nav-dropdown">
+    <button type="button" class="nav-dropdown-btn">Resources <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="nav-dropdown-panel">
+      <a href="#">Resume Tips</a>
+      <a href="#">Interview Prep</a>
+      <a href="#">Career Guides</a>
     </div>
+  </div>
+  <a href="#">About Us</a>
+</nav>
 
-    <button class="menu-toggle" aria-label="Open menu" id="menuToggle">
-      <span></span><span></span><span></span>
-    </button>
+<div class="header-actions">
+  <a href="#" class="login-link">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="7" width="16" height="13" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 7V5.5A3.5 3.5 0 0 1 11.5 2h1A3.5 3.5 0 0 1 16 5.5V7" stroke="currentColor" stroke-width="1.6"/></svg>
+    Log In
+  </a>
+  <a href="#" class="btn btn-primary">Sign Up</a>
+</div>
+
+<button class="menu-toggle" aria-label="Open menu" id="menuToggle">
+  <span></span><span></span><span></span>
+</button>
+```
+
   </div>
 </header>
 
@@ -74,73 +77,76 @@
         </h1>
         <p class="hero-sub">Opportunities for students, graduates, and young professionals like <mark>you</mark>.</p>
 
-        <form class="search-bar" id="searchForm">
-          <label class="search-field">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-            <input type="text" id="searchQuery" placeholder="Job title, keywords, or company" autocomplete="off" />
-          </label>
-          <span class="search-divider" aria-hidden="true"></span>
-          <label class="search-field search-field--location">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 22s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="1.8"/></svg>
-            <input type="text" id="searchLocation" placeholder="City or remote" autocomplete="off" />
-          </label>
-          <button type="submit" class="btn btn-primary search-btn">
-            Search Jobs
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-        </form>
+```
+    <form class="search-bar" id="searchForm">
+      <label class="search-field">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <input type="text" id="searchQuery" placeholder="Job title, keywords, or company" autocomplete="off" />
+      </label>
+      <span class="search-divider" aria-hidden="true"></span>
+      <label class="search-field search-field--location">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 22s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="1.8"/></svg>
+        <input type="text" id="searchLocation" placeholder="City or remote" autocomplete="off" />
+      </label>
+      <button type="submit" class="btn btn-primary search-btn">
+        Search Jobs
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </form>
 
-        <div class="popular-searches">
-          <span class="popular-label">Popular searches:</span>
-          <button class="chip" data-query="Internship">Internship</button>
-          <button class="chip" data-query="Marketing">Marketing</button>
-          <button class="chip" data-query="Graphic Design">Graphic Design</button>
-          <button class="chip" data-query="IT Support">IT Support</button>
-          <button class="chip" data-query="Content Writer">Content Writer</button>
-          <a href="#categories" class="view-all">View all <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        </div>
-      </div>
-
-      <div class="hero-art">
-        <div class="blob blob-purple"></div>
-        <div class="blob blob-amber"></div>
-
-        <svg class="hero-illustration" viewBox="0 0 520 460" aria-hidden="true">
-          <g class="figure figure-back">
-            <circle cx="140" cy="118" r="52" fill="#FFD9A6"/>
-            <path d="M60 300 C60 210 100 168 140 168 C180 168 220 210 220 300 L220 400 L60 400 Z" fill="#EDEBFB"/>
-            <rect x="66" y="250" width="52" height="80" rx="10" fill="#4338CA"/>
-          </g>
-          <g class="figure figure-mid">
-            <circle cx="280" cy="150" r="56" fill="#F6C89F"/>
-            <path d="M195 340 C195 244 236 200 280 200 C324 200 365 244 365 340 L365 440 L195 440 Z" fill="#F5A623"/>
-            <rect x="230" y="270" width="48" height="86" rx="10" fill="#EFEFEF"/>
-          </g>
-          <g class="figure figure-front">
-            <circle cx="410" cy="128" r="50" fill="#E7B892"/>
-            <path d="M340 300 C340 212 378 172 410 172 C444 172 480 212 480 300 L480 400 L340 400 Z" fill="#8FA6C9"/>
-            <rect x="450" y="240" width="46" height="90" rx="10" fill="#111827"/>
-            <circle cx="426" cy="122" r="18" fill="none" stroke="#111827" stroke-width="3"/>
-          </g>
-        </svg>
-
-        <div class="floating-card floating-card--bubble">
-          <p><strong>New jobs</strong> added daily!</p>
-          <span class="heart">❤</span>
-        </div>
-
-        <div class="floating-card floating-card--resume">
-          <div class="resume-icon">📄</div>
-          <div>
-            <strong>Don't have a resume?</strong>
-            <p>Create one in minutes!</p>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-
-        <div class="dotted-circle" aria-hidden="true"></div>
-      </div>
+    <div class="popular-searches">
+      <span class="popular-label">Popular searches:</span>
+      <button class="chip" data-query="Internship">Internship</button>
+      <button class="chip" data-query="Marketing">Marketing</button>
+      <button class="chip" data-query="Graphic Design">Graphic Design</button>
+      <button class="chip" data-query="IT Support">IT Support</button>
+      <button class="chip" data-query="Content Writer">Content Writer</button>
+      <a href="#categories" class="view-all">View all <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </div>
+  </div>
+
+  <div class="hero-art">
+    <div class="blob blob-purple"></div>
+    <div class="blob blob-amber"></div>
+
+    <svg class="hero-illustration" viewBox="0 0 520 460" aria-hidden="true">
+      <g class="figure figure-back">
+        <circle cx="140" cy="118" r="52" fill="#FFD9A6"/>
+        <path d="M60 300 C60 210 100 168 140 168 C180 168 220 210 220 300 L220 400 L60 400 Z" fill="#EDEBFB"/>
+        <rect x="66" y="250" width="52" height="80" rx="10" fill="#4338CA"/>
+      </g>
+      <g class="figure figure-mid">
+        <circle cx="280" cy="150" r="56" fill="#F6C89F"/>
+        <path d="M195 340 C195 244 236 200 280 200 C324 200 365 244 365 340 L365 440 L195 440 Z" fill="#F5A623"/>
+        <rect x="230" y="270" width="48" height="86" rx="10" fill="#EFEFEF"/>
+      </g>
+      <g class="figure figure-front">
+        <circle cx="410" cy="128" r="50" fill="#E7B892"/>
+        <path d="M340 300 C340 212 378 172 410 172 C444 172 480 212 480 300 L480 400 L340 400 Z" fill="#8FA6C9"/>
+        <rect x="450" y="240" width="46" height="90" rx="10" fill="#111827"/>
+        <circle cx="426" cy="122" r="18" fill="none" stroke="#111827" stroke-width="3"/>
+      </g>
+    </svg>
+
+    <div class="floating-card floating-card--bubble">
+      <p><strong>New jobs</strong> added daily!</p>
+      <span class="heart">❤</span>
+    </div>
+
+    <div class="floating-card floating-card--resume">
+      <div class="resume-icon">📄</div>
+      <div>
+        <strong>Don't have a resume?</strong>
+        <p>Create one in minutes!</p>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+
+    <div class="dotted-circle" aria-hidden="true"></div>
+  </div>
+</div>
+```
+
   </section>
 
   <section class="results" id="resultsSection" hidden>
@@ -152,7 +158,6 @@
       <div class="results-grid" id="resultsGrid"></div>
     </div>
   </section>
-
 
   <section class="trust-strip">
     <div class="wrap trust-grid">
@@ -187,7 +192,6 @@
     </div>
   </section>
 
-
   <section class="categories" id="categories">
     <div class="wrap">
       <div class="section-head">
@@ -195,47 +199,49 @@
         <a href="#" class="view-all">View all categories <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
       </div>
 
-      <div class="category-grid">
-        <button class="category-card cat-purple" data-category="IT & Software">
-          <span class="cat-emoji">💻</span>
-          <span class="cat-name">IT &amp; Software</span>
-          <span class="cat-count">2,450+ Jobs</span>
-          <span class="cat-arrow">→</span>
-        </button>
-        <button class="category-card cat-teal" data-category="Marketing">
-          <span class="cat-emoji">📣</span>
-          <span class="cat-name">Marketing</span>
-          <span class="cat-count">1,230+ Jobs</span>
-          <span class="cat-arrow">→</span>
-        </button>
-        <button class="category-card cat-amber" data-category="Design">
-          <span class="cat-emoji">🎨</span>
-          <span class="cat-name">Design</span>
-          <span class="cat-count">980+ Jobs</span>
-          <span class="cat-arrow">→</span>
-        </button>
-        <button class="category-card cat-pink" data-category="Business">
-          <span class="cat-emoji">💼</span>
-          <span class="cat-name">Business</span>
-          <span class="cat-count">1,820+ Jobs</span>
-          <span class="cat-arrow">→</span>
-        </button>
-        <button class="category-card cat-blue" data-category="Healthcare">
-          <span class="cat-emoji">🩺</span>
-          <span class="cat-name">Healthcare</span>
-          <span class="cat-count">870+ Jobs</span>
-          <span class="cat-arrow">→</span>
-        </button>
-        <button class="category-card cat-green" data-category="Education">
-          <span class="cat-emoji">🎓</span>
-          <span class="cat-name">Education</span>
-          <span class="cat-count">760+ Jobs</span>
-          <span class="cat-arrow">→</span>
-        </button>
-      </div>
-    </div>
-  </section>
+```
+  <div class="category-grid">
+    <button class="category-card cat-purple" data-category="IT & Software">
+      <span class="cat-emoji">💻</span>
+      <span class="cat-name">IT &amp; Software</span>
+      <span class="cat-count">2,450+ Jobs</span>
+      <span class="cat-arrow">→</span>
+    </button>
+    <button class="category-card cat-teal" data-category="Marketing">
+      <span class="cat-emoji">📣</span>
+      <span class="cat-name">Marketing</span>
+      <span class="cat-count">1,230+ Jobs</span>
+      <span class="cat-arrow">→</span>
+    </button>
+    <button class="category-card cat-amber" data-category="Design">
+      <span class="cat-emoji">🎨</span>
+      <span class="cat-name">Design</span>
+      <span class="cat-count">980+ Jobs</span>
+      <span class="cat-arrow">→</span>
+    </button>
+    <button class="category-card cat-pink" data-category="Business">
+      <span class="cat-emoji">💼</span>
+      <span class="cat-name">Business</span>
+      <span class="cat-count">1,820+ Jobs</span>
+      <span class="cat-arrow">→</span>
+    </button>
+    <button class="category-card cat-blue" data-category="Healthcare">
+      <span class="cat-emoji">🩺</span>
+      <span class="cat-name">Healthcare</span>
+      <span class="cat-count">870+ Jobs</span>
+      <span class="cat-arrow">→</span>
+    </button>
+    <button class="category-card cat-green" data-category="Education">
+      <span class="cat-emoji">🎓</span>
+      <span class="cat-name">Education</span>
+      <span class="cat-count">760+ Jobs</span>
+      <span class="cat-arrow">→</span>
+    </button>
+  </div>
+</div>
+```
 
+  </section>
 
   <section class="cta-banner">
     <div class="wrap cta-inner">
@@ -265,6 +271,7 @@
   </div>
 </footer>
 
-<script src="/main.js"></script>
+<script type="module" src="js/main.js"></script>
+
 </body>
 </html>

@@ -3,12 +3,13 @@ const express = require('express');
 const session = require('express-session');
 const path = require('path');
 
-const { db } = require('./database/database');
-const { seedIfNeeded } = require('./database/seed');
+const { db } = require('./database');
+const { seedIfNeeded } = require('./seed');
 
-const authRoutes = require('./routes/authRoutes');
-const jobRoutes = require('./routes/jobRoutes');
-const resumeRoutes = require('./routes/resumeRoutes');
+const authRoutes = require('./authRoutes');
+const jobRoutes = require('./jobRoutes');
+const resumeRoutes = require('./resumeRoutes');
+const referenceRoutes = require('./referenceRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -31,11 +32,13 @@ app.use(session({
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/resume', resumeRoutes);
+app.use('/api/reference', referenceRoutes);
+
 
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });

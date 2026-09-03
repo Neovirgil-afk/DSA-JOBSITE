@@ -1,7 +1,7 @@
 
 
 const bcrypt = require('bcryptjs');
-const { SKILLS_LIST } = require('../config/skillsList');
+const { SKILLS_LIST } = require('./skillsList');
 
 const JOBS = [
     {

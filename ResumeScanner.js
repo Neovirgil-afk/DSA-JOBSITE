@@ -4,8 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
-const HashTable = require('../algorithms/HashTable');
-const { SKILLS_LIST } = require('../config/skillsList');
+const { HashTable } = require('./HashTable');
+const { SKILLS_LIST } = require('./skillsList');
 
 async function extractTextFromFile(filePath, originalName) {
     const ext = path.extname(originalName).toLowerCase();

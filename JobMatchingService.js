@@ -1,8 +1,8 @@
 
 
-const { db } = require('../database/database');
-const { calculateMatches } = require('../algorithms/JobMatcher');
-const { mergeSort } = require('../algorithms/Sorting');
+const { db } = require('./database');
+const { calculateMatches } = require('./JobMatcher')
+const { mergeSort } = require('./Sorting')
 
 // Loads every job with its list of required skill names attached.
 function getAllJobsWithSkills() {

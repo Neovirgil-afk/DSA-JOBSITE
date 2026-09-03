@@ -1,15 +1,15 @@
 
 const express = require('express');
-const { db } = require('../database/database');
-const { requireAuth } = require('../middleware/auth');
+const { db } = require('./database');
+const { requireAuth } = require('./auth');
 const {
     searchJobs,
     getAllJobsWithSkills,
     getRankedJobsForUser,
     getUserSkillNames,
-} = require('../services/JobMatchingService');
-const { getCareerPathForJob, getCategoryTree } = require('../services/CareerPathService');
-const { computeSkillGap } = require('../services/SkillGapService');
+} = require('./JobMatchingService');
+const { getCareerPathForJob, getCategoryTree } = require('./CareerPathService')
+const { computeSkillGap } = require('./SkillGapService')
 
 const router = express.Router();
 

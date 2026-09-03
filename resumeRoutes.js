@@ -3,9 +3,9 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { db } = require('../database/database');
-const { requireAuth } = require('../middleware/auth');
-const { scanResume } = require('../services/ResumeScanner');
+const { db } = require('./database');
+const { requireAuth } = require('./auth');
+const { scanResume } = require('./ResumeScanner');
 
 const router = express.Router();
 

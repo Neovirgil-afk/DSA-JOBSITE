@@ -1,9 +1,9 @@
 
 
-const { db } = require('../database/database');
-const Graph = require('../algorithms/Graph');
-const { Tree } = require('../algorithms/Tree');
-const { CATEGORY_TREE } = require('../database/seed');
+const { db } = require('./database');
+const Graph = require('./Graph')
+const { Tree } = require('./Tree')
+const { CATEGORY_TREE } = require('./seed')
 
 function getCareerPathForJob(jobId, userSkillNames = []) {
     const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(jobId);

@@ -1,0 +1,1977 @@
+[
+    {
+        "name": "ABE International Business College-Cainta",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "ABE International Business College-Quezon",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "ACLC College of San Pablo",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "ACLC College of Taytay",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Acts Computer College-Infanta",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "ACTS Computer College-Sta. Cruz",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Adventist International Institute of Advanced Studies",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Adventist University of the Philippines",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Agoncillo College",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "AISAT College-Dasmariñas",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Alitagtag College",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "All Nations College",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Alpha Centauri Educational System",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "AMA College-Cavite",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "AMA Computer College-Batangas City",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "AMA Computer College-Biñan",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "AMA Computer College-Calamba",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "AMA Computer College-East Rizal",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "AMA Computer College-Lipa City",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "AMA Computer College-Lucena",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "AMA Computer College-Sta.Cruz",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "AMA School of Medicine-East Rizal NEW",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Angono Catholic College",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Antipolo Institute of Technology (AITECH)",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Asia Technological School of Science and Arts (ASIATECH)",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Asia-Pacific Christian College and Seminary",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Asia-Pacific Nazarene Theological Seminary",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Asian College of Science and Technology NEW",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Asian Institute of Computer Studies-Bacoor NEW",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Asian Institute of Computer Studies-Batangas City NEW",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Asian Institute of Computer Studies-Montalban NEW",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Asian Institute of Technology and Education-Tiaong Campus",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Asian Institute of Technology, Sciences and Arts (AITSA)",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Asian School of Hospitality Arts",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Asian School of Hospitality Arts (ASHA) NEW",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Asian Seminary of Christian Ministries",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Balayan Colleges NEW",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Balian Community College",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Banahaw Technological College",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Baptist Bible Seminary and Institute",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Baptist Voice Bible College",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Batangas College of Arts and Sciences",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Batangas Eastern Colleges",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Batangas State University",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Batangas State University-Alangilan",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Batangas State University-Balayan 04071a",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Batangas State University-Lemery",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Batangas State University-Lipa City 04071c",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Batangas State University-Lobo 04071d",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Batangas State University-Mabini",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Batangas State University-Malvar",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Batangas State University-Nasugbu",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Batangas State University-Rosario 04071f",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Batangas State University-San Juan 04071g",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Binangonan Catholic College",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Brookfield College in Cavite",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "BWEST College",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Cainta Catholic College",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Calaca City Global College NEW",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Calamba Doctors' College",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Calauag Central College",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Calayan Educational Foundation",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Canossa College - San Pablo City",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "CARD-MRI Development Institute",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Casa Del Niño College",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Cavite Integrated College",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Cavite State University",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Cavite State University-Bacoor",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Cavite State University-Carmona Campus",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Cavite State University-Cavite City",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Cavite State University-General Trias Campus",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Cavite State University-Imus",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Cavite State University-Naic",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Cavite State University-Rosario",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Cavite State University-Silang",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Cavite State University-Tanza Campus",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Cavite State University-Trece Martires City Campus",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Cavite West Point College",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Center for Biblical Studies Institute & Seminary",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Citi Global College-Biñan",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Citi Global College-Cabuyao",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "CITI Global College-Calamba",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "City College of Calamba",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "City College of Tagaytay",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Colegio de Amore",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Colegio de General Luna NEW",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Colegio de La Ciudad de Tayabas",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Colegio de Los Baños",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Colegio de Montalban",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Colegio de Porta Vaga",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Colegio De San Juan De Letran Calamba",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Colegio De San Pedro",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Colegio de Santo Cristo de Burgos",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Colegio de Sto. Domingo de Silos",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Colegio de Sto. Niño de Cabuyao",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Colegio ng Lungsod ng Batangas",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Colegio San Agustin-Biñan",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "College of Arts & Sciences of Asia and the Pacific",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "College of Saint John Paul II Arts And Sciences",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "College of San Benildo-Rizal",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "CSTC College of Sciences, Technology and Communications-Atimonan",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "CSTC College of Sciences, Technology and Communications-Sariaya",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "CVE Colleges",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Daehan College of Business and Technology",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Dalubhasaan ng Lungsod ng Lucena",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Dalubhasaan ng Lunsod ng San Pablo",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Datacom Institute of Computer Technology NEW",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "De La Salle Lipa",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "De La Salle Medical and Health Sciences Institute",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "De La Salle University-Dasmariñas",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "De La Salle-Canlubang",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "De La Salle-College of Saint Benilde-Antipolo",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "De La Salle-College of Saint Benilde-Antipolo (formerly La Salle College Antipolo Foundation)",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Deaf Evangelistic Alliance Foundation",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Divine Word Seminary",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Dominican College Sta. Rosa",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Don Bosco College",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Dr. Francisco L. Calingasan Memorial Colleges Foundation",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "East Systems Colleges of Rizal",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Eastern Quezon College",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Eastern Star Academy",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Eastern Tayabas College",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Ebenezer International Colleges",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Emilio Aguinaldo College",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Eulogio \"Amang\" Rodriguez Institute of Science and Technology-Cavite 13056a",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Evangelical Theological College of the Philippines-Luzon",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Far East Asia Pacific Institute of Tourism Science and Technology",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Far Eastern Polytechnic College",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "FCD Central Institute",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "FEU Cavite",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "FEU Roosevelt",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "First Asia Institute of Technology and Humanities",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "First Industrial Science and Technology College",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Gardner College Cainta",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "General Trias College of Cavite",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Golden Gate Colleges",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Grabsum School",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Grain of Wheat College",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Granby Colleges of Science and Technology",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Guang Ming College",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Guardians Bona Fide for Hope Foundation",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Guinayangan College Foundation",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Harris Memorial College",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Holy Child Jesus College",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "ICCT Colleges-Antipolo",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "ICCT Colleges-Binangonan",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "ICCT Colleges-Cainta",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "ICCT Colleges-San Mateo",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "ICCT Colleges-Taytay",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "ICT-ED Institute of Science and Technology",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "IETI College of Science and Technology",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Immaculate Conception College of Balayan",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Immanuel Theological Seminary",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Imus Institute of Science and Technology",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Informatics College Cavite",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Inter-Global College Foundation",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "International Christian College of Manila",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "International Electronics and Technical Institute (Calamba)",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "International Peace Leadership College",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "ISHRM School System-Bacoor",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Jesus Reigns Christian College-Amadeo Foundation",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Kolehiyo ng Lungsod ng Dasmariñas",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Kolehiyo ng Lungsod ng Lipa",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Kurios Christian Colleges Foundation",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "La Consolacion College Biñan",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "La Consolacion College Tanauan",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Laguna College",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Laguna College of Business and Arts",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Laguna Maritime Arts and Business Colleges",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Laguna Northwestern College",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Laguna Northwestern College - SLRMC",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Laguna Science and Technology College",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Laguna State Polytechnic University-Los Baños",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Laguna State Polytechnic University-San Pablo City",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Laguna State Polytechnic University-Siniloan",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Laguna State Polytechnic University-Sta. Cruz",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Laguna University",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Lake Shore Educational Institution NEW",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Lemery Colleges",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Leon Guinto Memorial College",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Lipa City Colleges",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "LNC Corinthian Center",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "LPU-St. Cabrini School of Health Sciences",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Lyceum de San Pablo",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Lyceum of Southern Luzon",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Lyceum of the Philippines University-Batangas",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Lyceum of the Philippines University-Batangas (formerly Lyceum of Batangas)",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Lyceum of the Philippines-Cavite",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Lyceum of the Philippines-Laguna",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Lyceum of Tingloy de San Roque NEW",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Lyceum Technological College",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Mabini College of Batangas",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Magna Anima Teachers College",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Manila Montessori College-Biñan NEW",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Manuel S. Enverga Institute Foundation-San Antonio",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Manuel S. Enverga University Foundation-Calauag",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Manuel S. Enverga University Foundation-Candelaria",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Manuel S. Enverga University Foundation-Catanauan",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Manuel S. Enverga University Foundation-Lucena",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Mapua Malayan Colleges Laguna",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Marasigan Institute of Science and Technology (M.I.S.T.)",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Marcelino Fule Memorial College",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Mary Help of Christian College, Salesian Sisters",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Maryhill College",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Mater Redemptoris Collegium",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Mercado College",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Mind and Integrity College",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "MOL Magsaysay Maritime Academy",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Montessori Professional Colleges of Asia (MPCA Colleges)-Antipolo",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Montessori Professional Colleges of Asia (MPCA Colleges)-Imus",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Mount Carmel College-Baler NEW",
+        "region": "CALABARZON",
+        "province": "Aurora"
+    },
+    {
+        "name": "Mt. St. Aloysius Seminary",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "National Aviation Academy of the Philippines-Fernando Air Base",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "National College of Business and Arts-Taytay",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "National College of Science and Technology (NCST)",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "New Era University-Baras Campus",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "New Era University-Lipa",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "New Sinai School and Colleges Sta. Rosa",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Northern Quezon College",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Nova Schola Tanauan",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "NU Dasmariñas",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "NU Lipa",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "NU Sports Academy",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "NYK-TDG Maritime Academy",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Oblates of Saint Joseph College of Philosophy",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Olinsterg College",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Olivarez College-Tagaytay",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "One Cainta College",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Our Lady of Assumption College of Laguna",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Our Lady of Assumption College-Cabuyao",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Our Lady of Fatima University-Antipolo",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Our Lady of Fatima University-Laguna",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Our Lady of La Salette College Seminary",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Our Lady of Lourdes Seminary",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Our Lady of the Most Holy Rosary Seminary",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Oxfordian Colleges",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Padre Garcia Polytechnic CollegePadre Garcia Polytechnic College NEW",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Paete Science and Business College",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Paete Science and Business College (formerly Eastern Laguna Colleges)",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Pamantasan ng Cabuyao",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Pambayang Kolehiyo ng Mauban",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Paul College of Leadership",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Philippine Best Training Systems Colleges",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Philippine Christian University-Cavite",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Philippine International College",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Philippine Missionary Institute",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Philippine National Police Academy",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Philippine Normal University-Lopez",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Philippine Technological Institute of Science Arts and Trade-Central",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Philippine Women's University Career Development and Continuing Education Center-Sta. Cruz",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "PIMSAT Colleges-Bacoor",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "PIMSAT Colleges-Bacoor NEW",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "PNTC Colleges",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Polytechnic University of the Philippines-Alfonso 13155q",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Polytechnic University of the Philippines-Biñan 13155k",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Polytechnic University of the Philippines-Calauan 13155j",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Polytechnic University of the Philippines-General Luna, Quezon 13155l",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Polytechnic University of the Philippines-Lopez",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Polytechnic University of the Philippines-Maragondon",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Polytechnic University of the Philippines-Mulanay",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Polytechnic University of the Philippines-San Pedro 13155b",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Polytechnic University of the Philippines-Sta. Rosa 13155f",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Polytechnic University of the Philippines-Sto. Tomas",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Polytechnic University of the Philippines-Unisan",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Power School of Technology",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "PTS College and Advanced Studies",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "PWU CDCEC Calamba",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "QCRS College",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Quezonian Educational College",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Red Link Institute of Science & Technology",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Renaissance School of Science and Technology",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Rizal College of Laguna",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Rizal College of Taal",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Rogationist College",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Royal British College",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Sacred Heart College of Lucena City",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Saint Benilde International School-Calamba",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Saint Francis Institute of Computer Studies",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Saint Francis of Assisi College-Cavite",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Saint Joseph College of Rosario Batangas",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Saint Michael's College of Laguna",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Saint Paul Seminary",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Saint Peter's School (Calauag)",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Saints John and Paul Educational Foundation",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Samuel Christian College of General Trias",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "San Antonio de Padua College",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "San Francisco Municipal College NEW",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "San Ildefonso College",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "San Mateo Municipal College",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "San Pablo Colleges",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "San Pedro College of Business Administration",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "San Sebastian College-Recoletos - Canlubang",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "San Sebastian College-Recoletos de Cavite",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Sapphire International Aviation Academy",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Siena College of Taytay",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Skill Power Institute",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "South Forbes City College",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Southbay Montessori School and Colleges",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Southdale International School of Science, Arts and Technology",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Southeast Asia Interdisciplinary Development Institute",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Southern Luzon College NEW",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Southern Luzon College of Business Maritime, Science and Technology",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Southern Luzon State University",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Southern Luzon State University-Alabat",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Southern Luzon State University-Catanauan",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Southern Luzon State University-Gumaca",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Southern Luzon State University-Infanta",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Southern Luzon State University-Lucena",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Southern Luzon State University-Polillo",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Southern Luzon State University-Tagkawayan",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Southern Luzon State University-Tayabas",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Southern Luzon State University-Tiaong",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Southern Philippines Institute of Science and Technology",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "St. Alphonsus School of Theology",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "St. Anne College Lucena",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "St. Augustine School of Nursing-Lipa",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "St. Augustine School of Nursing-Lucena",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "St. Bridget College",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "St. Dominic College of Asia",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "St. Dominic Savio College NEW",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "St. Francis de Sales Major Seminary",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "St. Francis de Sales Theological Seminary",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "St. Ignatius Technical Institute of Business and Arts-Biñan",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "St. Ignatius Technical Institute of Business and Arts-Cabuyao",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "St. Ignatius Technical Institute of Business and Arts-Sta. Rosa",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "St. John Bosco College of Tayabas",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "St. John Colleges",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "St. Joseph College of Cavite",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "St. Joseph's College of Rodriguez",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "St. Jude College Dasmariñas Cavite",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "St. Louis Anne Colleges of San Pedro",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "St. Mary Magdalene Colleges of Laguna",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "St. Matthew College",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "St. Peregrine Institute",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "St. Peter's College Seminary",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "St. Therese College of Arts and Sciences",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "St. Vincent College of Cabuyao",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Sta. Teresa College",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "STI College Bacoor",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "STI College Balayan",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "STI College Batangas",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "STI College Calamba",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "STI College Carmona",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "STI College Dasmariñas",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "STI College Lipa",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "STI College Lucena",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "STI College Ortigas-Cainta",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "STI College Rosario",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "STI College San Pablo",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "STI College Santa Rosa",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "STI College Sta. Cruz",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "STI College Tagaytay",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "STI College Tanauan",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "STI College Tanay",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Sumulong College of Arts & Sciences (SCAS)",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Tanauan City College",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Tanauan Institute",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "Tayabas Western Academy",
+        "region": "CALABARZON",
+        "province": "Quezon"
+    },
+    {
+        "name": "Technological University of the Philippines-Cavite",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Teodoro M. Luansing College of Rosario",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "The Bearer of Light and Wisdom Colleges",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Tomas Claudio Colleges",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Trace College",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Trece Martires City College",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Trent Information First Technical Career Institute",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Trimex Colleges",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Unciano Colleges",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Unida Christian Colleges",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Union College of Laguna",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "University of Batangas",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "University of Batangas-Lipa",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "University of Perpetual Help System Dalta-Calamba",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "University of Perpetual Help System Dalta-Molino",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "University of Perpetual Help System-Dr. Jose G. Tamayo Medical University",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "University of Perpetual Help System-GMA",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "University of Perpetual Help System-Laguna",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "University of Rizal System",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "University of Rizal System-Angono",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "University of Rizal System-Antipolo",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "University of Rizal System-Binangonan",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "University of Rizal System-Cainta",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "University of Rizal System-Cardona",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "University of Rizal System-Morong",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "University of Rizal System-Pililla",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "University of Rizal System-Rodriguez",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "University of Rizal System-Taytay",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "University of the Philippines-Los Baños",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "University of the Philippines-Open University",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Victory Elijah Christian College",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "West Point College-Magallanes",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Westbridge Institute of Technology-Cabuyao",
+        "region": "CALABARZON",
+        "province": "Laguna"
+    },
+    {
+        "name": "Westbridge Institute of Technology-San Mateo NEW",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    },
+    {
+        "name": "Western Colleges",
+        "region": "CALABARZON",
+        "province": "Cavite"
+    },
+    {
+        "name": "Westmead International School",
+        "region": "CALABARZON",
+        "province": "Batangas"
+    },
+    {
+        "name": "World Citi Colleges-Antipolo City",
+        "region": "CALABARZON",
+        "province": "Rizal"
+    }
+]

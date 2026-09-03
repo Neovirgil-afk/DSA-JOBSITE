@@ -1,0 +1,852 @@
+[
+  {
+    "name": "Agoncillo, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Alitagtag, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Balayan, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Balete, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Batangas City, Batangas",
+    "type": "City",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Bauan, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Calaca, Batangas",
+    "type": "City",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Calatagan, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Cuenca, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Ibaan, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Laurel, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Lemery, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Lian, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Lipa, Batangas",
+    "type": "City",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Lobo, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Mabini, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Malvar, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Mataasnakahoy, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Nasugbu, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Padre Garcia, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Rosario, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "San Jose, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "San Juan, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "San Luis, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "San Nicolas, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "San Pascual, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Santa Teresita, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Sto. Tomas, Batangas",
+    "type": "City",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Taal, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Talisay, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Tanauan, Batangas",
+    "type": "City",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Taysan, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Tingloy, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Tuy, Batangas",
+    "type": "Municipality",
+    "province": "Batangas",
+    "region": "CALABARZON"
+  },
+
+  {
+    "name": "Alfonso, Cavite",
+    "type": "Municipality",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Amadeo, Cavite",
+    "type": "Municipality",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Bacoor, Cavite",
+    "type": "City",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Carmona, Cavite",
+    "type": "City",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Cavite City, Cavite",
+    "type": "City",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Dasmariñas, Cavite",
+    "type": "City",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "General Emilio Aguinaldo, Cavite",
+    "type": "Municipality",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "General Trias, Cavite",
+    "type": "City",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Gen. Mariano Alvarez, Cavite",
+    "type": "Municipality",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Indang, Cavite",
+    "type": "Municipality",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Imus, Cavite",
+    "type": "City",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Kawit, Cavite",
+    "type": "Municipality",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Magallanes, Cavite",
+    "type": "Municipality",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Maragondon, Cavite",
+    "type": "Municipality",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Mendez, Cavite",
+    "type": "Municipality",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Naic, Cavite",
+    "type": "Municipality",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Noveleta, Cavite",
+    "type": "Municipality",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Rosario, Cavite",
+    "type": "Municipality",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Silang, Cavite",
+    "type": "Municipality",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Tagaytay, Cavite",
+    "type": "City",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Tanza, Cavite",
+    "type": "Municipality",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Ternate, Cavite",
+    "type": "Municipality",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Trece Martires, Cavite",
+    "type": "City",
+    "province": "Cavite",
+    "region": "CALABARZON"
+  },
+
+  {
+    "name": "Alaminos, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Bay, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Biñan, Laguna",
+    "type": "City",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Cabuyao, Laguna",
+    "type": "City",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Calamba, Laguna",
+    "type": "City",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Calauan, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Cavinti, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Famy, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Kalayaan, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Liliw, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Los Baños, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Luisiana, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Lumban, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Mabitac, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Magdalena, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Majayjay, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Nagcarlan, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Paete, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Pagsanjan, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Pakil, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Pangil, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Pila, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Rizal, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "San Pablo, Laguna",
+    "type": "City",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Santa Cruz, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Santa Maria, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Santa Rosa, Laguna",
+    "type": "City",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Siniloan, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Victoria, Laguna",
+    "type": "Municipality",
+    "province": "Laguna",
+    "region": "CALABARZON"
+  },
+
+  {
+    "name": "Agdangan, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Alabat, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Atimonan, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Buenavista, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Burdeos, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Calauag, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Candelaria, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Catanauan, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Dolores, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "General Luna, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "General Nakar, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Guinayangan, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Gumaca, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Infanta, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Jomalig, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Lopez, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Lucban, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Lucena, Quezon",
+    "type": "City",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Macalelon, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Mauban, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Mulanay, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Padre Burgos, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Pagbilao, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Panukulan, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Patnanungan, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Perez, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Pitogo, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Plaridel, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Polillo, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Quezon, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Real, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Sampaloc, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "San Andres, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "San Antonio, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "San Francisco, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "San Narciso, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Sariaya, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Tagkawayan, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Tayabas, Quezon",
+    "type": "City",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Tiaong, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Unisan, Quezon",
+    "type": "Municipality",
+    "province": "Quezon",
+    "region": "CALABARZON"
+  },
+
+  {
+    "name": "Angono, Rizal",
+    "type": "Municipality",
+    "province": "Rizal",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Antipolo, Rizal",
+    "type": "City",
+    "province": "Rizal",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Baras, Rizal",
+    "type": "Municipality",
+    "province": "Rizal",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Binangonan, Rizal",
+    "type": "Municipality",
+    "province": "Rizal",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Cainta, Rizal",
+    "type": "Municipality",
+    "province": "Rizal",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Cardona, Rizal",
+    "type": "Municipality",
+    "province": "Rizal",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Jala-Jala, Rizal",
+    "type": "Municipality",
+    "province": "Rizal",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Rodriguez, Rizal",
+    "type": "Municipality",
+    "province": "Rizal",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Morong, Rizal",
+    "type": "Municipality",
+    "province": "Rizal",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Pililla, Rizal",
+    "type": "Municipality",
+    "province": "Rizal",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "San Mateo, Rizal",
+    "type": "Municipality",
+    "province": "Rizal",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Tanay, Rizal",
+    "type": "Municipality",
+    "province": "Rizal",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Taytay, Rizal",
+    "type": "Municipality",
+    "province": "Rizal",
+    "region": "CALABARZON"
+  },
+  {
+    "name": "Teresa, Rizal",
+    "type": "Municipality",
+    "province": "Rizal",
+    "region": "CALABARZON"
+  }
+]
