@@ -352,4 +352,326 @@ router.get('/me', (req, res) => {
 });
 
 
+/* =========================================================
+   GET ALL SKILLS
+   ========================================================= */
+
+/*
+    Used by the Profile page/modal.
+
+    We get the skills directly from the existing
+    skills table instead of creating another skill list.
+*/
+
+router.get('/skills', (req, res) => {
+
+    try {
+
+        const skills =
+            db.prepare(`
+                SELECT
+                    id,
+                    name,
+                    category
+                FROM skills
+                ORDER BY category ASC, name ASC
+            `).all();
+
+
+        res.json({
+            success: true,
+            skills
+        });
+
+
+    } catch (err) {
+
+        console.error(
+            '[GET /api/auth/skills] error:',
+            err
+        );
+
+
+        res.status(500).json({
+            error:
+                'Failed to load skills.'
+        });
+
+    }
+
+});
+
+
+/* =========================================================
+   GET PROFILE
+   ========================================================= */
+
+router.get('/profile', (req, res) => {
+
+    try {
+
+        if (!req.session.userId) {
+
+            return res.status(401).json({
+                error:
+                    'Not logged in.'
+            });
+
+        }
+
+
+        /* ---------- USER INFORMATION ---------- */
+
+        const user =
+            db.prepare(`
+                SELECT
+                    id,
+                    full_name,
+                    email,
+                    education,
+                    degree,
+                    target_job,
+                    location
+                FROM users
+                WHERE id = ?
+            `).get(
+                req.session.userId
+            );
+
+
+        if (!user) {
+
+            return res.status(401).json({
+                error:
+                    'Not logged in.'
+            });
+
+        }
+
+
+        /* ---------- USER SKILLS ---------- */
+
+        const skills =
+            db.prepare(`
+                SELECT
+                    s.id,
+                    s.name,
+                    s.category,
+                    us.source
+                FROM user_skills us
+                JOIN skills s
+                    ON s.id = us.skill_id
+                WHERE us.user_id = ?
+                ORDER BY s.category ASC, s.name ASC
+            `).all(
+                req.session.userId
+            );
+
+
+        /* ---------- RESPONSE ---------- */
+
+        res.json({
+
+            success: true,
+
+            profile: {
+                ...user,
+                skills
+            }
+
+        });
+
+
+    } catch (err) {
+
+        console.error(
+            '[GET /api/auth/profile] error:',
+            err
+        );
+
+
+        res.status(500).json({
+            error:
+                'Failed to load profile.'
+        });
+
+    }
+
+});
+
+
+/* =========================================================
+   SAVE PROFILE SKILLS
+   ========================================================= */
+
+router.put('/profile/skills', (req, res) => {
+
+    try {
+
+        if (!req.session.userId) {
+
+            return res.status(401).json({
+                error:
+                    'Not logged in.'
+            });
+
+        }
+
+
+        const {
+            skillIds
+        } = req.body;
+
+
+        /* ---------- VALIDATE INPUT ---------- */
+
+        if (!Array.isArray(skillIds)) {
+
+            return res.status(400).json({
+                error:
+                    'skillIds must be an array.'
+            });
+
+        }
+
+
+        /* ---------- CLEAN SKILL IDS ---------- */
+
+        const cleanedSkillIds =
+            [
+                ...new Set(
+                    skillIds
+                        .map(
+                            (id) => Number(id)
+                        )
+                        .filter(
+                            (id) =>
+                                Number.isInteger(id) &&
+                                id > 0
+                        )
+                )
+            ];
+
+
+        /* ---------- VERIFY SKILLS EXIST ---------- */
+
+        const validSkills =
+            cleanedSkillIds.length
+                ? db.prepare(`
+                    SELECT id
+                    FROM skills
+                    WHERE id IN (
+                        ${cleanedSkillIds
+                            .map(() => '?')
+                            .join(', ')}
+                    )
+                `).all(
+                    ...cleanedSkillIds
+                )
+                : [];
+
+
+        const validSkillIds =
+            new Set(
+                validSkills.map(
+                    (skill) => skill.id
+                )
+            );
+
+
+        /* =================================================
+           TRANSACTION
+
+           Replace the user's current manual skills with
+           the newly selected skills.
+           ================================================= */
+
+        const transaction =
+            db.transaction(() => {
+
+                /* ---------- REMOVE OLD SKILLS ---------- */
+
+                db.prepare(`
+                    DELETE FROM user_skills
+                    WHERE user_id = ?
+                `).run(
+                    req.session.userId
+                );
+
+
+                /* ---------- INSERT NEW SKILLS ---------- */
+
+                const insert =
+                    db.prepare(`
+                        INSERT INTO user_skills (
+                            user_id,
+                            skill_id,
+                            source
+                        )
+                        VALUES (?, ?, 'manual')
+                    `);
+
+
+                for (const skillId of validSkillIds) {
+
+                    insert.run(
+                        req.session.userId,
+                        skillId
+                    );
+
+                }
+
+            });
+
+
+        transaction();
+
+
+        /* ---------- RETURN SAVED SKILLS ---------- */
+
+        const savedSkills =
+            db.prepare(`
+                SELECT
+                    s.id,
+                    s.name,
+                    s.category,
+                    us.source
+                FROM user_skills us
+                JOIN skills s
+                    ON s.id = us.skill_id
+                WHERE us.user_id = ?
+                ORDER BY s.category ASC, s.name ASC
+            `).all(
+                req.session.userId
+            );
+
+
+        res.json({
+
+            success: true,
+
+            skills:
+                savedSkills
+
+        });
+
+
+    } catch (err) {
+
+        console.error(
+            '[PUT /api/auth/profile/skills] error:',
+            err
+        );
+
+
+        res.status(500).json({
+            error:
+                'Failed to save profile skills.'
+        });
+
+    }
+
+});
+
+
 module.exports = router;

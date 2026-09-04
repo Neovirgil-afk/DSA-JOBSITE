@@ -69,7 +69,9 @@ export function initAuth() {
                     id="authForm"
                 >
 
-                    <!-- SIGNUP STEP 1 -->
+                    <!-- =========================================
+                         SIGNUP STEP 1
+                         ========================================= -->
 
                     <div
                         id="signupStep1"
@@ -122,7 +124,7 @@ export function initAuth() {
                                 id="authPassword"
                                 name="password"
                                 placeholder="Enter your password"
-                                autocomplete="current-password"
+                                autocomplete="new-password"
                                 required
                             />
 
@@ -148,12 +150,16 @@ export function initAuth() {
                     </div>
 
 
-                    <!-- SIGNUP STEP 2 -->
+                    <!-- =========================================
+                         SIGNUP STEP 2
+                         ========================================= -->
 
                     <div
                         id="signupStep2"
                         style="display: none;"
                     >
+
+                        <!-- EDUCATION -->
 
                         <div
                             class="auth-field autocomplete-field"
@@ -181,6 +187,8 @@ export function initAuth() {
                         </div>
 
 
+                        <!-- DEGREE -->
+
                         <div
                             class="auth-field autocomplete-field"
                             id="degreeAutocomplete"
@@ -206,6 +214,8 @@ export function initAuth() {
 
                         </div>
 
+
+                        <!-- TARGET JOB -->
 
                         <div
                             class="auth-field autocomplete-field"
@@ -234,7 +244,7 @@ export function initAuth() {
                         </div>
 
 
-                        <!-- LOCATION AUTOCOMPLETE -->
+                        <!-- LOCATION -->
 
                         <div
                             class="auth-field autocomplete-field"
@@ -284,7 +294,9 @@ export function initAuth() {
                     </div>
 
 
-                    <!-- LOGIN -->
+                    <!-- =========================================
+                         LOGIN
+                         ========================================= -->
 
                     <div id="loginFields">
 
@@ -322,11 +334,15 @@ export function initAuth() {
                     </div>
 
 
+                    <!-- MESSAGE -->
+
                     <div
                         class="auth-message"
                         id="authMessage"
                     ></div>
 
+
+                    <!-- SUBMIT -->
 
                     <button
                         type="submit"
@@ -338,6 +354,8 @@ export function initAuth() {
 
                 </form>
 
+
+                <!-- SWITCH LOGIN / SIGNUP -->
 
                 <p class="auth-switch">
 
@@ -355,10 +373,13 @@ export function initAuth() {
                 </p>
 
             </div>
+
         `;
 
 
-        document.body.appendChild(overlay);
+        document.body.appendChild(
+            overlay
+        );
     }
 
 
@@ -370,104 +391,166 @@ export function initAuth() {
        ===================================================== */
 
     const overlay =
-        document.querySelector('#authOverlay');
+        document.querySelector(
+            '#authOverlay'
+        );
+
 
     const closeButton =
-        document.querySelector('#authClose');
+        document.querySelector(
+            '#authClose'
+        );
+
 
     const form =
-        document.querySelector('#authForm');
+        document.querySelector(
+            '#authForm'
+        );
+
 
     const title =
-        document.querySelector('#authTitle');
+        document.querySelector(
+            '#authTitle'
+        );
+
 
     const subtitle =
-        document.querySelector('#authSubtitle');
+        document.querySelector(
+            '#authSubtitle'
+        );
+
 
     const submitButton =
-        document.querySelector('#authSubmit');
+        document.querySelector(
+            '#authSubmit'
+        );
+
 
     const switchButton =
-        document.querySelector('#authSwitch');
+        document.querySelector(
+            '#authSwitch'
+        );
+
 
     const switchText =
-        document.querySelector('#authSwitchText');
+        document.querySelector(
+            '#authSwitchText'
+        );
+
+
+    const switchContainer =
+        switchButton.closest(
+            '.auth-switch'
+        );
+
 
     const signupStep1 =
-        document.querySelector('#signupStep1');
+        document.querySelector(
+            '#signupStep1'
+        );
+
 
     const signupStep2 =
-        document.querySelector('#signupStep2');
+        document.querySelector(
+            '#signupStep2'
+        );
+
 
     const loginFields =
-        document.querySelector('#loginFields');
+        document.querySelector(
+            '#loginFields'
+        );
+
 
     const signupBack =
-        document.querySelector('#signupBack');
+        document.querySelector(
+            '#signupBack'
+        );
+
 
     const fullName =
-        document.querySelector('#authFullName');
+        document.querySelector(
+            '#authFullName'
+        );
+
 
     const signupEmail =
-        document.querySelector('#authEmail');
+        document.querySelector(
+            '#authEmail'
+        );
+
 
     const password =
-        document.querySelector('#authPassword');
+        document.querySelector(
+            '#authPassword'
+        );
+
 
     const confirmPassword =
         document.querySelector(
             '#authConfirmPassword'
         );
 
+
     const loginEmail =
         document.querySelector(
             '#authEmailLogin'
         );
+
 
     const loginPassword =
         document.querySelector(
             '#authPasswordLogin'
         );
 
+
     const education =
         document.querySelector(
             '#authEducation'
         );
+
 
     const degree =
         document.querySelector(
             '#authDegree'
         );
 
+
     const targetJob =
         document.querySelector(
             '#authTargetJob'
         );
+
 
     const locationInput =
         document.querySelector(
             '#authLocation'
         );
 
+
     const schoolResults =
         document.querySelector(
             '#schoolResults'
         );
+
 
     const degreeResults =
         document.querySelector(
             '#degreeResults'
         );
 
+
     const jobResults =
         document.querySelector(
             '#jobResults'
         );
 
+
     const locationResults =
         document.querySelector(
             '#locationResults'
         );
+
 
     const message =
         document.querySelector(
@@ -482,17 +565,26 @@ export function initAuth() {
     let authMode =
         'login';
 
+
+    let isAuthenticated =
+        false;
+
+
     let signupStep =
         1;
+
 
     let schools =
         [];
 
+
     let degrees =
         [];
 
+
     let jobs =
         [];
+
 
     let locations =
         [];
@@ -510,6 +602,7 @@ export function initAuth() {
         message.textContent =
             text;
 
+
         message.className =
             `auth-message show ${type}`;
     }
@@ -519,6 +612,7 @@ export function initAuth() {
 
         message.textContent =
             '';
+
 
         message.className =
             'auth-message';
@@ -533,6 +627,10 @@ export function initAuth() {
 
         try {
 
+            /* ---------------------------------------------
+               SCHOOLS
+               --------------------------------------------- */
+
             const schoolResponse =
                 await fetch(
                     '/api/reference/schools'
@@ -540,6 +638,7 @@ export function initAuth() {
 
 
             if (!schoolResponse.ok) {
+
                 throw new Error(
                     'Failed to load schools.'
                 );
@@ -562,6 +661,10 @@ export function initAuth() {
             }
 
 
+            /* ---------------------------------------------
+               DEGREES
+               --------------------------------------------- */
+
             const degreeResponse =
                 await fetch(
                     '/api/reference/degrees'
@@ -569,6 +672,7 @@ export function initAuth() {
 
 
             if (!degreeResponse.ok) {
+
                 throw new Error(
                     'Failed to load degrees.'
                 );
@@ -592,7 +696,7 @@ export function initAuth() {
 
 
             /* ---------------------------------------------
-               LOAD LOCATIONS
+               LOCATIONS
                --------------------------------------------- */
 
             const locationResponse =
@@ -602,6 +706,7 @@ export function initAuth() {
 
 
             if (!locationResponse.ok) {
+
                 throw new Error(
                     'Failed to load locations.'
                 );
@@ -641,6 +746,7 @@ export function initAuth() {
                 locations.length
             );
 
+
         } catch (error) {
 
             console.error(
@@ -659,20 +765,26 @@ export function initAuth() {
         selectedDegree
     ) {
 
-        jobs = [];
+        jobs =
+            [];
+
 
         targetJob.value =
             '';
 
+
         targetJob.disabled =
             true;
+
 
         targetJob.placeholder =
             'Loading related jobs...';
 
+
         jobResults.classList.remove(
             'show'
         );
+
 
         jobResults.innerHTML =
             '';
@@ -720,7 +832,9 @@ export function initAuth() {
 
 
             jobs =
-                Array.isArray(data.jobs)
+                Array.isArray(
+                    data.jobs
+                )
                     ? data.jobs
                     : [];
 
@@ -742,6 +856,7 @@ export function initAuth() {
                 selectedDegree
             );
 
+
         } catch (error) {
 
             console.error(
@@ -753,6 +868,7 @@ export function initAuth() {
             targetJob.disabled =
                 false;
 
+
             targetJob.placeholder =
                 'Search target job...';
         }
@@ -760,60 +876,84 @@ export function initAuth() {
 
 
     /* =====================================================
-       SET SIGNUP STEP
+       SIGNUP STEP
        ===================================================== */
 
-    function showSignupStep(step) {
+    function showSignupStep(
+        step
+    ) {
 
         signupStep =
             step;
 
+
         clearMessage();
 
+        switchContainer?.classList.remove(
+            'auth-switch--already-signed-in'
+        );
 
-        if (step === 1) {
+
+        if (
+            step === 1
+        ) {
 
             signupStep1.style.display =
                 'block';
 
+
             signupStep2.style.display =
                 'none';
+
 
             title.textContent =
                 'Create your account';
 
+
             subtitle.textContent =
                 'Sign up and start building your future.';
+
 
             submitButton.textContent =
                 'Continue';
 
 
-            setTimeout(() => {
-                fullName.focus();
-            }, 50);
+            setTimeout(
+                () => {
+                    fullName.focus();
+                },
+                50
+            );
+
 
         } else {
 
             signupStep1.style.display =
                 'none';
 
+
             signupStep2.style.display =
                 'block';
+
 
             title.textContent =
                 'Tell us about yourself';
 
+
             subtitle.textContent =
                 'Help us personalize your career path.';
+
 
             submitButton.textContent =
                 'Sign Up';
 
 
-            setTimeout(() => {
-                education.focus();
-            }, 50);
+            setTimeout(
+                () => {
+                    education.focus();
+                },
+                50
+            );
         }
 
 
@@ -826,64 +966,91 @@ export function initAuth() {
        SET AUTH MODE
        ===================================================== */
 
-    function setAuthMode(mode) {
+    function setAuthMode(
+        mode
+    ) {
 
         authMode =
             mode;
 
+
         clearMessage();
 
+        switchButton.style.display =
+            'inline';
+
+        submitButton.style.display =
+            'inline-flex';
+
+
         form.reset();
+
 
         signupStep =
             1;
 
+
         jobs =
             [];
+
 
         targetJob.disabled =
             true;
 
+
         targetJob.placeholder =
             'Select your degree first...';
+
 
         jobResults.classList.remove(
             'show'
         );
 
+
         jobResults.innerHTML =
             '';
+
 
         locationResults.classList.remove(
             'show'
         );
 
+
         locationResults.innerHTML =
             '';
 
 
-        if (mode === 'login') {
+        if (
+            mode === 'login'
+        ) {
 
             title.textContent =
                 'Log In';
 
+
             subtitle.textContent =
                 'Welcome back! Log in to continue.';
+
 
             submitButton.textContent =
                 'Log In';
 
+
             switchText.textContent =
                 "Don't have an account?";
+
 
             switchButton.textContent =
                 'Sign Up';
 
+
             loginFields.style.display =
                 'block';
 
+
             signupStep1.style.display =
                 'none';
+
 
             signupStep2.style.display =
                 'none';
@@ -892,45 +1059,60 @@ export function initAuth() {
             loginEmail.required =
                 true;
 
+
             loginPassword.required =
                 true;
+
 
             fullName.required =
                 false;
 
+
             signupEmail.required =
                 false;
+
 
             password.required =
                 false;
 
+
             confirmPassword.required =
                 false;
+
 
             education.required =
                 false;
 
+
             degree.required =
                 false;
 
+
             targetJob.required =
                 false;
+
 
             locationInput.required =
                 false;
 
 
-            setTimeout(() => {
-                loginEmail.focus();
-            }, 50);
+            setTimeout(
+                () => {
+                    loginEmail.focus();
+                },
+                50
+            );
+
 
         } else {
 
             switchText.textContent =
                 'Already have an account?';
 
+
             switchButton.textContent =
                 'Log In';
+
 
             loginFields.style.display =
                 'none';
@@ -939,53 +1121,122 @@ export function initAuth() {
             loginEmail.required =
                 false;
 
+
             loginPassword.required =
                 false;
+
 
             fullName.required =
                 true;
 
+
             signupEmail.required =
                 true;
+
 
             password.required =
                 true;
 
+
             confirmPassword.required =
                 true;
+
 
             education.required =
                 false;
 
+
             degree.required =
                 false;
 
+
             targetJob.required =
                 false;
+
 
             locationInput.required =
                 false;
 
 
-            showSignupStep(1);
+            showSignupStep(
+                1
+            );
         }
     }
 
 
     /* =====================================================
-       OPEN / CLOSE
+       OPEN / CLOSE AUTH
        ===================================================== */
 
-    function openAuth(mode = 'login') {
+    function openAuth(
+        mode = 'login'
+    ) {
 
-        setAuthMode(mode);
+        if (
+            mode === 'signup' &&
+            isAuthenticated
+        ) {
+            showAlreadySignedIn();
+
+            overlay.classList.add(
+                'active'
+            );
+
+            document.body.style.overflow =
+                'hidden';
+
+            return;
+        }
+
+        setAuthMode(
+            mode
+        );
+
 
         overlay.classList.add(
             'active'
         );
 
+
         document.body.style.overflow =
             'hidden';
+    }
+
+
+    function showAlreadySignedIn() {
+        setAuthMode('login');
+
+        title.textContent =
+            'You\'re already signed in';
+
+        subtitle.textContent =
+            'You\'re already signed in and ready to use JOBSITE.';
+
+        loginFields.style.display =
+            'none';
+
+        signupStep1.style.display =
+            'none';
+
+        signupStep2.style.display =
+            'none';
+
+        submitButton.style.display =
+            'none';
+
+        switchText.textContent =
+            '';
+
+        switchButton.style.display =
+            'inline-flex';
+
+        switchButton.textContent =
+            'Let\'s go!';
+
+        switchContainer?.classList.add(
+            'auth-switch--already-signed-in'
+        );
     }
 
 
@@ -995,15 +1246,182 @@ export function initAuth() {
             'active'
         );
 
+
         document.body.style.overflow =
             '';
+
 
         clearMessage();
     }
 
 
     /* =====================================================
-       HEADER AFTER LOGIN
+       OPEN PROFILE PAGE
+       ===================================================== */
+
+    function openProfile() {
+
+        window.location.href =
+            '/profile.html';
+    }
+
+
+    /* =====================================================
+       NEW USER SKILL SETUP
+       ===================================================== */
+
+    function showNewUserSkillSetup() {
+
+        const alreadyShown =
+            sessionStorage.getItem(
+                'jobpath_skill_setup_shown'
+            );
+
+
+        if (
+            alreadyShown ===
+            'true'
+        ) {
+
+            return;
+        }
+
+
+        sessionStorage.setItem(
+            'jobpath_skill_setup_shown',
+            'true'
+        );
+
+
+        const setupOverlay =
+            document.createElement(
+                'div'
+            );
+
+
+        setupOverlay.id =
+            'skillSetupOverlay';
+
+
+        setupOverlay.className =
+            'auth-overlay';
+
+
+        setupOverlay.innerHTML = `
+
+            <div
+                class="auth-modal"
+                role="dialog"
+                aria-modal="true"
+                style="max-width: 500px;"
+            >
+
+                <div class="auth-header">
+
+                    <div class="auth-accent"></div>
+
+                    <h2>
+                        Welcome to JobPath! 👋
+                    </h2>
+
+                    <p>
+                        Add your skills so we can personalize
+                        your job recommendations.
+                    </p>
+
+                </div>
+
+
+                <div
+                    style="
+                        display: grid;
+                        gap: 10px;
+                    "
+                >
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        id="setupSkillsNow"
+                    >
+                        Set Up My Skills
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="setupSkillsLater"
+                        style="
+                            border: none;
+                            background: none;
+                            color: #6B7280;
+                            font-family: inherit;
+                            font-size: 14px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            padding: 6px;
+                        "
+                    >
+                        Maybe Later
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        document.body.appendChild(
+            setupOverlay
+        );
+
+
+        document.body.style.overflow =
+            'hidden';
+
+
+        const laterButton =
+            setupOverlay.querySelector(
+                '#setupSkillsLater'
+            );
+
+
+        const setupButton =
+            setupOverlay.querySelector(
+                '#setupSkillsNow'
+            );
+
+
+        laterButton.addEventListener(
+            'click',
+            () => {
+
+                setupOverlay.remove();
+
+                document.body.style.overflow =
+                    '';
+            }
+        );
+
+
+        setupButton.addEventListener(
+            'click',
+            () => {
+
+                setupOverlay.remove();
+
+                document.body.style.overflow =
+                    '';
+
+                openProfile();
+            }
+        );
+    }
+
+
+    /* =====================================================
+       UPDATE HEADER AFTER LOGIN
        ===================================================== */
 
     function updateHeaderAfterLogin(
@@ -1017,6 +1435,7 @@ export function initAuth() {
 
 
         if (!actions) {
+
             return;
         }
 
@@ -1030,12 +1449,47 @@ export function initAuth() {
 
         actions.innerHTML = `
 
-            <span
-                class="login-link"
-                style="cursor: default;"
+            <button
+                type="button"
+                class="profile-header-button"
+                id="profileButton"
+                style="
+                    border: none;
+                    background: none;
+                    padding: 6px 10px;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    color: inherit;
+                    font-family: inherit;
+                    font-size: 14px;
+                    font-weight: 700;
+                    cursor: pointer;
+                "
             >
-                👋 ${name}
-            </span>
+
+                <span
+                    style="
+                        width: 34px;
+                        height: 34px;
+                        border-radius: 50%;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: #F3F4F6;
+                        font-size: 17px;
+                    "
+                >
+                    👤
+                </span>
+
+
+                <span>
+                    ${escapeHtml(name)}
+                </span>
+
+            </button>
+
 
             <button
                 type="button"
@@ -1046,6 +1500,21 @@ export function initAuth() {
             </button>
 
         `;
+
+
+        const profileButton =
+            document.querySelector(
+                '#profileButton'
+            );
+
+
+        if (profileButton) {
+
+            profileButton.addEventListener(
+                'click',
+                openProfile
+            );
+        }
 
 
         const logoutButton =
@@ -1079,10 +1548,49 @@ export function initAuth() {
                     }
 
 
+                    sessionStorage.removeItem(
+                        'jobpath_skill_setup_shown'
+                    );
+
+
                     location.reload();
                 }
             );
         }
+    }
+
+
+    /* =====================================================
+       ESCAPE HTML
+       ===================================================== */
+
+    function escapeHtml(
+        value
+    ) {
+
+        return String(
+            value ?? ''
+        )
+            .replaceAll(
+                '&',
+                '&amp;'
+            )
+            .replaceAll(
+                '<',
+                '&lt;'
+            )
+            .replaceAll(
+                '>',
+                '&gt;'
+            )
+            .replaceAll(
+                '"',
+                '&quot;'
+            )
+            .replaceAll(
+                "'",
+                '&#039;'
+            );
     }
 
 
@@ -1104,7 +1612,9 @@ export function initAuth() {
 
                 event.preventDefault();
 
-                openAuth('login');
+                openAuth(
+                    'login'
+                );
             }
         );
     }
@@ -1128,7 +1638,9 @@ export function initAuth() {
 
                 event.preventDefault();
 
-                openAuth('signup');
+                openAuth(
+                    'signup'
+                );
             }
         );
     }
@@ -1152,19 +1664,36 @@ export function initAuth() {
 
                 event.preventDefault();
 
-                openAuth('signup');
+                openAuth(
+                    'signup'
+                );
             }
         );
     }
 
 
+    window.addEventListener(
+        'jobpath:open-auth',
+        (event) => {
+            openAuth(
+                event.detail?.mode || 'login'
+            );
+        }
+    );
+
+
     /* =====================================================
-       SWITCH AUTH MODE
+       SWITCH LOGIN / SIGNUP
        ===================================================== */
 
     switchButton.addEventListener(
         'click',
         () => {
+
+            if (isAuthenticated) {
+                closeAuth();
+                return;
+            }
 
             setAuthMode(
                 authMode === 'login'
@@ -1183,7 +1712,9 @@ export function initAuth() {
         'click',
         () => {
 
-            showSignupStep(1);
+            showSignupStep(
+                1
+            );
         }
     );
 
@@ -1203,7 +1734,8 @@ export function initAuth() {
         (event) => {
 
             if (
-                event.target === overlay
+                event.target ===
+                overlay
             ) {
 
                 closeAuth();
@@ -1291,6 +1823,7 @@ export function initAuth() {
 
             event.preventDefault();
 
+
             clearMessage();
 
 
@@ -1306,11 +1839,14 @@ export function initAuth() {
                 const name =
                     fullName.value.trim();
 
+
                 const email =
                     signupEmail.value.trim();
 
+
                 const pass =
                     password.value;
+
 
                 const confirm =
                     confirmPassword.value;
@@ -1321,6 +1857,7 @@ export function initAuth() {
                     showMessage(
                         'Please enter your full name.'
                     );
+
 
                     fullName.focus();
 
@@ -1333,6 +1870,7 @@ export function initAuth() {
                     showMessage(
                         'Please enter your email.'
                     );
+
 
                     signupEmail.focus();
 
@@ -1348,6 +1886,7 @@ export function initAuth() {
                         'Please enter a valid email address.'
                     );
 
+
                     signupEmail.focus();
 
                     return;
@@ -1360,17 +1899,21 @@ export function initAuth() {
                         'Please enter a password.'
                     );
 
+
                     password.focus();
 
                     return;
                 }
 
 
-                if (pass.length < 6) {
+                if (
+                    pass.length < 6
+                ) {
 
                     showMessage(
                         'Password must be at least 6 characters.'
                     );
+
 
                     password.focus();
 
@@ -1384,25 +1927,32 @@ export function initAuth() {
                         'Please confirm your password.'
                     );
 
+
                     confirmPassword.focus();
 
                     return;
                 }
 
 
-                if (pass !== confirm) {
+                if (
+                    pass !== confirm
+                ) {
 
                     showMessage(
                         'Passwords do not match.'
                     );
 
+
                     confirmPassword.focus();
 
                     return;
                 }
 
 
-                showSignupStep(2);
+                showSignupStep(
+                    2
+                );
+
 
                 return;
             }
@@ -1417,11 +1967,14 @@ export function initAuth() {
                 signupStep === 2
             ) {
 
-                if (!education.value.trim()) {
+                if (
+                    !education.value.trim()
+                ) {
 
                     showMessage(
                         'Please enter your education.'
                     );
+
 
                     education.focus();
 
@@ -1429,11 +1982,14 @@ export function initAuth() {
                 }
 
 
-                if (!degree.value.trim()) {
+                if (
+                    !degree.value.trim()
+                ) {
 
                     showMessage(
                         'Please enter your degree.'
                     );
+
 
                     degree.focus();
 
@@ -1441,11 +1997,14 @@ export function initAuth() {
                 }
 
 
-                if (!targetJob.value.trim()) {
+                if (
+                    !targetJob.value.trim()
+                ) {
 
                     showMessage(
                         'Please enter your target job.'
                     );
+
 
                     targetJob.focus();
 
@@ -1453,11 +2012,14 @@ export function initAuth() {
                 }
 
 
-                if (!locationInput.value.trim()) {
+                if (
+                    !locationInput.value.trim()
+                ) {
 
                     showMessage(
                         'Please enter your location.'
                     );
+
 
                     locationInput.focus();
 
@@ -1491,7 +2053,13 @@ export function initAuth() {
                 let body;
 
 
-                if (authMode === 'login') {
+                /* -----------------------------------------
+                   LOGIN BODY
+                   ----------------------------------------- */
+
+                if (
+                    authMode === 'login'
+                ) {
 
                     body = {
 
@@ -1501,6 +2069,11 @@ export function initAuth() {
                         password:
                             loginPassword.value
                     };
+
+
+                /* -----------------------------------------
+                   SIGNUP BODY
+                   ----------------------------------------- */
 
                 } else {
 
@@ -1548,7 +2121,9 @@ export function initAuth() {
                                 'include',
 
                             body:
-                                JSON.stringify(body)
+                                JSON.stringify(
+                                    body
+                                )
                         }
                     );
 
@@ -1557,7 +2132,9 @@ export function initAuth() {
                     await response.json();
 
 
-                if (!response.ok) {
+                if (
+                    !response.ok
+                ) {
 
                     throw new Error(
                         data.message ||
@@ -1566,6 +2143,10 @@ export function initAuth() {
                     );
                 }
 
+
+                /* -----------------------------------------
+                   SUCCESS
+                   ----------------------------------------- */
 
                 showMessage(
                     authMode === 'login'
@@ -1579,15 +2160,34 @@ export function initAuth() {
                     'Success!';
 
 
-                setTimeout(() => {
+                setTimeout(
+                    () => {
 
-                    closeAuth();
+                        closeAuth();
 
-                    updateHeaderAfterLogin(
-                        data
-                    );
 
-                }, 700);
+                        updateHeaderAfterLogin(
+                            data
+                        );
+
+
+                        if (
+                            authMode ===
+                            'signup'
+                        ) {
+
+                            setTimeout(
+                                showNewUserSkillSetup,
+                                350
+                            );
+                        }
+
+                    },
+                    700
+                );
+
+                isAuthenticated =
+                    true;
 
 
             } catch (error) {
@@ -1606,33 +2206,40 @@ export function initAuth() {
 
             } finally {
 
-                setTimeout(() => {
+                setTimeout(
+                    () => {
 
-                    submitButton.disabled =
-                        false;
+                        submitButton.disabled =
+                            false;
 
 
-                    if (
-                        authMode === 'login'
-                    ) {
+                        if (
+                            authMode ===
+                            'login'
+                        ) {
 
-                        submitButton.textContent =
-                            'Log In';
+                            submitButton.textContent =
+                                'Log In';
 
-                    } else if (
-                        signupStep === 1
-                    ) {
 
-                        submitButton.textContent =
-                            'Continue';
+                        } else if (
+                            signupStep ===
+                            1
+                        ) {
 
-                    } else {
+                            submitButton.textContent =
+                                'Continue';
 
-                        submitButton.textContent =
-                            'Sign Up';
-                    }
 
-                }, 800);
+                        } else {
+
+                            submitButton.textContent =
+                                'Sign Up';
+                        }
+
+                    },
+                    800
+                );
             }
         }
     );
@@ -1656,7 +2263,10 @@ export function initAuth() {
                 );
 
 
-            if (!response.ok) {
+            if (
+                !response.ok
+            ) {
+
                 return;
             }
 
@@ -1665,14 +2275,21 @@ export function initAuth() {
                 await response.json();
 
 
-            if (data.user) {
+            if (
+                data.user
+            ) {
+
+                isAuthenticated =
+                    true;
 
                 updateHeaderAfterLogin({
+
                     fullName:
                         data.user.full_name ||
                         data.user.fullName
                 });
             }
+
 
         } catch (error) {
 
@@ -1684,7 +2301,12 @@ export function initAuth() {
     }
 
 
+    /* =====================================================
+       INITIAL LOAD
+       ===================================================== */
+
     loadReferenceData();
 
     checkCurrentUser();
+
 }

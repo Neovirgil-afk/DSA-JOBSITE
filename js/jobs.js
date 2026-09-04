@@ -15,6 +15,9 @@ export function initJobs() {
     const resultsClose =
         document.querySelector('#resultsClose');
 
+    const savedJobIds =
+        new Set();
+
 
     if (
         !resultsSection ||
@@ -103,7 +106,7 @@ export function initJobs() {
        RENDER JOBS
        ===================================================== */
 
-    function renderJobs(jobs, heading) {
+    function renderJobs(jobs, heading, shouldScroll = true) {
 
         resultsTitle.textContent =
             heading;
@@ -137,6 +140,20 @@ export function initJobs() {
 
 
                 card.innerHTML = `
+
+                    <button
+                        type="button"
+                        class="job-save-button${
+                            savedJobIds.has(Number(job.id))
+                                ? ' is-saved'
+                                : ''
+                        }"
+                        data-job-id="${Number(job.id)}"
+                        aria-pressed="${savedJobIds.has(Number(job.id))}"
+                        aria-label="${savedJobIds.has(Number(job.id)) ? 'Remove saved job' : 'Save job'}"
+                    >
+                        ${savedJobIds.has(Number(job.id)) ? 'Saved' : 'Save job'}
+                    </button>
 
                     <h3>
                         ${job.title}
@@ -183,10 +200,12 @@ export function initJobs() {
             false;
 
 
-        resultsSection.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
+        if (shouldScroll) {
+            resultsSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
     }
 
 
@@ -220,6 +239,90 @@ export function initJobs() {
 
 
         return data.jobs || [];
+    }
+
+
+    async function loadSavedJobIds() {
+        try {
+            const response =
+                await fetch('/api/jobs/saved', {
+                    credentials: 'include'
+                });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json();
+
+            data.jobs?.forEach((job) => {
+                savedJobIds.add(Number(job.id));
+            });
+        } catch (error) {
+            console.error(
+                '[JobPath] Failed to load saved jobs:',
+                error
+            );
+        }
+    }
+
+
+    async function toggleSavedJob(button) {
+        const jobId = Number(button.dataset.jobId);
+
+        if (!Number.isInteger(jobId) || jobId <= 0) {
+            return;
+        }
+
+        const shouldSave =
+            !savedJobIds.has(jobId);
+
+        button.disabled = true;
+
+        try {
+            const response = await fetch(
+                `/api/jobs/saved/${jobId}`,
+                {
+                    method: shouldSave ? 'POST' : 'DELETE',
+                    credentials: 'include'
+                }
+            );
+
+            if (response.status === 401) {
+                window.dispatchEvent(
+                    new CustomEvent('jobpath:open-auth', {
+                        detail: { mode: 'login' }
+                    })
+                );
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error('Failed to update saved job.');
+            }
+
+            if (shouldSave) {
+                savedJobIds.add(jobId);
+            } else {
+                savedJobIds.delete(jobId);
+            }
+
+            const saved = savedJobIds.has(jobId);
+            button.classList.toggle('is-saved', saved);
+            button.setAttribute('aria-pressed', String(saved));
+            button.setAttribute(
+                'aria-label',
+                saved ? 'Remove saved job' : 'Save job'
+            );
+            button.textContent = saved ? 'Saved' : 'Save job';
+        } catch (error) {
+            console.error(
+                '[JobPath] Failed to update saved job:',
+                error
+            );
+        } finally {
+            button.disabled = false;
+        }
     }
 
 
@@ -313,6 +416,36 @@ export function initJobs() {
 
 
     /* =====================================================
+       INITIAL JOB PREVIEW
+       ===================================================== */
+
+    async function loadInitialJobs() {
+        resultsSection.hidden = false;
+        showSkeletons(4);
+
+        try {
+            await loadSavedJobIds();
+
+            const jobs =
+                await fetchJobs({});
+
+            renderJobs(
+                jobs.slice(0, 6),
+                'Featured jobs',
+                false
+            );
+        } catch (error) {
+            resultsSection.hidden = true;
+
+            console.error(
+                '[JobPath] Failed to load featured jobs:',
+                error
+            );
+        }
+    }
+
+
+    /* =====================================================
        CLOSE RESULTS
        ===================================================== */
 
@@ -327,6 +460,19 @@ export function initJobs() {
             }
         );
     }
+
+
+    resultsGrid.addEventListener(
+        'click',
+        (event) => {
+            const saveButton =
+                event.target.closest('.job-save-button');
+
+            if (saveButton) {
+                toggleSavedJob(saveButton);
+            }
+        }
+    );
 
 
     /* =====================================================
@@ -436,4 +582,7 @@ export function initJobs() {
                 }
             );
         });
+
+
+    loadInitialJobs();
 }

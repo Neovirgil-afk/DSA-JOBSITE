@@ -1,14 +1,21 @@
+'use strict';
+
 const express = require('express');
 
 const {
     schools,
-    locations,
     degrees
 } = require('./referenceData');
 
-const { db } = require('./database');
+const { db } =
+    require('./database');
 
-const router = express.Router();
+const {
+    getLocations
+} = require('./psgcService');
+
+const router =
+    express.Router();
 
 
 /* =========================================================
@@ -100,34 +107,60 @@ const DEGREE_JOB_CATEGORIES = {
 };
 
 
-function getJobCategoriesForDegree(degreeName) {
+function getJobCategoriesForDegree(
+    degreeName
+) {
 
     if (!degreeName) {
+
         return [];
+
     }
 
     const degree =
-        degreeName.toLowerCase().trim();
+        degreeName
+            .toLowerCase()
+            .trim();
 
     const matchedCategories =
         new Set();
 
+
     for (
-        const [keyword, categories]
-        of Object.entries(DEGREE_JOB_CATEGORIES)
+        const [
+            keyword,
+            categories
+        ]
+        of Object.entries(
+            DEGREE_JOB_CATEGORIES
+        )
     ) {
 
-        if (degree.includes(keyword)) {
+        if (
+            degree.includes(
+                keyword
+            )
+        ) {
 
-            categories.forEach(category => {
-                matchedCategories.add(category);
-            });
+            categories.forEach(
+                (category) => {
+
+                    matchedCategories.add(
+                        category
+                    );
+
+                }
+            );
 
         }
 
     }
 
-    return [...matchedCategories];
+
+    return [
+        ...matchedCategories
+    ];
+
 }
 
 
@@ -135,401 +168,576 @@ function getJobCategoriesForDegree(degreeName) {
    SCHOOLS
    ========================================================= */
 
-router.get('/schools', (req, res) => {
+router.get(
+    '/schools',
+    (req, res) => {
 
-    try {
+        try {
 
-        res.json({
-            success: true,
-            schools: schools
-        });
+            res.json({
 
-    } catch (error) {
+                success: true,
 
-        console.error(
-            '[reference] schools error:',
-            error
-        );
+                schools: schools
 
-        res.status(500).json({
-            error: 'Failed to load schools.'
-        });
+            });
+
+        } catch (error) {
+
+            console.error(
+                '[reference] schools error:',
+                error
+            );
+
+            res.status(500).json({
+
+                error:
+                    'Failed to load schools.'
+
+            });
+
+        }
 
     }
-
-});
+);
 
 
 /* =========================================================
    SCHOOL SEARCH
    ========================================================= */
 
-router.get('/schools/search', (req, res) => {
+router.get(
+    '/schools/search',
+    (req, res) => {
 
-    try {
+        try {
 
-        const query =
-            (req.query.q || '')
-                .trim()
-                .toLowerCase();
+            const query =
+                (req.query.q || '')
+                    .trim()
+                    .toLowerCase();
 
-        if (!query) {
 
-            return res.json({
+            if (!query) {
+
+                return res.json({
+
+                    success: true,
+
+                    schools: schools
+
+                });
+
+            }
+
+
+            const results =
+                schools.filter(
+                    (school) =>
+                        school.name
+                            .toLowerCase()
+                            .includes(query)
+                );
+
+
+            res.json({
+
                 success: true,
-                schools: schools
+
+                schools: results
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                '[reference] school search error:',
+                error
+            );
+
+            res.status(500).json({
+
+                error:
+                    'Failed to search schools.'
+
             });
 
         }
 
-        const results =
-            schools.filter((school) =>
-                school.name
-                    .toLowerCase()
-                    .includes(query)
-            );
-
-        res.json({
-            success: true,
-            schools: results
-        });
-
-    } catch (error) {
-
-        console.error(
-            '[reference] school search error:',
-            error
-        );
-
-        res.status(500).json({
-            error: 'Failed to search schools.'
-        });
-
     }
-
-});
+);
 
 
 /* =========================================================
    DEGREES
    ========================================================= */
 
-router.get('/degrees', (req, res) => {
+router.get(
+    '/degrees',
+    (req, res) => {
 
-    try {
+        try {
 
-        res.json({
-            success: true,
-            degrees: degrees
-        });
+            res.json({
 
-    } catch (error) {
+                success: true,
 
-        console.error(
-            '[reference] degrees error:',
-            error
-        );
+                degrees: degrees
 
-        res.status(500).json({
-            error: 'Failed to load degrees.'
-        });
+            });
+
+        } catch (error) {
+
+            console.error(
+                '[reference] degrees error:',
+                error
+            );
+
+            res.status(500).json({
+
+                error:
+                    'Failed to load degrees.'
+
+            });
+
+        }
 
     }
-
-});
+);
 
 
 /* =========================================================
    DEGREE SEARCH
    ========================================================= */
 
-router.get('/degrees/search', (req, res) => {
+router.get(
+    '/degrees/search',
+    (req, res) => {
 
-    try {
+        try {
 
-        const query =
-            (req.query.q || '')
-                .trim()
-                .toLowerCase();
+            const query =
+                (req.query.q || '')
+                    .trim()
+                    .toLowerCase();
 
-        if (!query) {
 
-            return res.json({
+            if (!query) {
+
+                return res.json({
+
+                    success: true,
+
+                    degrees: degrees
+
+                });
+
+            }
+
+
+            const results =
+                degrees.filter(
+                    (degree) =>
+                        degree.name
+                            .toLowerCase()
+                            .includes(query)
+                );
+
+
+            res.json({
+
                 success: true,
-                degrees: degrees
+
+                degrees: results
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                '[reference] degree search error:',
+                error
+            );
+
+            res.status(500).json({
+
+                error:
+                    'Failed to search degrees.'
+
             });
 
         }
 
-        const results =
-            degrees.filter((degree) =>
-                degree.name
-                    .toLowerCase()
-                    .includes(query)
-            );
-
-        res.json({
-            success: true,
-            degrees: results
-        });
-
-    } catch (error) {
-
-        console.error(
-            '[reference] degree search error:',
-            error
-        );
-
-        res.status(500).json({
-            error: 'Failed to search degrees.'
-        });
-
     }
-
-});
+);
 
 
 /* =========================================================
    LOCATIONS
    ========================================================= */
 
-router.get('/locations', (req, res) => {
+router.get(
+    '/locations',
+    async (req, res) => {
 
-    try {
+        try {
 
-        res.json({
-            success: true,
-            locations: locations
-        });
+            const locations =
+                await getLocations();
 
-    } catch (error) {
 
-        console.error(
-            '[reference] locations error:',
-            error
-        );
+            res.json({
 
-        res.status(500).json({
-            error: 'Failed to load locations.'
-        });
+                success: true,
+
+                locations: locations
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                '[reference] PSA locations error:',
+                error
+            );
+
+
+            res.status(500).json({
+
+                success: false,
+
+                error:
+                    'Failed to load Philippine locations.'
+
+            });
+
+        }
 
     }
-
-});
+);
 
 
 /* =========================================================
    LOCATION SEARCH
    ========================================================= */
 
-router.get('/locations/search', (req, res) => {
+router.get(
+    '/locations/search',
+    async (req, res) => {
 
-    try {
+        try {
 
-        const query =
-            (req.query.q || '')
-                .trim()
-                .toLowerCase();
+            const query =
+                (req.query.q || '')
+                    .trim()
+                    .toLowerCase();
 
-        if (!query) {
 
-            return res.json({
+            const locations =
+                await getLocations();
+
+
+            if (!query) {
+
+                return res.json({
+
+                    success: true,
+
+                    locations: locations
+
+                });
+
+            }
+
+
+            const results =
+                locations.filter(
+                    (location) => {
+
+                        const name =
+                            location.name
+                                .toLowerCase();
+
+                        const province =
+                            location.province
+                                .toLowerCase();
+
+                        const region =
+                            location.region
+                                .toLowerCase();
+
+
+                        return (
+                            name.includes(query) ||
+                            province.includes(query) ||
+                            region.includes(query)
+                        );
+
+                    }
+                );
+
+
+            res.json({
+
                 success: true,
-                locations: locations
+
+                locations: results
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                '[reference] PSA location search error:',
+                error
+            );
+
+
+            res.status(500).json({
+
+                success: false,
+
+                error:
+                    'Failed to search Philippine locations.'
+
             });
 
         }
 
-        const results =
-            locations.filter((location) =>
-                location.name
-                    .toLowerCase()
-                    .includes(query)
-            );
-
-        res.json({
-            success: true,
-            locations: results
-        });
-
-    } catch (error) {
-
-        console.error(
-            '[reference] location search error:',
-            error
-        );
-
-        res.status(500).json({
-            error: 'Failed to search locations.'
-        });
-
     }
-
-});
+);
 
 
 /* =========================================================
    JOBS RELATED TO DEGREE
    ========================================================= */
 
-router.get('/jobs', (req, res) => {
+router.get(
+    '/jobs',
+    (req, res) => {
 
-    try {
+        try {
 
-        const degree =
-            (req.query.degree || '').trim();
+            const degree =
+                (req.query.degree || '')
+                    .trim();
 
-        if (!degree) {
 
-            return res.json({
+            if (!degree) {
+
+                return res.json({
+
+                    success: true,
+
+                    jobs: [],
+
+                    categories: []
+
+                });
+
+            }
+
+
+            const categories =
+                getJobCategoriesForDegree(
+                    degree
+                );
+
+
+            if (
+                categories.length === 0
+            ) {
+
+                return res.json({
+
+                    success: true,
+
+                    jobs: [],
+
+                    categories: []
+
+                });
+
+            }
+
+
+            const placeholders =
+                categories
+                    .map(() => '?')
+                    .join(', ');
+
+
+            const jobs =
+                db.prepare(`
+                    SELECT
+                        id,
+                        title,
+                        category
+                    FROM jobs
+                    WHERE category IN (${placeholders})
+                    ORDER BY title ASC
+                `)
+                .all(
+                    ...categories
+                );
+
+
+            res.json({
+
                 success: true,
-                jobs: [],
-                categories: []
+
+                jobs: jobs,
+
+                categories:
+                    categories
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                '[reference] jobs error:',
+                error
+            );
+
+            res.status(500).json({
+
+                error:
+                    'Failed to load jobs related to degree.'
+
             });
 
         }
-
-        const categories =
-            getJobCategoriesForDegree(degree);
-
-        if (categories.length === 0) {
-
-            return res.json({
-                success: true,
-                jobs: [],
-                categories: []
-            });
-
-        }
-
-        const placeholders =
-            categories
-                .map(() => '?')
-                .join(', ');
-
-        const jobs =
-            db.prepare(`
-                SELECT
-                    id,
-                    title,
-                    category
-                FROM jobs
-                WHERE category IN (${placeholders})
-                ORDER BY title ASC
-            `).all(...categories);
-
-        res.json({
-            success: true,
-            jobs: jobs,
-            categories: categories
-        });
-
-    } catch (error) {
-
-        console.error(
-            '[reference] jobs error:',
-            error
-        );
-
-        res.status(500).json({
-            error: 'Failed to load jobs related to degree.'
-        });
 
     }
-
-});
+);
 
 
 /* =========================================================
    REGIONS
    ========================================================= */
 
-router.get('/regions', (req, res) => {
+router.get(
+    '/regions',
+    (req, res) => {
 
-    try {
+        try {
 
-        const regions =
-            [...new Set(
-                schools.map(
-                    school => school.region
-                )
-            )].sort();
+            const regions =
+                [
+                    ...new Set(
+                        schools.map(
+                            (school) =>
+                                school.region
+                        )
+                    )
+                ]
+                .sort();
 
-        res.json({
-            success: true,
-            regions: regions
-        });
 
-    } catch (error) {
+            res.json({
 
-        console.error(
-            '[reference] regions error:',
-            error
-        );
+                success: true,
 
-        res.status(500).json({
-            error: 'Failed to load regions.'
-        });
+                regions: regions
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                '[reference] regions error:',
+                error
+            );
+
+            res.status(500).json({
+
+                error:
+                    'Failed to load regions.'
+
+            });
+
+        }
 
     }
-
-});
+);
 
 
 /* =========================================================
    PROVINCES
    ========================================================= */
 
-router.get('/provinces', (req, res) => {
+router.get(
+    '/provinces',
+    (req, res) => {
 
-    try {
+        try {
 
-        const region =
-            (req.query.region || '').trim();
+            const region =
+                (req.query.region || '')
+                    .trim();
 
-        let filteredSchools =
-            schools;
 
-        if (region) {
+            let filteredSchools =
+                schools;
 
-            filteredSchools =
-                schools.filter(
-                    school =>
-                        school.region === region
-                );
+
+            if (region) {
+
+                filteredSchools =
+                    schools.filter(
+                        (school) =>
+                            school.region ===
+                            region
+                    );
+
+            }
+
+
+            const provinces =
+                [
+                    ...new Set(
+                        filteredSchools.map(
+                            (school) =>
+                                school.province
+                        )
+                    )
+                ]
+                .sort();
+
+
+            res.json({
+
+                success: true,
+
+                provinces:
+                    provinces
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                '[reference] provinces error:',
+                error
+            );
+
+            res.status(500).json({
+
+                error:
+                    'Failed to load provinces.'
+
+            });
 
         }
 
-        const provinces =
-            [...new Set(
-                filteredSchools.map(
-                    school => school.province
-                )
-            )].sort();
-
-        res.json({
-            success: true,
-            provinces: provinces
-        });
-
-    } catch (error) {
-
-        console.error(
-            '[reference] provinces error:',
-            error
-        );
-
-        res.status(500).json({
-            error: 'Failed to load provinces.'
-        });
-
     }
-
-});
+);
 
 
 /* =========================================================
    EXPORT
    ========================================================= */
 
-module.exports = router;
+module.exports =
+    router;

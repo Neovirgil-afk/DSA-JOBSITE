@@ -57,6 +57,62 @@ router.get('/categories', (req, res) => {
     }
 });
 
+router.get('/saved', requireAuth, (req, res) => {
+    try {
+        const jobs = db.prepare(`
+            SELECT
+                j.*,
+                sj.saved_at
+            FROM saved_jobs sj
+            JOIN jobs j ON j.id = sj.job_id
+            WHERE sj.user_id = ?
+            ORDER BY sj.saved_at DESC, j.title ASC
+        `).all(req.session.userId);
+
+        res.json({ jobs });
+    } catch (err) {
+        console.error('[GET /api/jobs/saved] error:', err);
+        res.status(500).json({ error: 'Failed to load saved jobs.' });
+    }
+});
+
+router.post('/saved/:id', requireAuth, (req, res) => {
+    try {
+        const jobId = parseInt(req.params.id, 10);
+        const job = db.prepare('SELECT id FROM jobs WHERE id = ?').get(jobId);
+
+        if (!job) {
+            return res.status(404).json({ error: 'Job not found.' });
+        }
+
+        db.prepare(`
+            INSERT OR IGNORE INTO saved_jobs (user_id, job_id)
+            VALUES (?, ?)
+        `).run(req.session.userId, jobId);
+
+        res.json({ success: true, saved: true, jobId });
+    } catch (err) {
+        console.error('[POST /api/jobs/saved/:id] error:', err);
+        res.status(500).json({ error: 'Failed to save job.' });
+    }
+});
+
+router.delete('/saved/:id', requireAuth, (req, res) => {
+    try {
+        const jobId = parseInt(req.params.id, 10);
+
+        db.prepare(`
+            DELETE FROM saved_jobs
+            WHERE user_id = ? AND job_id = ?
+        `).run(req.session.userId, jobId);
+
+        res.json({ success: true, saved: false, jobId });
+    } catch (err) {
+        console.error('[DELETE /api/jobs/saved/:id] error:', err);
+        res.status(500).json({ error: 'Failed to remove saved job.' });
+    }
+});
+
 router.get('/recommended', requireAuth, (req, res) => {
     try {
         const ranked = getRankedJobsForUser(req.session.userId);

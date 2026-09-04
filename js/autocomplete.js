@@ -831,7 +831,10 @@ export function initAutocomplete({
         locationInput,
         locationResults,
         getLocations,
-        (location) => location.name
+        (location) =>
+            location.province
+                ? `${location.name}, ${location.province}`
+                : location.name
     );
 
 
