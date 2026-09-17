@@ -30,6 +30,75 @@ export function initJobs() {
 
 
     /* =====================================================
+       RESUME ANALYZER NAVIGATION
+       ===================================================== */
+
+    const mainNav =
+        document.querySelector('.main-nav');
+
+    if (
+        mainNav &&
+        !mainNav.querySelector('a[href="/resume.html"]')
+    ) {
+        const resumeLink =
+            document.createElement('a');
+
+        resumeLink.href = '/resume.html';
+        resumeLink.textContent = 'Resume Analyzer';
+
+        const resourcesDropdown =
+            mainNav.querySelector('.nav-dropdown');
+
+        if (resourcesDropdown) {
+            mainNav.insertBefore(
+                resumeLink,
+                resourcesDropdown
+            );
+        } else {
+            mainNav.appendChild(resumeLink);
+        }
+    }
+
+    const resumeCard =
+        document.querySelector('.floating-card--resume');
+
+    if (resumeCard) {
+        resumeCard.setAttribute(
+            'role',
+            'link'
+        );
+        resumeCard.setAttribute(
+            'tabindex',
+            '0'
+        );
+        resumeCard.setAttribute(
+            'aria-label',
+            'Open Resume Analyzer'
+        );
+        resumeCard.style.cursor = 'pointer';
+
+        const openResumeAnalyzer = () => {
+            window.location.href = '/resume.html';
+        };
+
+        resumeCard.addEventListener(
+            'click',
+            openResumeAnalyzer
+        );
+
+        resumeCard.addEventListener(
+            'keydown',
+            (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openResumeAnalyzer();
+                }
+            }
+        );
+    }
+
+
+    /* =====================================================
        SALARY
        ===================================================== */
 
