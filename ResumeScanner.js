@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const pdfParse = require('pdf-parse');
+const { PDFParse } = require('pdf-parse');
 const mammoth = require('mammoth');
 const { createWorker } = require('tesseract.js');
 const HashTable = require('./HashTable');
@@ -11,8 +11,14 @@ const OCR_SCALE = 2.5;
 
 async function extractPdfText(filePath) {
     const buffer = fs.readFileSync(filePath);
-    const data = await pdfParse(buffer);
-    return data.text || '';
+    const parser = new PDFParse({ data: buffer });
+
+    try {
+        const result = await parser.getText();
+        return result.text || '';
+    } finally {
+        await parser.destroy();
+    }
 }
 
 async function extractTextFromFile(filePath, originalName) {
