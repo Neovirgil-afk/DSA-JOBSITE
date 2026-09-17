@@ -35,9 +35,22 @@ async function extractTextFromFile(filePath, originalName) {
 }
 
 // Render scanned PDF pages to PNG buffers, then send those images to Tesseract.
-// pdf-to-img v7 supports Node 22.13+ and avoids the PDF.js Promise.try crash
-// we were hitting with the previous unpdf/pdfjs-dist rendering path.
+// The PDF.js build used by pdf-to-img can call Promise.try(), while Node 22
+// does not provide it in every 22.x runtime. Add a small spec-compatible
+// fallback before loading pdf-to-img so the PDF renderer can initialize.
 async function ocrPdf(filePath) {
+    if (typeof Promise.try !== 'function') {
+        Promise.try = function (callback, ...args) {
+            return new Promise((resolve, reject) => {
+                try {
+                    resolve(callback(...args));
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        };
+    }
+
     const { pdf } = await import('pdf-to-img');
     const document = await pdf(filePath, {
         scale: OCR_SCALE,
