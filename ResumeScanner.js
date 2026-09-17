@@ -1,10 +1,8 @@
-
-
 const fs = require('fs');
 const path = require('path');
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
-const { HashTable } = require('./HashTable');
+const HashTable = require('./HashTable');
 const { SKILLS_LIST } = require('./skillsList');
 
 async function extractTextFromFile(filePath, originalName) {
@@ -43,11 +41,13 @@ function detectSkills(text) {
         const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const pattern = /[a-z0-9]/.test(key[key.length - 1])
             ? new RegExp(`\\b${escaped}\\b`, 'i')
-            : new RegExp(escaped, 'i'); // e.g. "C++"
+            : new RegExp(escaped, 'i');
+
         if (pattern.test(lowerText)) {
             detected.push(originalName);
         }
     }
+
     return detected;
 }
 
@@ -59,11 +59,13 @@ function extractEmail(text) {
 // Very rough heuristic: first non-empty line that isn't an email/phone is often the name.
 function extractName(text) {
     const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+
     for (const line of lines.slice(0, 5)) {
         if (line.includes('@')) continue;
         if (/^\+?\d[\d\s-]{6,}$/.test(line)) continue;
         if (line.length > 2 && line.length < 60) return line;
     }
+
     return null;
 }
 
@@ -74,10 +76,12 @@ function extractDegree(text) {
         /b\.s\.\s*[a-z\s]+/i,
         /master of [a-z\s]+/i,
     ];
+
     for (const pattern of degreePatterns) {
         const match = text.match(pattern);
         if (match) return match[0].trim();
     }
+
     return null;
 }
 
