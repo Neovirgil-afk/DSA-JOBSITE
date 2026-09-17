@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analyzer — JobSite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #f7f7fb; color: #17203a; font-family: Inter, sans-serif; }
+        .wrap { width: min(1100px, calc(100% - 32px)); margin: 0 auto; }
+        header { background: #fff; border-bottom: 1px solid #e7e8ef; }
+        .header-inner { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+        .logo { color: #17203a; text-decoration: none; font-family: Poppins, sans-serif; font-size: 22px; font-weight: 800; }
+        .logo span { color: #4f46e5; }
+        nav { display: flex; gap: 22px; align-items: center; }
+        nav a { color: #596174; text-decoration: none; font-size: 14px; font-weight: 600; }
+        nav a:hover { color: #4f46e5; }
+        main { padding: 54px 0 80px; }
+        .heading { margin-bottom: 28px; }
+        .eyebrow { margin: 0 0 8px; color: #4f46e5; font-size: 12px; font-weight: 800; letter-spacing: .08em; }
+        h1 { margin: 0; font: 800 38px Poppins, sans-serif; }
+        .subtitle { color: #697386; line-height: 1.6; max-width: 700px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .card { background: #fff; border: 1px solid #e5e7ef; border-radius: 20px; padding: 28px; box-shadow: 0 10px 30px rgba(20,24,40,.05); }
+        .card h2 { margin: 0 0 8px; font: 700 22px Poppins, sans-serif; }
+        .card p { color: #697386; line-height: 1.55; }
+        .dropzone { border: 2px dashed #cfd2df; border-radius: 16px; padding: 34px 20px; text-align: center; cursor: pointer; transition: .2s; }
+        .dropzone:hover, .dropzone.dragover { border-color: #4f46e5; background: #f8f7ff; }
+        .icon { font-size: 40px; margin-bottom: 10px; }
+        input[type=file] { display: none; }
+        .file-name { margin: 16px 0; font-size: 14px; font-weight: 600; }
+        button { border: 0; border-radius: 999px; background: #4f46e5; color: #fff; padding: 12px 20px; font: 700 14px Inter, sans-serif; cursor: pointer; }
+        button:disabled { opacity: .55; cursor: not-allowed; }
+        .secondary { background: #fff; color: #4f46e5; border: 1px solid #d9ddea; text-decoration: none; display: inline-block; }
+        .status { margin-top: 16px; padding: 12px 14px; border-radius: 12px; display: none; font-size: 14px; line-height: 1.5; }
+        .status.show { display: block; }
+        .status.success { background: #ecfdf3; color: #16834b; }
+        .status.error { background: #fff1f0; color: #c0392b; }
+        .status.info { background: #f0f3ff; color: #4f46e5; }
+        .skills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+        .skill { padding: 7px 12px; border: 1px solid #dfe1ee; border-radius: 999px; font-size: 13px; font-weight: 600; }
+        .empty { color: #697386; font-size: 14px; }
+        .jobs { grid-column: 1 / -1; }
+        .job { border: 1px solid #e5e7ef; border-radius: 16px; padding: 18px; margin-top: 12px; }
+        .job-top { display: flex; justify-content: space-between; gap: 15px; }
+        .job h3 { margin: 0; font-size: 17px; }
+        .match { color: #4f46e5; font-weight: 800; white-space: nowrap; }
+        .job-company { margin: 5px 0; color: #697386; font-size: 13px; }
+        .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .tag { font-size: 12px; padding: 5px 9px; border-radius: 999px; background: #f4f4f8; }
+        .missing { background: #fff5e8; color: #a15c00; }
+        @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } nav { display: none; } .jobs { grid-column: auto; } h1 { font-size: 30px; } }
+    </style>
+</head>
+<body>
+<header>
+    <div class="wrap header-inner">
+        <a class="logo" href="/">JOB<span>SITE</span></a>
+        <nav>
+            <a href="/">Find Jobs</a>
+            <a href="/profile.html">My Profile</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="wrap">
+        <div class="heading">
+            <p class="eyebrow">CAREER MATCHING</p>
+            <h1>Analyze Your Resume</h1>
+            <p class="subtitle">Upload your resume and JobSite will scan it for known skills, save the detected skills to your profile, and calculate which jobs match your current skill set.</p>
+        </div>
+
+        <div class="grid">
+            <section class="card">
+                <h2>Upload Resume</h2>
+                <p>PDF or DOCX only. Maximum file size: 5MB.</p>
+                <label class="dropzone" id="dropzone" for="resumeFile">
+                    <div class="icon">📄</div>
+                    <strong>Choose a resume</strong>
+                    <div style="color:#697386;margin-top:6px;font-size:13px;">or drag and drop it here</div>
+                    <input id="resumeFile" type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                </label>
+                <div class="file-name" id="fileName">No file selected</div>
+                <button id="scanButton" disabled>Scan Resume</button>
+                <div class="status" id="status"></div>
+            </section>
+
+            <section class="card">
+                <h2>Detected Skills</h2>
+                <p>These skills were found in your uploaded resume and saved to your JobSite profile.</p>
+                <div class="skills" id="skills"><span class="empty">Upload a resume to begin.</span></div>
+                <div style="margin-top:22px;">
+                    <a class="secondary" href="/profile.html">Manage Skills</a>
+                </div>
+            </section>
+
+            <section class="card jobs">
+                <h2>Recommended Jobs</h2>
+                <p>After your resume is analyzed, jobs are ranked according to how many required skills you currently have.</p>
+                <div id="jobs"><div class="empty">Your recommendations will appear here after scanning.</div></div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<script type="module" src="/js/resume.js"></script>
+</body>
+</html>
