@@ -1,13 +1,15 @@
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { PDFParse } = require('pdf-parse');
+const pdfPoppler = require('pdf-poppler');
 const mammoth = require('mammoth');
 const { createWorker } = require('tesseract.js');
 const HashTable = require('./HashTable');
 const { SKILLS_LIST } = require('./skillsList');
 
 const OCR_MAX_PAGES = 5;
-const OCR_SCALE = 2.5;
+const OCR_DENSITY = 180;
 
 async function extractPdfText(filePath) {
     const buffer = fs.readFileSync(filePath);
@@ -34,42 +36,42 @@ async function extractTextFromFile(filePath, originalName) {
     throw new Error('Unsupported file type. Please upload a PDF or DOCX file.');
 }
 
-// Render scanned PDF pages to PNG buffers, then send those images to Tesseract.
-// The PDF.js build used by pdf-to-img can call Promise.try(), while Node 22
-// does not provide it in every 22.x runtime. Add a small spec-compatible
-// fallback before loading pdf-to-img so the PDF renderer can initialize.
+// Render scanned PDF pages to PNG using Poppler, then send those images to Tesseract.
+// pdf-poppler bundles its Poppler binaries for Windows, so this avoids the
+// PDF.js compatibility problems we were getting from pdf-to-img.
 async function ocrPdf(filePath) {
-    if (typeof Promise.try !== 'function') {
-        Promise.try = function (callback, ...args) {
-            return new Promise((resolve, reject) => {
-                try {
-                    resolve(callback(...args));
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        };
-    }
-
-    const { pdf } = await import('pdf-to-img');
-    const document = await pdf(filePath, {
-        scale: OCR_SCALE,
-        format: 'png',
-    });
-
-    const totalPages = Number(document.length) || 0;
+    const info = await pdfPoppler.info(filePath);
+    const totalPages = Number(info?.pages) || 0;
     const pagesToScan = Math.min(totalPages, OCR_MAX_PAGES);
     const pageTexts = [];
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'jobpath-ocr-'));
     const worker = await createWorker('eng');
 
     try {
         console.log(`[OCR] PDF has ${totalPages} page(s). Scanning ${pagesToScan}...`);
 
         for (let pageNumber = 1; pageNumber <= pagesToScan; pageNumber++) {
-            console.log(`[OCR] Rendering page ${pageNumber}/${pagesToScan}...`);
+            console.log(`[OCR] Rendering page ${pageNumber}/${pagesToScan} with Poppler...`);
 
-            const image = await document.getPage(pageNumber);
-            const imageBuffer = Buffer.from(image);
+            const outputPrefix = `page-${pageNumber}`;
+
+            await pdfPoppler.convert(filePath, {
+                format: 'png',
+                out_dir: tempDir,
+                out_prefix: outputPrefix,
+                page: pageNumber,
+                density: OCR_DENSITY,
+            });
+
+            const renderedFiles = fs.readdirSync(tempDir)
+                .filter((file) => file.toLowerCase().endsWith('.png'));
+
+            if (renderedFiles.length === 0) {
+                throw new Error(`Poppler did not produce an image for page ${pageNumber}.`);
+            }
+
+            const imagePath = path.join(tempDir, renderedFiles[renderedFiles.length - 1]);
+            const imageBuffer = fs.readFileSync(imagePath);
 
             console.log(`[OCR] Recognizing page ${pageNumber}...`);
             const result = await worker.recognize(imageBuffer);
@@ -77,12 +79,18 @@ async function ocrPdf(filePath) {
 
             pageTexts.push(pageText);
             console.log(`[OCR] Page ${pageNumber} complete (${pageText.length} characters).`);
+
+            for (const file of renderedFiles) {
+                try {
+                    fs.unlinkSync(path.join(tempDir, file));
+                } catch (_) {
+                    // Ignore cleanup errors; the temp directory is removed below.
+                }
+            }
         }
     } finally {
         await worker.terminate();
-        if (document && typeof document.destroy === 'function') {
-            await document.destroy();
-        }
+        fs.rmSync(tempDir, { recursive: true, force: true });
     }
 
     return {
