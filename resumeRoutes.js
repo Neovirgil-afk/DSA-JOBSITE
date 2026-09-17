@@ -6,6 +6,7 @@ const fs = require('fs');
 const { db } = require('./database');
 const { requireAuth } = require('./auth');
 const { scanResume } = require('./ResumeScanner');
+const { SKILLS_LIST } = require('./skillsList');
 
 const router = express.Router();
 
@@ -44,6 +45,21 @@ function handleUploadErrors(err, req, res, next) {
     next();
 }
 
+// Keep the database skill table in sync when the skill dictionary grows.
+// This matters for existing databases because seed.js intentionally skips
+// reseeding once jobs already exist.
+function ensureSkillDictionaryInDatabase() {
+    const insertSkill = db.prepare('INSERT OR IGNORE INTO skills (name, category) VALUES (?, ?)');
+
+    const syncSkills = db.transaction(() => {
+        for (const skill of SKILLS_LIST) {
+            insertSkill.run(skill.name, skill.category);
+        }
+    });
+
+    syncSkills();
+}
+
 // Upload + scan + auto-save detected skills to the logged-in user's profile.
 router.post('/scan', requireAuth, (req, res) => {
     upload.single('resume')(req, res, async (err) => {
@@ -53,6 +69,9 @@ router.post('/scan', requireAuth, (req, res) => {
             if (!req.file) return res.status(400).json({ error: 'No file was uploaded.' });
 
             const result = await scanResume(req.file.path, req.file.originalname);
+
+            // Make sure newly added skills exist even when using an older database.
+            ensureSkillDictionaryInDatabase();
 
             // Save detected skills into user_skills with source='resume'
             const getSkillId = db.prepare('SELECT id FROM skills WHERE name = ?');
@@ -85,6 +104,9 @@ router.post('/scan', requireAuth, (req, res) => {
                 },
                 detectedSkills: savedSkills,
                 warning: result.warning,
+                ocrUsed: result.ocrUsed || false,
+                ocrPagesScanned: result.ocrPagesScanned || 0,
+                ocrTotalPages: result.ocrTotalPages || 0,
             });
         } catch (error) {
             console.error('[resume/scan] error:', error);
