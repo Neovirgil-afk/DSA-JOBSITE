@@ -35,7 +35,11 @@ async function extractTextFromFile(filePath, originalName) {
 async function loadPdfJs() {
     if (!pdfjsReadyPromise) {
         const { definePDFJSModule } = await import('unpdf');
-        pdfjsReadyPromise = definePDFJSModule(() => import('pdfjs-dist'));
+
+        // Node.js 22 does not provide Promise.try(), while newer PDF.js
+        // builds may use it internally. The legacy build includes the
+        // compatibility layer intended for Node.js environments.
+        pdfjsReadyPromise = definePDFJSModule(() => import('pdfjs-dist/legacy/build/pdf.mjs'));
     }
 
     return pdfjsReadyPromise;
