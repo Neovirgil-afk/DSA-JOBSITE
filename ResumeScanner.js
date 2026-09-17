@@ -28,34 +28,48 @@ async function extractTextFromFile(filePath, originalName) {
     throw new Error('Unsupported file type. Please upload a PDF or DOCX file.');
 }
 
-// Render a PDF page to a PNG without going through PDF.js.
-// Poppler/pdf-to-image is intentionally avoided so this remains npm-based.
+// Render scanned PDF pages to PNG buffers, then send those images to Tesseract.
+// pdf-to-img v7 supports Node 22.13+ and avoids the PDF.js Promise.try crash
+// we were hitting with the previous unpdf/pdfjs-dist rendering path.
 async function ocrPdf(filePath) {
     const { pdf } = await import('pdf-to-img');
-    const document = await pdf(filePath, { scale: OCR_SCALE });
-    const worker = await createWorker('eng');
+    const document = await pdf(filePath, {
+        scale: OCR_SCALE,
+        format: 'png',
+    });
+
+    const totalPages = Number(document.length) || 0;
+    const pagesToScan = Math.min(totalPages, OCR_MAX_PAGES);
     const pageTexts = [];
-    let totalPages = 0;
+    const worker = await createWorker('eng');
 
     try {
-        for await (const image of document) {
-            totalPages++;
-            if (totalPages > OCR_MAX_PAGES) break;
+        console.log(`[OCR] PDF has ${totalPages} page(s). Scanning ${pagesToScan}...`);
 
-            console.log(`[OCR] Rendering page ${totalPages}/${OCR_MAX_PAGES}...`);
-            const result = await worker.recognize(image);
-            pageTexts.push(result.data.text || '');
+        for (let pageNumber = 1; pageNumber <= pagesToScan; pageNumber++) {
+            console.log(`[OCR] Rendering page ${pageNumber}/${pagesToScan}...`);
 
-            console.log(`[OCR] Page ${totalPages} complete.`);
+            const image = await document.getPage(pageNumber);
+            const imageBuffer = Buffer.from(image);
+
+            console.log(`[OCR] Recognizing page ${pageNumber}...`);
+            const result = await worker.recognize(imageBuffer);
+            const pageText = result?.data?.text || '';
+
+            pageTexts.push(pageText);
+            console.log(`[OCR] Page ${pageNumber} complete (${pageText.length} characters).`);
         }
     } finally {
         await worker.terminate();
+        if (document && typeof document.destroy === 'function') {
+            await document.destroy();
+        }
     }
 
     return {
         text: pageTexts.join('\n\n'),
         pagesScanned: pageTexts.length,
-        totalPages: totalPages,
+        totalPages,
     };
 }
 
@@ -139,7 +153,7 @@ async function scanResume(filePath, originalName) {
                 ocrTotalPages = ocrResult.totalPages;
             }
         } catch (error) {
-            console.error('[ResumeScanner] OCR failed:', error.message);
+            console.error('[ResumeScanner] OCR failed:', error.stack || error.message || error);
         }
     }
 
