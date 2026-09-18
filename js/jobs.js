@@ -454,29 +454,68 @@ export function initJobs() {
                     ✕
                 </button>
 
-                <div class="job-details-header">
-                    <p class="job-details-company" id="jobDetailsCompany"></p>
-                    <h2 id="jobDetailsTitle">Job details</h2>
-                    <div class="job-details-meta" id="jobDetailsMeta"></div>
-                </div>
+                <div class="job-details-columns">
+                    <div class="job-details-main">
+                        <div class="job-details-header">
+                            <p class="job-details-company" id="jobDetailsCompany"></p>
+                            <h2 id="jobDetailsTitle">Job details</h2>
+                            <div class="job-details-meta" id="jobDetailsMeta"></div>
+                        </div>
 
-                <div class="job-details-match" id="jobDetailsMatch"></div>
+                        <div class="job-details-match" id="jobDetailsMatch"></div>
 
-                <div class="job-details-section">
-                    <h3>About the role</h3>
-                    <p id="jobDetailsDescription"></p>
-                </div>
+                        <div class="job-details-section">
+                            <h3>About the role</h3>
+                            <p id="jobDetailsDescription"></p>
+                        </div>
 
-                <div class="job-details-skills">
-                    <div class="job-details-section">
-                        <h3>You have</h3>
-                        <div class="job-details-skill-list job-details-skill-list--have" id="jobDetailsHave"></div>
+                        <div class="job-details-skills">
+                            <div class="job-details-section">
+                                <h3>You have</h3>
+                                <div class="job-details-skill-list job-details-skill-list--have" id="jobDetailsHave"></div>
+                            </div>
+
+                            <div class="job-details-section">
+                                <h3>Missing</h3>
+                                <div class="job-details-skill-list job-details-skill-list--missing" id="jobDetailsMissing"></div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="job-details-section">
-                        <h3>Missing</h3>
-                        <div class="job-details-skill-list job-details-skill-list--missing" id="jobDetailsMissing"></div>
-                    </div>
+                    <aside class="job-details-sidebar">
+                        <div class="company-panel">
+                            <span class="company-panel-label">About the company</span>
+                            <h3 id="jobCompanyName">Company</h3>
+                            <p id="jobCompanyDescription"></p>
+
+                            <div class="company-contact" id="jobCompanyContact"></div>
+                        </div>
+
+                        <div class="resume-panel">
+                            <span class="company-panel-label">Your resume</span>
+                            <strong id="jobResumeStatus">Checking resume...</strong>
+                            <p>Keep your resume ready so you can apply quickly.</p>
+
+                            <div class="resume-panel-actions">
+                                <a
+                                    class="resume-panel-button"
+                                    href="/resume.html"
+                                >
+                                    Upload / Update
+                                </a>
+                                <a
+                                    class="resume-panel-link"
+                                    id="jobResumeView"
+                                    href="#"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    hidden
+                                >
+                                    View Resume
+                                </a>
+                            </div>
+                        </div>
+                    </aside>
                 </div>
 
                 <div class="job-details-actions">
@@ -525,6 +564,11 @@ export function initJobs() {
         document.querySelector('#jobDetailsDescription').textContent = 'Loading details...';
         document.querySelector('#jobDetailsHave').innerHTML = '';
         document.querySelector('#jobDetailsMissing').innerHTML = '';
+        document.querySelector('#jobCompanyName').textContent = '';
+        document.querySelector('#jobCompanyDescription').textContent = 'Loading company information...';
+        document.querySelector('#jobCompanyContact').innerHTML = '';
+        document.querySelector('#jobResumeStatus').textContent = 'Checking resume...';
+        document.querySelector('#jobResumeView').hidden = true;
 
         try {
             const response = await fetch(
@@ -566,6 +610,73 @@ export function initJobs() {
 
             document.querySelector('#jobDetailsDescription').textContent =
                 job.description || 'No job description provided yet.';
+
+            const company = data.company || {};
+
+            document.querySelector('#jobCompanyName').textContent =
+                job.company || 'Company';
+
+            document.querySelector('#jobCompanyDescription').textContent =
+                company.description || 'Company information will be available here.';
+
+            const contactItems = [];
+
+            if (company.email) {
+                contactItems.push(
+                    `<a href="mailto:${escapeHtml(company.email)}">${escapeHtml(company.email)}</a>`
+                );
+            }
+
+            if (company.phone) {
+                contactItems.push(
+                    `<a href="tel:${escapeHtml(company.phone)}">${escapeHtml(company.phone)}</a>`
+                );
+            }
+
+            if (company.website) {
+                contactItems.push(
+                    `<a href="${escapeHtml(company.website)}" target="_blank" rel="noopener noreferrer">Company website</a>`
+                );
+            }
+
+            document.querySelector('#jobCompanyContact').innerHTML =
+                contactItems.length
+                    ? contactItems.join('')
+                    : '<span>No contact information listed.</span>';
+
+            try {
+                const resumeResponse = await fetch(
+                    '/api/resume/current',
+                    { credentials: 'include' }
+                );
+
+                if (resumeResponse.ok) {
+                    const resumeData = await resumeResponse.json();
+                    const resume = resumeData.resume;
+
+                    if (resume) {
+                        document.querySelector('#jobResumeStatus').textContent =
+                            resume.original_name;
+
+                        const resumeView =
+                            document.querySelector('#jobResumeView');
+
+                        resumeView.href =
+                            `/uploads/${encodeURIComponent(resume.stored_name)}`;
+
+                        resumeView.hidden = false;
+                    } else {
+                        document.querySelector('#jobResumeStatus').textContent =
+                            'No resume uploaded yet.';
+                    }
+                } else {
+                    document.querySelector('#jobResumeStatus').textContent =
+                        'Upload a resume to apply quickly.';
+                }
+            } catch (resumeError) {
+                document.querySelector('#jobResumeStatus').textContent =
+                    'Upload a resume to apply quickly.';
+            }
 
             const have = Array.isArray(data.matchingSkills)
                 ? data.matchingSkills
