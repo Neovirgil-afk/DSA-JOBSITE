@@ -647,6 +647,27 @@ export function initJobs() {
                     ? contactItems.join('')
                     : '<span>No contact information listed.</span>';
 
+            const have = Array.isArray(data.matchingSkills)
+                ? data.matchingSkills
+                : [];
+
+            const missing = Array.isArray(data.missingSkills)
+                ? data.missingSkills
+                : [];
+
+            document.querySelector('#jobDetailsHave').innerHTML =
+                have.length
+                    ? have.map((skill) =>
+                        `<span>${escapeHtml(skill)}</span>`
+                    ).join('')
+                    : '<span class="job-details-empty">No matching skills yet.</span>';
+
+            document.querySelector('#jobDetailsMissing').innerHTML =
+                missing.length
+                    ? missing.map((skill) =>
+                        `<span>${escapeHtml(skill)}</span>`
+                    ).join('')
+                    : '<span class="job-details-empty">You meet the listed skill requirements.</span>';
             async function refreshJobResume() {
                 const resumeResponse = await fetch(
                     '/api/resume/current',
@@ -672,13 +693,10 @@ export function initJobs() {
                 }
             }
 
-            try {
-                await refreshJobResume();
-            } catch (resumeError) {
+            refreshJobResume().catch(() => {
                 document.querySelector('#jobResumeStatus').textContent =
                     'Upload a resume to apply quickly.';
-            }
-
+            });
             const resumeFile =
                 document.querySelector('#jobResumeFile');
 
@@ -771,27 +789,8 @@ export function initJobs() {
                 });
             }
 
-            const have = Array.isArray(data.matchingSkills)
-                ? data.matchingSkills
-                : [];
 
-            const missing = Array.isArray(data.missingSkills)
-                ? data.missingSkills
-                : [];
 
-            document.querySelector('#jobDetailsHave').innerHTML =
-                have.length
-                    ? have.map((skill) =>
-                        `<span>${escapeHtml(skill)}</span>`
-                    ).join('')
-                    : '<span class="job-details-empty">No matching skills yet.</span>';
-
-            document.querySelector('#jobDetailsMissing').innerHTML =
-                missing.length
-                    ? missing.map((skill) =>
-                        `<span>${escapeHtml(skill)}</span>`
-                    ).join('')
-                    : '<span class="job-details-empty">You meet the listed skill requirements.</span>';
 
             const applyButton =
                 document.querySelector('#jobApplyButton');
