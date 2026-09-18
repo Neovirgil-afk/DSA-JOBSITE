@@ -91,3 +91,22 @@ CREATE TABLE IF NOT EXISTS career_path_skills (
     FOREIGN KEY (career_path_id) REFERENCES career_paths(id) ON DELETE CASCADE,
     FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE
 );
+
+
+CREATE TABLE IF NOT EXISTS company_profiles (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_name TEXT UNIQUE NOT NULL,
+    description TEXT,
+    email TEXT,
+    phone TEXT,
+    website TEXT
+);
+
+CREATE TABLE IF NOT EXISTS user_resumes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    original_name TEXT NOT NULL,
+    stored_name TEXT NOT NULL,
+    uploaded_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
