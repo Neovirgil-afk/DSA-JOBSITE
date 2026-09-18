@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume Builder — JobSite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<style>
+.builder-page{min-height:100vh;background:var(--cream)}
+.builder-header{padding:20px 0;border-bottom:1px solid var(--line);background:rgba(253,252,251,.94)}
+.builder-header .header-inner{display:flex;align-items:center}
+.builder-nav{margin-left:auto;display:flex;gap:24px}
+.builder-nav a{color:var(--ink);font-size:13px;font-weight:600;text-decoration:none}.builder-nav a:hover{color:var(--indigo)}
+.builder-main{padding:42px 0 70px}.builder-heading{margin-bottom:24px}.builder-heading h1{font-family:var(--font-display);font-size:36px;color:var(--navy);letter-spacing:-.025em}.builder-heading p{margin:8px 0 0;color:var(--muted);font-size:13px}
+.builder-grid{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(420px,1.1fr);gap:22px;align-items:start}
+.builder-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:var(--shadow-card)}
+.builder-card h2{margin:0;font-family:var(--font-display);font-size:18px;color:var(--navy)}.builder-card h3{margin:25px 0 12px;font-size:13px;color:var(--navy)}
+.builder-section-note{margin:6px 0 18px;color:var(--muted);font-size:11.5px}
+.builder-form{display:grid;gap:11px}.builder-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.builder-field{display:grid;gap:5px}.builder-field label{font-size:11px;font-weight:700;color:var(--muted)}.builder-field input,.builder-field textarea{width:100%;box-sizing:border-box;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font:12px Inter,sans-serif;outline:none}.builder-field input:focus,.builder-field textarea:focus{border-color:#bcb8ef;box-shadow:0 0 0 3px rgba(79,70,229,.06)}.builder-field textarea{min-height:72px;resize:vertical}
+.builder-entry{padding:14px;margin-top:10px;border:1px solid #e8e8ef;border-radius:12px;background:#fcfcfd}.builder-entry:first-of-type{margin-top:0}.builder-entry-actions{display:flex;justify-content:flex-end;margin-top:8px}.builder-remove{border:0;background:none;color:#a05b5b;font-size:11px;font-weight:700;cursor:pointer}
+.builder-add{margin-top:10px;padding:8px 12px;border:1px dashed #c8c5e9;border-radius:8px;background:#faf9ff;color:var(--indigo);font-size:11px;font-weight:700;cursor:pointer}
+.builder-actions{display:flex;align-items:center;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}.builder-save{padding:10px 16px;border:0;border-radius:9px;background:var(--indigo);color:#fff;font-size:12px;font-weight:700;cursor:pointer}.builder-print{padding:10px 16px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font-size:12px;font-weight:700;cursor:pointer}.builder-status{margin-left:auto;color:var(--muted);font-size:11px}
+.resume-preview-wrap{position:sticky;top:20px}.resume-paper{min-height:700px;padding:40px;background:#fff;color:#20242e;box-shadow:0 12px 35px rgba(25,25,50,.10);font-family:Arial,sans-serif}.resume-paper h1{margin:0;font-size:28px}.resume-contact{margin:7px 0 20px;color:#596070;font-size:11px}.resume-paper h4{margin:18px 0 7px;padding-bottom:4px;border-bottom:1px solid #ddd;font-size:11px;text-transform:uppercase;letter-spacing:.08em}.resume-paper p{margin:4px 0;font-size:11px;line-height:1.5}.resume-paper .resume-item{margin-bottom:9px}.resume-paper .resume-item strong{font-size:12px}.resume-muted{color:#777;font-size:10px}
+@media(max-width:900px){.builder-grid{grid-template-columns:1fr}.resume-preview-wrap{position:static}.resume-paper{min-height:500px}.builder-nav{gap:12px}}
+@media(max-width:600px){.builder-two{grid-template-columns:1fr}.builder-card{padding:18px}.resume-paper{padding:25px}.builder-heading h1{font-size:30px}}
+@media print{.builder-header,.builder-heading,.builder-form-card,.builder-actions{display:none!important}.builder-main{padding:0}.builder-grid{display:block}.resume-preview-wrap{position:static}.resume-paper{box-shadow:none;padding:35px}.builder-page{background:#fff}}
+</style>
+</head>
+<body class="builder-page">
+<header class="builder-header"><div class="wrap header-inner">
+<a class="logo" href="/"><span class="logo-text">JOB<span class="logo-accent">SITE</span></span><svg class="logo-plane" width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M21.5 2.5L2 10.2c-.8.3-.8 1.4 0 1.7l7.6 2.9 2.9 7.6c.3.8 1.4.8 1.7 0L21.9 3.9c.3-.9-.6-1.7-1.4-1.4z" fill="currentColor"/></svg></a>
+<nav class="builder-nav"><a href="/">Find Jobs</a><a href="/profile.html">My Profile</a></nav>
+</div></header>
+<main class="builder-main"><div class="wrap">
+<div class="builder-heading"><h1>Build your resume.</h1><p>Create a structured resume that stays connected to your JobSite profile.</p></div>
+<div class="builder-grid">
+<section class="builder-card builder-form-card">
+<h2>Resume Information</h2><p class="builder-section-note">Your draft is saved to your account. You can update it anytime.</p>
+<div class="builder-form" id="builderForm">
+<h3>Personal Information</h3>
+<div class="builder-two">
+<div class="builder-field"><label>FULL NAME</label><input id="fullName" placeholder="Your name"></div>
+<div class="builder-field"><label>EMAIL</label><input id="email" type="email" placeholder="you@email.com"></div>
+</div>
+<div class="builder-two">
+<div class="builder-field"><label>PHONE</label><input id="phone" placeholder="+63 ..."></div>
+<div class="builder-field"><label>LOCATION</label><input id="location" placeholder="City, Philippines"></div>
+</div>
+<div class="builder-field"><label>PROFESSIONAL SUMMARY</label><textarea id="summary" placeholder="A short introduction about your experience, strengths, and career direction."></textarea></div>
+
+<h3>Education</h3><div id="educationList"></div><button type="button" class="builder-add" id="addEducation">+ Add education</button>
+<h3>Experience</h3><div id="experienceList"></div><button type="button" class="builder-add" id="addExperience">+ Add experience</button>
+<h3>Projects</h3><div id="projectsList"></div><button type="button" class="builder-add" id="addProject">+ Add project</button>
+<h3>Certifications</h3><div id="certificationsList"></div><button type="button" class="builder-add" id="addCertification">+ Add certification</button>
+
+<div class="builder-actions"><button type="button" class="builder-save" id="saveResume">Save Resume</button><button type="button" class="builder-print" id="printResume">Print / Save PDF</button><span class="builder-status" id="builderStatus"></span></div>
+</div>
+</section>
+<section class="resume-preview-wrap"><div class="builder-card"><h2>Live Preview</h2><p class="builder-section-note">This is the resume layout employers will eventually see.</p><div class="resume-paper" id="resumePaper"></div></div></section>
+</div></div></main>
+<script type="module" src="/js/resume-builder.js"></script>
+</body>
+</html>
