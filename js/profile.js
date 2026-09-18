@@ -1428,6 +1428,16 @@ function initHeader() {
             '#mobileLogoutButton'
         );
 
+    const menuToggle =
+        document.querySelector(
+            '#menuToggle'
+        );
+
+    const mobileMenu =
+        document.querySelector(
+            '#mobileMenu'
+        );
+
 
     if (profileButton) {
 
