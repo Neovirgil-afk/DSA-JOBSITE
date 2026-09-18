@@ -637,7 +637,6 @@ export function initJobs() {
         document.querySelector('#jobCompanyDescription').textContent = 'Loading company information...';
         document.querySelector('#jobCompanyContact').innerHTML = '';
         document.querySelector('#jobResumeStatus').textContent = 'Checking resume...';
-        document.querySelector('#jobResumeView').hidden = true;
         document.querySelector('#jobResumeUploadStatus').textContent = '';
 
         try {
