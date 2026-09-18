@@ -3903,3 +3903,179 @@ body.job-modal-open {
         font-size: 23px;
     }
 }
+
+/* =========================================================
+   PROFILE CLEAN POLISH
+   Keep the layout flow-based: no visual offsets or absolute positioning.
+   ========================================================= */
+
+.profile-info-card {
+    position: static;
+}
+
+.profile-main > .wrap {
+    max-width: var(--wrap);
+}
+
+.profile-layout {
+    width: 100%;
+}
+
+.profile-learning-card {
+    margin-top: 24px;
+    padding: 26px 28px;
+}
+
+.profile-learning-intro {
+    max-width: 680px;
+}
+
+.profile-learning-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-width: 0;
+}
+
+.profile-learning-recommendations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.profile-learning-empty {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.profile-learning-recommendation {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 11px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fafaff;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.profile-learning-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding: 9px 15px;
+    border-radius: 10px;
+    background: var(--indigo);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.profile-learning-button:hover {
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-card);
+}
+
+.profile-saved-jobs-card {
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+.profile-saved-jobs-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.profile-saved-job-item {
+    min-width: 0;
+}
+
+.profile-saved-job-item > div {
+    min-width: 0;
+}
+
+@media (max-width: 900px) {
+    .profile-page-heading {
+        align-items: flex-start;
+    }
+
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-info-card {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .profile-learning-body {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .profile-learning-button {
+        align-self: flex-start;
+    }
+}
+
+@media (max-width: 700px) {
+    .profile-main {
+        padding-top: 24px;
+    }
+
+    .profile-page-heading {
+        flex-direction: column;
+        gap: 18px;
+        margin-bottom: 25px;
+    }
+
+    .profile-back-button {
+        align-self: flex-start;
+    }
+
+    .profile-layout {
+        gap: 18px;
+    }
+
+    .profile-card-heading h2 {
+        font-size: 21px;
+    }
+
+    .profile-skills-heading {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .profile-skill-actions {
+        width: 100%;
+    }
+
+    .profile-learning-card,
+    .profile-saved-jobs-card {
+        padding: 22px 20px;
+    }
+
+    .profile-saved-jobs-list {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-saved-job-item {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .profile-remove-job-button {
+        align-self: flex-start;
+    }
+}
+
