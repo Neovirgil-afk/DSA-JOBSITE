@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    const state = { recommendations: [], catalog: [], activeSkill: '', activeLesson: 0, phase: 'lesson', quiz: null, quizAnswers: [] };
+    const state = { recommendations: [], catalog: [], activeSkill: '', activeLesson: 0, phase: 'lesson', quiz: null, quizAnswers: [], resources: [] };
     const $ = (selector) => document.querySelector(selector);
 
     function escapeHTML(value) {
@@ -87,7 +87,7 @@
         $('#backToLesson')?.addEventListener('click', () => {
             state.phase = 'lesson';
             state.activeLesson = 0;
-            renderLesson(lesson, []);
+            renderLesson(lesson, state.resources);
         });
 
         $('#submitQuiz')?.addEventListener('click', () => renderQuizResult(lesson));
