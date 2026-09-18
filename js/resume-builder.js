@@ -537,23 +537,43 @@ async function saveResume() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function initResumeBuilder() {
     const form = $('#builderForm');
 
-    if (!form) return;
+    if (!form) {
+        console.error('[builder] #builderForm was not found.');
+        return;
+    }
+
+    /* Render immediately. The page should work even while profile data loads. */
+    renderPreview();
 
     form.addEventListener('click', (event) => {
         const addButton = event.target.closest('[data-add]');
 
         if (addButton) {
             event.preventDefault();
+            event.stopPropagation();
             addEntry(addButton.dataset.add);
-            return;
         }
     });
 
-    $('#saveResume').addEventListener('click', saveResume);
-    $('#printResume').addEventListener('click', () => window.print());
+    const saveButton = $('#saveResume');
+    const printButton = $('#printResume');
+
+    if (saveButton) {
+        saveButton.addEventListener('click', saveResume);
+    }
+
+    if (printButton) {
+        printButton.addEventListener('click', () => window.print());
+    }
 
     load();
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initResumeBuilder);
+} else {
+    initResumeBuilder();
+}
