@@ -38,6 +38,145 @@
 .builder-preview-card{position:sticky;top:18px}
 @media(max-width:900px){.builder-preview-card{position:static}}
 
+
+
+/* Mobile / tablet layout */
+@media (max-width: 900px) {
+    .builder-header .header-inner {
+        gap: 12px;
+    }
+
+    .builder-nav {
+        display: none;
+    }
+
+    .builder-header .mobile-nav-toggle {
+        display: flex;
+    }
+
+    .builder-header .mobile-nav-panel {
+        position: absolute;
+        top: calc(100% - 4px);
+        left: 16px;
+        right: 16px;
+        display: block;
+        max-height: 0;
+        overflow: hidden;
+        padding: 0 14px;
+        border: 1px solid transparent;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: none;
+        opacity: 0;
+        transform: translateY(-6px);
+        transition: max-height .2s ease, opacity .18s ease, transform .18s ease, padding .2s ease;
+        pointer-events: none;
+        z-index: 50;
+    }
+
+    body.mobile-nav-open {
+        overflow: hidden;
+    }
+
+    body.mobile-nav-open .builder-header .mobile-nav-panel {
+        max-height: calc(100vh - 80px);
+        padding: 10px 14px;
+        border-color: var(--line);
+        box-shadow: var(--shadow-card);
+        opacity: 1;
+        transform: translateY(0);
+        overflow-y: auto;
+        pointer-events: auto;
+    }
+
+    .builder-header .mobile-nav-clone {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 2px;
+    }
+
+    .builder-header .mobile-nav-clone > a,
+    .builder-header .mobile-nav-clone > .builder-nav-dropdown > .builder-nav-dropdown-btn {
+        width: 100%;
+        padding: 11px 10px;
+        border-radius: 9px;
+        text-align: left;
+    }
+
+    .builder-header .mobile-nav-clone .builder-nav-dropdown-panel {
+        position: static;
+        min-width: 0;
+        padding: 2px 0 5px 12px;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+@media (max-width: 700px) {
+    .builder-main {
+        padding: 30px 0 50px;
+    }
+
+    .builder-heading h1 {
+        font-size: 29px;
+    }
+
+    .builder-heading p {
+        font-size: 12.5px;
+        line-height: 1.55;
+    }
+
+    .builder-card {
+        padding: 18px;
+        border-radius: 15px;
+    }
+
+    .builder-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .builder-two {
+        grid-template-columns: 1fr;
+    }
+
+    .builder-field input,
+    .builder-field textarea {
+        font-size: 13px;
+    }
+
+    .builder-actions {
+        flex-wrap: wrap;
+    }
+
+    .builder-status {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .resume-paper {
+        min-height: 0;
+        padding: 26px 20px;
+        overflow-wrap: anywhere;
+    }
+
+    .resume-paper h1 {
+        font-size: 25px;
+    }
+}
+
+@media (max-width: 420px) {
+    .builder-actions .builder-save,
+    .builder-actions .builder-print {
+        flex: 1 1 100%;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
 </style>
 </head>
 <body class="builder-page">
