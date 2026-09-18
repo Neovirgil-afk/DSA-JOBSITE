@@ -2,8 +2,14 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { PDFParse } = require('pdf-parse');
-const pdfPoppler = require('pdf-poppler');
+const { execFile } = require('child_process');
+const { promisify } = require('util');
 const mammoth = require('mammoth');
+
+// pdf-poppler only supports Windows. Render runs Linux, so use the
+// system Poppler commands there instead of loading the Windows-only package.
+const execFileAsync = promisify(execFile);
+const pdfPoppler = process.platform === 'win32' ? require('pdf-poppler') : null;
 const { createWorker } = require('tesseract.js');
 const HashTable = require('./HashTable');
 const { SKILLS_LIST } = require('./skillsList');
@@ -39,9 +45,56 @@ async function extractTextFromFile(filePath, originalName) {
 // Render scanned PDF pages to PNG using Poppler, then send those images to Tesseract.
 // pdf-poppler bundles its Poppler binaries for Windows, so this avoids the
 // PDF.js compatibility problems we were getting from pdf-to-img.
+async function getPdfPageCount(filePath) {
+    if (pdfPoppler) {
+        const info = await pdfPoppler.info(filePath);
+        return Number(info?.pages) || 0;
+    }
+
+    const { stdout } = await execFileAsync('pdfinfo', [filePath]);
+    const match = stdout.match(/^Pages:\s+(\d+)/mi);
+    return match ? Number(match[1]) : 0;
+}
+
+async function renderPdfPage(filePath, pageNumber, outputPrefix) {
+    if (pdfPoppler) {
+        await pdfPoppler.convert(filePath, {
+            format: 'png',
+            out_dir: path.dirname(outputPrefix),
+            out_prefix: path.basename(outputPrefix),
+            page: pageNumber,
+            density: OCR_DENSITY,
+        });
+
+        const renderedFiles = fs.readdirSync(path.dirname(outputPrefix))
+            .filter((file) => file.toLowerCase().endsWith('.png'));
+
+        if (renderedFiles.length === 0) {
+            throw new Error(`Poppler did not produce an image for page ${pageNumber}.`);
+        }
+
+        return path.join(path.dirname(outputPrefix), renderedFiles[renderedFiles.length - 1]);
+    }
+
+    const outputFile = `${outputPrefix}-${pageNumber}.png`;
+
+    await execFileAsync('pdftoppm', [
+        '-png',
+        '-r', String(OCR_DENSITY),
+        '-f', String(pageNumber),
+        '-l', String(pageNumber),
+        '-singlefile',
+        filePath,
+        `${outputPrefix}-${pageNumber}`,
+    ]);
+
+    return outputFile;
+}
+
+// Render scanned PDF pages to PNG using Poppler, then send those images to Tesseract.
+// Windows uses pdf-poppler; Linux (including Render) uses the system Poppler CLI.
 async function ocrPdf(filePath) {
-    const info = await pdfPoppler.info(filePath);
-    const totalPages = Number(info?.pages) || 0;
+    const totalPages = await getPdfPageCount(filePath);
     const pagesToScan = Math.min(totalPages, OCR_MAX_PAGES);
     const pageTexts = [];
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'jobpath-ocr-'));
@@ -53,26 +106,14 @@ async function ocrPdf(filePath) {
         for (let pageNumber = 1; pageNumber <= pagesToScan; pageNumber++) {
             console.log(`[OCR] Rendering page ${pageNumber}/${pagesToScan} with Poppler...`);
 
-            const outputPrefix = `page-${pageNumber}`;
+            const outputPrefix = path.join(tempDir, 'page');
+            const imagePath = await renderPdfPage(filePath, pageNumber, outputPrefix);
 
-            await pdfPoppler.convert(filePath, {
-                format: 'png',
-                out_dir: tempDir,
-                out_prefix: outputPrefix,
-                page: pageNumber,
-                density: OCR_DENSITY,
-            });
-
-            const renderedFiles = fs.readdirSync(tempDir)
-                .filter((file) => file.toLowerCase().endsWith('.png'));
-
-            if (renderedFiles.length === 0) {
+            if (!fs.existsSync(imagePath)) {
                 throw new Error(`Poppler did not produce an image for page ${pageNumber}.`);
             }
 
-            const imagePath = path.join(tempDir, renderedFiles[renderedFiles.length - 1]);
             const imageBuffer = fs.readFileSync(imagePath);
-
             console.log(`[OCR] Recognizing page ${pageNumber}...`);
             const result = await worker.recognize(imageBuffer);
             const pageText = result?.data?.text || '';
@@ -80,12 +121,10 @@ async function ocrPdf(filePath) {
             pageTexts.push(pageText);
             console.log(`[OCR] Page ${pageNumber} complete (${pageText.length} characters).`);
 
-            for (const file of renderedFiles) {
-                try {
-                    fs.unlinkSync(path.join(tempDir, file));
-                } catch (_) {
-                    // Ignore cleanup errors; the temp directory is removed below.
-                }
+            try {
+                fs.unlinkSync(imagePath);
+            } catch (_) {
+                // Ignore cleanup errors; the temp directory is removed below.
             }
         }
     } finally {
