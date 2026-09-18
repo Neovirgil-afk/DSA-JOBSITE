@@ -3,6 +3,104 @@
 const bcrypt = require('bcryptjs');
 const { SKILLS_LIST } = require('./skillsList');
 
+
+const COMPANY_PROFILES = {
+    'NimbusTech Solutions': {
+        description: 'Technology company building cloud-based business software and digital platforms.',
+        email: 'careers@nimbustech.example',
+        phone: '+63 2 8000 1001',
+        website: 'https://nimbustech.example',
+    },
+    'CoreStack Systems': {
+        description: 'Software engineering company focused on enterprise applications and backend systems.',
+        email: 'careers@corestack.example',
+        phone: '+63 32 800 2001',
+        website: 'https://corestack.example',
+    },
+    'PixelForge Studio': {
+        description: 'Digital product studio creating websites, interfaces, and interactive web experiences.',
+        email: 'careers@pixelforge.example',
+        phone: '+63 2 8000 3001',
+        website: 'https://pixelforge.example',
+    },
+    'Insight Metrics Inc.': {
+        description: 'Data-focused team delivering analytics, dashboards, and business intelligence solutions.',
+        email: 'careers@insightmetrics.example',
+        phone: '+63 2 8000 4001',
+        website: 'https://insightmetrics.example',
+    },
+    'Bright Path Digital': {
+        description: 'Digital agency building end-to-end web products for growing businesses.',
+        email: 'careers@brightpath.example',
+        phone: '+63 2 8000 5001',
+        website: 'https://brightpath.example',
+    },
+    'Quantify Labs': {
+        description: 'Software team developing internal tools and practical technology solutions.',
+        email: 'careers@quantifylabs.example',
+        phone: '+63 2 8000 6001',
+        website: 'https://quantifylabs.example',
+    },
+    'Clearview Agency': {
+        description: 'Web agency specializing in client websites, landing pages, and digital experiences.',
+        email: 'careers@clearview.example',
+        phone: '+63 82 800 7001',
+        website: 'https://clearview.example',
+    },
+    'CloudBridge Systems': {
+        description: 'Cloud engineering company focused on infrastructure, automation, and deployment systems.',
+        email: 'careers@cloudbridge.example',
+        phone: '+63 2 8000 8001',
+        website: 'https://cloudbridge.example',
+    },
+    'ShieldWorks': {
+        description: 'Cybersecurity team focused on monitoring, secure systems, and application protection.',
+        email: 'careers@shieldworks.example',
+        phone: '+63 2 8000 9001',
+        website: 'https://shieldworks.example',
+    },
+    'Helpdesk Pro': {
+        description: 'IT support provider helping organizations keep their users and systems productive.',
+        email: 'careers@helpdeskpro.example',
+        phone: '+63 2 8010 1001',
+        website: 'https://helpdeskpro.example',
+    },
+    'Studio Nine': {
+        description: 'Creative studio producing branding, marketing visuals, and digital design assets.',
+        email: 'careers@studionine.example',
+        phone: '+63 2 8010 1101',
+        website: 'https://studionine.example',
+    },
+    'BrightWave Marketing': {
+        description: 'Digital marketing team focused on campaigns, growth, and measurable business results.',
+        email: 'careers@brightwave.example',
+        phone: '+63 2 8010 1201',
+        website: 'https://brightwave.example',
+    },
+};
+
+function ensureCompanyProfiles(db) {
+    const insert = db.prepare(`
+        INSERT OR IGNORE INTO company_profiles
+        (company_name, description, email, phone, website)
+        VALUES (?, ?, ?, ?, ?)
+    `);
+
+    const sync = db.transaction(() => {
+        for (const [company, profile] of Object.entries(COMPANY_PROFILES)) {
+            insert.run(
+                company,
+                profile.description,
+                profile.email,
+                profile.phone,
+                profile.website
+            );
+        }
+    });
+
+    sync();
+}
+
 const JOBS = [
     {
         title: 'Backend Developer',
@@ -196,7 +294,8 @@ const CAREER_PATHS = {
 function seedIfNeeded(db) {
     const jobCount = db.prepare('SELECT COUNT(*) AS c FROM jobs').get().c;
     if (jobCount > 0) {
-        console.log('[seed] Database already populated — skipping seed.');
+        ensureCompanyProfiles(db);
+        console.log('[seed] Database already populated — syncing company profiles.');
         return;
     }
 
@@ -271,6 +370,7 @@ function seedIfNeeded(db) {
     });
 
     seedTx();
+    ensureCompanyProfiles(db);
     console.log('[seed] Done. Demo login: demo@jobpath.com / demo123');
 }
 
