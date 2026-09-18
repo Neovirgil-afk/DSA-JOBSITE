@@ -1044,6 +1044,63 @@ async function saveProfileSkills() {
 
 
 /* =========================================================
+   SAVED RESUME
+   ========================================================= */
+
+async function loadSavedResume() {
+    const status =
+        document.querySelector('#profileResumeStatus');
+
+    const view =
+        document.querySelector('#profileResumeView');
+
+    if (!status || !view) {
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            '/api/resume/current',
+            { credentials: 'include' }
+        );
+
+        if (!response.ok) {
+            throw new Error('Failed to load resume.');
+        }
+
+        const data = await response.json();
+        const resume = data.resume;
+
+        if (!resume) {
+            status.textContent =
+                'No resume uploaded yet.';
+
+            view.hidden = true;
+            return;
+        }
+
+        status.textContent =
+            resume.original_name || 'Resume uploaded';
+
+        view.href =
+            `/uploads/${encodeURIComponent(resume.stored_name)}`;
+
+        view.hidden = false;
+    } catch (error) {
+        status.textContent =
+            'Unable to load resume status.';
+
+        view.hidden = true;
+
+        console.error(
+            '[profile] Failed to load resume:',
+            error
+        );
+    }
+}
+
+
+/* =========================================================
    LOAD PROFILE
    ========================================================= */
 
@@ -1125,6 +1182,7 @@ async function loadProfile() {
         renderSkillEditor();
 
         loadSavedJobs();
+        loadSavedResume();
 
 
         /*
