@@ -35,6 +35,86 @@
 
     <style>
 
+
+        /* =====================================================
+           RESUME CARD
+           ===================================================== */
+
+        .profile-resume-content {
+            margin-top: 24px;
+        }
+
+        .profile-resume-empty {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .profile-resume-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            flex: 0 0 42px;
+            border-radius: 12px;
+            background: #f5f3ff;
+            font-size: 20px;
+        }
+
+        .profile-resume-empty strong {
+            display: block;
+            color: #17203a;
+            font-size: 14px;
+        }
+
+        .profile-resume-empty p {
+            margin: 5px 0 0;
+            color: #697386;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .profile-resume-actions {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e7e8ef;
+        }
+
+        .profile-resume-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 36px;
+            padding: 8px 15px;
+            border-radius: 10px;
+            background: #4f46e5;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .profile-resume-button:hover {
+            color: #ffffff;
+            opacity: 0.92;
+        }
+
+        .profile-resume-link {
+            color: #4f46e5;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .profile-resume-link:hover {
+            text-decoration: underline;
+        }
+
         /* =====================================================
            SKILL ACTION BUTTONS
            ===================================================== */
@@ -860,6 +940,63 @@
                             career information can be added here later.
                         </p>
 
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     RESUME
+                     ================================================= -->
+
+                <section class="profile-card profile-resume-card">
+
+                    <div class="profile-card-heading">
+                        <div>
+                            <span class="profile-section-label">
+                                APPLICATION
+                            </span>
+
+                            <h2>
+                                My Resume
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div class="profile-resume-content" id="profileResumeContent">
+                        <div class="profile-resume-empty">
+                            <span class="profile-resume-icon">📄</span>
+
+                            <div>
+                                <strong id="profileResumeStatus">
+                                    No resume uploaded yet.
+                                </strong>
+
+                                <p>
+                                    Upload a resume to use it for job applications.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="profile-resume-actions">
+                            <a
+                                href="/resume.html"
+                                class="profile-resume-button"
+                            >
+                                Upload Resume
+                            </a>
+
+                            <a
+                                href="#"
+                                id="profileResumeView"
+                                class="profile-resume-link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                hidden
+                            >
+                                Review Resume
+                            </a>
+                        </div>
                     </div>
 
                 </section>
