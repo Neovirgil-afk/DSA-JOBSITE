@@ -82,6 +82,43 @@ input[type=file]{display:none}
 @media(max-width:560px){.career-steps{grid-template-columns:1fr}}
 
 
+
+.learning-section{margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+.learning-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px}
+.learning-heading h4{margin:4px 0 0;font-size:16px;color:var(--navy)}
+.learning-count{padding:5px 8px;border-radius:999px;background:var(--amber-tint);color:#8a5a00;font-size:10px;font-weight:800;white-space:nowrap}
+.career-path-subtitle{margin:6px 0 0;color:var(--muted);font-size:11px}
+.career-progress{display:flex;align-items:center;gap:9px;margin-top:14px}
+.career-progress-track{height:7px;flex:1;overflow:hidden;border-radius:999px;background:#ececf3}
+.career-progress-track span{display:block;height:100%;border-radius:inherit;background:#17a689}
+.career-progress>span{min-width:34px;color:var(--muted);font-size:10px;font-weight:800;text-align:right}
+.learning-groups{display:flex;flex-direction:column;gap:14px}
+.learning-group{padding:13px;border:1px solid #e5e4ed;border-radius:13px;background:#fff}
+.learning-skill{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.learning-skill .career-step-number{background:var(--amber-tint);color:#8a5a00}
+.learning-skill strong{display:block;color:var(--ink);font-size:12px}
+.learning-skill small{display:block;margin-top:2px;color:var(--muted);font-size:9.5px}
+.learning-resources{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.learning-resource{display:flex;align-items:center;gap:9px;min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fafafd;color:inherit;text-decoration:none;transition:transform .15s ease,border-color .15s ease,background .15s ease}
+.learning-resource:hover{transform:translateY(-1px);border-color:#c9c5f5;background:var(--indigo-tint)}
+.learning-resource--youtube{background:#fffafa}
+.learning-resource-icon{display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;border-radius:8px;background:#efedf9;color:var(--indigo);font-size:11px;font-weight:900}
+.learning-resource--youtube .learning-resource-icon{background:#fdebec;color:#c62828}
+.learning-resource-copy{min-width:0;flex:1}
+.learning-resource-copy strong,.learning-resource-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.learning-resource-copy strong{font-size:10.5px;color:var(--ink)}
+.learning-resource-copy small{margin-top:2px;color:var(--muted);font-size:9px}
+.learning-resource-arrow{color:var(--muted);font-size:12px}
+.learning-empty{display:flex;gap:10px;align-items:center;margin-top:20px;padding:13px;border:1px solid #c5e9df;border-radius:12px;background:#f5fffc}
+.learning-empty-icon{display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;border-radius:50%;background:var(--teal-tint);color:#0d8c7c;font-weight:900}
+.learning-empty strong{font-size:11.5px;color:var(--ink)}
+.learning-empty p{margin:2px 0 0;color:var(--muted);font-size:10px;line-height:1.45}
+
+@media (max-width: 700px){
+    .learning-heading{align-items:flex-start;flex-direction:column}
+    .learning-resources{grid-template-columns:1fr}
+}
+
 /* Mobile / tablet layout */
 @media (max-width: 900px) {
     .resume-header .header-inner {
