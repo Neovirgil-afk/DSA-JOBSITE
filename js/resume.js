@@ -84,6 +84,63 @@ function renderJobs(jobs) {
 
 
 
+function resourceIcon(type) {
+    return type === 'youtube' ? '▶' : '↗';
+}
+
+function renderLearningResources(steps) {
+    const missingSteps = steps.filter((step) => !step.completed);
+
+    if (!missingSteps.length) {
+        return `
+            <div class="learning-empty">
+                <span class="learning-empty-icon">✓</span>
+                <div>
+                    <strong>You're caught up.</strong>
+                    <p>You already have every skill in this path. Keep practicing and build a project to strengthen them.</p>
+                </div>
+            </div>
+        `;
+    }
+
+    return `
+        <section class="learning-section">
+            <div class="learning-heading">
+                <div>
+                    <span class="career-path-eyebrow">LEARNING RESOURCES</span>
+                    <h4>Learn the skills you're missing</h4>
+                </div>
+                <span class="learning-count">${missingSteps.length} skill${missingSteps.length === 1 ? '' : 's'} to develop</span>
+            </div>
+            <div class="learning-groups">
+                ${missingSteps.map((step) => `
+                    <div class="learning-group">
+                        <div class="learning-skill">
+                            <span class="career-step-number">${escapeHTML(step.order)}</span>
+                            <div>
+                                <strong>${escapeHTML(step.skill)}</strong>
+                                <small>Recommended before moving to the next step</small>
+                            </div>
+                        </div>
+                        <div class="learning-resources">
+                            ${(Array.isArray(step.resources) ? step.resources : []).map((resource) => `
+                                <a class="learning-resource learning-resource--${escapeHTML(resource.type || 'article')}" href="${escapeHTML(resource.url)}" target="_blank" rel="noopener noreferrer">
+                                    <span class="learning-resource-icon">${resourceIcon(resource.type)}</span>
+                                    <span class="learning-resource-copy">
+                                        <strong>${escapeHTML(resource.title)}</strong>
+                                        <small>${escapeHTML(resource.provider || 'Learning resource')} · ${escapeHTML(resource.description || 'Open resource')}</small>
+                                    </span>
+                                    <span class="learning-resource-arrow">↗</span>
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </section>
+    `;
+}
+
 async function showCareerPath(jobId) {
     if (!careerPathBox || !jobId) return;
 
@@ -102,14 +159,24 @@ async function showCareerPath(jobId) {
         if (!steps.length) {
             careerPathBox.innerHTML = '<div class="career-path-empty">No learning path has been configured for this job yet.</div>';
         } else {
+            const completedCount = steps.filter((step) => step.completed).length;
+            const missingCount = steps.length - completedCount;
+
             careerPathBox.innerHTML = `
                 <div class="career-path-title">
                     <div>
                         <span class="career-path-eyebrow">SKILL GAP</span>
                         <h3>Path to ${escapeHTML(data.job?.title || 'this job')}</h3>
+                        <p class="career-path-subtitle">${completedCount} of ${steps.length} skills already covered · ${missingCount} to develop</p>
                     </div>
                     <button type="button" class="career-path-close" aria-label="Close skill path">×</button>
                 </div>
+
+                <div class="career-progress">
+                    <div class="career-progress-track"><span style="width:${Math.round((completedCount / steps.length) * 100)}%"></span></div>
+                    <span>${Math.round((completedCount / steps.length) * 100)}%</span>
+                </div>
+
                 <div class="career-steps">
                     ${steps.map((step) => `
                         <div class="career-step ${step.completed ? 'completed' : ''}">
@@ -121,7 +188,10 @@ async function showCareerPath(jobId) {
                         </div>
                     `).join('')}
                 </div>
-                <p class="career-path-note">The path follows the project's Graph-based career sequence. Completed skills are taken from your current profile.</p>
+
+                ${renderLearningResources(steps)}
+
+                <p class="career-path-note">The skill sequence comes from the project's Graph-based career path. Learning links are curated starting points; JobSite does not track completion yet.</p>
             `;
         }
 
