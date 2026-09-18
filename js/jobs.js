@@ -268,35 +268,7 @@ export function initJobs() {
                             : ''
                     }
 
-                    ${
-                        Array.isArray(job.matchingSkills) && job.matchingSkills.length
-                            ? `
-                                <div class="job-skill-group">
-                                    <span class="job-skill-label">You have</span>
-                                    <div class="job-skill-list">
-                                        ${job.matchingSkills.slice(0, 6).map((skill) =>
-                                            `<span class="job-skill job-skill--have">${skill}</span>`
-                                        ).join('')}
-                                    </div>
-                                </div>
-                            `
-                            : ''
-                    }
 
-                    ${
-                        Array.isArray(job.missingSkills) && job.missingSkills.length
-                            ? `
-                                <div class="job-skill-group">
-                                    <span class="job-skill-label">Missing</span>
-                                    <div class="job-skill-list">
-                                        ${job.missingSkills.slice(0, 6).map((skill) =>
-                                            `<span class="job-skill job-skill--missing">${skill}</span>`
-                                        ).join('')}
-                                    </div>
-                                </div>
-                            `
-                            : ''
-                    }
 
                                 `;
 
