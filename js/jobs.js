@@ -250,11 +250,48 @@ export function initJobs() {
 
                     ${
                         typeof job.matchScore === 'number'
-                            ? `<span class="match">${job.matchScore}% match</span>`
+                            ? `
+                                <div class="job-match-row">
+                                    <span class="match">${job.matchScore}% match</span>
+                                    ${job.matchScore > 0
+                                        ? '<span class="job-match-label">Based on your skills</span>'
+                                        : ''}
+                                </div>
+                            `
                             : ''
                     }
 
-                `;
+                    ${
+                        Array.isArray(job.matchingSkills) && job.matchingSkills.length
+                            ? `
+                                <div class="job-skill-group">
+                                    <span class="job-skill-label">You have</span>
+                                    <div class="job-skill-list">
+                                        ${job.matchingSkills.slice(0, 6).map((skill) =>
+                                            `<span class="job-skill job-skill--have">${skill}</span>`
+                                        ).join('')}
+                                    </div>
+                                </div>
+                            `
+                            : ''
+                    }
+
+                    ${
+                        Array.isArray(job.missingSkills) && job.missingSkills.length
+                            ? `
+                                <div class="job-skill-group">
+                                    <span class="job-skill-label">Missing</span>
+                                    <div class="job-skill-list">
+                                        ${job.missingSkills.slice(0, 6).map((skill) =>
+                                            `<span class="job-skill job-skill--missing">${skill}</span>`
+                                        ).join('')}
+                                    </div>
+                                </div>
+                            `
+                            : ''
+                    }
+
+                                `;
 
 
                 frag.appendChild(card);
@@ -495,6 +532,39 @@ export function initJobs() {
         try {
             await loadSavedJobIds();
 
+            /*
+             * Try personalized recommendations first.
+             * Guests simply fall back to featured jobs.
+             */
+            const recommendedResponse = await fetch(
+                '/api/jobs/recommended',
+                { credentials: 'include' }
+            );
+
+            if (recommendedResponse.ok) {
+                const recommendedData =
+                    await recommendedResponse.json();
+
+                const recommendedJobs =
+                    Array.isArray(recommendedData.jobs)
+                        ? recommendedData.jobs
+                        : [];
+
+                const hasSkillMatch =
+                    recommendedJobs.some(
+                        (job) => Number(job.matchScore) > 0
+                    );
+
+                if (hasSkillMatch) {
+                    renderJobs(
+                        recommendedJobs.slice(0, 6),
+                        'Recommended for You',
+                        false
+                    );
+                    return;
+                }
+            }
+
             const jobs =
                 await fetchJobs({});
 
@@ -507,7 +577,7 @@ export function initJobs() {
             resultsSection.hidden = true;
 
             console.error(
-                '[JobPath] Failed to load featured jobs:',
+                '[JobPath] Failed to load initial jobs:',
                 error
             );
         }
