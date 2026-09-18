@@ -1242,12 +1242,17 @@ h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.15; }
 }
 
 
-/* Keep Resume and My Skills together in the right column. */
-.profile-resume-card,
-.profile-skills-card {
-    grid-column: 2;
+.profile-career-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
 }
 
+.profile-resume-card {
+    padding: 26px 28px;
+    min-width: 0;
+}
 
 .profile-skills-card {
     padding: 32px;
