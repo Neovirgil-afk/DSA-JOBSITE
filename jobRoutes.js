@@ -168,8 +168,13 @@ router.get('/:id', (req, res) => {
             ? getCareerPathForJob(jobId, getUserSkillNames(req.session.userId))
             : getCareerPathForJob(jobId, []);
 
+        const company = job.company
+            ? db.prepare('SELECT description, email, phone, website FROM company_profiles WHERE company_name = ?').get(job.company)
+            : null;
+
         res.json({
             job,
+            company,
             matchScore,
             matchingSkills,
             missingSkills,
