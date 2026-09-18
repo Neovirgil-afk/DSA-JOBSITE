@@ -3903,3 +3903,146 @@ body.job-modal-open {
         font-size: 23px;
     }
 }
+
+/* =========================================================
+   PROFILE FINAL ALIGNMENT POLISH
+   ========================================================= */
+
+.profile-main > .wrap {
+    max-width: 1180px;
+}
+
+.profile-layout {
+    grid-template-columns: minmax(290px, 350px) minmax(0, 1fr);
+    gap: 22px;
+}
+
+.profile-info-card {
+    padding: 26px;
+}
+
+.profile-career-column {
+    gap: 22px;
+}
+
+.profile-resume-card {
+    padding: 24px 26px;
+}
+
+.profile-skills-card {
+    padding: 28px;
+}
+
+.profile-card-heading {
+    margin-bottom: 20px;
+}
+
+.profile-card-heading h2 {
+    line-height: 1.2;
+}
+
+.profile-resume-row {
+    min-height: 68px;
+}
+
+.profile-saved-jobs-card,
+.profile-learning-card {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.profile-learning-card {
+    margin-top: 22px;
+}
+
+.profile-saved-jobs-card {
+    margin-top: 22px;
+}
+
+.profile-learning-card .profile-card-heading,
+.profile-saved-jobs-card .profile-card-heading {
+    margin-bottom: 16px;
+}
+
+.profile-learning-body {
+    min-height: 58px;
+    box-sizing: border-box;
+}
+
+.profile-saved-jobs-card {
+    padding: 26px 28px;
+}
+
+.profile-saved-job-item {
+    min-width: 0;
+}
+
+@media (max-width: 899px) {
+    .profile-layout {
+        gap: 18px;
+    }
+
+    .profile-info-card {
+        padding: 24px;
+    }
+
+    .profile-resume-card {
+        padding: 22px 24px;
+    }
+
+    .profile-learning-card,
+    .profile-saved-jobs-card {
+        margin-top: 18px;
+    }
+}
+
+@media (max-width: 600px) {
+    .profile-main > .wrap {
+        width: min(100% - 28px, 1180px);
+    }
+
+    .profile-page-heading {
+        gap: 16px;
+    }
+
+    .profile-page-heading h1 {
+        line-height: 1.05;
+    }
+
+    .profile-page-subtitle {
+        margin-top: 9px;
+    }
+
+    .profile-info-card,
+    .profile-resume-card,
+    .profile-skills-card,
+    .profile-learning-card,
+    .profile-saved-jobs-card {
+        padding: 20px;
+        border-radius: 18px;
+    }
+
+    .profile-resume-row {
+        gap: 14px;
+        padding: 14px;
+    }
+
+    .profile-resume-actions {
+        width: 100%;
+    }
+
+    .profile-resume-button,
+    .profile-resume-link-button,
+    .profile-resume-secondary-button {
+        flex: 1 1 auto;
+    }
+
+    .profile-learning-body {
+        gap: 14px;
+    }
+
+    .profile-saved-job-item {
+        padding: 14px;
+    }
+}
+
