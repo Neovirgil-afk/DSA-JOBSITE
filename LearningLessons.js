@@ -66,6 +66,70 @@ const LESSONS = {
   ]
 };
 
+
+const QUIZZES = {
+  HTML: [
+    ['What is HTML mainly used for?', ['Styling a page', 'Structuring page content', 'Storing database records', 'Running a server'], 1, 'HTML describes the structure and meaning of web content.'],
+    ['Which element is commonly used for the main page heading?', ['<h1>', '<p>', '<img>', '<br>'], 0, '<h1> is the top-level heading element.'],
+    ['What do attributes provide?', ['Extra information about an element', 'Database tables', 'CSS files only', 'Server hardware'], 0, 'Attributes add information or configuration to an HTML element.']
+  ],
+  CSS: [
+    ['What is CSS mainly used for?', ['Page styling and layout', 'Database storage', 'Server routing', 'Version control'], 0, 'CSS controls presentation such as typography, spacing, and layout.'],
+    ['What does a selector do?', ['Chooses elements to style', 'Creates a database', 'Uploads a file', 'Starts a server'], 0, 'A selector identifies which elements a CSS rule applies to.'],
+    ['Which layout system is designed around rows and columns?', ['Grid', 'FTP', 'SMTP', 'JSON'], 0, 'CSS Grid is designed for two-dimensional row and column layouts.']
+  ],
+  JavaScript: [
+    ['What does JavaScript commonly add to a web page?', ['Interactivity and logic', 'Only colors', 'Only database tables', 'Physical hardware'], 0, 'JavaScript can respond to events, change content, and run application logic.'],
+    ['Which value is a boolean?', ['"hello"', '42', 'true', '[1,2]'], 2, 'true and false are boolean values.'],
+    ['What is a function?', ['A reusable block of logic', 'A CSS selector', 'A database row', 'An image format'], 0, 'Functions group logic so it can be called and reused.']
+  ],
+  Git: [
+    ['What does Git primarily track?', ['Changes to files', 'Monitor brightness', 'Network cables', 'CPU temperature'], 0, 'Git is a version control system that records changes to files.'],
+    ['What does a commit represent?', ['A saved set of changes in history', 'A new monitor', 'A database server', 'A CSS property'], 0, 'A commit records a set of changes in the repository history.'],
+    ['Why use a branch?', ['To work on a separate line of development', 'To increase RAM', 'To style HTML', 'To encrypt every file'], 0, 'Branches isolate development work from another line such as main.']
+  ],
+  SQL: [
+    ['Which SQL command reads data?', ['SELECT', 'PAINT', 'PUSH', 'STYLE'], 0, 'SELECT retrieves rows from a database.'],
+    ['What does WHERE do?', ['Filters rows', 'Creates a color', 'Starts a server', 'Renames a monitor'], 0, 'WHERE limits results to rows that satisfy a condition.'],
+    ['Which command adds a new row?', ['INSERT', 'DELETE', 'ORDER', 'BRANCH'], 0, 'INSERT adds records to a table.']
+  ],
+  Python: [
+    ['What does indentation help define in Python?', ['Code blocks', 'Image resolution', 'Database indexes only', 'Network speed'], 0, 'Python uses indentation to define blocks of code.'],
+    ['Which keyword makes a decision?', ['if', 'table', 'select', 'className'], 0, 'if runs a block when its condition is true.'],
+    ['What is a function used for?', ['Reusable logic', 'Changing monitor hardware', 'Creating a CSS color', 'Formatting a PDF only'], 0, 'Functions package reusable operations.']
+  ],
+  Java: [
+    ['What organizes Java data and behavior?', ['Classes', 'CSS selectors', 'SQL rows', 'HTML attributes'], 0, 'A Java class defines data and behavior for objects.'],
+    ['Which is a Java primitive type?', ['int', 'StringBuilder', 'ArrayList', 'Scanner'], 0, 'int is a primitive numeric type in Java.'],
+    ['What is an object?', ['An instance of a class', 'A CSS rule', 'A Git branch', 'A SQL keyword'], 0, 'An object is an instance created from a class.']
+  ],
+  React: [
+    ['What are React interfaces built from?', ['Components', 'SQL tables', 'Git commits', 'Network packets'], 0, 'React applications are composed from reusable components.'],
+    ['What is JSX?', ['A syntax for describing UI in JavaScript', 'A database engine', 'A CSS server', 'A Git command'], 0, 'JSX lets developers write UI-like markup within JavaScript.'],
+    ['What can state represent?', ['Data that can change over time', 'Only CSS colors', 'A Git repository', 'A database server'], 0, 'State stores changing data that can affect rendered UI.']
+  ],
+  'Node.js': [
+    ['What does Node.js provide?', ['A JavaScript runtime outside the browser', 'A CSS editor', 'A database table', 'A Git hosting site'], 0, 'Node.js lets JavaScript run outside the browser.'],
+    ['What is npm commonly used for?', ['Managing packages', 'Styling HTML', 'Drawing icons', 'Changing CPU speed'], 0, 'npm is commonly used to install and manage JavaScript packages.'],
+    ['What does an HTTP server do?', ['Receives requests and sends responses', 'Only styles pages', 'Only stores passwords', 'Creates Git branches'], 0, 'HTTP servers handle requests and return responses.']
+  ],
+  'Network Security': [
+    ['What is a firewall used for?', ['Controlling network traffic by rules', 'Writing HTML', 'Editing photos', 'Managing Git commits'], 0, 'Firewalls can allow or block network traffic according to rules.'],
+    ['What does authentication help verify?', ['Identity', 'Screen size', 'CSS syntax', 'File extension'], 0, 'Authentication verifies who or what is requesting access.'],
+    ['What does encryption help protect?', ['Information confidentiality', 'Monitor brightness', 'HTML indentation', 'Git branch names only'], 0, 'Encryption helps prevent unauthorized parties from reading protected information.']
+  ],
+  'Penetration Testing': [
+    ['What is required before authorized penetration testing?', ['Permission and defined scope', 'A random target', 'A public password list', 'No documentation'], 0, 'Security testing should be explicitly authorized and scoped.'],
+    ['What is a main goal of penetration testing?', ['Find and validate security weaknesses safely', 'Damage systems', 'Hide vulnerabilities', 'Remove all logs'], 0, 'Authorized testing identifies weaknesses so they can be fixed.'],
+    ['What should a finding include?', ['Evidence and remediation guidance', 'Only a screenshot with no context', 'A random password', 'A new Git branch'], 0, 'Useful findings document evidence, impact, and recommended remediation.']
+  ],
+  AWS: [
+    ['What does cloud computing provide?', ['On-demand computing resources', 'Only local files', 'Only HTML styling', 'Git commits'], 0, 'Cloud services provide computing resources that can be provisioned when needed.'],
+    ['What is an AWS service?', ['A cloud capability offered by AWS', 'A CSS selector', 'A Git commit', 'A Java variable'], 0, 'AWS provides many distinct cloud services for different workloads.'],
+    ['What does shared responsibility mean?', ['Provider and customer each have security responsibilities', 'Only the customer has responsibilities', 'Only the provider has responsibilities', 'Nobody is responsible'], 0, 'Cloud security responsibilities are divided between the provider and customer.']
+  ]
+};
+
 function getLesson(skill) {
   const name = String(skill || '').trim();
   const lessons = LESSONS[name];
@@ -74,7 +138,8 @@ function getLesson(skill) {
     skill: name,
     level: 'Beginner',
     description: 'Short, foundation-level lessons for learners who are new to this skill.',
-    lessons: lessons.map((item, index) => ({ step: index + 1, title: item[0], content: item[1] }))
+    lessons: lessons.map((item, index) => ({ step: index + 1, title: item[0], content: item[1] })),
+    quiz: (QUIZZES[name] || []).map((item, index) => ({ question: index + 1, prompt: item[0], options: item[1], answer: item[2], explanation: item[3] }))
   };
 }
 
