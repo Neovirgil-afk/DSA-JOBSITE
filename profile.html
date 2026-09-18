@@ -963,8 +963,9 @@
                         </div>
                     </div>
 
-                    <div class="profile-resume-content" id="profileResumeContent">
-                        <div class="profile-resume-empty">
+                    <div class="profile-resume-row" id="profileResumeContent">
+
+                        <div class="profile-resume-summary">
                             <span class="profile-resume-icon">📄</span>
 
                             <div>
@@ -972,31 +973,32 @@
                                     No resume uploaded yet.
                                 </strong>
 
-                                <p>
+                                <p id="profileResumeHint">
                                     Upload a resume to use it for job applications.
                                 </p>
                             </div>
                         </div>
 
                         <div class="profile-resume-actions">
-                            <a
-                                href="/resume.html"
-                                class="profile-resume-button"
-                            >
-                                Upload Resume
-                            </a>
 
-                            <a
-                                href="#"
-                                id="profileResumeView"
-                                class="profile-resume-link"
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <button
+                                type="button"
+                                class="profile-resume-button"
+                                id="profileResumeViewButton"
                                 hidden
                             >
-                                Review Resume
+                                View Resume
+                            </button>
+
+                            <a
+                                href="/resume.html"
+                                class="profile-resume-link-button"
+                            >
+                                Upload / Update
                             </a>
+
                         </div>
+
                     </div>
 
                 </section>
