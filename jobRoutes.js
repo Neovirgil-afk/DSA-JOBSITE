@@ -13,6 +13,29 @@ const { computeSkillGap } = require('./SkillGapService')
 
 const router = express.Router();
 
+const EXPERIENCE_LEVELS = {
+    'Frontend Developer': 'Entry Level',
+    'Backend Developer': 'Intermediate',
+    'Java Developer': 'Intermediate',
+    'Data Analyst': 'Entry Level',
+    'Full Stack Developer': 'Intermediate',
+    'Software Developer': 'Intermediate',
+    'Web Developer': 'Entry Level',
+    'Data Scientist': 'Expert',
+    'DevOps Engineer': 'Intermediate',
+    'Security Analyst': 'Entry Level',
+    'Security Engineer': 'Expert',
+    'IT Support Specialist': 'Entry Level',
+    'Graphic Designer': 'Entry Level',
+    'UX/UI Designer': 'Entry Level',
+    'Marketing Specialist': 'Entry Level',
+    'Spring Boot Developer': 'Intermediate',
+};
+
+function getExperienceLevel(jobTitle) {
+    return EXPERIENCE_LEVELS[jobTitle] || 'Intermediate';
+}
+
 
 router.get('/', (req, res) => {
     try {
@@ -145,7 +168,14 @@ router.get('/:id', (req, res) => {
             ? getCareerPathForJob(jobId, getUserSkillNames(req.session.userId))
             : getCareerPathForJob(jobId, []);
 
-        res.json({ job, matchScore, matchingSkills, missingSkills, careerPath });
+        res.json({
+            job,
+            matchScore,
+            matchingSkills,
+            missingSkills,
+            careerPath,
+            experienceLevel: getExperienceLevel(job.title),
+        });
     } catch (err) {
         console.error('[GET /api/jobs/:id] error:', err);
         res.status(500).json({ error: 'Failed to load job details.' });
