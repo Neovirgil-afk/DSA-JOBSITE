@@ -444,7 +444,8 @@ async function load() {
             fullName: profile.full_name || '',
             email: profile.email || '',
             phone: '',
-            location: profile.location || '',
+            /* Keep location blank; the user chooses what to display on the resume. */
+            location: '',
             summary: '',
             education: profile.education || profile.degree
                 ? [{
