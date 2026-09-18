@@ -10,7 +10,70 @@
 @media(max-width:620px){.learning-resource-grid{grid-template-columns:1fr}.learning-actions{align-items:stretch;flex-direction:column}.learning-action-button{width:100%}.learning-content-top{flex-direction:column}.learning-action-copy{order:-1}.learning-main{padding-top:25px}}
 
 .learning-quiz-list{display:flex;flex-direction:column;gap:13px;margin-top:22px}.learning-question{padding:18px;border:1px solid #e4e3ed;border-radius:13px;background:#fff}.learning-question-number{color:var(--indigo);font-size:9px;font-weight:800;letter-spacing:.08em}.learning-question h3{margin-top:5px;color:var(--navy);font-size:14px;line-height:1.45}.learning-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:13px}.learning-option{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fafafd;color:var(--ink);text-align:left;font:600 11px Inter,sans-serif;cursor:pointer}.learning-option:hover{border-color:#c9c5f5;background:var(--indigo-tint)}.learning-option.selected{border-color:var(--indigo);background:var(--indigo-tint);color:var(--indigo-dark);box-shadow:inset 0 0 0 1px var(--indigo)}.learning-option:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}.learning-score-badge{padding:8px 11px;border-radius:999px;background:var(--indigo-tint);color:var(--indigo-dark);font-size:12px;font-weight:800;white-space:nowrap}.learning-result{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;padding:14px 16px;border:1px solid #c8e9df;border-radius:12px;background:#f5fffc;color:#16845e}.learning-result.review{border-color:#f0dfb7;background:#fffaf0;color:#95610b}.learning-result strong{font-size:12px}.learning-result span{font-size:11px}.learning-question-result{border-left:4px solid #e0dfeb}.learning-question-result.correct{border-left-color:#19a884}.learning-question-result.incorrect{border-left-color:#d79b35}.learning-answer-result{margin-top:9px!important;color:var(--ink)!important;font-size:11px!important;line-height:1.5!important}.learning-question-result>p:last-child{margin-top:5px;color:var(--muted);font-size:10.5px;line-height:1.5}@media(max-width:620px){.learning-options{grid-template-columns:1fr}.learning-result{align-items:flex-start;flex-direction:column}}
-</style></head>
+</style>
+<style>
+/* Final Learning Hub UI polish */
+.learning-page{background:linear-gradient(180deg,#fbfbfe 0%,var(--cream) 34%,var(--cream) 100%)}
+.learning-main{padding:42px 0 78px}
+.learning-hero{margin-bottom:24px}
+.learning-eyebrow{letter-spacing:.12em}
+.learning-hero h1{max-width:760px;line-height:1.08}
+.learning-hero p{max-width:680px}
+.learning-hero>.btn{flex-shrink:0}
+.learning-layout{grid-template-columns:255px minmax(0,1fr);gap:22px}
+.learning-sidebar,.learning-content-card{border-color:#e5e4ee;box-shadow:0 10px 30px rgba(24,28,55,.055)}
+.learning-sidebar{padding:12px}
+.learning-sidebar-label{padding:0 5px;margin:4px 5px 9px}
+.learning-course-item{padding:12px 10px}
+.learning-course-number{transition:.18s ease}
+.learning-course-item:hover .learning-course-number{transform:scale(1.05)}
+.learning-course-item.active .learning-course-number{background:var(--indigo);color:#fff}
+.learning-content-card{padding:30px}
+.learning-content-top{align-items:flex-start;padding-bottom:21px}
+.learning-content-top h2{font-size:29px;letter-spacing:-.025em}
+.learning-content-top p{font-size:12.5px}
+.learning-badge,.learning-score-badge{box-shadow:0 3px 10px rgba(23,166,137,.08)}
+.learning-progress{margin-top:20px}
+.learning-progress-track{height:8px}
+.learning-lesson-list{margin-top:24px}
+.learning-lesson{padding:24px;border-color:#e1e0ea;box-shadow:0 5px 18px rgba(24,28,55,.035)}
+.learning-lesson-kicker,.learning-question-number{letter-spacing:.11em}
+.learning-lesson h3{font-size:19px;letter-spacing:-.01em}
+.learning-lesson p{max-width:760px;font-size:13.5px}
+.learning-resources-panel{margin-top:25px;padding-top:22px}
+.learning-resource-grid{gap:11px;margin-top:13px}
+.learning-resource-card{min-height:61px;padding:12px;border-color:#e5e4ee;background:#fcfcfe;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.learning-resource-card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(24,28,55,.06)}
+.resource-icon{width:31px;height:31px;flex-basis:31px}
+.learning-actions{margin-top:25px;padding-top:20px}
+.learning-action-button{min-height:42px;padding:10px 16px;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.learning-action-button:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 6px 15px rgba(24,28,55,.08)}
+.learning-action-button.primary:not(:disabled):hover{box-shadow:0 8px 18px rgba(79,70,229,.18)}
+.learning-question{padding:21px;border-color:#e1e0ea;box-shadow:0 5px 18px rgba(24,28,55,.035)}
+.learning-question h3{font-size:15px}
+.learning-option{min-height:45px;transition:transform .16s ease,border-color .16s ease,background .16s ease}
+.learning-option:hover{transform:translateY(-1px)}
+.learning-option.selected{box-shadow:0 4px 12px rgba(79,70,229,.10),inset 0 0 0 1px var(--indigo)}
+.learning-result{box-shadow:0 5px 16px rgba(23,166,137,.06)}
+.learning-question-result{box-shadow:none}
+.learning-empty{background:#fcfbff}
+@media(max-width:900px){
+ .learning-main{padding:30px 0 58px}
+ .learning-content-card{padding:22px}
+ .learning-layout{gap:14px}
+}
+@media(max-width:620px){
+ .learning-hero h1{font-size:31px}
+ .learning-content-card{padding:18px}
+ .learning-content-top h2{font-size:24px}
+ .learning-lesson{padding:19px}
+ .learning-question{padding:17px}
+ .learning-resource-card{min-height:0}
+ .learning-action-copy{line-height:1.45}
+}
+</style>
+
+</head>
 <body class="learning-page">
 <header class="site-header"><div class="wrap header-inner"><a class="logo" href="/" aria-label="JobSite home"><span class="logo-text">JOB<span class="logo-accent">SITE</span></span><svg class="logo-plane" width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21.5 2.5L2 10.2c-.8.3-.8 1.4 0 1.7l7.6 2.9 2.9 7.6c.3.8 1.4 0 1.7 0L21.9 3.9c.3-.9-.6-1.7-1.4-1.4z" fill="currentColor"/></svg><span class="logo-tagline">Find your path. Build your future.</span></a>
 <nav class="main-nav" aria-label="Primary"><a href="/">Find Jobs</a><a href="/profile.html">Dashboard</a><a href="/resume.html">Resume Analyzer</a><a href="/learning.html" class="active">Learn</a></nav><button class="menu-toggle" aria-label="Open menu"><span></span><span></span><span></span></button></div></header>
