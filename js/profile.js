@@ -1047,14 +1047,100 @@ async function saveProfileSkills() {
    SAVED RESUME
    ========================================================= */
 
+function createResumePreview() {
+    if (document.querySelector('#profileResumePreview')) {
+        return document.querySelector('#profileResumePreview');
+    }
+
+    const modal = document.createElement('div');
+
+    modal.id = 'profileResumePreview';
+    modal.className = 'profile-resume-preview';
+    modal.hidden = true;
+
+    modal.innerHTML = `
+        <div class="profile-resume-preview-backdrop" data-resume-preview-close></div>
+
+        <section
+            class="profile-resume-preview-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="profileResumePreviewTitle"
+        >
+            <div class="profile-resume-preview-header">
+                <div>
+                    <span class="profile-section-label">YOUR RESUME</span>
+                    <h2 id="profileResumePreviewTitle">Resume</h2>
+                </div>
+
+                <button
+                    type="button"
+                    class="profile-resume-preview-close"
+                    data-resume-preview-close
+                    aria-label="Close resume preview"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <div class="profile-resume-preview-body">
+                <iframe
+                    id="profileResumeFrame"
+                    title="Resume preview"
+                ></iframe>
+
+                <p id="profileResumePreviewNote" hidden>
+                    This file type cannot be previewed here.
+                    Use the button below to open it.
+                </p>
+            </div>
+
+            <div class="profile-resume-preview-actions">
+                <a
+                    id="profileResumeOpenLink"
+                    class="profile-resume-link-button"
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Open Resume
+                </a>
+
+                <button
+                    type="button"
+                    class="profile-resume-secondary-button"
+                    data-resume-preview-close
+                >
+                    Close
+                </button>
+            </div>
+        </section>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.addEventListener('click', (event) => {
+        if (event.target.closest('[data-resume-preview-close]')) {
+            modal.hidden = true;
+            document.body.classList.remove('resume-preview-open');
+        }
+    });
+
+    return modal;
+}
+
+
 async function loadSavedResume() {
     const status =
         document.querySelector('#profileResumeStatus');
 
-    const view =
-        document.querySelector('#profileResumeView');
+    const hint =
+        document.querySelector('#profileResumeHint');
 
-    if (!status || !view) {
+    const viewButton =
+        document.querySelector('#profileResumeViewButton');
+
+    if (!status || !hint || !viewButton) {
         return;
     }
 
@@ -1075,22 +1161,57 @@ async function loadSavedResume() {
             status.textContent =
                 'No resume uploaded yet.';
 
-            view.hidden = true;
+            hint.textContent =
+                'Upload a resume to use it for job applications.';
+
+            viewButton.hidden = true;
             return;
         }
 
         status.textContent =
             resume.original_name || 'Resume uploaded';
 
-        view.href =
-            `/uploads/${encodeURIComponent(resume.stored_name)}`;
+        hint.textContent =
+            'Your resume is saved to your profile.';
 
-        view.hidden = false;
+        viewButton.hidden = false;
+
+        viewButton.onclick = () => {
+            const modal = createResumePreview();
+            const frame = document.querySelector('#profileResumeFrame');
+            const note = document.querySelector('#profileResumePreviewNote');
+            const openLink = document.querySelector('#profileResumeOpenLink');
+
+            const resumeUrl =
+                `/uploads/${encodeURIComponent(resume.stored_name)}`;
+
+            openLink.href = resumeUrl;
+            document.querySelector('#profileResumePreviewTitle').textContent =
+                resume.original_name || 'Resume';
+
+            const isPdf =
+                (resume.original_name || '').toLowerCase().endsWith('.pdf');
+
+            frame.hidden = !isPdf;
+            note.hidden = isPdf;
+
+            if (isPdf) {
+                frame.src = resumeUrl;
+            } else {
+                frame.removeAttribute('src');
+            }
+
+            modal.hidden = false;
+            document.body.classList.add('resume-preview-open');
+        };
     } catch (error) {
         status.textContent =
             'Unable to load resume status.';
 
-        view.hidden = true;
+        hint.textContent =
+            'You can upload a resume from the button below.';
+
+        viewButton.hidden = true;
 
         console.error(
             '[profile] Failed to load resume:',
@@ -1098,7 +1219,6 @@ async function loadSavedResume() {
         );
     }
 }
-
 
 /* =========================================================
    LOAD PROFILE
