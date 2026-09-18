@@ -10,6 +10,7 @@ const authRoutes = require('./authRoutes');
 const jobRoutes = require('./jobRoutes');
 const resumeRoutes = require('./resumeRoutes');
 const referenceRoutes = require('./referenceRoutes');
+const learningRoutes = require('./learningRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,6 +39,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/resume', resumeRoutes);
 app.use('/api/reference', referenceRoutes);
+app.use('/api/learning', learningRoutes);
 
 
 app.get('/api/health', (req, res) => {
