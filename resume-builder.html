@@ -33,7 +33,17 @@
 <body class="builder-page">
 <header class="builder-header"><div class="wrap header-inner">
 <a class="logo" href="/"><span class="logo-text">JOB<span class="logo-accent">SITE</span></span><svg class="logo-plane" width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M21.5 2.5L2 10.2c-.8.3-.8 1.4 0 1.7l7.6 2.9 2.9 7.6c.3.8 1.4.8 1.7 0L21.9 3.9c.3-.9-.6-1.7-1.4-1.4z" fill="currentColor"/></svg></a>
-<nav class="builder-nav"><a href="/">Find Jobs</a><a href="/profile.html">My Profile</a></nav>
+<nav class="builder-nav" aria-label="Resume navigation">
+  <a href="/">Find Jobs</a>
+  <div class="builder-nav-dropdown">
+    <button type="button" class="builder-nav-dropdown-btn">Resume <span aria-hidden="true">⌄</span></button>
+    <div class="builder-nav-dropdown-panel">
+      <a href="/resume-builder.html" class="active">Resume Builder</a>
+      <a href="/resume.html">Resume Analyzer</a>
+    </div>
+  </div>
+  <a href="/profile.html">My Profile</a>
+</nav>
 </div></header>
 <main class="builder-main"><div class="wrap">
 <div class="builder-heading"><h1>Build your resume.</h1><p>Create a structured resume that stays connected to your JobSite profile.</p></div>
