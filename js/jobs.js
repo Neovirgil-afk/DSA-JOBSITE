@@ -432,6 +432,211 @@ export function initJobs() {
     }
 
 
+
+    /* =====================================================
+       JOB DETAILS MODAL
+       ===================================================== */
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function createJobDetailsModal() {
+        if (document.querySelector('#jobDetailsModal')) {
+            return document.querySelector('#jobDetailsModal');
+        }
+
+        const modal = document.createElement('div');
+
+        modal.id = 'jobDetailsModal';
+        modal.className = 'job-details-modal';
+        modal.hidden = true;
+
+        modal.innerHTML = `
+            <div class="job-details-backdrop" data-job-modal-close></div>
+
+            <section
+                class="job-details-dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="jobDetailsTitle"
+            >
+                <button
+                    type="button"
+                    class="job-details-close"
+                    data-job-modal-close
+                    aria-label="Close job details"
+                >
+                    ✕
+                </button>
+
+                <div class="job-details-header">
+                    <p class="job-details-company" id="jobDetailsCompany"></p>
+                    <h2 id="jobDetailsTitle">Job details</h2>
+                    <div class="job-details-meta" id="jobDetailsMeta"></div>
+                </div>
+
+                <div class="job-details-match" id="jobDetailsMatch"></div>
+
+                <div class="job-details-section">
+                    <h3>About the role</h3>
+                    <p id="jobDetailsDescription"></p>
+                </div>
+
+                <div class="job-details-skills">
+                    <div class="job-details-section">
+                        <h3>You have</h3>
+                        <div class="job-details-skill-list job-details-skill-list--have" id="jobDetailsHave"></div>
+                    </div>
+
+                    <div class="job-details-section">
+                        <h3>Missing</h3>
+                        <div class="job-details-skill-list job-details-skill-list--missing" id="jobDetailsMissing"></div>
+                    </div>
+                </div>
+
+                <div class="job-details-actions">
+                    <button type="button" class="btn btn-primary" id="jobApplyButton">
+                        Apply Now
+                    </button>
+                    <button type="button" class="job-details-secondary" data-job-modal-close>
+                        Close
+                    </button>
+                </div>
+            </section>
+        `;
+
+        document.body.appendChild(modal);
+
+        modal.addEventListener('click', (event) => {
+            if (event.target.closest('[data-job-modal-close]')) {
+                closeJobDetails();
+            }
+        });
+
+        return modal;
+    }
+
+    function closeJobDetails() {
+        const modal = document.querySelector('#jobDetailsModal');
+
+        if (!modal) {
+            return;
+        }
+
+        modal.hidden = true;
+        document.body.classList.remove('job-modal-open');
+    }
+
+    async function openJobDetails(jobId) {
+        const modal = createJobDetailsModal();
+
+        modal.hidden = false;
+        document.body.classList.add('job-modal-open');
+
+        document.querySelector('#jobDetailsCompany').textContent = '';
+        document.querySelector('#jobDetailsTitle').textContent = 'Loading job...';
+        document.querySelector('#jobDetailsMeta').innerHTML = '';
+        document.querySelector('#jobDetailsMatch').innerHTML = '';
+        document.querySelector('#jobDetailsDescription').textContent = 'Loading details...';
+        document.querySelector('#jobDetailsHave').innerHTML = '';
+        document.querySelector('#jobDetailsMissing').innerHTML = '';
+
+        try {
+            const response = await fetch(
+                `/api/jobs/${encodeURIComponent(jobId)}`,
+                { credentials: 'include' }
+            );
+
+            if (!response.ok) {
+                throw new Error('Failed to load job details.');
+            }
+
+            const data = await response.json();
+            const job = data.job || {};
+
+            document.querySelector('#jobDetailsCompany').textContent =
+                job.company || '';
+
+            document.querySelector('#jobDetailsTitle').textContent =
+                job.title || 'Job details';
+
+            const metaItems = [
+                job.location || 'Remote',
+                job.employment_type || '',
+                job.salary || '',
+                data.experienceLevel || 'Intermediate'
+            ].filter(Boolean);
+
+            document.querySelector('#jobDetailsMeta').innerHTML =
+                metaItems
+                    .map((item) => `<span>${escapeHtml(item)}</span>`)
+                    .join('');
+
+            const score = Number(data.matchScore) || 0;
+
+            document.querySelector('#jobDetailsMatch').innerHTML = `
+                <strong>${score}% match</strong>
+                <span>${score > 0 ? 'Based on your skills' : 'Upload a resume to personalize this match'}</span>
+            `;
+
+            document.querySelector('#jobDetailsDescription').textContent =
+                job.description || 'No job description provided yet.';
+
+            const have = Array.isArray(data.matchingSkills)
+                ? data.matchingSkills
+                : [];
+
+            const missing = Array.isArray(data.missingSkills)
+                ? data.missingSkills
+                : [];
+
+            document.querySelector('#jobDetailsHave').innerHTML =
+                have.length
+                    ? have.map((skill) =>
+                        `<span>${escapeHtml(skill)}</span>`
+                    ).join('')
+                    : '<span class="job-details-empty">No matching skills yet.</span>';
+
+            document.querySelector('#jobDetailsMissing').innerHTML =
+                missing.length
+                    ? missing.map((skill) =>
+                        `<span>${escapeHtml(skill)}</span>`
+                    ).join('')
+                    : '<span class="job-details-empty">You meet the listed skill requirements.</span>';
+
+            const applyButton =
+                document.querySelector('#jobApplyButton');
+
+            applyButton.onclick = () => {
+                if (job.apply_url) {
+                    window.open(job.apply_url, '_blank', 'noopener,noreferrer');
+                    return;
+                }
+
+                alert('Application link is not configured for this job yet.');
+            };
+
+        } catch (error) {
+            document.querySelector('#jobDetailsTitle').textContent =
+                'Unable to load job';
+
+            document.querySelector('#jobDetailsDescription').textContent =
+                'Something went wrong while loading this job. Please try again.';
+
+            console.error(
+                '[JobPath] Failed to load job details:',
+                error
+            );
+        }
+    }
+
+
     /* =====================================================
        RUN SEARCH
        ===================================================== */
@@ -608,7 +813,44 @@ export function initJobs() {
                 event.target.closest('.job-save-button');
 
             if (saveButton) {
+                event.stopPropagation();
                 toggleSavedJob(saveButton);
+                return;
+            }
+
+            const card =
+                event.target.closest('.result-card[data-job-id]');
+
+            if (card) {
+                openJobDetails(card.dataset.jobId);
+            }
+        }
+    );
+
+    resultsGrid.addEventListener(
+        'keydown',
+        (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') {
+                return;
+            }
+
+            const card =
+                event.target.closest('.result-card[data-job-id]');
+
+            if (!card || event.target.closest('button')) {
+                return;
+            }
+
+            event.preventDefault();
+            openJobDetails(card.dataset.jobId);
+        }
+    );
+
+    document.addEventListener(
+        'keydown',
+        (event) => {
+            if (event.key === 'Escape') {
+                closeJobDetails();
             }
         }
     );
