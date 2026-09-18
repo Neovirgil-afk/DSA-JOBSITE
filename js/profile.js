@@ -43,6 +43,9 @@ const savedJobsList =
 const savedJobCount =
     document.querySelector('#savedJobCount');
 
+const profileLearningRecommendations =
+    document.querySelector('#profileLearningRecommendations');
+
 
 let profileData = null;
 let allSkills = [];
@@ -1220,6 +1223,56 @@ async function loadSavedResume() {
     }
 }
 
+
+/* =========================================================
+   LEARNING HUB PREVIEW
+   ========================================================= */
+
+async function loadLearningRecommendations() {
+    if (!profileLearningRecommendations) {
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            '/api/learning/recommended',
+            { credentials: 'include' }
+        );
+
+        if (!response.ok) {
+            throw new Error('Failed to load learning recommendations.');
+        }
+
+        const data = await response.json();
+        const recommendations = Array.isArray(data.recommendations)
+            ? data.recommendations
+                .filter((item) => item.hasLesson !== false)
+                .slice(0, 4)
+            : [];
+
+        if (!recommendations.length) {
+            profileLearningRecommendations.innerHTML =
+                '<span class="profile-learning-empty">No beginner lessons are recommended yet. Add skills or upload your resume to build your learning path.</span>';
+            return;
+        }
+
+        profileLearningRecommendations.innerHTML =
+            recommendations.map((item) => (
+                '<span class="profile-learning-skill">' +
+                escapeHTML(item.skill) +
+                '<small>Beginner</small></span>'
+            )).join('');
+    } catch (error) {
+        profileLearningRecommendations.innerHTML =
+            '<span class="profile-learning-empty">Your Learning Hub is ready. Open it to explore beginner lessons.</span>';
+
+        console.error(
+            '[profile] Failed to load learning recommendations:',
+            error
+        );
+    }
+}
+
 /* =========================================================
    LOAD PROFILE
    ========================================================= */
@@ -1303,6 +1356,7 @@ async function loadProfile() {
 
         loadSavedJobs();
         loadSavedResume();
+        loadLearningRecommendations();
 
 
         /*
