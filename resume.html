@@ -80,6 +80,148 @@ input[type=file]{display:none}
 .career-path{display:none;margin-top:16px;padding:20px;border:1px solid #deddf0;border-radius:15px;background:#faf9ff}.career-path:not(:empty){display:block}.career-path-title{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.career-path-eyebrow{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--indigo)}.career-path-title h3{margin:4px 0 0;font-family:var(--font-display);font-size:17px;color:var(--navy)}.career-path-close{width:28px;height:28px;border:1px solid var(--line);border-radius:50%;background:#fff;color:var(--muted);cursor:pointer}.career-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:16px}.career-step{display:flex;align-items:center;gap:9px;min-width:0;padding:10px;border:1px solid #e4e4ee;border-radius:11px;background:#fff}.career-step.completed{border-color:#bce7dc;background:#f5fffc}.career-step-number{display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border-radius:50%;background:#efedf9;color:var(--indigo);font-size:11px;font-weight:800}.career-step.completed .career-step-number{background:var(--teal-tint);color:#0D8C7C}.career-step strong,.career-step small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.career-step strong{font-size:11.5px;color:var(--ink)}.career-step small{margin-top:2px;color:var(--muted);font-size:9.5px}.career-path-note{margin:14px 0 0;color:var(--muted);font-size:10.5px;line-height:1.5}.career-path-button{margin-top:14px;padding:7px 10px;border:1px solid #deddf0;border-radius:9px;background:#fff;color:var(--indigo-dark);font-size:10.5px;font-weight:700;cursor:pointer}.career-path-button:hover{background:var(--indigo-tint);border-color:#c9c5f5}.career-path-loading,.career-path-empty{color:var(--muted);font-size:12px}.career-path-loading{padding:4px}.job{display:flex;flex-direction:column}.job .career-path-button{align-self:flex-start}
 @media(max-width:800px){.career-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.career-steps{grid-template-columns:1fr}}
+
+
+/* Mobile / tablet layout */
+@media (max-width: 900px) {
+    .resume-header .header-inner {
+        gap: 12px;
+    }
+
+    .resume-header .logo {
+        margin-right: 0;
+    }
+
+    .resume-nav {
+        display: none;
+    }
+
+    .resume-header .mobile-nav-toggle {
+        display: flex;
+    }
+
+    .resume-header .mobile-nav-panel {
+        position: absolute;
+        top: calc(100% - 4px);
+        left: 16px;
+        right: 16px;
+        display: block;
+        max-height: 0;
+        overflow: hidden;
+        padding: 0 14px;
+        border: 1px solid transparent;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: none;
+        opacity: 0;
+        transform: translateY(-6px);
+        transition: max-height .2s ease, opacity .18s ease, transform .18s ease, padding .2s ease;
+        pointer-events: none;
+        z-index: 50;
+    }
+
+    body.mobile-nav-open {
+        overflow: hidden;
+    }
+
+    body.mobile-nav-open .resume-header .mobile-nav-panel {
+        max-height: calc(100vh - 80px);
+        padding: 10px 14px;
+        border-color: var(--line);
+        box-shadow: var(--shadow-card);
+        opacity: 1;
+        transform: translateY(0);
+        overflow-y: auto;
+        pointer-events: auto;
+    }
+
+    .resume-header .mobile-nav-clone {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 2px;
+    }
+
+    .resume-header .mobile-nav-clone > a,
+    .resume-header .mobile-nav-clone > .resume-nav-dropdown > .resume-nav-dropdown-btn {
+        width: 100%;
+        padding: 11px 10px;
+        border-radius: 9px;
+        text-align: left;
+    }
+
+    .resume-header .mobile-nav-clone .resume-nav-dropdown-panel {
+        position: static;
+        min-width: 0;
+        padding: 2px 0 5px 12px;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+@media (max-width: 700px) {
+    .resume-main {
+        padding: 34px 0 54px;
+    }
+
+    .resume-heading {
+        margin-bottom: 22px;
+    }
+
+    .resume-heading h1 {
+        font-size: 31px;
+    }
+
+    .resume-heading .subtitle {
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .resume-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .resume-card {
+        padding: 18px;
+        border-radius: 15px;
+    }
+
+    .dropzone {
+        min-height: 150px;
+        padding: 20px 14px;
+    }
+
+    .job-top {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .job-top h3 {
+        font-size: 14px;
+    }
+
+    .career-steps {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 420px) {
+    .resume-card-header {
+        gap: 10px;
+    }
+
+    .resume-card-header h2 {
+        font-size: 17px;
+    }
+
+    .scan-button {
+        width: 100%;
+    }
+}
+
 </style>
 </head>
 <body class="resume-page">
