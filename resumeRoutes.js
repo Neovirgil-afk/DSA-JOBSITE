@@ -60,6 +60,94 @@ function ensureSkillDictionaryInDatabase() {
     syncSkills();
 }
 
+router.get('/builder', requireAuth, (req, res) => {
+    try {
+        const row = db.prepare(`
+            SELECT resume_data, updated_at
+            FROM resume_builder
+            WHERE user_id = ?
+        `).get(req.session.userId);
+
+        res.json({
+            resume: row
+                ? {
+                    ...JSON.parse(row.resume_data),
+                    updatedAt: row.updated_at
+                }
+                : null
+        });
+    } catch (error) {
+        console.error('[resume/builder GET] error:', error);
+        res.status(500).json({ error: 'Failed to load resume draft.' });
+    }
+});
+
+router.put('/builder', requireAuth, (req, res) => {
+    try {
+        const data = req.body?.resume;
+
+        if (!data || typeof data !== 'object') {
+            return res.status(400).json({
+                error: 'Resume data is required.'
+            });
+        }
+
+        const clean = {
+            fullName: String(data.fullName || '').trim(),
+            email: String(data.email || '').trim(),
+            phone: String(data.phone || '').trim(),
+            location: String(data.location || '').trim(),
+            summary: String(data.summary || '').trim(),
+            education: Array.isArray(data.education)
+                ? data.education.slice(0, 8).map((item) => ({
+                    school: String(item.school || '').trim(),
+                    degree: String(item.degree || '').trim(),
+                    year: String(item.year || '').trim()
+                }))
+                : [],
+            experience: Array.isArray(data.experience)
+                ? data.experience.slice(0, 8).map((item) => ({
+                    title: String(item.title || '').trim(),
+                    company: String(item.company || '').trim(),
+                    duration: String(item.duration || '').trim(),
+                    description: String(item.description || '').trim()
+                }))
+                : [],
+            projects: Array.isArray(data.projects)
+                ? data.projects.slice(0, 8).map((item) => ({
+                    name: String(item.name || '').trim(),
+                    description: String(item.description || '').trim()
+                }))
+                : [],
+            certifications: Array.isArray(data.certifications)
+                ? data.certifications.slice(0, 8).map((item) => ({
+                    name: String(item.name || '').trim(),
+                    issuer: String(item.issuer || '').trim(),
+                    year: String(item.year || '').trim()
+                }))
+                : []
+        };
+
+        const json = JSON.stringify(clean);
+
+        db.prepare(`
+            INSERT INTO resume_builder (user_id, resume_data, updated_at)
+            VALUES (?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(user_id) DO UPDATE SET
+                resume_data = excluded.resume_data,
+                updated_at = CURRENT_TIMESTAMP
+        `).run(req.session.userId, json);
+
+        res.json({
+            success: true,
+            resume: clean
+        });
+    } catch (error) {
+        console.error('[resume/builder PUT] error:', error);
+        res.status(500).json({ error: 'Failed to save resume draft.' });
+    }
+});
+
 router.get('/current', requireAuth, (req, res) => {
     try {
         const resume = db.prepare(`
