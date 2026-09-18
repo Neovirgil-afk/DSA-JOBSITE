@@ -7,6 +7,7 @@ const scanButton = document.querySelector('#scanButton');
 const statusBox = document.querySelector('#status');
 const skillsBox = document.querySelector('#skills');
 const jobsBox = document.querySelector('#jobs');
+const careerPathBox = document.querySelector('#careerPath');
 
 function escapeHTML(value) {
     return String(value ?? '')
@@ -73,9 +74,61 @@ function renderJobs(jobs) {
                         ${missing.map((skill) => `<span class="tag missing">⚠ ${escapeHTML(skill)}</span>`).join('')}
                     </div>
                 ` : ''}
+                <button type="button" class="career-path-button" data-job-id="${Number(job.id) || 0}">
+                    View skill path →
+                </button>
             </article>
         `;
     }).join('');
+}
+
+
+
+async function showCareerPath(jobId) {
+    if (!careerPathBox || !jobId) return;
+
+    careerPathBox.innerHTML = '<div class="career-path-loading">Loading your skill path...</div>';
+
+    try {
+        const response = await fetch(`/api/jobs/${encodeURIComponent(jobId)}`, {
+            credentials: 'include'
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || 'Unable to load skill path.');
+
+        const path = data.careerPath;
+        const steps = Array.isArray(path?.steps) ? path.steps : [];
+
+        if (!steps.length) {
+            careerPathBox.innerHTML = '<div class="career-path-empty">No learning path has been configured for this job yet.</div>';
+        } else {
+            careerPathBox.innerHTML = `
+                <div class="career-path-title">
+                    <div>
+                        <span class="career-path-eyebrow">SKILL GAP</span>
+                        <h3>Path to ${escapeHTML(data.job?.title || 'this job')}</h3>
+                    </div>
+                    <button type="button" class="career-path-close" aria-label="Close skill path">×</button>
+                </div>
+                <div class="career-steps">
+                    ${steps.map((step) => `
+                        <div class="career-step ${step.completed ? 'completed' : ''}">
+                            <span class="career-step-number">${step.completed ? '✓' : escapeHTML(step.order)}</span>
+                            <div>
+                                <strong>${escapeHTML(step.skill)}</strong>
+                                <small>${step.completed ? 'Already in your skills' : 'Skill to develop'}</small>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <p class="career-path-note">The path follows the project's Graph-based career sequence. Completed skills are taken from your current profile.</p>
+            `;
+        }
+
+        careerPathBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } catch (error) {
+        careerPathBox.innerHTML = `<div class="career-path-empty">${escapeHTML(error.message || 'Unable to load skill path.')}</div>`;
+    }
 }
 
 async function loadRecommendations() {
@@ -191,3 +244,17 @@ dropzone.addEventListener('drop', (event) => {
 scanButton.addEventListener('click', scanResume);
 
 loadRecommendations();
+
+
+jobsBox.addEventListener('click', (event) => {
+    const button = event.target.closest('.career-path-button');
+    if (!button) return;
+    showCareerPath(Number(button.dataset.jobId));
+});
+
+careerPathBox?.addEventListener('click', (event) => {
+    if (event.target.closest('.career-path-close')) {
+        careerPathBox.innerHTML = '';
+        careerPathBox.classList.remove('show');
+    }
+});
