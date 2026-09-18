@@ -207,6 +207,13 @@ export function initJobs() {
                 card.className =
                     'result-card';
 
+                card.dataset.jobId = String(job.id);
+                card.setAttribute('tabindex', '0');
+                card.setAttribute(
+                    'aria-label',
+                    `View details for ${job.title || 'job'}`
+                );
+
 
                 card.innerHTML = `
 
