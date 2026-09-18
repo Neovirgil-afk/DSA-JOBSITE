@@ -139,7 +139,7 @@ function getLesson(skill) {
     level: 'Beginner',
     description: 'Short, foundation-level lessons for learners who are new to this skill.',
     lessons: lessons.map((item, index) => ({ step: index + 1, title: item[0], content: item[1] })),
-    quiz: (QUIZZES[name] || []).map((item, index) => ({ question: index + 1, prompt: item[0], options: item[1], answer: item[2], explanation: item[3] }))
+    quiz: (QUIZZES[name] || []).map((item, index) => ({ question: index + 1, prompt: item[0], options: item[1] }))
   };
 }
 
@@ -151,4 +151,29 @@ function getAvailableLessons() {
   }));
 }
 
-module.exports = { getLesson, getAvailableLessons };
+function gradeQuiz(skill, answers) {
+  const name = String(skill || '').trim();
+  const quiz = QUIZZES[name];
+  if (!quiz || !Array.isArray(answers) || answers.length !== quiz.length) return null;
+
+  const normalized = answers.map((answer) => Number(answer));
+  if (normalized.some((answer) => !Number.isInteger(answer) || answer < 0 || answer > 3)) return null;
+
+  const score = quiz.reduce((total, item, index) => total + (normalized[index] === item[2] ? 1 : 0), 0);
+  const passed = score >= Math.ceil(quiz.length * 0.67);
+
+  return {
+    skill: name,
+    score,
+    total: quiz.length,
+    passed,
+    explanations: quiz.map((item, index) => ({
+      question: index + 1,
+      correct: normalized[index] === item[2],
+      correctAnswer: item[1][item[2]],
+      explanation: item[3]
+    }))
+  };
+}
+
+module.exports = { getLesson, getAvailableLessons, gradeQuiz };
