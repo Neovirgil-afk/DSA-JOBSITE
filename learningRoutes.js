@@ -1,9 +1,9 @@
 const express = require('express');
 const { db } = require('./database');
 const { requireAuth } = require('./auth');
-const { getLesson, getAvailableLessons } = require('./LearningLessons');
+const { getLesson, getAvailableLessons, gradeQuiz } = require('./LearningLessons');
 const { getLearningResources } = require('./LearningResources');
-const { getUserSkillNames } = require('./JobMatchingService');
+const { getUserSkillNames, getRankedJobsForUser } = require('./JobMatchingService');
 const { getCareerPathForJob } = require('./CareerPathService');
 
 const router = express.Router();
@@ -65,6 +65,47 @@ router.get('/recommended', requireAuth, (req, res) => {
     } catch (err) {
         console.error('[GET /api/learning/recommended] error:', err);
         res.status(500).json({ error: 'Failed to load learning recommendations.' });
+    }
+});
+
+router.post('/assessment/complete', requireAuth, (req, res) => {
+    try {
+        const result = gradeQuiz(req.body?.skill, req.body?.answers);
+        if (!result) return res.status(400).json({ error: 'Invalid assessment.' });
+
+        const skillRow = db.prepare(
+            'SELECT id, name FROM skills WHERE lower(name) = lower(?) LIMIT 1'
+        ).get(result.skill);
+        if (!skillRow) {
+            return res.status(404).json({ error: 'Skill is not available in the JobSite skill catalog.' });
+        }
+
+        if (!result.passed) {
+            return res.json({
+                ...result,
+                verified: false,
+                message: 'Keep practicing the lesson and try again.'
+            });
+        }
+
+        db.prepare(
+            "INSERT INTO user_skills (user_id, skill_id, source) VALUES (?, ?, 'simulator') ON CONFLICT(user_id, skill_id) DO UPDATE SET source = 'simulator'"
+        ).run(req.session.userId, skillRow.id);
+
+        const updatedSkills = getUserSkillNames(req.session.userId);
+        const rankedJobs = getRankedJobsForUser(req.session.userId);
+
+        res.json({
+            ...result,
+            verified: true,
+            skill: skillRow.name,
+            updatedSkills,
+            topMatches: rankedJobs.slice(0, 6),
+            message: skillRow.name + ' has been verified and added to your skills.'
+        });
+    } catch (err) {
+        console.error('[POST /api/learning/assessment/complete] error:', err);
+        res.status(500).json({ error: 'Failed to save assessment result.' });
     }
 });
 
