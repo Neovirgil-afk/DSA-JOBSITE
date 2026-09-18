@@ -80,6 +80,17 @@ router.post('/assessment/complete', requireAuth, (req, res) => {
             return res.status(404).json({ error: 'Skill is not available in the JobSite skill catalog.' });
         }
 
+        db.prepare(
+            "INSERT INTO learning_progress (user_id, skill_id, status, score, total_questions, completed_at) VALUES (?, ?, ?, ?, ?, CASE WHEN ? = 1 THEN CURRENT_TIMESTAMP ELSE NULL END) ON CONFLICT(user_id, skill_id) DO UPDATE SET status = excluded.status, score = excluded.score, total_questions = excluded.total_questions, completed_at = excluded.completed_at"
+        ).run(
+            req.session.userId,
+            skillRow.id,
+            result.passed ? 'verified' : 'needs_review',
+            result.score,
+            result.total,
+            result.passed ? 1 : 0
+        );
+
         if (!result.passed) {
             return res.json({
                 ...result,
