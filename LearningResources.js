@@ -50,7 +50,7 @@ const RESOURCE_MAP = {
     'REST API': [
         { type: 'article', title: 'MDN: HTTP Overview', description: 'Understand the HTTP methods and concepts behind REST-style APIs.', url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview', provider: 'MDN' },
     ],
-    Node.js: [
+    'Node.js': [
         { type: 'article', title: 'Node.js Learn', description: 'Official Node.js learning resources for server-side JavaScript.', url: 'https://nodejs.org/en/learn', provider: 'Node.js' },
     ],
     Docker: [
