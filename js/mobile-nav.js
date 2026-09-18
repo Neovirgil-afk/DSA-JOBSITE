@@ -32,6 +32,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const clone = nav.cloneNode(true);
         clone.removeAttribute('aria-label');
         clone.classList.add('mobile-nav-clone');
+
+        const desktopLogout = headerInner.querySelector('#headerLogoutButton');
+        if (desktopLogout) {
+            const logoutButton = document.createElement('button');
+            logoutButton.type = 'button';
+            logoutButton.className = 'mobile-nav-logout';
+            logoutButton.textContent = 'Log Out';
+            logoutButton.addEventListener('click', () => desktopLogout.click());
+            clone.appendChild(logoutButton);
+        }
+
         panel.appendChild(clone);
         headerInner.appendChild(panel);
 
