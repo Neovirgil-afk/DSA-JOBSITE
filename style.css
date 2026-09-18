@@ -3275,3 +3275,62 @@ body.job-modal-open {
     width: 100%;
   }
 }
+
+
+/* =====================================================
+   JOB LOADING DEBUG PANEL
+   ===================================================== */
+
+.job-debug-panel {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2000;
+  width: min(430px, calc(100vw - 32px));
+  max-height: 280px;
+  overflow: hidden;
+  padding: 12px;
+  border: 1px solid #d9dbe5;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 15px 40px rgba(16, 22, 46, .18);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 10.5px;
+}
+
+.job-debug-panel > strong {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-family: inherit;
+  font-size: 11px;
+}
+
+.job-debug-clear {
+  float: right;
+  padding: 3px 7px;
+  border: 1px solid #dddfe7;
+  border-radius: 6px;
+  background: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.job-debug-log {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.job-debug-row {
+  padding: 4px 0;
+  border-top: 1px solid #f0f0f4;
+  color: #4f5568;
+  line-height: 1.4;
+}
+
+.job-debug-row--error {
+  color: #b42318;
+}
+
+.job-debug-row--success {
+  color: #087a6e;
+}
