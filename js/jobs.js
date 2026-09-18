@@ -493,27 +493,38 @@ export function initJobs() {
 
                         <div class="resume-panel">
                             <span class="company-panel-label">Your resume</span>
-                            <strong id="jobResumeStatus">Checking resume...</strong>
-                            <p>Keep your resume ready so you can apply quickly.</p>
+                            <strong id="jobResumeStatus">No resume uploaded yet.</strong>
+                            <p>Upload your resume here. It will be saved to your profile for future applications.</p>
 
-                            <div class="resume-panel-actions">
-                                <a
-                                    class="resume-panel-button"
-                                    href="/resume.html"
-                                >
-                                    Upload / Update
-                                </a>
-                                <a
-                                    class="resume-panel-link"
-                                    id="jobResumeView"
-                                    href="#"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    hidden
-                                >
-                                    View Resume
-                                </a>
-                            </div>
+                            <input
+                                type="file"
+                                id="jobResumeFile"
+                                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                hidden
+                            />
+
+                            <label
+                                class="resume-upload-dropzone"
+                                id="jobResumeDropzone"
+                                for="jobResumeFile"
+                            >
+                                <span class="resume-upload-icon">↑</span>
+                                <span>Drop resume here or <strong>browse</strong></span>
+                                <small>PDF or DOCX · Max 5MB</small>
+                            </label>
+
+                            <div class="resume-upload-status" id="jobResumeUploadStatus" aria-live="polite"></div>
+
+                            <a
+                                class="resume-panel-link"
+                                id="jobResumeView"
+                                href="#"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                hidden
+                            >
+                                Review saved resume
+                            </a>
                         </div>
                     </aside>
                 </div>
@@ -569,6 +580,7 @@ export function initJobs() {
         document.querySelector('#jobCompanyContact').innerHTML = '';
         document.querySelector('#jobResumeStatus').textContent = 'Checking resume...';
         document.querySelector('#jobResumeView').hidden = true;
+        document.querySelector('#jobResumeUploadStatus').textContent = '';
 
         try {
             const response = await fetch(
@@ -644,38 +656,130 @@ export function initJobs() {
                     ? contactItems.join('')
                     : '<span>No contact information listed.</span>';
 
-            try {
+            async function refreshJobResume() {
                 const resumeResponse = await fetch(
                     '/api/resume/current',
                     { credentials: 'include' }
                 );
 
-                if (resumeResponse.ok) {
-                    const resumeData = await resumeResponse.json();
-                    const resume = resumeData.resume;
-
-                    if (resume) {
-                        document.querySelector('#jobResumeStatus').textContent =
-                            resume.original_name;
-
-                        const resumeView =
-                            document.querySelector('#jobResumeView');
-
-                        resumeView.href =
-                            `/uploads/${encodeURIComponent(resume.stored_name)}`;
-
-                        resumeView.hidden = false;
-                    } else {
-                        document.querySelector('#jobResumeStatus').textContent =
-                            'No resume uploaded yet.';
-                    }
-                } else {
-                    document.querySelector('#jobResumeStatus').textContent =
-                        'Upload a resume to apply quickly.';
+                if (!resumeResponse.ok) {
+                    throw new Error('Could not check resume.');
                 }
+
+                const resumeData = await resumeResponse.json();
+                const resume = resumeData.resume;
+
+                const status = document.querySelector('#jobResumeStatus');
+                const view = document.querySelector('#jobResumeView');
+
+                if (resume) {
+                    status.textContent = resume.original_name;
+                    view.href =
+                        `/uploads/${encodeURIComponent(resume.stored_name)}`;
+                    view.hidden = false;
+                } else {
+                    status.textContent = 'No resume uploaded yet.';
+                    view.hidden = true;
+                }
+            }
+
+            try {
+                await refreshJobResume();
             } catch (resumeError) {
                 document.querySelector('#jobResumeStatus').textContent =
                     'Upload a resume to apply quickly.';
+            }
+
+            const resumeFile =
+                document.querySelector('#jobResumeFile');
+
+            const resumeDropzone =
+                document.querySelector('#jobResumeDropzone');
+
+            const resumeUploadStatus =
+                document.querySelector('#jobResumeUploadStatus');
+
+            async function uploadJobResume(file) {
+                if (!file) {
+                    return;
+                }
+
+                const extension =
+                    file.name.toLowerCase().split('.').pop();
+
+                if (!['pdf', 'docx'].includes(extension)) {
+                    resumeUploadStatus.textContent =
+                        'Please upload a PDF or DOCX file.';
+                    return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    resumeUploadStatus.textContent =
+                        'File is too large. Maximum size is 5MB.';
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('resume', file);
+
+                resumeUploadStatus.textContent =
+                    'Uploading and saving resume...';
+
+                try {
+                    const uploadResponse = await fetch(
+                        '/api/resume/scan',
+                        {
+                            method: 'POST',
+                            credentials: 'include',
+                            body: formData
+                        }
+                    );
+
+                    const uploadData =
+                        await uploadResponse.json();
+
+                    if (!uploadResponse.ok) {
+                        throw new Error(
+                            uploadData.error ||
+                            'Failed to upload resume.'
+                        );
+                    }
+
+                    resumeUploadStatus.textContent =
+                        'Resume saved to your profile.';
+
+                    await refreshJobResume();
+                } catch (uploadError) {
+                    resumeUploadStatus.textContent =
+                        uploadError.message ||
+                        'Failed to upload resume.';
+                }
+            }
+
+            if (resumeFile) {
+                resumeFile.onchange = () => {
+                    uploadJobResume(resumeFile.files?.[0]);
+                };
+            }
+
+            if (resumeDropzone) {
+                ['dragenter', 'dragover'].forEach((eventName) => {
+                    resumeDropzone.addEventListener(eventName, (event) => {
+                        event.preventDefault();
+                        resumeDropzone.classList.add('is-dragging');
+                    });
+                });
+
+                ['dragleave', 'drop'].forEach((eventName) => {
+                    resumeDropzone.addEventListener(eventName, (event) => {
+                        event.preventDefault();
+                        resumeDropzone.classList.remove('is-dragging');
+                    });
+                });
+
+                resumeDropzone.addEventListener('drop', (event) => {
+                    uploadJobResume(event.dataTransfer.files?.[0]);
+                });
             }
 
             const have = Array.isArray(data.matchingSkills)
