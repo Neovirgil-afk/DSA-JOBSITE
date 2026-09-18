@@ -93,19 +93,40 @@
         $('#submitQuiz')?.addEventListener('click', () => renderQuizResult(lesson));
     }
 
-    function renderQuizResult(lesson) {
-        const score = state.quiz.reduce((total, question, index) => total + (state.quizAnswers[index] === question.answer ? 1 : 0), 0);
-        const passed = score >= Math.ceil(state.quiz.length * 0.67);
+    async function renderQuizResult(lesson) {
+        const content = $('#learningContent');
+        content.innerHTML = '<div class="learning-loading">Checking your answers...</div>';
 
-        $('#learningContent').innerHTML = '<div class="learning-content-top"><div><span class="learning-eyebrow">KNOWLEDGE CHECK COMPLETE</span><h2>' + escapeHTML(lesson.skill) + '</h2><p>' + (passed ? 'You passed the beginner knowledge check.' : 'Review the lesson and try the knowledge check again.') + '</p></div><span class="learning-score-badge">' + score + ' / ' + state.quiz.length + '</span></div>' +
-            '<div class="learning-result ' + (passed ? 'passed' : 'review') + '"><strong>' + (passed ? 'Foundation verified' : 'Keep practicing') + '</strong><span>' + score + ' of ' + state.quiz.length + ' answers correct.</span></div>' +
-            '<div class="learning-quiz-list">' + state.quiz.map((question, index) => {
-                const correct = state.quizAnswers[index] === question.answer;
-                return '<article class="learning-question learning-question-result ' + (correct ? 'correct' : 'incorrect') + '"><span class="learning-question-number">QUESTION ' + question.question + '</span><h3>' + escapeHTML(question.prompt) + '</h3><p class="learning-answer-result"><strong>' + (correct ? 'Correct' : 'Review') + ':</strong> ' + escapeHTML(question.options[question.answer]) + '</p><p>' + escapeHTML(question.explanation) + '</p></article>';
-            }).join('') + '</div>' +
-            '<div class="learning-actions"><button type="button" class="learning-action-button" id="retryQuiz">Retry Quiz</button><span class="learning-action-copy">' + (passed ? 'Assessment integration can verify this skill next.' : 'Use the lesson again before retrying.') + '</span><a href="/profile.html" class="learning-action-button primary">Back to Dashboard</a></div>';
+        try {
+            const response = await fetch('/api/learning/assessment/complete', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ skill: lesson.skill, answers: state.quizAnswers })
+            });
 
-        $('#retryQuiz')?.addEventListener('click', () => startQuiz(lesson));
+            const data = await response.json();
+            if (response.status === 401) {
+                window.location.href = '/';
+                return;
+            }
+            if (!response.ok) throw new Error(data.error || 'Unable to check this assessment.');
+
+            const explanations = Array.isArray(data.explanations) ? data.explanations : [];
+            const passed = Boolean(data.passed);
+
+            content.innerHTML = '<div class="learning-content-top"><div><span class="learning-eyebrow">KNOWLEDGE CHECK COMPLETE</span><h2>' + escapeHTML(lesson.skill) + '</h2><p>' + escapeHTML(data.message || (passed ? 'You passed the beginner knowledge check.' : 'Review the lesson and try again.')) + '</p></div><span class="learning-score-badge">' + data.score + ' / ' + data.total + '</span></div>' +
+                '<div class="learning-result ' + (passed ? 'passed' : 'review') + '"><strong>' + (passed ? '✓ Foundation verified' : 'Keep practicing') + '</strong><span>' + data.score + ' of ' + data.total + ' answers correct.</span></div>' +
+                '<div class="learning-quiz-list">' + explanations.map((item) => {
+                    const question = lesson.quiz[item.question - 1];
+                    return '<article class="learning-question learning-question-result ' + (item.correct ? 'correct' : 'incorrect') + '"><span class="learning-question-number">QUESTION ' + item.question + '</span><h3>' + escapeHTML(question.prompt) + '</h3><p class="learning-answer-result"><strong>' + (item.correct ? 'Correct' : 'Review') + ':</strong> ' + escapeHTML(item.correctAnswer) + '</p><p>' + escapeHTML(item.explanation) + '</p></article>';
+                }).join('') + '</div>' +
+                '<div class="learning-actions"><button type="button" class="learning-action-button" id="retryQuiz">Retry Quiz</button><span class="learning-action-copy">' + (passed ? 'Your skill profile has been updated and job matches recalculated.' : 'Use the lesson again before retrying.') + '</span><a href="/profile.html" class="learning-action-button primary">Back to Dashboard</a></div>';
+
+            $('#retryQuiz')?.addEventListener('click', () => startQuiz(lesson));
+        } catch (error) {
+            content.innerHTML = '<div class="learning-empty">' + escapeHTML(error.message) + '</div>';
+        }
     }
 
     async function loadLesson(skill) {
