@@ -137,12 +137,55 @@ router.delete('/saved/:id', requireAuth, (req, res) => {
 });
 
 router.get('/recommended', requireAuth, (req, res) => {
+    const startedAt = Date.now();
+    const userId = req.session.userId;
+
+    console.log(
+        `[DEBUG /api/jobs/recommended] START userId=${userId}`
+    );
+
     try {
-        const ranked = getRankedJobsForUser(req.session.userId);
-        res.json({ jobs: ranked });
+        console.log(
+            '[DEBUG /api/jobs/recommended] Loading user skills...'
+        );
+
+        const userSkills = getUserSkillNames(userId);
+
+        console.log(
+            `[DEBUG /api/jobs/recommended] User skills loaded: ${userSkills.length}`
+        );
+
+        console.log(
+            '[DEBUG /api/jobs/recommended] Loading jobs and calculating matches...'
+        );
+
+        const ranked = getRankedJobsForUser(userId);
+
+        console.log(
+            `[DEBUG /api/jobs/recommended] Matching complete: ${ranked.length} jobs in ${Date.now() - startedAt}ms`
+        );
+
+        res.json({
+            jobs: ranked,
+            debug: {
+                userSkills: userSkills.length,
+                jobsRanked: ranked.length,
+                durationMs: Date.now() - startedAt
+            }
+        });
     } catch (err) {
-        console.error('[GET /api/jobs/recommended] error:', err);
-        res.status(500).json({ error: 'Failed to compute recommended jobs.' });
+        console.error(
+            '[DEBUG /api/jobs/recommended] ERROR:',
+            err
+        );
+
+        res.status(500).json({
+            error: 'Failed to compute recommended jobs.',
+            debug: {
+                message: err.message,
+                durationMs: Date.now() - startedAt
+            }
+        });
     }
 });
 
