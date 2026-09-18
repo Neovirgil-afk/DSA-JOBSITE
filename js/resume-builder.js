@@ -1,580 +1,350 @@
 'use strict';
 
-const $ = (id) => document.querySelector('#' + id);
-
-const state = {
-    education: [],
-    experience: [],
-    projects: [],
-    certifications: []
-};
-
-const factories = {
-    education: () => ({
-        school: '',
-        degree: '',
-        year: ''
-    }),
-    experience: () => ({
-        title: '',
-        company: '',
-        duration: '',
-        description: ''
-    }),
-    projects: () => ({
-        name: '',
-        description: ''
-    }),
-    certifications: () => ({
-        name: '',
-        issuer: '',
-        year: ''
-    })
-};
-
-function esc(value) {
-    return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
-
-function field(label, key, value, placeholder) {
-    return `
-        <div class="builder-field">
-            <label>${label}</label>
-            <input data-key="${key}"
-                   value="${esc(value)}"
-                   placeholder="${esc(placeholder || '')}">
-        </div>
-    `;
-}
-
-function area(label, key, value, placeholder) {
-    return `
-        <div class="builder-field">
-            <label>${label}</label>
-            <textarea data-key="${key}"
-                      placeholder="${esc(placeholder || '')}">${esc(value)}</textarea>
-        </div>
-    `;
-}
-
-function attachSchoolAutocomplete(input) {
-    if (!input || input.dataset.autocompleteReady === '1') {
-        return;
+(function () {
+    function debug(message) {
+        console.log('[Resume Builder]', message);
+        var log = document.getElementById('builderDebugLog');
+        if (log) {
+            var row = document.createElement('div');
+            row.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            log.appendChild(row);
+            log.scrollTop = log.scrollHeight;
+        }
     }
 
-    const wrapper = input.closest('.builder-field');
-    if (!wrapper) return;
-
-    let results = wrapper.querySelector('.builder-autocomplete-results');
-    if (!results) {
-        results = document.createElement('div');
-        results.className = 'builder-autocomplete-results';
-        wrapper.appendChild(results);
+    function $(id) {
+        return document.getElementById(id);
     }
 
-    input.dataset.autocompleteReady = '1';
-    let timer = null;
-
-    const hide = () => {
-        results.classList.remove('show');
-        results.innerHTML = '';
+    var state = {
+        education: [],
+        experience: [],
+        projects: [],
+        certifications: []
     };
 
-    const search = async () => {
-        const q = input.value.trim();
+    function escapeHtml(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 
-        if (q.length < 2) {
-            hide();
+    function collect() {
+        return {
+            fullName: $('fullName').value,
+            email: $('email').value,
+            phone: $('phone').value,
+            location: $('location').value,
+            summary: $('summary').value,
+            education: state.education,
+            experience: state.experience,
+            projects: state.projects,
+            certifications: state.certifications
+        };
+    }
+
+    function renderPreview() {
+        var paper = $('resumePaper');
+        if (!paper) {
+            debug('ERROR: resumePaper not found.');
             return;
         }
 
-        clearTimeout(timer);
-        timer = setTimeout(async () => {
-            try {
-                const response = await fetch(
-                    '/api/reference/schools/search?q=' + encodeURIComponent(q)
-                );
-                if (!response.ok) throw new Error('School search failed.');
+        var resume = collect();
+        var contact = [resume.email, resume.phone, resume.location]
+            .filter(function (x) { return x && x.trim(); })
+            .join(' · ');
 
-                const data = await response.json();
-                const schools = Array.isArray(data.schools)
-                    ? data.schools.slice(0, 8)
-                    : [];
+        var html = '<h1>' + escapeHtml(resume.fullName.trim() || 'Your Name') + '</h1>';
+        html += '<div class="resume-contact">' +
+            escapeHtml(contact || 'email · phone · location') +
+            '</div>';
 
-                results.innerHTML = '';
-
-                if (!schools.length) {
-                    results.innerHTML =
-                        '<div class="builder-autocomplete-empty">No matching schools found</div>';
-                    results.classList.add('show');
-                    return;
-                }
-
-                schools.forEach((school) => {
-                    const item = document.createElement('div');
-                    item.className = 'builder-autocomplete-item';
-                    item.textContent = school.name;
-                    item.addEventListener('mousedown', (event) => {
-                        event.preventDefault();
-                        input.value = school.name;
-                        hide();
-                        input.dispatchEvent(new Event('input', { bubbles: true }));
-                    });
-                    results.appendChild(item);
-                });
-
-                results.classList.add('show');
-            } catch (error) {
-                console.warn('[builder] school autocomplete:', error);
-                hide();
-            }
-        }, 180);
-    };
-
-    input.addEventListener('input', search);
-    input.addEventListener('focus', () => {
-        if (input.value.trim().length >= 2) search();
-    });
-    input.addEventListener('blur', () => {
-        setTimeout(hide, 120);
-    });
-}
-
-function renderEntries(type) {
-    const list = $(type + 'List');
-    const entries = state[type];
-
-    if (!list) return;
-
-    if (!entries.length) {
-        list.innerHTML =
-            '<p class="builder-section-note">Nothing added yet.</p>';
-        return;
-    }
-
-    list.innerHTML = entries.map((item, index) => {
-        let body = '';
-
-        if (type === 'education') {
-            body =
-                '<div class="builder-two">' +
-                field('SCHOOL', 'school', item.school, 'University / College') +
-                field('DEGREE / FIELD', 'degree', item.degree, 'BS Computer Engineering') +
-                '</div>' +
-                field('YEAR', 'year', item.year, '2026');
-        } else if (type === 'experience') {
-            body =
-                '<div class="builder-two">' +
-                field('JOB TITLE', 'title', item.title, 'Frontend Developer') +
-                field('COMPANY', 'company', item.company, 'Company name') +
-                '</div>' +
-                field('DURATION', 'duration', item.duration, '2024 — Present') +
-                area('DESCRIPTION', 'description', item.description, 'What you worked on and accomplished.');
-        } else if (type === 'projects') {
-            body =
-                field('PROJECT NAME', 'name', item.name, 'JobPath') +
-                area('DESCRIPTION', 'description', item.description, 'What you built and the technologies you used.');
-        } else {
-            body =
-                '<div class="builder-two">' +
-                field('CERTIFICATION', 'name', item.name, 'AWS Certified ...') +
-                field('ISSUER', 'issuer', item.issuer, 'Issuing organization') +
-                '</div>' +
-                field('YEAR', 'year', item.year, '2026');
+        if (resume.summary.trim()) {
+            html += '<h4>Profile</h4><p>' +
+                escapeHtml(resume.summary.trim()) + '</p>';
         }
 
-        return `
-            <div class="builder-entry" data-index="${index}">
-                ${body}
-                <div class="builder-entry-actions">
-                    <button type="button"
-                            class="builder-remove"
-                            data-remove="${index}">
-                        Remove
-                    </button>
-                </div>
-            </div>
-        `;
-    }).join('');
-
-    list.querySelectorAll('.builder-entry').forEach((entry) => {
-        const index = Number(entry.dataset.index);
-
-        entry.querySelectorAll('[data-key]').forEach((input) => {
-            input.addEventListener('input', () => {
-                state[type][index][input.dataset.key] = input.value;
-                renderPreview();
+        if (state.education.length) {
+            html += '<h4>Education</h4>';
+            state.education.forEach(function (item) {
+                html += '<div class="resume-item"><strong>' +
+                    escapeHtml(item.degree || 'Degree') +
+                    '</strong><div class="resume-muted">' +
+                    escapeHtml(item.school) +
+                    (item.year ? ' · ' + escapeHtml(item.year) : '') +
+                    '</div></div>';
             });
-        });
+        }
 
-        const remove = entry.querySelector('[data-remove]');
-        if (remove) {
-            remove.addEventListener('click', () => {
+        if (state.experience.length) {
+            html += '<h4>Experience</h4>';
+            state.experience.forEach(function (item) {
+                html += '<div class="resume-item"><strong>' +
+                    escapeHtml(item.title || 'Job Title') +
+                    '</strong><div class="resume-muted">' +
+                    escapeHtml(item.company) +
+                    (item.duration ? ' · ' + escapeHtml(item.duration) : '') +
+                    '</div><p>' + escapeHtml(item.description) +
+                    '</p></div>';
+            });
+        }
+
+        if (state.projects.length) {
+            html += '<h4>Projects</h4>';
+            state.projects.forEach(function (item) {
+                html += '<div class="resume-item"><strong>' +
+                    escapeHtml(item.name || 'Project') +
+                    '</strong><p>' + escapeHtml(item.description) +
+                    '</p></div>';
+            });
+        }
+
+        if (state.certifications.length) {
+            html += '<h4>Certifications</h4>';
+            state.certifications.forEach(function (item) {
+                html += '<div class="resume-item"><strong>' +
+                    escapeHtml(item.name || 'Certification') +
+                    '</strong><div class="resume-muted">' +
+                    escapeHtml(item.issuer) +
+                    (item.year ? ' · ' + escapeHtml(item.year) : '') +
+                    '</div></div>';
+            });
+        }
+
+        paper.innerHTML = html;
+        debug('Live Preview rendered.');
+    }
+
+    function input(label, key, value, placeholder) {
+        return '<div class="builder-field"><label>' + label +
+            '</label><input data-key="' + key + '" value="' +
+            escapeHtml(value) + '" placeholder="' +
+            escapeHtml(placeholder || '') + '"></div>';
+    }
+
+    function textarea(label, key, value, placeholder) {
+        return '<div class="builder-field"><label>' + label +
+            '</label><textarea data-key="' + key + '" placeholder="' +
+            escapeHtml(placeholder || '') + '">' +
+            escapeHtml(value) + '</textarea></div>';
+    }
+
+    function renderEntries(type) {
+        var list = $(type + 'List');
+        if (!list) {
+            debug('ERROR: ' + type + 'List not found.');
+            return;
+        }
+
+        if (!state[type].length) {
+            list.innerHTML = '';
+            return;
+        }
+
+        list.innerHTML = state[type].map(function (item, index) {
+            var body = '';
+
+            if (type === 'education') {
+                body = '<div class="builder-two">' +
+                    input('SCHOOL', 'school', item.school, 'University / College') +
+                    input('DEGREE / FIELD', 'degree', item.degree, 'BS Computer Engineering') +
+                    '</div>' +
+                    input('YEAR', 'year', item.year, '2026');
+            } else if (type === 'experience') {
+                body = '<div class="builder-two">' +
+                    input('JOB TITLE', 'title', item.title, 'Frontend Developer') +
+                    input('COMPANY', 'company', item.company, 'Company name') +
+                    '</div>' +
+                    input('DURATION', 'duration', item.duration, '2024 — Present') +
+                    textarea('DESCRIPTION', 'description', item.description, 'What you worked on and accomplished.');
+            } else if (type === 'projects') {
+                body = input('PROJECT NAME', 'name', item.name, 'JobPath') +
+                    textarea('DESCRIPTION', 'description', item.description, 'What you built and the technologies you used.');
+            } else {
+                body = '<div class="builder-two">' +
+                    input('CERTIFICATION', 'name', item.name, 'Certification name') +
+                    input('ISSUER', 'issuer', item.issuer, 'Issuing organization') +
+                    '</div>' +
+                    input('YEAR', 'year', item.year, '2026');
+            }
+
+            return '<div class="builder-entry" data-index="' + index + '">' +
+                body +
+                '<div class="builder-entry-actions">' +
+                '<button type="button" class="builder-remove" data-remove="' +
+                index + '">Remove</button></div></div>';
+        }).join('');
+
+        list.querySelectorAll('.builder-entry').forEach(function (entry) {
+            var index = Number(entry.getAttribute('data-index'));
+
+            entry.querySelectorAll('[data-key]').forEach(function (field) {
+                field.addEventListener('input', function () {
+                    state[type][index][field.getAttribute('data-key')] = field.value;
+                    renderPreview();
+                });
+            });
+
+            entry.querySelector('[data-remove]').addEventListener('click', function () {
                 state[type].splice(index, 1);
                 renderEntries(type);
                 renderPreview();
+                debug('Removed ' + type + ' entry.');
             });
-        }
-
-        if (type === 'education') {
-            attachSchoolAutocomplete(entry.querySelector('[data-key="school"]'));
-        }
-    });
-}
-
-function collect() {
-    return {
-        fullName: $('#fullName').value.trim(),
-        email: $('#email').value.trim(),
-        phone: $('#phone').value.trim(),
-        location: $('#location').value.trim(),
-        summary: $('#summary').value.trim(),
-        education: state.education,
-        experience: state.experience,
-        projects: state.projects,
-        certifications: state.certifications
-    };
-}
-
-function renderPreview() {
-    const resume = collect();
-
-    const contact = [
-        resume.email,
-        resume.phone,
-        resume.location
-    ].filter(Boolean).join(' · ');
-
-    let html =
-        '<h1>' + esc(resume.fullName || 'Your Name') + '</h1>' +
-        '<div class="resume-contact">' +
-        esc(contact || 'email · phone · location') +
-        '</div>';
-
-    if (resume.summary) {
-        html +=
-            '<h4>Profile</h4>' +
-            '<p>' + esc(resume.summary) + '</p>';
+        });
     }
 
-    if (resume.experience.length) {
-        html += '<h4>Experience</h4>';
-
-        html += resume.experience.map((item) =>
-            '<div class="resume-item">' +
-            '<strong>' + esc(item.title || 'Job Title') + '</strong>' +
-            '<div class="resume-muted">' +
-            esc(item.company) +
-            (item.duration ? ' · ' + esc(item.duration) : '') +
-            '</div>' +
-            '<p>' + esc(item.description) + '</p>' +
-            '</div>'
-        ).join('');
-    }
-
-    if (resume.projects.length) {
-        html += '<h4>Projects</h4>';
-
-        html += resume.projects.map((item) =>
-            '<div class="resume-item">' +
-            '<strong>' + esc(item.name || 'Project') + '</strong>' +
-            '<p>' + esc(item.description) + '</p>' +
-            '</div>'
-        ).join('');
-    }
-
-    if (resume.education.length) {
-        html += '<h4>Education</h4>';
-
-        html += resume.education.map((item) =>
-            '<div class="resume-item">' +
-            '<strong>' + esc(item.degree || 'Degree') + '</strong>' +
-            '<div class="resume-muted">' +
-            esc(item.school) +
-            (item.year ? ' · ' + esc(item.year) : '') +
-            '</div>' +
-            '</div>'
-        ).join('');
-    }
-
-    if (resume.certifications.length) {
-        html += '<h4>Certifications</h4>';
-
-        html += resume.certifications.map((item) =>
-            '<div class="resume-item">' +
-            '<strong>' + esc(item.name || 'Certification') + '</strong>' +
-            '<div class="resume-muted">' +
-            esc(item.issuer) +
-            (item.year ? ' · ' + esc(item.year) : '') +
-            '</div>' +
-            '</div>'
-        ).join('');
-    }
-
-    $('#resumePaper').innerHTML = html;
-}
-
-function addEntry(type) {
-    if (!factories[type]) return;
-
-    state[type].push(factories[type]());
-    renderEntries(type);
-    renderPreview();
-}
-
-async function loadLocationSuggestions() {
-    const input = $('#location');
-    const results = $('#locationResults');
-
-    if (!input || !results) return;
-
-    let timer = null;
-
-    const hide = () => {
-        results.classList.remove('show');
-        results.innerHTML = '';
-    };
-
-    const search = () => {
-        const q = input.value.trim();
-
-        if (q.length < 2) {
-            hide();
-            return;
-        }
-
-        clearTimeout(timer);
-
-        timer = setTimeout(async () => {
-            try {
-                const response = await fetch(
-                    '/api/reference/locations/search?q=' +
-                    encodeURIComponent(q)
-                );
-
-                if (!response.ok) {
-                    throw new Error('Location search failed.');
-                }
-
-                const data = await response.json();
-
-                const locations = Array.isArray(data.locations)
-                    ? data.locations.slice(0, 8)
-                    : [];
-
-                results.innerHTML = '';
-
-                if (!locations.length) {
-                    results.innerHTML =
-                        '<div class="builder-autocomplete-empty">No matching Philippine locations found</div>';
-                    results.classList.add('show');
-                    return;
-                }
-
-                locations.forEach((location) => {
-                    const item = document.createElement('div');
-                    item.className = 'builder-autocomplete-item';
-
-                    item.textContent = location.province
-                        ? location.name + ', ' + location.province
-                        : location.name;
-
-                    item.addEventListener('mousedown', (event) => {
-                        event.preventDefault();
-
-                        input.value = item.textContent;
-                        hide();
-                        renderPreview();
-                    });
-
-                    results.appendChild(item);
-                });
-
-                results.classList.add('show');
-            } catch (error) {
-                console.warn('[builder] location autocomplete:', error);
-                hide();
-            }
-        }, 180);
-    };
-
-    input.addEventListener('input', () => {
-        search();
-        renderPreview();
-    });
-
-    input.addEventListener('focus', () => {
-        if (input.value.trim().length >= 2) search();
-    });
-
-    input.addEventListener('blur', () => {
-        setTimeout(hide, 120);
-    });
-}
-
-async function load() {
-    try {
-        const [builderResponse, profileResponse] = await Promise.all([
-            fetch('/api/resume/builder', {
-                credentials: 'include'
-            }),
-            fetch('/api/auth/profile', {
-                credentials: 'include'
-            })
-        ]);
-
-        if (profileResponse.status === 401) {
-            location.href = '/';
-            return;
-        }
-
-        const profileData = await profileResponse.json();
-        const profile = profileData.profile || {};
-
-        const builderData = builderResponse.ok
-            ? (await builderResponse.json()).resume
-            : null;
-
-        const resume = builderData || {
-            fullName: profile.full_name || '',
-            email: profile.email || '',
-            phone: '',
-            /* Keep location blank; the user chooses what to display on the resume. */
-            location: '',
-            summary: '',
-            education: profile.education || profile.degree
-                ? [{
-                    school: profile.education || '',
-                    degree: profile.degree || '',
-                    year: ''
-                }]
-                : [],
-            experience: [],
-            projects: [],
-            certifications: []
+    function addEntry(type) {
+        var blank = {
+            education: { school: '', degree: '', year: '' },
+            experience: { title: '', company: '', duration: '', description: '' },
+            projects: { name: '', description: '' },
+            certifications: { name: '', issuer: '', year: '' }
         };
 
-        ['fullName', 'email', 'phone', 'location', 'summary']
-            .forEach((key) => {
-                const input = $('#' + key);
-                if (!input) return;
+        if (!blank[type]) {
+            debug('ERROR: Unknown section ' + type);
+            return;
+        }
 
-                input.value = resume[key] || '';
+        state[type].push(blank[type]);
+        renderEntries(type);
+        renderPreview();
+        debug('Added ' + type + ' entry.');
+    }
 
-                input.addEventListener('input', renderPreview);
+    function save() {
+        var button = $('saveResume');
+        var status = $('builderStatus');
+
+        if (button) {
+            button.disabled = true;
+            button.textContent = 'Saving...';
+        }
+
+        fetch('/api/resume/builder', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ resume: collect() })
+        })
+        .then(function (response) {
+            return response.json().then(function (data) {
+                if (!response.ok) {
+                    throw new Error(data.error || 'Save failed.');
+                }
+                return data;
+            });
+        })
+        .then(function () {
+            if (status) status.textContent = 'Saved to your profile.';
+            debug('Resume saved successfully.');
+        })
+        .catch(function (error) {
+            if (status) status.textContent = error.message;
+            debug('SAVE ERROR: ' + error.message);
+        })
+        .finally(function () {
+            if (button) {
+                button.disabled = false;
+                button.textContent = 'Save Resume';
+            }
+        });
+    }
+
+    function load() {
+        debug('Loading profile and resume draft...');
+
+        Promise.all([
+            fetch('/api/resume/builder', { credentials: 'include' }),
+            fetch('/api/auth/profile', { credentials: 'include' })
+        ])
+        .then(function (responses) {
+            return Promise.all([
+                responses[0].json(),
+                responses[1].json()
+            ]);
+        })
+        .then(function (data) {
+            var builder = data[0].resume;
+            var profile = data[1].profile || {};
+
+            var resume = builder || {
+                fullName: profile.full_name || '',
+                email: profile.email || '',
+                phone: '',
+                location: '',
+                summary: '',
+                education: []
+            };
+
+            ['fullName', 'email', 'phone', 'location', 'summary'].forEach(function (key) {
+                var field = $(key);
+                if (field) field.value = resume[key] || '';
             });
 
-        state.education = Array.isArray(resume.education)
-            ? resume.education
-            : [];
+            state.education = Array.isArray(resume.education) ? resume.education : [];
+            state.experience = Array.isArray(resume.experience) ? resume.experience : [];
+            state.projects = Array.isArray(resume.projects) ? resume.projects : [];
+            state.certifications = Array.isArray(resume.certifications) ? resume.certifications : [];
 
-        state.experience = Array.isArray(resume.experience)
-            ? resume.experience
-            : [];
+            ['education', 'experience', 'projects', 'certifications'].forEach(renderEntries);
+            renderPreview();
 
-        state.projects = Array.isArray(resume.projects)
-            ? resume.projects
-            : [];
-
-        state.certifications = Array.isArray(resume.certifications)
-            ? resume.certifications
-            : [];
-
-        ['education', 'experience', 'projects', 'certifications']
-            .forEach(renderEntries);
-
-        await loadLocationSuggestions();
-
-        renderPreview();
-
-        $('#builderStatus').textContent =
-            'Your profile information is connected.';
-    } catch (error) {
-        console.error('[builder] load error:', error);
-        $('#builderStatus').textContent =
-            'Unable to load your resume.';
+            var status = $('builderStatus');
+            if (status) status.textContent = 'Your profile information is connected.';
+            debug('Profile/draft loaded. Builder is ready.');
+        })
+        .catch(function (error) {
+            debug('LOAD ERROR: ' + error.message);
+            renderPreview();
+        });
     }
-}
 
-async function saveResume() {
-    const button = $('#saveResume');
-    const status = $('#builderStatus');
+    function init() {
+        debug('JavaScript loaded.');
+        var form = $('builderForm');
 
-    button.disabled = true;
-    button.textContent = 'Saving...';
+        if (!form) {
+            debug('FATAL: #builderForm not found.');
+            return;
+        }
 
-    try {
-        const response = await fetch('/api/resume/builder', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                resume: collect()
-            })
+        debug('Builder form found.');
+
+        form.addEventListener('click', function (event) {
+            var button = event.target.closest('[data-add]');
+            if (!button) return;
+
+            event.preventDefault();
+            addEntry(button.getAttribute('data-add'));
         });
 
-        const data = await response.json();
+        ['fullName', 'email', 'phone', 'location', 'summary'].forEach(function (id) {
+            var field = $(id);
+            if (field) field.addEventListener('input', renderPreview);
+        });
 
-        if (!response.ok) {
-            throw new Error(
-                data.error || 'Failed to save resume.'
-            );
-        }
+        if ($('saveResume')) $('saveResume').addEventListener('click', save);
+        if ($('printResume')) $('printResume').addEventListener('click', function () {
+            window.print();
+        });
 
-        status.textContent = 'Saved to your profile.';
-    } catch (error) {
-        console.error('[builder] save error:', error);
-        status.textContent = error.message;
-    } finally {
-        button.disabled = false;
-        button.textContent = 'Save Resume';
-    }
-}
-
-function initResumeBuilder() {
-    const form = $('#builderForm');
-
-    if (!form) {
-        console.error('[builder] #builderForm was not found.');
-        return;
+        renderPreview();
+        load();
     }
 
-    /* Render immediately. The page should work even while profile data loads. */
-    renderPreview();
-
-    form.addEventListener('click', (event) => {
-        const addButton = event.target.closest('[data-add]');
-
-        if (addButton) {
-            event.preventDefault();
-            event.stopPropagation();
-            addEntry(addButton.dataset.add);
-        }
+    window.addEventListener('error', function (event) {
+        debug('JS ERROR: ' + event.message);
     });
 
-    const saveButton = $('#saveResume');
-    const printButton = $('#printResume');
-
-    if (saveButton) {
-        saveButton.addEventListener('click', saveResume);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
     }
-
-    if (printButton) {
-        printButton.addEventListener('click', () => window.print());
-    }
-
-    load();
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initResumeBuilder);
-} else {
-    initResumeBuilder();
-}
+})();
