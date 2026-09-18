@@ -10,12 +10,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const headerInner = nav.closest('.header-inner');
         if (!headerInner) return;
 
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'mobile-nav-toggle';
-        button.setAttribute('aria-label', 'Open navigation');
-        button.setAttribute('aria-expanded', 'false');
-        button.innerHTML = '<span></span><span></span><span></span>';
+        const button = headerInner.querySelector('.menu-toggle') || (() => {
+            const created = document.createElement('button');
+            created.type = 'button';
+            created.className = 'mobile-nav-toggle';
+            created.setAttribute('aria-label', 'Open navigation');
+            created.setAttribute('aria-expanded', 'false');
+            created.innerHTML = '<span></span><span></span><span></span>';
+            headerInner.appendChild(created);
+            return created;
+        })();
+
+        if (button.classList.contains('menu-toggle')) {
+            button.setAttribute('aria-expanded', 'false');
+        }
 
         const panel = document.createElement('div');
         panel.className = 'mobile-nav-panel';
@@ -25,12 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
         clone.removeAttribute('aria-label');
         clone.classList.add('mobile-nav-clone');
         panel.appendChild(clone);
-
-        headerInner.appendChild(button);
         headerInner.appendChild(panel);
 
         const close = () => {
             document.body.classList.remove('mobile-nav-open');
+            document.body.classList.remove('nav-open');
             button.setAttribute('aria-expanded', 'false');
             button.setAttribute('aria-label', 'Open navigation');
             panel.setAttribute('aria-hidden', 'true');
