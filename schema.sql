@@ -62,8 +62,7 @@ CREATE TABLE IF NOT EXISTS education (
     degree TEXT,
     field TEXT,
     year TEXT,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS experience (
@@ -130,5 +129,6 @@ CREATE TABLE IF NOT EXISTS learning_progress (
     total_questions INTEGER DEFAULT 0,
     completed_at TEXT,
     PRIMARY KEY (user_id, skill_id),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE
 );
