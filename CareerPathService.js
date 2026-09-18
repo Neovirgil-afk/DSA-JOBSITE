@@ -4,6 +4,7 @@ const { db } = require('./database');
 const Graph = require('./Graph')
 const { Tree } = require('./Tree')
 const { CATEGORY_TREE } = require('./seed')
+const { getLearningResources } = require('./LearningResources')
 
 function getCareerPathForJob(jobId, userSkillNames = []) {
     const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(jobId);
@@ -43,6 +44,7 @@ function getCareerPathForJob(jobId, userSkillNames = []) {
         order: idx + 1,
         skill: name,
         completed: userSkillSetLower.has(name.toLowerCase()),
+        resources: getLearningResources(name),
     }));
 
     return {
