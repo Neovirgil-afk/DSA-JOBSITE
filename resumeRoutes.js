@@ -60,6 +60,23 @@ function ensureSkillDictionaryInDatabase() {
     syncSkills();
 }
 
+router.get('/current', requireAuth, (req, res) => {
+    try {
+        const resume = db.prepare(`
+            SELECT original_name, stored_name, uploaded_at
+            FROM user_resumes
+            WHERE user_id = ?
+            ORDER BY uploaded_at DESC, id DESC
+            LIMIT 1
+        `).get(req.session.userId);
+
+        res.json({ resume: resume || null });
+    } catch (error) {
+        console.error('[resume/current] error:', error);
+        res.status(500).json({ error: 'Failed to load resume status.' });
+    }
+});
+
 // Upload + scan + auto-save detected skills to the logged-in user's profile.
 router.post('/scan', requireAuth, (req, res) => {
     upload.single('resume')(req, res, async (err) => {
@@ -69,6 +86,15 @@ router.post('/scan', requireAuth, (req, res) => {
             if (!req.file) return res.status(400).json({ error: 'No file was uploaded.' });
 
             const result = await scanResume(req.file.path, req.file.originalname);
+
+            db.prepare(`
+                INSERT INTO user_resumes (user_id, original_name, stored_name)
+                VALUES (?, ?, ?)
+            `).run(
+                req.session.userId,
+                req.file.originalname,
+                path.basename(req.file.path)
+            );
 
             // Make sure newly added skills exist even when using an older database.
             ensureSkillDictionaryInDatabase();
