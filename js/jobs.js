@@ -515,16 +515,7 @@ export function initJobs() {
 
                             <div class="resume-upload-status" id="jobResumeUploadStatus" aria-live="polite"></div>
 
-                            <a
-                                class="resume-panel-link"
-                                id="jobResumeView"
-                                href="#"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                hidden
-                            >
-                                Review saved resume
-                            </a>
+
                         </div>
                     </aside>
                 </div>
@@ -673,10 +664,8 @@ export function initJobs() {
                 const view = document.querySelector('#jobResumeView');
 
                 if (resume) {
-                    status.textContent = resume.original_name;
-                    view.href =
-                        `/uploads/${encodeURIComponent(resume.stored_name)}`;
-                    view.hidden = false;
+                    status.textContent = 'Resume saved to your profile';
+                    view.hidden = true;
                 } else {
                     status.textContent = 'No resume uploaded yet.';
                     view.hidden = true;
