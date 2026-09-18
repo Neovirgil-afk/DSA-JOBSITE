@@ -142,7 +142,7 @@ router.get('/:id', (req, res) => {
         }
 
         const careerPath = req.session.userId
-            ? getCareerPathForJob(jobId, require('../services/JobMatchingService').getUserSkillNames(req.session.userId))
+            ? getCareerPathForJob(jobId, getUserSkillNames(req.session.userId))
             : getCareerPathForJob(jobId, []);
 
         res.json({ job, matchScore, matchingSkills, missingSkills, careerPath });
