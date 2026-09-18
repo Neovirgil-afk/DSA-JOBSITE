@@ -119,3 +119,15 @@ CREATE TABLE IF NOT EXISTS resume_builder (
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+
+CREATE TABLE IF NOT EXISTS learning_progress (
+    user_id INTEGER NOT NULL,
+    skill_id INTEGER NOT NULL,
+    status TEXT DEFAULT 'not_started',
+    score INTEGER DEFAULT 0,
+    total_questions INTEGER DEFAULT 0,
+    completed_at TEXT,
+    PRIMARY KEY (user_id, skill_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
