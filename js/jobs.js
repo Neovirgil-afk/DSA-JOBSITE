@@ -295,6 +295,73 @@ export function initJobs() {
 
 
     /* =====================================================
+       DEBUG
+       ===================================================== */
+
+    const debugEnabled =
+        new URLSearchParams(window.location.search).get('debug') === '1';
+
+    let debugPanel = null;
+
+    function debugNote(message, type = 'info') {
+        console.debug('[JobPath DEBUG]', message);
+
+        if (!debugEnabled) {
+            return;
+        }
+
+        if (!debugPanel) {
+            debugPanel = document.createElement('div');
+            debugPanel.className = 'job-debug-panel';
+            debugPanel.innerHTML = `
+                <strong>JobPath Debug</strong>
+                <button type="button" class="job-debug-clear">Clear</button>
+                <div class="job-debug-log"></div>
+            `;
+            document.body.appendChild(debugPanel);
+
+            debugPanel
+                .querySelector('.job-debug-clear')
+                .addEventListener('click', () => {
+                    debugPanel.querySelector('.job-debug-log').innerHTML = '';
+                });
+        }
+
+        const row = document.createElement('div');
+        row.className = `job-debug-row job-debug-row--${type}`;
+        row.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+
+        debugPanel.querySelector('.job-debug-log').appendChild(row);
+    }
+
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 7000) {
+        const controller = new AbortController();
+        const timeout = setTimeout(
+            () => controller.abort(),
+            timeoutMs
+        );
+
+        try {
+            return await fetch(
+                url,
+                {
+                    ...options,
+                    signal: controller.signal
+                }
+            );
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                throw new Error(`Request timed out after ${timeoutMs / 1000}s: ${url}`);
+            }
+
+            throw error;
+        } finally {
+            clearTimeout(timeout);
+        }
+    }
+
+
+    /* =====================================================
        FETCH JOBS
        ===================================================== */
 
@@ -916,21 +983,74 @@ export function initJobs() {
         resultsSection.hidden = false;
         showSkeletons(4);
 
-        try {
-            await loadSavedJobIds();
+        debugNote('Initial job loading started.');
+        debugNote('Step 1: loading saved job IDs...');
 
-            /*
-             * Try personalized recommendations first.
-             * Guests simply fall back to featured jobs.
-             */
-            const recommendedResponse = await fetch(
-                '/api/jobs/recommended',
-                { credentials: 'include' }
+        try {
+            await Promise.race([
+                loadSavedJobIds(),
+                new Promise((_, reject) =>
+                    setTimeout(
+                        () => reject(
+                            new Error('Saved jobs request timed out after 7s.')
+                        ),
+                        7000
+                    )
+                )
+            ]);
+
+            debugNote('Step 1 complete: saved jobs loaded.');
+
+            debugNote('Step 2: requesting /api/jobs/recommended...');
+
+            const recommendationStartedAt = Date.now();
+
+            let recommendedResponse;
+
+            try {
+                recommendedResponse = await fetchWithTimeout(
+                    '/api/jobs/recommended',
+                    { credentials: 'include' },
+                    7000
+                );
+            } catch (error) {
+                debugNote(
+                    `Step 2 failed: ${error.message}. Falling back to featured jobs.`,
+                    'error'
+                );
+
+                const jobs = await fetchJobs({});
+                debugNote(
+                    `Fallback complete: ${jobs.length} featured jobs loaded.`,
+                    'success'
+                );
+
+                renderJobs(
+                    jobs.slice(0, 6),
+                    'Featured jobs',
+                    false
+                );
+                return;
+            }
+
+            debugNote(
+                `Step 2 response received: HTTP ${recommendedResponse.status} in ${Date.now() - recommendationStartedAt}ms.`
             );
 
             if (recommendedResponse.ok) {
                 const recommendedData =
                     await recommendedResponse.json();
+
+                debugNote(
+                    `Step 3: recommendation JSON parsed. ${Array.isArray(recommendedData.jobs) ? recommendedData.jobs.length : 0} jobs returned.`
+                );
+
+                if (recommendedData.debug) {
+                    debugNote(
+                        `Backend: ${recommendedData.debug.userSkills} skills → ${recommendedData.debug.jobsRanked} jobs in ${recommendedData.debug.durationMs}ms.`,
+                        'success'
+                    );
+                }
 
                 const recommendedJobs =
                     Array.isArray(recommendedData.jobs)
@@ -943,6 +1063,11 @@ export function initJobs() {
                     );
 
                 if (hasSkillMatch) {
+                    debugNote(
+                        'Step 4 complete: rendering Recommended for You.',
+                        'success'
+                    );
+
                     renderJobs(
                         recommendedJobs.slice(0, 6),
                         'Recommended for You',
@@ -950,10 +1075,44 @@ export function initJobs() {
                     );
                     return;
                 }
+
+                debugNote(
+                    'No positive skill match found. Falling back to featured jobs.'
+                );
+            } else {
+                let errorMessage = `HTTP ${recommendedResponse.status}`;
+
+                try {
+                    const errorData =
+                        await recommendedResponse.json();
+
+                    if (errorData.error) {
+                        errorMessage += `: ${errorData.error}`;
+                    }
+
+                    if (errorData.debug?.message) {
+                        errorMessage +=
+                            ` | ${errorData.debug.message}`;
+                    }
+                } catch (_) {
+                    // Keep the HTTP status when the response is not JSON.
+                }
+
+                debugNote(
+                    `Recommendation endpoint failed: ${errorMessage}. Falling back to featured jobs.`,
+                    'error'
+                );
             }
+
+            debugNote('Step 5: loading featured jobs fallback...');
 
             const jobs =
                 await fetchJobs({});
+
+            debugNote(
+                `Fallback complete: ${jobs.length} featured jobs loaded.`,
+                'success'
+            );
 
             renderJobs(
                 jobs.slice(0, 6),
@@ -961,7 +1120,13 @@ export function initJobs() {
                 false
             );
         } catch (error) {
-            resultsSection.hidden = true;
+            resultsGrid.innerHTML =
+                '<p class="results-empty">Something went wrong loading jobs. Open the page with <strong>?debug=1</strong> to see what failed.</p>';
+
+            debugNote(
+                `INITIAL LOAD ERROR: ${error.message}`,
+                'error'
+            );
 
             console.error(
                 '[JobPath] Failed to load initial jobs:',
@@ -969,7 +1134,6 @@ export function initJobs() {
             );
         }
     }
-
 
     /* =====================================================
        CLOSE RESULTS
