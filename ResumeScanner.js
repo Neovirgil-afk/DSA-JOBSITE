@@ -123,7 +123,7 @@ async function ocrPdf(filePath) {
             const result = await worker.recognize(
                 imageBuffer,
                 {},
-                { blocks: true }
+                { blocks: true, tsv: true }
             );
 
             const pageText = result?.data?.text || '';
@@ -131,6 +131,7 @@ async function ocrPdf(filePath) {
             pageTexts.push(pageText);
             pageData.push({
                 blocks: result?.data?.blocks || [],
+                tsv: result?.data?.tsv || '',
             });
             console.log(`[OCR] Page ${pageNumber} complete (${pageText.length} characters).`);
 
@@ -161,7 +162,89 @@ function cleanOCRSkillLine(line) {
 }
 
 function extractSkillsSectionFromOCRData(pageData) {
+    function parseTSVLines(tsv) {
+        const lines = [];
+        const lineMap = new Map();
+
+        for (const rawLine of String(tsv || '').split(/\r?\n/)) {
+            if (!rawLine || rawLine.startsWith('level\t')) continue;
+
+            const parts = rawLine.split('\t');
+            if (parts.length < 12) continue;
+
+            const level = Number(parts[0]);
+            if (level !== 5) continue;
+
+            const pageNum = parts[1];
+            const blockNum = parts[2];
+            const paragraphNum = parts[3];
+            const lineNum = parts[4];
+            const wordNum = parts[5];
+            const left = Number(parts[6]);
+            const top = Number(parts[7]);
+            const width = Number(parts[8]);
+            const height = Number(parts[9]);
+            const confidence = Number(parts[10]);
+            const text = parts.slice(11).join('\t').trim();
+
+            if (
+                !Number.isFinite(left) ||
+                !Number.isFinite(top) ||
+                !Number.isFinite(width) ||
+                !Number.isFinite(height) ||
+                !text ||
+                confidence < 0
+            ) {
+                continue;
+            }
+
+            const key = [
+                pageNum,
+                blockNum,
+                paragraphNum,
+                lineNum,
+            ].join(':');
+
+            if (!lineMap.has(key)) {
+                lineMap.set(key, {
+                    text: '',
+                    bbox: {
+                        x0: left,
+                        y0: top,
+                        x1: left + width,
+                        y1: top + height,
+                    },
+                    wordNum,
+                });
+            }
+
+            const line = lineMap.get(key);
+            line.text = line.text
+                ? `${line.text} ${text}`
+                : text;
+
+            line.bbox.x0 = Math.min(line.bbox.x0, left);
+            line.bbox.y0 = Math.min(line.bbox.y0, top);
+            line.bbox.x1 = Math.max(line.bbox.x1, left + width);
+            line.bbox.y1 = Math.max(line.bbox.y1, top + height);
+        }
+
+        for (const line of lineMap.values()) {
+            lines.push(line);
+        }
+
+        return lines.sort((a, b) => {
+            if (a.bbox.y0 !== b.bbox.y0) return a.bbox.y0 - b.bbox.y0;
+            return a.bbox.x0 - b.bbox.x0;
+        });
+    }
+
     function getOCRLines(data) {
+        const tsvLines = parseTSVLines(data?.tsv);
+        if (tsvLines.length > 0) return tsvLines;
+
+        const directLines = Array.isArray(data?.lines) ? data.lines : [];
+        if (directLines.length > 0) return directLines;
         const directLines = Array.isArray(data?.lines) ? data.lines : [];
         if (directLines.length > 0) return directLines;
 
