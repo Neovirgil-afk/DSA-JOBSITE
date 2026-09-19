@@ -262,9 +262,6 @@ const JOBS = [
         description: 'Specialize in building microservices with Spring Boot.',
         requiredSkills: ['Java', 'Spring Boot', 'REST API', 'SQL', 'Docker'],
     },
-];
-
-
     {
         title: 'Accountant',
         company: 'LedgerWorks Philippines',
@@ -455,6 +452,7 @@ const JOBS = [
         description: 'Install, maintain, troubleshoot, and repair electrical wiring and equipment.',
         requiredSkills: ['Electrical Installation', 'Electrical Wiring', 'Electrical Maintenance', 'Troubleshooting'],
     },
+];
 
 const CATEGORY_TREE = {
     Technology: {
