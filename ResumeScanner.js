@@ -195,11 +195,35 @@ function isSkillsHeader(line) {
     const clean = normalizeHeader(line);
     const compact = clean.replace(/[^a-z]/gi, '').toLowerCase();
 
-    // OCR can turn "SKILLS" into a slightly noisy heading, so accept
-    // the normalized form as well as the normal heading patterns.
+    // Handles OCR such as:
+    // "SKILLS"
+    // "S K I L L S"
     if (compact === 'skills') return true;
 
+    // OCR may put the first skill on the same line as the heading,
+    // such as "SKILLS Microsoft Outlook".
+    if (/^skills?\\b/i.test(clean)) return true;
+    if (/^(technical|professional|core|key)\\s+skills?\\b/i.test(clean)) return true;
+
     return SKILLS_SECTION_HEADERS.some((pattern) => pattern.test(clean));
+}
+
+function getSkillsHeaderContent(line) {
+    const clean = String(line || '')
+        .replace(/\\s+/g, ' ')
+        .trim();
+
+    // Example:
+    // "SKILLS Microsoft Outlook"
+    // becomes:
+    // "Microsoft Outlook"
+    const match = clean.match(
+        /^(?:technical\\s+|professional\\s+|core\\s+|key\\s+)?skills?\\s*(?::|-|–|—)?\\s*(.*)$/i
+    );
+
+    if (!match) return '';
+
+    return match[1].trim();
 }
 
 function isResumeSectionHeader(line) {
@@ -209,43 +233,73 @@ function isResumeSectionHeader(line) {
 
 function extractSkillsSection(text) {
     const lines = String(text || '')
-        .split(/\r?\n/)
+        .split(/\\r?\\n/)
         .map((line) => line.trim());
-
-    const sections = [];
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
 
-        // Handles formats such as "Skills: Communication, Excel, Accounting".
-        const inlineMatch = line.match(/^(?:technical\s+|professional\s+|core\s+|key\s+)?skills?\s*[:\-]\s*(.+)$/i);
+        // Handles:
+        // Skills: Excel, Accounting, Communication
+        // Technical Skills: Java, Python
+        const inlineMatch = line.match(
+            /^(?:technical\\s+|professional\\s+|core\\s+|key\\s+)?skills?\\s*[:\\-–—]\\s*(.+)$/i
+        );
+
         if (inlineMatch) {
-            sections.push(inlineMatch[1]);
+            const sections = [inlineMatch[1].trim()];
             let j = i + 1;
 
             while (j < lines.length && lines[j]) {
-                if (isResumeSectionHeader(lines[j]) || isSkillsHeader(lines[j])) break;
+                if (isResumeSectionHeader(lines[j]) || isSkillsHeader(lines[j])) {
+                    break;
+                }
+
                 sections.push(lines[j]);
                 j++;
             }
 
-            return sections.join('\n').trim();
+            return sections.join('\\n').trim();
         }
 
         if (!isSkillsHeader(line)) continue;
 
         const skillLines = [];
+
+        // OCR can put the first skill on the same line as "SKILLS".
+        const headerContent = getSkillsHeaderContent(line);
+
+        if (
+            headerContent &&
+            !isSkillsHeader(headerContent) &&
+            !isResumeSectionHeader(headerContent)
+        ) {
+            skillLines.push(headerContent);
+        }
+
         for (let j = i + 1; j < lines.length; j++) {
             const nextLine = lines[j];
 
-            if (isResumeSectionHeader(nextLine) && skillLines.length > 0) break;
-            if (isSkillsHeader(nextLine) && skillLines.length > 0) break;
+            // Stop when we reach another resume section.
+            if (isResumeSectionHeader(nextLine) && skillLines.length > 0) {
+                break;
+            }
 
-            if (nextLine) skillLines.push(nextLine);
+            // Stop at another Skills heading.
+            if (isSkillsHeader(nextLine) && skillLines.length > 0) {
+                break;
+            }
+
+            if (nextLine) {
+                skillLines.push(nextLine);
+            }
         }
 
-        const sectionText = skillLines.join('\n').trim();
-        if (sectionText) return sectionText;
+        const sectionText = skillLines.join('\\n').trim();
+
+        if (sectionText) {
+            return sectionText;
+        }
     }
 
     return '';
