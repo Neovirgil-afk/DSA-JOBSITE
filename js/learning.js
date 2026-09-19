@@ -1,11 +1,49 @@
 (function () {
     'use strict';
 
-    const state = { recommendations: [], catalog: [], activeSkill: '', activeLesson: 0, phase: 'lesson', quiz: null, quizAnswers: [], resources: [] };
+    const state = { recommendations: [], catalog: [], careerPath: [], targetJob: '', progress: { completed: 0, total: 0, percent: 0 }, activeSkill: '', activeLesson: 0, phase: 'lesson', quiz: null, quizAnswers: [], resources: [] };
     const $ = (selector) => document.querySelector(selector);
 
     function escapeHTML(value) {
         return String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' }[char]));
+    }
+
+    function renderCareerOverview() {
+        const overview = $('#learningCareerOverview');
+        if (!overview) return;
+
+        if (!state.targetJob) {
+            overview.innerHTML = '<div class="learning-career-empty"><strong>No target job selected yet.</strong><span>Choose a target job in your profile to build a personalized learning path.</span><a href="/profile.html" class="learning-mini-button">Set Target Job →</a></div>';
+            return;
+        }
+
+        const completed = state.progress.completed;
+        const total = state.progress.total;
+        const percent = state.progress.percent;
+        const steps = state.careerPath;
+        const next = steps.find((step) => !step.completed);
+
+        overview.innerHTML =
+            '<div class="learning-career-header">' +
+                '<div><span class="learning-eyebrow">YOUR TARGET CAREER</span><h2>' + escapeHTML(state.targetJob) + '</h2><p>Build the skills connected to your target job and close the gaps in your current profile.</p></div>' +
+                '<div class="learning-career-progress"><strong>' + percent + '%</strong><span>' + completed + ' / ' + total + ' skills</span></div>' +
+            '</div>' +
+            '<div class="learning-career-track"><span style="width:' + percent + '%"></span></div>' +
+            '<div class="learning-career-summary">' +
+                '<div><span class="summary-value">' + completed + '</span><span class="summary-label">Skills verified</span></div>' +
+                '<div><span class="summary-value">' + Math.max(total - completed, 0) + '</span><span class="summary-label">Skills to learn</span></div>' +
+                '<div><span class="summary-value">' + (next ? escapeHTML(next.skill) : 'Complete') + '</span><span class="summary-label">' + (next ? 'Recommended next' : 'Learning path') + '</span></div>' +
+            '</div>' +
+            '<div class="learning-skill-path">' +
+                '<div class="learning-section-title"><span>CAREER SKILL PATH</span><small>' + (next ? 'Your next gap is highlighted.' : 'You completed every skill in this path.') + '</small></div>' +
+                '<div class="learning-path-list">' +
+                    steps.map((step, index) => '<button type="button" class="learning-path-step ' + (step.completed ? 'completed' : (next && step.skill === next.skill ? 'current' : '')) + '" data-skill="' + escapeHTML(step.skill) + '">' +
+                        '<span class="learning-path-number">' + (step.completed ? '✓' : String(index + 1).padStart(2, '0')) + '</span>' +
+                        '<span class="learning-path-copy"><strong>' + escapeHTML(step.skill) + '</strong><small>' + (step.completed ? 'Verified skill' : (next && step.skill === next.skill ? 'Recommended next' : 'Skill gap')) + '</small></span>' +
+                        '<span class="learning-path-arrow">→</span>' +
+                    '</button>').join('') +
+                '</div>' +
+            '</div>';
     }
 
     function renderCourseList() {
@@ -13,7 +51,7 @@
         const select = $('#courseSelect');
         if (!list || !select) return;
         const items = state.recommendations.length ? state.recommendations : state.catalog;
-        list.innerHTML = items.map((item, index) => '<button type="button" class="learning-course-item ' + (item.skill === state.activeSkill ? 'active' : '') + '" data-skill="' + escapeHTML(item.skill) + '"><span class="learning-course-number">' + (index + 1) + '</span><span class="learning-course-copy"><strong>' + escapeHTML(item.skill) + '</strong><small>' + (item.hasLesson === false ? 'Resources only' : 'Beginner lesson') + '</small></span></button>').join('');
+        list.innerHTML = items.map((item, index) => '<button type="button" class="learning-course-item ' + (item.skill === state.activeSkill ? 'active' : '') + '" data-skill="' + escapeHTML(item.skill) + '"><span class="learning-course-number">' + (index + 1) + '</span><span class="learning-course-copy"><strong>' + escapeHTML(item.skill) + '</strong><small>' + escapeHTML(item.reason || (item.hasLesson === false ? 'Resources only' : 'Beginner lesson')) + '</small></span></button>').join('');
         select.innerHTML = items.map((item) => '<option value="' + escapeHTML(item.skill) + '">' + escapeHTML(item.skill) + '</option>').join('');
         if (state.activeSkill) select.value = state.activeSkill;
     }
@@ -24,7 +62,7 @@
         const current = lesson.lessons[state.activeLesson];
         const percent = Math.round(((state.activeLesson + 1) / total) * 100);
 
-        content.innerHTML = '<div class="learning-content-top"><div><span class="learning-eyebrow">BEGINNER LESSON</span><h2>' + escapeHTML(lesson.skill) + '</h2><p>' + escapeHTML(lesson.description) + '</p></div><span class="learning-badge">Beginner</span></div>' +
+        content.innerHTML = '<div class="learning-content-top"><div><span class="learning-eyebrow">BEGINNER LESSON</span><h2>' + escapeHTML(lesson.skill) + '</h2><p>' + escapeHTML(lesson.description) + '</p>' + (state.recommendations.find((item) => item.skill === lesson.skill)?.reason ? '<div class="learning-why"><strong>Why this is recommended:</strong> ' + escapeHTML(state.recommendations.find((item) => item.skill === lesson.skill).reason) + '</div>' : '') + '</div><span class="learning-badge">Beginner</span></div>' +
             '<div class="learning-progress"><div class="learning-progress-track"><span style="width:' + percent + '%"></span></div><span class="learning-progress-label">' + (state.activeLesson + 1) + ' / ' + total + '</span></div>' +
             '<div class="learning-lesson-list"><article class="learning-lesson"><span class="learning-lesson-kicker">LESSON ' + current.step + '</span><h3>' + escapeHTML(current.title) + '</h3><p>' + escapeHTML(current.content) + '</p></article></div>' +
             '<section class="learning-resources-panel"><h3>Continue learning</h3><p class="learning-resource-intro">Want more detail? Use these curated resources after the foundation lesson.</p><div class="learning-resource-grid">' +
@@ -151,8 +189,12 @@
             const data = await response.json();
             if (response.status === 401) { window.location.href = '/'; return; }
             if (!response.ok) throw new Error(data.error || 'Unable to load recommendations.');
+            state.targetJob = data.targetJob || '';
+            state.careerPath = data.careerPath || [];
+            state.progress = data.progress || { completed: 0, total: 0, percent: 0 };
             state.recommendations = data.recommendations || [];
             state.catalog = data.availableLessons || [];
+            renderCareerOverview();
             renderCourseList();
             if (state.recommendations.length) loadLesson(state.recommendations[0].skill);
             else $('#learningContent').innerHTML = '<div class="learning-empty">No beginner lessons are recommended yet. Upload a resume or add skills to your profile first.</div>';
@@ -162,7 +204,7 @@
     }
 
     document.addEventListener('click', (event) => {
-        const button = event.target.closest('.learning-course-item');
+        const button = event.target.closest('.learning-course-item, .learning-path-step');
         if (button) loadLesson(button.dataset.skill);
     });
     $('#courseSelect')?.addEventListener('change', (event) => loadLesson(event.target.value));
