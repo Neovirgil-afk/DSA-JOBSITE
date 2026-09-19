@@ -220,15 +220,9 @@ function isSkillsHeader(line) {
     const clean = normalizeHeader(line);
     const compact = clean.replace(/[^a-z]/gi, '').toLowerCase();
 
-    // Normal OCR:
-    // "SKILLS"
-    // "S K I L L S"
     if (compact === 'skills') return true;
 
-    // Common OCR mistakes:
-    // "SKILIS", "SKIILS", "SKILS", etc.
-    // Only apply fuzzy matching to short words so normal resume text
-    // does not accidentally become a Skills heading.
+    // OCR may slightly corrupt the heading, for example SKILIS or SKIILS.
     if (
         compact.length >= 4 &&
         compact.length <= 8 &&
@@ -237,28 +231,23 @@ function isSkillsHeader(line) {
         return true;
     }
 
-    // Handles headings such as:
-    // "SKILLS Microsoft Outlook"
-    // "TECHNICAL SKILLS Java Python"
-    if (/^skills?\\b/i.test(clean)) return true;
-    if (/^(technical|professional|core|key)\\s+skills?\\b/i.test(clean)) return true;
+    if (/^skills?\b/i.test(clean)) return true;
+    if (/^(technical|professional|core|key)\s+skills?\b/i.test(clean)) return true;
 
     return SKILLS_SECTION_HEADERS.some((pattern) => pattern.test(clean));
 }
 
 function getSkillsHeaderContent(line) {
     const clean = String(line || '')
-        .replace(/[\\u200B-\\u200D\\uFEFF]/g, '')
-        .replace(/\\s+/g, ' ')
+        .replace(/[\u200B-\u200D\uFEFF]/g, '')
+        .replace(/\s+/g, ' ')
         .trim();
 
     const match = clean.match(
-        /^(?:technical\\s+|professional\\s+|core\\s+|key\\s+)?skills?\\s*(?::|-|–|—)?\\s*(.*)$/i
+        /^(?:technical\s+|professional\s+|core\s+|key\s+)?skills?\s*(?::|-|–|—)?\s*(.*)$/i
     );
 
-    if (!match) return '';
-
-    return match[1].trim();
+    return match ? match[1].trim() : '';
 }
 
 function isResumeSectionHeader(line) {
@@ -293,23 +282,26 @@ function collectSkillsAfterHeader(lines, headerIndex, headerContent = '') {
         }
     }
 
-    return skillLines.join('\\n').trim();
+    return skillLines.join('\n').trim();
 }
 
 function extractSkillsSection(text) {
     const rawText = String(text || '')
-        .replace(/[\\u200B-\\u200D\\uFEFF]/g, '');
+        .replace(/[\u200B-\u200D\uFEFF]/g, '');
 
+    // OCR can contain inconsistent line endings. Normalize them first.
     const lines = rawText
-        .split(/\\r?\\n/)
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n')
+        .split('\n')
         .map((line) => line.trim());
 
-    // First try the normal line-based extraction.
+    // First try exact/near-exact Skills headings.
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
 
         const inlineMatch = line.match(
-            /^(?:technical\\s+|professional\\s+|core\\s+|key\\s+)?skills?\\s*[:\\-–—]\\s*(.+)$/i
+            /^(?:technical\s+|professional\s+|core\s+|key\s+)?skills?\s*[:\-–—]\s*(.+)$/i
         );
 
         if (inlineMatch) {
@@ -325,7 +317,7 @@ function extractSkillsSection(text) {
                 j++;
             }
 
-            return sections.join('\\n').trim();
+            return sections.join('\n').trim();
         }
 
         if (!isSkillsHeader(line)) continue;
@@ -338,26 +330,22 @@ function extractSkillsSection(text) {
         }
     }
 
-    // Fallback for OCR where "SKILLS" is embedded in a longer line or
-    // separated by unusual whitespace/punctuation.
-    const rawSkillsMatch = rawText.match(
-        /(?:^|\\n)[^\\n]{0,80}\\bskills?\\b[^\\n]{0,120}(?=\\n|$)/i
-    );
+    // Final fallback: search the entire OCR text for a line containing
+    // "skills", then collect the lines immediately below it.
+    // This is important for multi-column resume OCR.
+    const skillLineIndex = lines.findIndex((line) => /\bskills?\b/i.test(line));
 
-    if (rawSkillsMatch) {
-        const matchedLine = rawSkillsMatch[0].replace(/^\\n/, '').trim();
-        const index = lines.findIndex((line) => line === matchedLine);
+    if (skillLineIndex >= 0) {
+        const matchedLine = lines[skillLineIndex];
+        const headerContent = getSkillsHeaderContent(matchedLine);
+        const sectionText = collectSkillsAfterHeader(
+            lines,
+            skillLineIndex,
+            headerContent
+        );
 
-        if (index >= 0) {
-            const sectionText = collectSkillsAfterHeader(
-                lines,
-                index,
-                getSkillsHeaderContent(matchedLine)
-            );
-
-            if (sectionText) {
-                return sectionText;
-            }
+        if (sectionText) {
+            return sectionText;
         }
     }
 
