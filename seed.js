@@ -513,11 +513,54 @@ const CAREER_PATHS = {
     'Spring Boot Developer': ['Java', 'Spring Boot', 'REST API', 'Docker'],
 };
 
+function syncExpandedJobs(db) {
+    const insertSkill = db.prepare('INSERT OR IGNORE INTO skills (name, category) VALUES (?, ?)');
+    const getSkillId = db.prepare('SELECT id FROM skills WHERE name = ?');
+    const insertJob = db.prepare(`
+        INSERT OR IGNORE INTO jobs
+        (title, description, company, location, category, salary, employment_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+    const getJobId = db.prepare('SELECT id FROM jobs WHERE title = ? AND company = ?');
+    const insertJobSkill = db.prepare('INSERT OR IGNORE INTO job_skills (job_id, skill_id, required) VALUES (?, ?, 1)');
+
+    const sync = db.transaction(() => {
+        for (const job of JOBS) {
+            // Job requirements are allowed to introduce new skills without
+            // forcing every possible skill into skillsList.js.
+            for (const skillName of job.requiredSkills) {
+                insertSkill.run(skillName, 'Job Requirement');
+            }
+
+            insertJob.run(
+                job.title,
+                job.description,
+                job.company,
+                job.location,
+                job.category,
+                job.salary,
+                job.employment_type
+            );
+
+            const jobRow = getJobId.get(job.title, job.company);
+            if (!jobRow) continue;
+
+            for (const skillName of job.requiredSkills) {
+                const skillRow = getSkillId.get(skillName);
+                if (skillRow) insertJobSkill.run(jobRow.id, skillRow.id);
+            }
+        }
+    });
+
+    sync();
+}
+
 function seedIfNeeded(db) {
     const jobCount = db.prepare('SELECT COUNT(*) AS c FROM jobs').get().c;
     if (jobCount > 0) {
         ensureCompanyProfiles(db);
-        console.log('[seed] Database already populated — syncing company profiles.');
+        syncExpandedJobs(db);
+        console.log('[seed] Database already populated — syncing company profiles and expanded jobs.');
         return;
     }
 
@@ -550,6 +593,8 @@ function seedIfNeeded(db) {
             jobIdByTitle[job.title] = jobId;
 
             for (const skillName of job.requiredSkills) {
+                // Allow jobs to use skills that are not in the local resume dictionary.
+                insertSkill.run(skillName, 'Job Requirement');
                 const skillRow = getSkillId.get(skillName);
                 if (skillRow) insertJobSkill.run(jobId, skillRow.id);
             }
