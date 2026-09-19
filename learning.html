@@ -10,6 +10,38 @@
 @media(max-width:620px){.learning-resource-grid{grid-template-columns:1fr}.learning-actions{align-items:stretch;flex-direction:column}.learning-action-button{width:100%}.learning-content-top{flex-direction:column}.learning-action-copy{order:-1}.learning-main{padding-top:25px}}
 
 .learning-quiz-list{display:flex;flex-direction:column;gap:13px;margin-top:22px}.learning-question{padding:18px;border:1px solid #e4e3ed;border-radius:13px;background:#fff}.learning-question-number{color:var(--indigo);font-size:9px;font-weight:800;letter-spacing:.08em}.learning-question h3{margin-top:5px;color:var(--navy);font-size:14px;line-height:1.45}.learning-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:13px}.learning-option{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fafafd;color:var(--ink);text-align:left;font:600 11px Inter,sans-serif;cursor:pointer}.learning-option:hover{border-color:#c9c5f5;background:var(--indigo-tint)}.learning-option.selected{border-color:var(--indigo);background:var(--indigo-tint);color:var(--indigo-dark);box-shadow:inset 0 0 0 1px var(--indigo)}.learning-option:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}.learning-score-badge{padding:8px 11px;border-radius:999px;background:var(--indigo-tint);color:var(--indigo-dark);font-size:12px;font-weight:800;white-space:nowrap}.learning-result{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;padding:14px 16px;border:1px solid #c8e9df;border-radius:12px;background:#f5fffc;color:#16845e}.learning-result.review{border-color:#f0dfb7;background:#fffaf0;color:#95610b}.learning-result strong{font-size:12px}.learning-result span{font-size:11px}.learning-question-result{border-left:4px solid #e0dfeb}.learning-question-result.correct{border-left-color:#19a884}.learning-question-result.incorrect{border-left-color:#d79b35}.learning-answer-result{margin-top:9px!important;color:var(--ink)!important;font-size:11px!important;line-height:1.5!important}.learning-question-result>p:last-child{margin-top:5px;color:var(--muted);font-size:10.5px;line-height:1.5}@media(max-width:620px){.learning-options{grid-template-columns:1fr}.learning-result{align-items:flex-start;flex-direction:column}}
+
+/* =========================================================
+   LEARNING LESSON SKELETON LOADER
+   ========================================================= */
+.learning-skeleton-shell{position:relative;overflow:hidden;min-height:570px;padding:0;border-radius:14px}
+.learning-skeleton-shell::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 20%,rgba(255,255,255,.72) 42%,rgba(255,255,255,.2) 50%,transparent 70%);transform:translateX(-120%);animation:learningSkeletonShine 1.15s ease-in-out infinite}
+.learning-skeleton-header{display:flex;justify-content:space-between;gap:18px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.learning-skeleton-heading{flex:1;min-width:0}
+.learning-skeleton-line,.learning-skeleton-badge,.learning-skeleton-progress-bar,.learning-skeleton-progress-label,.learning-skeleton-resource-card{display:block;position:relative;overflow:hidden;background:linear-gradient(90deg,#ececf4 25%,#f7f7fb 50%,#ececf4 75%);background-size:200% 100%;animation:learningSkeletonPulse 1.25s ease-in-out infinite}
+.learning-skeleton-line{height:11px;border-radius:7px}
+.learning-skeleton-eyebrow{width:105px;height:8px;margin-bottom:9px}
+.learning-skeleton-title{width:48%;height:29px;border-radius:8px}
+.learning-skeleton-description{width:88%;height:10px;margin-top:11px}
+.learning-skeleton-description--short{width:62%;margin-top:7px}
+.learning-skeleton-badge{flex:0 0 72px;width:72px;height:26px;border-radius:999px}
+.learning-skeleton-progress{display:flex;align-items:center;gap:10px;margin-top:17px}
+.learning-skeleton-progress-bar{height:7px;flex:1;border-radius:999px}
+.learning-skeleton-progress-label{width:34px;height:9px;border-radius:6px}
+.learning-skeleton-lesson{margin-top:22px;padding:20px;border:1px solid #e4e3ed;border-radius:14px;background:#fafafd}
+.learning-skeleton-kicker{width:75px;height:8px}
+.learning-skeleton-lesson-title{width:42%;height:19px;margin-top:8px}
+.learning-skeleton-text{width:94%;height:10px;margin-top:13px}
+.learning-skeleton-text--short{width:68%;margin-top:8px}
+.learning-skeleton-resources{margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+.learning-skeleton-resource-heading{width:145px;height:16px}
+.learning-skeleton-resource-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+.learning-skeleton-resource-card{height:68px;border:1px solid #e7e6ee;border-radius:10px}
+.learning-skeleton-status{margin-top:17px;color:var(--muted);font-size:10px;text-align:center;letter-spacing:.02em}
+.learning-skeleton-status strong{color:var(--indigo-dark)}
+@keyframes learningSkeletonPulse{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+@keyframes learningSkeletonShine{0%{transform:translateX(-120%)}55%,100%{transform:translateX(120%)}}
+@media (max-width:620px){.learning-skeleton-header{gap:10px}.learning-skeleton-title{width:70%}.learning-skeleton-description{width:100%}.learning-skeleton-description--short{width:78%}.learning-skeleton-resource-grid{grid-template-columns:1fr}.learning-skeleton-shell{min-height:650px}}
 </style>
 <style>
 /* Final Learning Hub UI polish */
