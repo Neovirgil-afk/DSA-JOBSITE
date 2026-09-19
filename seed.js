@@ -519,7 +519,7 @@ function syncExpandedJobs(db) {
         (title, description, company, location, category, salary, employment_type)
         VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
-    const getJobId = db.prepare('SELECT id FROM jobs WHERE title = ? AND company = ?');
+    const getJobId = db.prepare('SELECT id FROM jobs WHERE title = ? AND company = ? AND location = ? AND description = ? LIMIT 1');
     const insertJobSkill = db.prepare('INSERT OR IGNORE INTO job_skills (job_id, skill_id, required) VALUES (?, ?, 1)');
 
     const sync = db.transaction(() => {
@@ -530,17 +530,31 @@ function syncExpandedJobs(db) {
                 insertSkill.run(skillName, 'Job Requirement');
             }
 
-            insertJob.run(
+            let jobRow = getJobId.get(
                 job.title,
-                job.description,
                 job.company,
                 job.location,
-                job.category,
-                job.salary,
-                job.employment_type
+                job.description
             );
 
-            const jobRow = getJobId.get(job.title, job.company);
+            if (!jobRow) {
+                insertJob.run(
+                    job.title,
+                    job.description,
+                    job.company,
+                    job.location,
+                    job.category,
+                    job.salary,
+                    job.employment_type
+                );
+
+                jobRow = getJobId.get(
+                    job.title,
+                    job.company,
+                    job.location,
+                    job.description
+                );
+            }
             if (!jobRow) continue;
 
             for (const skillName of job.requiredSkills) {
@@ -581,13 +595,30 @@ function seedIfNeeded(db) {
         const insertJobSkill = db.prepare('INSERT OR IGNORE INTO job_skills (job_id, skill_id, required) VALUES (?, ?, 1)');
 
         const jobIdByTitle = {};
+        const getExistingJob = db.prepare(
+            'SELECT id FROM jobs WHERE title = ? AND company = ? AND location = ? AND description = ? LIMIT 1'
+        );
 
         for (const job of JOBS) {
-            const info = insertJob.run(
-                job.title, job.description, job.company, job.location,
-                job.category, job.salary, job.employment_type
+            let existingJob = getExistingJob.get(
+                job.title,
+                job.company,
+                job.location,
+                job.description
             );
-            const jobId = info.lastInsertRowid;
+
+            let jobId;
+
+            if (existingJob) {
+                jobId = existingJob.id;
+            } else {
+                const info = insertJob.run(
+                    job.title, job.description, job.company, job.location,
+                    job.category, job.salary, job.employment_type
+                );
+                jobId = info.lastInsertRowid;
+            }
+
             jobIdByTitle[job.title] = jobId;
 
             for (const skillName of job.requiredSkills) {
