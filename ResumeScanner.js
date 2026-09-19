@@ -251,6 +251,17 @@ function extractSkillsSection(text) {
     return '';
 }
 
+function extractDeclaredSkillCandidates(skillsSection) {
+    return String(skillsSection || '')
+        .split(/\r?\n/)
+        .map((line) => line
+            .replace(/^[\s•▪●◦*\-–—]+/, '')
+            .replace(/\s+/g, ' ')
+            .trim())
+        .filter((line) => line.length >= 2 && line.length <= 120)
+        .filter((line) => !isResumeSectionHeader(line) && !isSkillsHeader(line));
+}
+
 function detectLocalSkills(text) {
     const table = buildSkillLookupTable();
     const lowerText = text.toLowerCase();
@@ -362,14 +373,32 @@ async function scanResume(filePath, originalName) {
     // This prevents ESCO from interpreting job descriptions, work history,
     // education text, and random phrases in the PDF as skills.
     const skillsSection = extractSkillsSection(text);
+    const declaredSkillCandidates = extractDeclaredSkillCandidates(skillsSection);
     const detectedSkills = skillsSection
         ? await detectSkills(skillsSection)
         : [];
+
+    // The Skills section is the source of truth. Keep the exact skill names
+    // the applicant declared, even if ESCO does not recognize them.
+    const finalSkills = [];
+    const seenSkills = new Set();
+
+    for (const skill of [...declaredSkillCandidates, ...detectedSkills]) {
+        const key = skill.toLowerCase();
+        if (seenSkills.has(key)) continue;
+        seenSkills.add(key);
+        finalSkills.push(skill);
+    }
+
+    console.log('[ResumeScanner] Skills section found:', Boolean(skillsSection));
+    console.log('[ResumeScanner] Declared skill candidates:', declaredSkillCandidates);
+    console.log('[ResumeScanner] Final detected skills:', finalSkills);
+
     let warning = null;
 
     if (!skillsSection) {
         warning = 'No Skills section was found in the resume. Add a Skills section so the analyzer knows which skills to save.';
-    } else if (detectedSkills.length === 0) {
+    } else if (finalSkills.length === 0) {
         warning = 'No known skills were detected in the Skills section. Try adding them manually in your profile.';
     } else if (ocrUsed && ocrTotalPages > ocrPagesScanned) {
         warning = `OCR scanned the first ${ocrPagesScanned} of ${ocrTotalPages} pages.`;
