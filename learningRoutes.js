@@ -28,12 +28,15 @@ router.get('/recommended', requireAuth, (req, res) => {
         const owned = new Set(userSkills.map((skill) => skill.toLowerCase()));
         const user = db.prepare('SELECT target_job FROM users WHERE id = ?').get(userId);
         let recommendations = [];
+        let targetJob = null;
+        let careerPath = null;
 
         if (user && user.target_job) {
             const job = db.prepare('SELECT id FROM jobs WHERE title = ? LIMIT 1').get(user.target_job);
             if (job) {
-                const path = getCareerPathForJob(job.id, userSkills);
-                recommendations = (path?.steps || [])
+                careerPath = getCareerPathForJob(job.id, userSkills);
+                targetJob = careerPath?.job || job;
+                recommendations = (careerPath?.steps || [])
                     .filter((step) => !owned.has(step.skill.toLowerCase()))
                     .map((step) => ({
                         skill: step.skill,
@@ -56,9 +59,18 @@ router.get('/recommended', requireAuth, (req, res) => {
                 }));
         }
 
+        const pathSteps = careerPath?.steps || [];
+        const completedCount = pathSteps.filter((step) => step.completed).length;
+
         res.json({
-            targetJob: user?.target_job || null,
+            targetJob: targetJob?.title || user?.target_job || null,
             currentSkills: userSkills,
+            careerPath: pathSteps,
+            progress: {
+                completed: completedCount,
+                total: pathSteps.length,
+                percent: pathSteps.length ? Math.round((completedCount / pathSteps.length) * 100) : 0
+            },
             recommendations,
             availableLessons: getAvailableLessons()
         });
