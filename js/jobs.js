@@ -997,7 +997,7 @@ export function initJobs() {
                 );
 
                 renderJobs(
-                    jobs.slice(0, 6),
+                    jobs.slice(0, 9),
                     'Featured jobs',
                     false
                 );
@@ -1040,7 +1040,7 @@ export function initJobs() {
                     );
 
                     renderJobs(
-                        recommendedJobs.slice(0, 6),
+                        recommendedJobs.slice(0, 9),
                         'Recommended for You',
                         false
                     );
@@ -1086,7 +1086,7 @@ export function initJobs() {
             );
 
             renderJobs(
-                jobs.slice(0, 6),
+                jobs.slice(0, 9),
                 'Featured jobs',
                 false
             );
