@@ -16,7 +16,7 @@ const { SKILLS_LIST } = require('./skillsList');
 const { detectSkillsFromESCO } = require('./ESCOService');
 
 const OCR_MAX_PAGES = 5;
-const OCR_DENSITY = 180;
+const OCR_DENSITY = 300;
 
 async function extractPdfText(filePath) {
     const buffer = fs.readFileSync(filePath);
@@ -82,6 +82,7 @@ async function renderPdfPage(filePath, pageNumber, outputPrefix) {
     await execFileAsync('pdftoppm', [
         '-png',
         '-r', String(OCR_DENSITY),
+        '-scale-to', '2400',
         '-f', String(pageNumber),
         '-l', String(pageNumber),
         '-singlefile',
