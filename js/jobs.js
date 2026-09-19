@@ -18,6 +18,10 @@ export function initJobs() {
     const savedJobIds =
         new Set();
 
+    const JOBS_PER_PAGE = 9;
+    let currentJobs = [];
+    let currentHeading = '';
+    let currentPage = 1;
 
     if (
         !resultsSection ||
@@ -27,6 +31,11 @@ export function initJobs() {
 
         return;
     }
+
+    const pagination = document.createElement('div');
+    pagination.className = 'jobs-pagination';
+    pagination.hidden = true;
+    resultsGrid.insertAdjacentElement('afterend', pagination);
 
 
     /* =====================================================
@@ -99,6 +108,9 @@ export function initJobs() {
         resultsGrid.appendChild(
             frag
         );
+
+        pagination.hidden = true;
+        pagination.innerHTML = '';
     }
 
 
@@ -106,38 +118,64 @@ export function initJobs() {
        RENDER JOBS
        ===================================================== */
 
-    function renderJobs(jobs, heading, shouldScroll = true) {
+    function renderPagination(totalJobs) {
+        const totalPages = Math.ceil(totalJobs / JOBS_PER_PAGE);
 
-        resultsTitle.textContent =
-            heading;
+        if (totalPages <= 1) {
+            pagination.hidden = true;
+            pagination.innerHTML = '';
+            return;
+        }
 
+        pagination.hidden = false;
 
-        resultsGrid.innerHTML =
-            '';
+        const pageButtons = [];
+        for (let page = 1; page <= totalPages; page++) {
+            pageButtons.push(
+                '<button type="button" class="jobs-page-number' +
+                (page === currentPage ? ' active' : '') +
+                '" data-page="' + page + '" aria-label="Go to page ' + page + '"' +
+                (page === currentPage ? ' aria-current="page"' : '') +
+                '>' + page + '</button>'
+            );
+        }
 
+        pagination.innerHTML =
+            '<div class="jobs-pagination-summary">Showing ' +
+                (((currentPage - 1) * JOBS_PER_PAGE) + 1) +
+                '–' +
+                Math.min(currentPage * JOBS_PER_PAGE, totalJobs) +
+                ' of ' + totalJobs + ' jobs' +
+            '</div>' +
+            '<div class="jobs-pagination-controls">' +
+                '<button type="button" class="jobs-page-arrow" data-page="' + (currentPage - 1) + '" ' +
+                    (currentPage === 1 ? 'disabled' : '') + '>← Prev</button>' +
+                pageButtons.join('') +
+                '<button type="button" class="jobs-page-arrow" data-page="' + (currentPage + 1) + '" ' +
+                    (currentPage === totalPages ? 'disabled' : '') + '>Next →</button>' +
+            '</div>' +
+            '<div class="jobs-pagination-label">Page ' + currentPage + ' of ' + totalPages + '</div>';
+    }
 
-        if (!jobs.length) {
+    function renderJobPage(page, shouldScroll = false) {
+        const totalPages = Math.max(1, Math.ceil(currentJobs.length / JOBS_PER_PAGE));
+        currentPage = Math.min(Math.max(page, 1), totalPages);
 
+        resultsGrid.innerHTML = '';
+
+        if (!currentJobs.length) {
             resultsGrid.innerHTML =
                 '<p class="results-empty">No jobs matched that search yet. Try a different keyword or category.</p>';
-
+            pagination.hidden = true;
         } else {
+            const start = (currentPage - 1) * JOBS_PER_PAGE;
+            const pageJobs = currentJobs.slice(start, start + JOBS_PER_PAGE);
+            const frag = document.createDocumentFragment();
 
-            const frag =
-                document.createDocumentFragment();
+            pageJobs.forEach((job) => {
+                const card = document.createElement('article');
 
-
-            jobs.forEach((job) => {
-
-                const card =
-                    document.createElement(
-                        'article'
-                    );
-
-
-                card.className =
-                    'result-card';
-
+                card.className = 'result-card';
                 card.dataset.jobId = String(job.id);
                 card.setAttribute('tabindex', '0');
                 card.setAttribute(
@@ -145,16 +183,10 @@ export function initJobs() {
                     `View details for ${job.title || 'job'}`
                 );
 
-
                 card.innerHTML = `
-
                     <button
                         type="button"
-                        class="job-save-button${
-                            savedJobIds.has(Number(job.id))
-                                ? ' is-saved'
-                                : ''
-                        }"
+                        class="job-save-button${savedJobIds.has(Number(job.id)) ? ' is-saved' : ''}"
                         data-job-id="${Number(job.id)}"
                         aria-pressed="${savedJobIds.has(Number(job.id))}"
                         aria-label="${savedJobIds.has(Number(job.id)) ? 'Remove saved job' : 'Save job'}"
@@ -162,28 +194,14 @@ export function initJobs() {
                         ${savedJobIds.has(Number(job.id)) ? 'Saved' : 'Save job'}
                     </button>
 
-                    <h3>
-                        ${job.title}
-                    </h3>
+                    <h3>${job.title}</h3>
 
-                    <p class="company">
-                        ${job.company || ''}
-                    </p>
+                    <p class="company">${job.company || ''}</p>
 
                     <div class="meta">
-
-                        <span>
-                            ${job.location || 'Remote'}
-                        </span>
-
-                        ${
-                            job.employment_type
-                                ? `<span>${job.employment_type}</span>`
-                                : ''
-                        }
-
+                        <span>${job.location || 'Remote'}</span>
+                        ${job.employment_type ? `<span>${job.employment_type}</span>` : ''}
                         ${money(job)}
-
                     </div>
 
                     ${
@@ -198,23 +216,17 @@ export function initJobs() {
                             `
                             : ''
                     }
-
-
-
-                                `;
-
+                `;
 
                 frag.appendChild(card);
             });
 
-
             resultsGrid.appendChild(frag);
+            renderPagination(currentJobs.length);
         }
 
-
-        resultsSection.hidden =
-            false;
-
+        resultsTitle.textContent = currentHeading;
+        resultsSection.hidden = false;
 
         if (shouldScroll) {
             resultsSection.scrollIntoView({
@@ -224,6 +236,35 @@ export function initJobs() {
         }
     }
 
+    function uniqueJobs(jobs) {
+        const seen = new Set();
+
+        return jobs.filter((job) => {
+            const key = [
+                job.title,
+                job.company,
+                job.location,
+                job.category,
+                job.salary,
+                job.employment_type,
+                job.description
+            ].map((value) => String(value ?? '').trim().toLowerCase()).join('|');
+
+            if (seen.has(key)) {
+                return false;
+            }
+
+            seen.add(key);
+            return true;
+        });
+    }
+
+    function renderJobs(jobs, heading, shouldScroll = true) {
+        currentJobs = uniqueJobs(Array.isArray(jobs) ? jobs : []);
+        currentHeading = heading;
+        currentPage = 1;
+        renderJobPage(1, shouldScroll);
+    }
 
     /* =====================================================
        DEBUG
@@ -1080,6 +1121,16 @@ export function initJobs() {
             }
         );
     }
+
+    pagination.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-page]');
+
+        if (!button || button.disabled) {
+            return;
+        }
+
+        renderJobPage(Number(button.dataset.page), true);
+    });
 
 
     resultsGrid.addEventListener(
