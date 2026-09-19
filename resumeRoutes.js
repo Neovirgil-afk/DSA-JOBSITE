@@ -187,7 +187,16 @@ router.post('/scan', requireAuth, (req, res) => {
             // Make sure newly added skills exist even when using an older database.
             ensureSkillDictionaryInDatabase();
 
-            // Save detected skills into user_skills with source='resume'
+            // Save detected skills into user_skills with source='resume'.
+            // API-discovered ESCO skills are added dynamically, so the local
+            // skillsList.js does not need to contain every possible skill.
+            const insertDetectedSkill = db.prepare(
+                'INSERT OR IGNORE INTO skills (name, category) VALUES (?, ?)'
+            );
+            for (const skillName of result.detectedSkills) {
+                insertDetectedSkill.run(skillName, 'ESCO Skill');
+            }
+
             const getSkillId = db.prepare('SELECT id FROM skills WHERE name = ?');
             const insertUserSkill = db.prepare('INSERT OR IGNORE INTO user_skills (user_id, skill_id, source) VALUES (?, ?, ?)');
 
