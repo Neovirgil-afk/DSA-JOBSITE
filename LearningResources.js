@@ -80,6 +80,29 @@ const RESOURCE_MAP = {
     Figma: [
         { type: 'article', title: 'Figma Learn', description: 'Official lessons and resources for interface design and prototyping.', url: 'https://help.figma.com/hc/en-us/categories/360002051613-Learn-design', provider: 'Figma' },
     ],
+
+    // Marketing Specialist resources
+    'Digital Marketing': [
+        { type: 'article', title: 'Google Skillshop', description: 'Training for Google marketing and advertising tools.', url: 'https://skillshop.withgoogle.com/', provider: 'Google' },
+    ],
+    'Market Research': [
+        { type: 'article', title: 'Google Trends', description: 'Explore search interest and compare topics to support market research.', url: 'https://trends.google.com/', provider: 'Google' },
+    ],
+    'Content Marketing': [
+        { type: 'article', title: 'HubSpot Content Marketing', description: 'Guides and lessons covering content strategy, creation, and measurement.', url: 'https://academy.hubspot.com/courses/content-marketing', provider: 'HubSpot' },
+    ],
+    'Social Media Marketing': [
+        { type: 'article', title: 'Meta Blueprint', description: 'Training and learning resources for marketing on Meta platforms.', url: 'https://www.facebook.com/business/learn', provider: 'Meta' },
+    ],
+    SEO: [
+        { type: 'article', title: 'Google Search Central SEO Starter Guide', description: 'Google guidance for creating search-friendly and useful content.', url: 'https://developers.google.com/search/docs/fundamentals/seo-starter-guide', provider: 'Google Search Central' },
+    ],
+    'Email Marketing': [
+        { type: 'article', title: 'HubSpot Email Marketing', description: 'Lessons and practical guidance for planning and running email campaigns.', url: 'https://academy.hubspot.com/courses/email-marketing', provider: 'HubSpot' },
+    ],
+    'Data Analytics': [
+        { type: 'article', title: 'Google Analytics Academy', description: 'Learning resources for understanding website and campaign measurement.', url: 'https://analytics.google.com/analytics/academy/', provider: 'Google Analytics' },
+    ],
 };
 
 function getLearningResources(skill) {
