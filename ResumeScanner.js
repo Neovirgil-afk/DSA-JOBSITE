@@ -98,6 +98,7 @@ async function ocrPdf(filePath) {
     const totalPages = await getPdfPageCount(filePath);
     const pagesToScan = Math.min(totalPages, OCR_MAX_PAGES);
     const pageTexts = [];
+    const pageData = [];
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'jobpath-ocr-'));
     const worker = await createWorker('eng');
 
@@ -120,6 +121,7 @@ async function ocrPdf(filePath) {
             const pageText = result?.data?.text || '';
 
             pageTexts.push(pageText);
+            pageData.push(result?.data || {});
             console.log(`[OCR] Page ${pageNumber} complete (${pageText.length} characters).`);
 
             try {
@@ -135,9 +137,87 @@ async function ocrPdf(filePath) {
 
     return {
         text: pageTexts.join('\n\n'),
+        pageData,
         pagesScanned: pageTexts.length,
         totalPages,
     };
+}
+
+function cleanOCRSkillLine(line) {
+    return String(line || '')
+        .replace(/^[\\s•▪●◦*+«»®©·\\-–—]+/, '')
+        .replace(/\\s+/g, ' ')
+        .trim();
+}
+
+function extractSkillsSectionFromOCRData(pageData) {
+    for (const data of pageData || []) {
+        const lines = Array.isArray(data?.lines) ? data.lines : [];
+        const skillHeaders = lines.filter((line) => {
+            const text = String(line?.text || '').trim();
+            return /^skills?$/i.test(text) && line?.bbox;
+        });
+
+        if (skillHeaders.length === 0) continue;
+
+        // Prefer the large, standalone ALL-CAPS heading over occurrences of
+        // the word "skills" inside work-history sentences.
+        const header = skillHeaders.sort((a, b) => {
+            const aHeight = (a.bbox?.y1 || 0) - (a.bbox?.y0 || 0);
+            const bHeight = (b.bbox?.y1 || 0) - (b.bbox?.y0 || 0);
+            return bHeight - aHeight;
+        })[0];
+
+        const headerBox = header.bbox;
+        const headerX = Number(headerBox.x0 || 0);
+        const headerY = Number(headerBox.y1 || 0);
+
+        const candidateLines = lines
+            .filter((line) => {
+                const box = line?.bbox;
+                if (!box) return false;
+
+                const text = String(line.text || '').trim();
+                if (!text) return false;
+
+                const x0 = Number(box.x0 || 0);
+                const y0 = Number(box.y0 || 0);
+
+                // Keep text below the heading and inside the same right/left
+                // column. This fixes multi-column OCR reading-order errors.
+                return y0 > headerY + 5 && x0 >= headerX - 60;
+            })
+            .sort((a, b) => Number(a.bbox.y0) - Number(b.bbox.y0));
+
+        const skills = [];
+
+        for (const line of candidateLines) {
+            const text = cleanOCRSkillLine(line.text);
+
+            if (!text) continue;
+
+            // Stop at another major section heading.
+            const normalized = normalizeHeader(text);
+            if (
+                skills.length > 0 &&
+                (
+                    isResumeSectionHeader(normalized) ||
+                    /^(?:career objective|education|experience|work experience|projects?|certifications?|awards?|summary|profile)$/i.test(normalized)
+                )
+            ) {
+                break;
+            }
+
+            skills.push(text);
+        }
+
+        if (skills.length > 0) {
+            console.log('[ResumeScanner] Skills extracted from OCR coordinates:', skills);
+            return skills.join('\\n');
+        }
+    }
+
+    return '';
 }
 
 function buildSkillLookupTable() {
@@ -441,6 +521,7 @@ async function scanResume(filePath, originalName) {
     let ocrUsed = false;
     let ocrPagesScanned = 0;
     let ocrTotalPages = 0;
+    let ocrPageData = [];
 
     if (ext === '.pdf' && text.trim().length < 80) {
         try {
@@ -450,6 +531,7 @@ async function scanResume(filePath, originalName) {
             if (ocrResult.text.trim().length > text.trim().length) {
                 text = ocrResult.text;
                 ocrUsed = true;
+                ocrPageData = ocrResult.pageData || [];
                 ocrPagesScanned = ocrResult.pagesScanned;
                 ocrTotalPages = ocrResult.totalPages;
             }
@@ -476,7 +558,11 @@ async function scanResume(filePath, originalName) {
     // The applicant's declared skills are the source of truth.
     // Do NOT add ESCO suggestions here, because ESCO can return related
     // skills and phrases that were never actually listed on the resume.
-    const skillsSection = extractSkillsSection(text);
+    const coordinateSkillsSection = ocrUsed
+        ? extractSkillsSectionFromOCRData(ocrPageData)
+        : '';
+
+    const skillsSection = coordinateSkillsSection || extractSkillsSection(text);
     const declaredSkillCandidates = extractDeclaredSkillCandidates(skillsSection);
 
     const detectedSkills = [];
