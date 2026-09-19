@@ -148,6 +148,95 @@ function buildSkillLookupTable() {
     return table;
 }
 
+const SKILLS_SECTION_HEADERS = [
+    /^skills?$/i,
+    /^technical skills?$/i,
+    /^professional skills?$/i,
+    /^core skills?$/i,
+    /^key skills?$/i,
+    /^skills? and competencies$/i,
+    /^core competencies$/i,
+    /^competencies$/i,
+    /^areas of expertise$/i,
+    /^areas of competency$/i,
+    /^expertise$/i,
+];
+
+const RESUME_SECTION_HEADERS = [
+    /^summary$/i,
+    /^professional summary$/i,
+    /^profile$/i,
+    /^objective$/i,
+    /^experience$/i,
+    /^work experience$/i,
+    /^professional experience$/i,
+    /^employment history$/i,
+    /^education$/i,
+    /^projects?$/i,
+    /^certifications?$/i,
+    /^awards?$/i,
+    /^achievements?$/i,
+    /^references?$/i,
+    /^languages?$/i,
+    /^interests?$/i,
+    /^volunteer experience$/i,
+    /^publications?$/i,
+];
+
+function isSkillsHeader(line) {
+    const clean = line.replace(/[:|•▪●]+$/g, '').trim();
+    return SKILLS_SECTION_HEADERS.some((pattern) => pattern.test(clean));
+}
+
+function isResumeSectionHeader(line) {
+    const clean = line.replace(/[:|•▪●]+$/g, '').trim();
+    return RESUME_SECTION_HEADERS.some((pattern) => pattern.test(clean));
+}
+
+function extractSkillsSection(text) {
+    const lines = String(text || '')
+        .split(/\r?\n/)
+        .map((line) => line.trim());
+
+    const sections = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        // Handles formats such as "Skills: Communication, Excel, Accounting".
+        const inlineMatch = line.match(/^(?:technical\s+|professional\s+|core\s+|key\s+)?skills?\s*:\s*(.+)$/i);
+        if (inlineMatch) {
+            sections.push(inlineMatch[1]);
+            let j = i + 1;
+
+            while (j < lines.length && lines[j]) {
+                if (isResumeSectionHeader(lines[j]) || isSkillsHeader(lines[j])) break;
+                sections.push(lines[j]);
+                j++;
+            }
+
+            return sections.join('\n').trim();
+        }
+
+        if (!isSkillsHeader(line)) continue;
+
+        const skillLines = [];
+        for (let j = i + 1; j < lines.length; j++) {
+            const nextLine = lines[j];
+
+            if (isResumeSectionHeader(nextLine) && skillLines.length > 0) break;
+            if (isSkillsHeader(nextLine) && skillLines.length > 0) break;
+
+            if (nextLine) skillLines.push(nextLine);
+        }
+
+        const sectionText = skillLines.join('\n').trim();
+        if (sectionText) return sectionText;
+    }
+
+    return '';
+}
+
 function detectLocalSkills(text) {
     const table = buildSkillLookupTable();
     const lowerText = text.toLowerCase();
@@ -255,11 +344,19 @@ async function scanResume(filePath, originalName) {
         };
     }
 
-    const detectedSkills = await detectSkills(text);
+    // Only analyze the resume's dedicated Skills section.
+    // This prevents ESCO from interpreting job descriptions, work history,
+    // education text, and random phrases in the PDF as skills.
+    const skillsSection = extractSkillsSection(text);
+    const detectedSkills = skillsSection
+        ? await detectSkills(skillsSection)
+        : [];
     let warning = null;
 
-    if (detectedSkills.length === 0) {
-        warning = 'No known skills were detected. Try adding them manually in your profile.';
+    if (!skillsSection) {
+        warning = 'No Skills section was found in the resume. Add a Skills section so the analyzer knows which skills to save.';
+    } else if (detectedSkills.length === 0) {
+        warning = 'No known skills were detected in the Skills section. Try adding them manually in your profile.';
     } else if (ocrUsed && ocrTotalPages > ocrPagesScanned) {
         warning = `OCR scanned the first ${ocrPagesScanned} of ${ocrTotalPages} pages.`;
     }
@@ -277,4 +374,4 @@ async function scanResume(filePath, originalName) {
     };
 }
 
-module.exports = { scanResume, detectSkills, detectLocalSkills };
+module.exports = { scanResume, detectSkills, detectLocalSkills, extractSkillsSection };
