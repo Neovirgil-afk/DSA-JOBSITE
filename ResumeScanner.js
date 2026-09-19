@@ -470,30 +470,26 @@ async function scanResume(filePath, originalName) {
         };
     }
 
-    // Only analyze the resume's dedicated Skills section.
-    // This prevents ESCO from interpreting job descriptions, work history,
-    // education text, and random phrases in the PDF as skills.
+    // Only use the resume's dedicated Skills section.
+    // The applicant's declared skills are the source of truth.
+    // Do NOT add ESCO suggestions here, because ESCO can return related
+    // skills and phrases that were never actually listed on the resume.
     const skillsSection = extractSkillsSection(text);
     const declaredSkillCandidates = extractDeclaredSkillCandidates(skillsSection);
-    const detectedSkills = skillsSection
-        ? await detectSkills(skillsSection)
-        : [];
 
-    // The Skills section is the source of truth. Keep the exact skill names
-    // the applicant declared, even if ESCO does not recognize them.
-    const finalSkills = [];
+    const detectedSkills = [];
     const seenSkills = new Set();
 
-    for (const skill of [...declaredSkillCandidates, ...detectedSkills]) {
+    for (const skill of declaredSkillCandidates) {
         const key = skill.toLowerCase();
         if (seenSkills.has(key)) continue;
         seenSkills.add(key);
-        finalSkills.push(skill);
+        detectedSkills.push(skill);
     }
 
     console.log('[ResumeScanner] Skills section found:', Boolean(skillsSection));
     console.log('[ResumeScanner] Declared skill candidates:', declaredSkillCandidates);
-    console.log('[ResumeScanner] Final detected skills:', finalSkills);
+    console.log('[ResumeScanner] Final detected skills:', detectedSkills);
 
     if (!skillsSection && ocrUsed) {
         console.log('[ResumeScanner] OCR text tail for debugging:', text.slice(-1200));
