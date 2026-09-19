@@ -330,17 +330,19 @@ function extractSkillsSection(text) {
         }
     }
 
-    // Final fallback: search the entire OCR text for a line containing
-    // "skills", then collect the lines immediately below it.
-    // This is important for multi-column resume OCR.
-    const skillLineIndex = lines.findIndex((line) => /\bskills?\b/i.test(line));
+    // Final OCR fallback: sometimes a multi-column PDF causes the
+    // heading to be attached to the end of the previous sentence, e.g.
+    // "problem-solving by SKILLS". Only accept "skills" when it is at the
+    // end of a line so words such as "interpersonal skills" in work history
+    // cannot accidentally become the Skills section.
+    const trailingSkillsIndex = lines.findIndex((line) => /\bskills?\s*$/i.test(line));
 
-    if (skillLineIndex >= 0) {
-        const matchedLine = lines[skillLineIndex];
+    if (trailingSkillsIndex >= 0) {
+        const matchedLine = lines[trailingSkillsIndex];
         const headerContent = getSkillsHeaderContent(matchedLine);
         const sectionText = collectSkillsAfterHeader(
             lines,
-            skillLineIndex,
+            trailingSkillsIndex,
             headerContent
         );
 
@@ -487,9 +489,11 @@ async function scanResume(filePath, originalName) {
         detectedSkills.push(skill);
     }
 
+    const finalSkills = detectedSkills;
+
     console.log('[ResumeScanner] Skills section found:', Boolean(skillsSection));
     console.log('[ResumeScanner] Declared skill candidates:', declaredSkillCandidates);
-    console.log('[ResumeScanner] Final detected skills:', detectedSkills);
+    console.log('[ResumeScanner] Final detected skills:', finalSkills);
 
     if (!skillsSection && ocrUsed) {
         console.log('[ResumeScanner] OCR text tail for debugging:', text.slice(-1200));
@@ -510,7 +514,7 @@ async function scanResume(filePath, originalName) {
         name: extractName(text),
         email: extractEmail(text),
         degree: extractDegree(text),
-        detectedSkills,
+        detectedSkills: finalSkills,
         ocrUsed,
         ocrPagesScanned,
         ocrTotalPages,
