@@ -37,6 +37,7 @@
             '<div class="learning-skill-path">' +
                 '<div class="learning-section-title"><span>CAREER SKILL PATH</span><small>' + (next ? 'Your next gap is highlighted.' : 'You completed every skill in this path.') + '</small></div>' +
                 '<div class="learning-path-list">' +
+                    '<span class="learning-path-active-indicator" aria-hidden="true"></span>' +
                     steps.map((step, index) => '<button type="button" class="learning-path-step ' + (step.completed ? 'completed' : (next && step.skill === next.skill ? 'current' : '')) + '" data-skill="' + escapeHTML(step.skill) + '">' +
                         '<span class="learning-path-number">' + (step.completed ? '✓' : String(index + 1).padStart(2, '0')) + '</span>' +
                         '<span class="learning-path-copy"><strong>' + escapeHTML(step.skill) + '</strong><small>' + (step.completed ? 'Verified skill' : (next && step.skill === next.skill ? 'Recommended next' : 'Skill gap')) + '</small></span>' +
@@ -44,6 +45,51 @@
                     '</button>').join('') +
                 '</div>' +
             '</div>';
+    }
+
+    function positionPathHighlight(animate = true) {
+        const list = document.querySelector('.learning-path-list');
+        if (!list || !state.activeSkill) return;
+
+        const active = list.querySelector('.learning-path-step[data-skill="' + CSS.escape(state.activeSkill) + '"]');
+        const indicator = list.querySelector('.learning-path-active-indicator');
+        if (!active || !indicator) return;
+
+        const listRect = list.getBoundingClientRect();
+        const activeRect = active.getBoundingClientRect();
+        const x = activeRect.left - listRect.left;
+        const y = activeRect.top - listRect.top;
+
+        if (!animate) {
+            indicator.style.transition = 'none';
+            indicator.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+            indicator.style.width = activeRect.width + 'px';
+            indicator.style.height = activeRect.height + 'px';
+            requestAnimationFrame(() => {
+                indicator.style.transition = '';
+            });
+            return;
+        }
+
+        indicator.style.width = activeRect.width + 'px';
+        indicator.style.height = activeRect.height + 'px';
+        requestAnimationFrame(() => {
+            indicator.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+        });
+    }
+
+    function setActivePathSkill(skill) {
+        if (!skill) return;
+        state.activeSkill = skill;
+
+        const list = document.querySelector('.learning-path-list');
+        if (!list) return;
+
+        list.querySelectorAll('.learning-path-step').forEach((button) => {
+            button.classList.toggle('active', button.dataset.skill === skill);
+        });
+
+        positionPathHighlight(true);
     }
 
     function renderCourseList() {
@@ -215,6 +261,7 @@
         state.activeLesson = 0;
         state.phase = 'lesson';
         renderCourseList();
+        setActivePathSkill(skill);
         showLessonSkeleton(skill);
 
         const startedAt = performance.now();
@@ -256,6 +303,7 @@
             renderCareerOverview();
             renderCourseList();
             if (state.recommendations.length) loadLesson(state.recommendations[0].skill);
+            else positionPathHighlight(false);
             else $('#learningContent').innerHTML = '<div class="learning-empty">No beginner lessons are recommended yet. Upload a resume or add skills to your profile first.</div>';
         } catch (error) {
             $('#learningContent').innerHTML = '<div class="learning-empty">' + escapeHTML(error.message) + '</div>';
