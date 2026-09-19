@@ -78,6 +78,37 @@
         });
     }
 
+    function positionCourseHighlight(animate = true) {
+        const list = $('#courseList');
+        if (!list || !state.activeSkill) return;
+
+        const active = Array.from(list.querySelectorAll('.learning-course-item')).find((button) => button.dataset.skill === state.activeSkill);
+        const indicator = list.querySelector('.learning-course-active-indicator');
+        if (!active || !indicator) return;
+
+        const listRect = list.getBoundingClientRect();
+        const activeRect = active.getBoundingClientRect();
+        const x = activeRect.left - listRect.left;
+        const y = activeRect.top - listRect.top;
+
+        if (!animate) {
+            indicator.style.transition = 'none';
+            indicator.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+            indicator.style.width = activeRect.width + 'px';
+            indicator.style.height = activeRect.height + 'px';
+            requestAnimationFrame(() => {
+                indicator.style.transition = '';
+            });
+            return;
+        }
+
+        indicator.style.width = activeRect.width + 'px';
+        indicator.style.height = activeRect.height + 'px';
+        requestAnimationFrame(() => {
+            indicator.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+        });
+    }
+
     function setActivePathSkill(skill) {
         if (!skill) return;
         state.activeSkill = skill;
@@ -85,11 +116,16 @@
         const list = document.querySelector('.learning-path-list');
         if (!list) return;
 
+        const nextSkill = state.careerPath.find((step) => !step.completed)?.skill || '';
+
         list.querySelectorAll('.learning-path-step').forEach((button) => {
-            button.classList.toggle('active', button.dataset.skill === skill);
+            const isSelected = button.dataset.skill === skill;
+            button.classList.toggle('active', isSelected);
+            button.classList.toggle('current', isSelected && button.dataset.skill === nextSkill);
         });
 
         positionPathHighlight(true);
+        positionCourseHighlight(true);
     }
 
     function renderCourseList() {
@@ -97,7 +133,7 @@
         const select = $('#courseSelect');
         if (!list || !select) return;
         const items = state.recommendations.length ? state.recommendations : state.catalog;
-        list.innerHTML = items.map((item, index) => '<button type="button" class="learning-course-item ' + (item.skill === state.activeSkill ? 'active' : '') + '" data-skill="' + escapeHTML(item.skill) + '"><span class="learning-course-number">' + (index + 1) + '</span><span class="learning-course-copy"><strong>' + escapeHTML(item.skill) + '</strong><small>' + escapeHTML(item.reason || (item.hasLesson === false ? 'Resources only' : 'Beginner lesson')) + '</small></span></button>').join('');
+        list.innerHTML = '<span class="learning-course-active-indicator" aria-hidden="true"></span>' + items.map((item, index) => '<button type="button" class="learning-course-item ' + (item.skill === state.activeSkill ? 'active' : '') + '" data-skill="' + escapeHTML(item.skill) + '"><span class="learning-course-number">' + (index + 1) + '</span><span class="learning-course-copy"><strong>' + escapeHTML(item.skill) + '</strong><small>' + escapeHTML(item.reason || (item.hasLesson === false ? 'Resources only' : 'Beginner lesson')) + '</small></span></button>').join('');
         select.innerHTML = items.map((item) => '<option value="' + escapeHTML(item.skill) + '">' + escapeHTML(item.skill) + '</option>').join('');
         if (state.activeSkill) select.value = state.activeSkill;
     }
@@ -317,5 +353,11 @@
         if (button) loadLesson(button.dataset.skill);
     });
     $('#courseSelect')?.addEventListener('change', (event) => loadLesson(event.target.value));
+
+    window.addEventListener('resize', () => {
+        positionPathHighlight(false);
+        positionCourseHighlight(false);
+    });
+
     loadRecommendations();
 }());
