@@ -151,8 +151,27 @@ function cleanOCRSkillLine(line) {
 }
 
 function extractSkillsSectionFromOCRData(pageData) {
+    function getOCRLines(data) {
+        const directLines = Array.isArray(data?.lines) ? data.lines : [];
+        if (directLines.length > 0) return directLines;
+
+        const result = [];
+        const blocks = Array.isArray(data?.blocks) ? data.blocks : [];
+
+        for (const block of blocks) {
+            for (const paragraph of block?.paragraphs || []) {
+                for (const line of paragraph?.lines || []) {
+                    result.push(line);
+                }
+            }
+        }
+
+        return result;
+    }
+
     for (const data of pageData || []) {
-        const lines = Array.isArray(data?.lines) ? data.lines : [];
+        const lines = getOCRLines(data);
+
         const skillHeaders = lines.filter((line) => {
             const text = String(line?.text || '').trim();
             return /^skills?$/i.test(text) && line?.bbox;
@@ -160,11 +179,13 @@ function extractSkillsSectionFromOCRData(pageData) {
 
         if (skillHeaders.length === 0) continue;
 
-        // Prefer the large, standalone ALL-CAPS heading over occurrences of
-        // the word "skills" inside work-history sentences.
+        // Pick the largest standalone "SKILLS" heading. This avoids treating
+        // phrases such as "interpersonal skills" in work history as headings.
         const header = skillHeaders.sort((a, b) => {
-            const aHeight = (a.bbox?.y1 || 0) - (a.bbox?.y0 || 0);
-            const bHeight = (b.bbox?.y1 || 0) - (b.bbox?.y0 || 0);
+            const aBox = a.bbox || {};
+            const bBox = b.bbox || {};
+            const aHeight = Number(aBox.y1 || 0) - Number(aBox.y0 || 0);
+            const bHeight = Number(bBox.y1 || 0) - Number(bBox.y0 || 0);
             return bHeight - aHeight;
         })[0];
 
@@ -183,9 +204,12 @@ function extractSkillsSectionFromOCRData(pageData) {
                 const x0 = Number(box.x0 || 0);
                 const y0 = Number(box.y0 || 0);
 
-                // Keep text below the heading and inside the same right/left
-                // column. This fixes multi-column OCR reading-order errors.
-                return y0 > headerY + 5 && x0 >= headerX - 60;
+                // The Skills list should be directly below the heading and
+                // start in approximately the same column.
+                return (
+                    y0 > headerY + 3 &&
+                    Math.abs(x0 - headerX) <= 100
+                );
             })
             .sort((a, b) => Number(a.bbox.y0) - Number(b.bbox.y0));
 
@@ -193,11 +217,11 @@ function extractSkillsSectionFromOCRData(pageData) {
 
         for (const line of candidateLines) {
             const text = cleanOCRSkillLine(line.text);
-
             if (!text) continue;
 
-            // Stop at another major section heading.
             const normalized = normalizeHeader(text);
+
+            // Stop if another major resume section starts in this column.
             if (
                 skills.length > 0 &&
                 (
@@ -208,12 +232,16 @@ function extractSkillsSectionFromOCRData(pageData) {
                 break;
             }
 
+            // A Skills section item should normally be short. Ignore large
+            // OCR lines that clearly came from another part of the resume.
+            if (text.length > 80) continue;
+
             skills.push(text);
         }
 
         if (skills.length > 0) {
             console.log('[ResumeScanner] Skills extracted from OCR coordinates:', skills);
-            return skills.join('\\n');
+            return skills.join('\n');
         }
     }
 
