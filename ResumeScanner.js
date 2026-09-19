@@ -145,8 +145,8 @@ async function ocrPdf(filePath) {
 
 function cleanOCRSkillLine(line) {
     return String(line || '')
-        .replace(/^[\\s•▪●◦*+«»®©·\\-–—]+/, '')
-        .replace(/\\s+/g, ' ')
+        .replace(/^[\s•▪●◦*+«»®©·\-–—]+/, '')
+        .replace(/\s+/g, ' ')
         .trim();
 }
 
