@@ -117,11 +117,21 @@ async function ocrPdf(filePath) {
 
             const imageBuffer = fs.readFileSync(imagePath);
             console.log(`[OCR] Recognizing page ${pageNumber}...`);
-            const result = await worker.recognize(imageBuffer);
+            // Tesseract.js v6+ returns only text by default.
+            // Request the structured block data so we can use bounding boxes
+            // to correctly read multi-column resumes.
+            const result = await worker.recognize(
+                imageBuffer,
+                {},
+                { blocks: true }
+            );
+
             const pageText = result?.data?.text || '';
 
             pageTexts.push(pageText);
-            pageData.push(result?.data || {});
+            pageData.push({
+                blocks: result?.data?.blocks || [],
+            });
             console.log(`[OCR] Page ${pageNumber} complete (${pageText.length} characters).`);
 
             try {
