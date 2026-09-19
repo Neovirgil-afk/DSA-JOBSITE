@@ -1,6 +1,7 @@
 const ESCO_API_BASE = 'https://ec.europa.eu/esco/api';
 const ESCO_VERSION = 'v1.2.0';
-const MAX_QUERIES = 20;
+const MAX_QUERIES = 12;
+const CONCURRENCY = 3;
 const RESULTS_PER_QUERY = 5;
 const REQUEST_TIMEOUT_MS = 7000;
 
@@ -113,20 +114,24 @@ async function detectSkillsFromESCO(text) {
     const queries = getQueryCandidates(text);
     const detected = new Map();
 
-    for (let queryIndex = 0; queryIndex < queries.length; queryIndex++) {
-        const query = queries[queryIndex];
+    for (let start = 0; start < queries.length; start += CONCURRENCY) {
+        const batch = queries.slice(start, start + CONCURRENCY);
 
-        try {
-            const results = await searchESCO(query);
+        await Promise.all(batch.map(async (query, batchIndex) => {
+            const queryIndex = start + batchIndex;
 
-            // Keep only the first few ranked ESCO results for each resume fragment.
-            results.slice(0, 3).forEach((item, resultIndex) => {
-                addResult(detected, item, queryIndex, resultIndex);
-            });
-        } catch (error) {
-            // API failure should never prevent the resume from being scanned.
-            console.error('[ESCO] Skill lookup failed:', error.message);
-        }
+            try {
+                const results = await searchESCO(query);
+
+                // Keep only the first few ranked ESCO results for each resume fragment.
+                results.slice(0, 3).forEach((item, resultIndex) => {
+                    addResult(detected, item, queryIndex, resultIndex);
+                });
+            } catch (error) {
+                // API failure should never prevent the resume from being scanned.
+                console.error('[ESCO] Skill lookup failed:', error.message);
+            }
+        }));
     }
 
     return [...detected.values()]
