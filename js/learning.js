@@ -296,7 +296,6 @@
         state.activeSkill = skill;
         state.activeLesson = 0;
         state.phase = 'lesson';
-        renderCourseList();
         setActivePathSkill(skill);
         showLessonSkeleton(skill);
 
