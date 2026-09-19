@@ -302,9 +302,11 @@
             state.catalog = data.availableLessons || [];
             renderCareerOverview();
             renderCourseList();
-            if (state.recommendations.length) loadLesson(state.recommendations[0].skill);
-            else positionPathHighlight(false);
-            else $('#learningContent').innerHTML = '<div class="learning-empty">No beginner lessons are recommended yet. Upload a resume or add skills to your profile first.</div>';
+            if (state.recommendations.length) {
+                loadLesson(state.recommendations[0].skill);
+            } else {
+                $('#learningContent').innerHTML = '<div class="learning-empty">No beginner lessons are recommended yet. Upload a resume or add skills to your profile first.</div>';
+            }
         } catch (error) {
             $('#learningContent').innerHTML = '<div class="learning-empty">' + escapeHTML(error.message) + '</div>';
         }
