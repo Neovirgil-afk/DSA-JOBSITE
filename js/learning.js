@@ -56,6 +56,48 @@
         if (state.activeSkill) select.value = state.activeSkill;
     }
 
+    const LESSON_LOADING_DELAY = 750;
+    let lessonRequestId = 0;
+
+    function showLessonSkeleton(skill) {
+        const content = $('#learningContent');
+        if (!content) return;
+
+        const safeSkill = escapeHTML(skill || 'Loading lesson');
+
+        content.innerHTML =
+            '<div class="learning-skeleton-shell" aria-busy="true" aria-label="Loading lesson">' +
+                '<div class="learning-skeleton-header">' +
+                    '<div class="learning-skeleton-heading">' +
+                        '<span class="learning-skeleton-line learning-skeleton-eyebrow"></span>' +
+                        '<span class="learning-skeleton-line learning-skeleton-title"></span>' +
+                        '<span class="learning-skeleton-line learning-skeleton-description"></span>' +
+                        '<span class="learning-skeleton-line learning-skeleton-description learning-skeleton-description--short"></span>' +
+                    '</div>' +
+                    '<span class="learning-skeleton-badge"></span>' +
+                '</div>' +
+                '<div class="learning-skeleton-progress">' +
+                    '<span class="learning-skeleton-progress-bar"></span>' +
+                    '<span class="learning-skeleton-progress-label"></span>' +
+                '</div>' +
+                '<div class="learning-skeleton-lesson">' +
+                    '<span class="learning-skeleton-line learning-skeleton-kicker"></span>' +
+                    '<span class="learning-skeleton-line learning-skeleton-lesson-title"></span>' +
+                    '<span class="learning-skeleton-line learning-skeleton-text"></span>' +
+                    '<span class="learning-skeleton-line learning-skeleton-text"></span>' +
+                    '<span class="learning-skeleton-line learning-skeleton-text learning-skeleton-text--short"></span>' +
+                '</div>' +
+                '<div class="learning-skeleton-resources">' +
+                    '<span class="learning-skeleton-line learning-skeleton-resource-heading"></span>' +
+                    '<div class="learning-skeleton-resource-grid">' +
+                        '<span class="learning-skeleton-resource-card"></span>' +
+                        '<span class="learning-skeleton-resource-card"></span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="learning-skeleton-status">Loading <strong>' + safeSkill + '</strong>…</div>' +
+            '</div>';
+    }
+
     function renderLesson(lesson, resources) {
         const content = $('#learningContent');
         const total = lesson.lessons.length;
@@ -168,17 +210,34 @@
     }
 
     async function loadLesson(skill) {
+        const requestId = ++lessonRequestId;
         state.activeSkill = skill;
         state.activeLesson = 0;
+        state.phase = 'lesson';
         renderCourseList();
-        $('#learningContent').innerHTML = '<div class="learning-loading">Loading lesson...</div>';
+        showLessonSkeleton(skill);
+
+        const startedAt = performance.now();
+
         try {
             const response = await fetch('/api/learning/skill/' + encodeURIComponent(skill), { credentials: 'include' });
             const data = await response.json();
+
+            const elapsed = performance.now() - startedAt;
+            const remainingDelay = Math.max(0, LESSON_LOADING_DELAY - elapsed);
+
+            if (remainingDelay > 0) {
+                await new Promise((resolve) => setTimeout(resolve, remainingDelay));
+            }
+
+            if (requestId !== lessonRequestId) return;
+
             if (response.status === 401) { window.location.href = '/'; return; }
             if (!response.ok) throw new Error(data.error || 'Unable to load this lesson.');
+
             renderLesson(data.lesson, data.resources || []);
         } catch (error) {
+            if (requestId !== lessonRequestId) return;
             $('#learningContent').innerHTML = '<div class="learning-empty">' + escapeHTML(error.message) + '</div>';
         }
     }
