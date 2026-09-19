@@ -245,8 +245,6 @@ function extractSkillsSectionFromOCRData(pageData) {
 
         const directLines = Array.isArray(data?.lines) ? data.lines : [];
         if (directLines.length > 0) return directLines;
-        const directLines = Array.isArray(data?.lines) ? data.lines : [];
-        if (directLines.length > 0) return directLines;
 
         const result = [];
         const blocks = Array.isArray(data?.blocks) ? data.blocks : [];
