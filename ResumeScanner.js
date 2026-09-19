@@ -13,6 +13,7 @@ const pdfPoppler = process.platform === 'win32' ? require('pdf-poppler') : null;
 const { createWorker } = require('tesseract.js');
 const HashTable = require('./HashTable');
 const { SKILLS_LIST } = require('./skillsList');
+const { detectSkillsFromESCO } = require('./ESCOService');
 
 const OCR_MAX_PAGES = 5;
 const OCR_DENSITY = 180;
@@ -147,7 +148,7 @@ function buildSkillLookupTable() {
     return table;
 }
 
-function detectSkills(text) {
+function detectLocalSkills(text) {
     const table = buildSkillLookupTable();
     const lowerText = text.toLowerCase();
     const detected = [];
@@ -165,6 +166,23 @@ function detectSkills(text) {
     }
 
     return detected;
+}
+
+async function detectSkills(text) {
+    const localSkills = detectLocalSkills(text);
+    const apiSkills = await detectSkillsFromESCO(text);
+
+    const combined = [];
+    const seen = new Set();
+
+    for (const skill of [...localSkills, ...apiSkills]) {
+        const key = skill.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        combined.push(skill);
+    }
+
+    return combined;
 }
 
 function extractEmail(text) {
@@ -237,7 +255,7 @@ async function scanResume(filePath, originalName) {
         };
     }
 
-    const detectedSkills = detectSkills(text);
+    const detectedSkills = await detectSkills(text);
     let warning = null;
 
     if (detectedSkills.length === 0) {
@@ -259,4 +277,4 @@ async function scanResume(filePath, originalName) {
     };
 }
 
-module.exports = { scanResume, detectSkills };
+module.exports = { scanResume, detectSkills, detectLocalSkills };
