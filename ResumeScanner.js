@@ -13,10 +13,9 @@ const pdfPoppler = process.platform === 'win32' ? require('pdf-poppler') : null;
 const { createWorker } = require('tesseract.js');
 const HashTable = require('./HashTable');
 const { SKILLS_LIST } = require('./skillsList');
-const { detectSkillsFromESCO } = require('./ESCOService');
 
 const OCR_MAX_PAGES = 5;
-const OCR_DENSITY = 300;
+const OCR_DENSITY = 180;
 
 async function extractPdfText(filePath) {
     const buffer = fs.readFileSync(filePath);
@@ -82,7 +81,6 @@ async function renderPdfPage(filePath, pageNumber, outputPrefix) {
     await execFileAsync('pdftoppm', [
         '-png',
         '-r', String(OCR_DENSITY),
-        '-scale-to', '2400',
         '-f', String(pageNumber),
         '-l', String(pageNumber),
         '-singlefile',
@@ -95,171 +93,6 @@ async function renderPdfPage(filePath, pageNumber, outputPrefix) {
 
 // Render scanned PDF pages to PNG using Poppler, then send those images to Tesseract.
 // Windows uses pdf-poppler; Linux (including Render) uses the system Poppler CLI.
-function parseOCRTSVLines(tsv) {
-    const lineMap = new Map();
-
-    for (const rawLine of String(tsv || '').split(/\\r?\\n/)) {
-        if (!rawLine || rawLine.startsWith('level\\t')) continue;
-
-        const parts = rawLine.split('\\t');
-        if (parts.length < 12 || Number(parts[0]) !== 5) continue;
-
-        const pageNum = parts[1];
-        const blockNum = parts[2];
-        const paragraphNum = parts[3];
-        const lineNum = parts[4];
-        const left = Number(parts[6]);
-        const top = Number(parts[7]);
-        const width = Number(parts[8]);
-        const height = Number(parts[9]);
-        const confidence = Number(parts[10]);
-        const text = parts.slice(11).join('\\t').trim();
-
-        if (
-            !Number.isFinite(left) ||
-            !Number.isFinite(top) ||
-            !Number.isFinite(width) ||
-            !Number.isFinite(height) ||
-            !text ||
-            confidence < 0
-        ) {
-            continue;
-        }
-
-        const key = [
-            pageNum,
-            blockNum,
-            paragraphNum,
-            lineNum,
-        ].join(':');
-
-        if (!lineMap.has(key)) {
-            lineMap.set(key, {
-                text: '',
-                bbox: {
-                    x0: left,
-                    y0: top,
-                    x1: left + width,
-                    y1: top + height,
-                },
-            });
-        }
-
-        const line = lineMap.get(key);
-        line.text = line.text
-            ? `${line.text} ${text}`
-            : text;
-
-        line.bbox.x0 = Math.min(line.bbox.x0, left);
-        line.bbox.y0 = Math.min(line.bbox.y0, top);
-        line.bbox.x1 = Math.max(line.bbox.x1, left + width);
-        line.bbox.y1 = Math.max(line.bbox.y1, top + height);
-    }
-
-    return Array.from(lineMap.values()).sort((a, b) => {
-        if (a.bbox.y0 !== b.bbox.y0) {
-            return a.bbox.y0 - b.bbox.y0;
-        }
-
-        return a.bbox.x0 - b.bbox.x0;
-    });
-}
-
-function findOCRSkillsHeader(lines) {
-    const headers = (lines || []).filter((line) => {
-        const text = String(line?.text || '').trim();
-        return /^skills?$/i.test(text) && line?.bbox;
-    });
-
-    if (headers.length === 0) return null;
-
-    return headers.sort((a, b) => {
-        const aHeight = a.bbox.y1 - a.bbox.y0;
-        const bHeight = b.bbox.y1 - b.bbox.y0;
-        return bHeight - aHeight;
-    })[0];
-}
-
-function buildSkillsOCRRectangle(lines, header, imageBuffer) {
-    const headerBox = header?.bbox;
-    if (!headerBox) return null;
-
-    const imageInfo = imageBuffer;
-    if (!imageInfo) return null;
-
-    // Tesseract coordinates use the rendered image's pixel space. We use
-    // the image dimensions only to clamp the rectangle safely.
-    // PNG dimensions are read from the IHDR header.
-    if (
-        imageInfo.length < 24 ||
-        imageInfo.toString('ascii', 1, 4) !== 'PNG'
-    ) {
-        return null;
-    }
-
-    const imageWidth = imageInfo.readUInt32BE(16);
-    const imageHeight = imageInfo.readUInt32BE(20);
-
-    if (!imageWidth || !imageHeight) return null;
-
-    const headerCenterX = (headerBox.x0 + headerBox.x1) / 2;
-    const headerHeight = Math.max(1, headerBox.y1 - headerBox.y0);
-
-    const below = (lines || []).filter((line) => {
-        const box = line?.bbox;
-        if (!box) return false;
-
-        const centerX = (box.x0 + box.x1) / 2;
-        return (
-            box.y0 > headerBox.y1 &&
-            box.y0 < headerBox.y1 + Math.max(900, headerHeight * 30) &&
-            Math.abs(centerX - headerCenterX) <= 220
-        );
-    });
-
-    const nextSection = below.find((line) => {
-        const normalized = normalizeHeader(line.text);
-        return isResumeSectionHeader(normalized) &&
-            !/^skills?$/i.test(normalized);
-    });
-
-    const bottom = nextSection
-        ? nextSection.bbox.y0 - 8
-        : Math.min(imageHeight - 4, headerBox.y1 + Math.max(1000, headerHeight * 35));
-
-    // Give the crop enough horizontal room for the actual sidebar, while
-    // keeping it narrow enough to exclude the neighboring column.
-    const columnLines = below.filter((line) => {
-        const box = line.bbox;
-        const centerX = (box.x0 + box.x1) / 2;
-        return Math.abs(centerX - headerCenterX) <= 180;
-    });
-
-    const rightMost = columnLines.reduce(
-        (max, line) => Math.max(max, line.bbox.x1),
-        headerBox.x1
-    );
-
-    const leftMost = columnLines.reduce(
-        (min, line) => Math.min(min, line.bbox.x0),
-        headerBox.x0
-    );
-
-    const left = Math.max(0, Math.floor(leftMost - 40));
-    const right = Math.min(imageWidth, Math.ceil(rightMost + 40));
-    const top = Math.max(0, Math.floor(headerBox.y0 - 15));
-    const height = Math.max(20, Math.min(imageHeight - top, Math.ceil(bottom - top)));
-
-    if (right <= left || height <= 20) return null;
-
-    return {
-        left,
-        top,
-        width: right - left,
-        height,
-    };
-}
-
 async function ocrPdf(filePath) {
     const totalPages = await getPdfPageCount(filePath);
     const pagesToScan = Math.min(totalPages, OCR_MAX_PAGES);
@@ -294,51 +127,10 @@ async function ocrPdf(filePath) {
 
             const pageText = result?.data?.text || '';
 
-            // Run a second OCR pass on the visual Skills column when the
-            // first pass provides enough coordinate data to locate SKILLS.
-            // This prevents Tesseract's normal reading order from mixing
-            // Skills with text from another column.
-            let skillsText = '';
-            try {
-                const tsv = result?.data?.tsv || '';
-                const tsvLines = parseOCRTSVLines(tsv);
-                const skillHeader = findOCRSkillsHeader(tsvLines);
-
-                if (skillHeader) {
-                    const box = buildSkillsOCRRectangle(
-                        tsvLines,
-                        skillHeader,
-                        imageBuffer
-                    );
-
-                    if (box) {
-                        console.log(
-                            '[OCR] Running isolated Skills-column recognition...'
-                        );
-
-                        const skillsResult = await worker.recognize(
-                            imageBuffer,
-                            {
-                                rectangle: box,
-                            },
-                            {}
-                        );
-
-                        skillsText = skillsResult?.data?.text || '';
-                    }
-                }
-            } catch (error) {
-                console.warn(
-                    '[OCR] Isolated Skills recognition failed:',
-                    error.message
-                );
-            }
-
             pageTexts.push(pageText);
             pageData.push({
                 blocks: result?.data?.blocks || [],
                 tsv: result?.data?.tsv || '',
-                skillsText,
             });
             console.log(`[OCR] Page ${pageNumber} complete (${pageText.length} characters).`);
 
@@ -468,22 +260,6 @@ function extractSkillsSectionFromOCRData(pageData) {
     }
 
     for (const data of pageData || []) {
-        // Prefer the isolated second-pass OCR when available. Since this text
-        // came from the Skills-column rectangle, it cannot contain the
-        // neighboring work-history column.
-        if (String(data?.skillsText || '').trim()) {
-            const isolatedSkills = String(data.skillsText)
-                .split(/\r?\n/)
-                .map((line) => cleanOCRSkillLine(line))
-                .filter(Boolean)
-                .filter((line) => !/^skills?$/i.test(line))
-                .filter((line) => line.length <= 80);
-
-            if (isolatedSkills.length > 0) {
-                return isolatedSkills.join('\n');
-            }
-        }
-
         const lines = getOCRLines(data);
 
         const skillHeaders = lines.filter((line) => {
@@ -506,63 +282,26 @@ function extractSkillsSectionFromOCRData(pageData) {
         const headerBox = header.bbox;
         const headerX = Number(headerBox.x0 || 0);
         const headerY = Number(headerBox.y1 || 0);
-        const headerHeight = Math.max(
-            1,
-            Number(headerBox.y1 || 0) - Number(headerBox.y0 || 0)
-        );
 
-        // Do not trust OCR reading order for multi-column resumes.
-        // First isolate the visual column containing the SKILLS heading.
-        // We estimate the column width from nearby OCR lines and keep only
-        // lines whose horizontal center stays close to the heading center.
-        const headerCenterX = (
-            Number(headerBox.x0 || 0) +
-            Number(headerBox.x1 || headerBox.x0 || 0)
-        ) / 2;
-
-        const nearbyLines = lines.filter((line) => {
-            const box = line?.bbox;
-            if (!box) return false;
-
-            const text = String(line.text || '').trim();
-            if (!text) return false;
-
-            const y0 = Number(box.y0 || 0);
-            const y1 = Number(box.y1 || 0);
-            return (
-                y0 > headerY &&
-                y0 <= headerY + Math.max(700, headerHeight * 20) &&
-                y1 > headerY
-            );
-        });
-
-        const sameColumnLines = nearbyLines.filter((line) => {
-            const box = line.bbox;
-            const centerX = (
-                Number(box.x0 || 0) +
-                Number(box.x1 || box.x0 || 0)
-            ) / 2;
-
-            return Math.abs(centerX - headerCenterX) <= 180;
-        });
-
-        const candidateLines = sameColumnLines
+        const candidateLines = lines
             .filter((line) => {
                 const box = line?.bbox;
+                if (!box) return false;
+
                 const text = String(line.text || '').trim();
-                if (!box || !text) return false;
+                if (!text) return false;
 
                 const x0 = Number(box.x0 || 0);
                 const y0 = Number(box.y0 || 0);
 
-                return y0 > headerY + Math.max(3, headerHeight * 0.25)
-                    && Math.abs(x0 - headerX) <= 180;
+                // The Skills list should be directly below the heading and
+                // start in approximately the same column.
+                return (
+                    y0 > headerY + 3 &&
+                    Math.abs(x0 - headerX) <= 100
+                );
             })
-            .sort((a, b) => {
-                const yDiff = Number(a.bbox.y0) - Number(b.bbox.y0);
-                if (Math.abs(yDiff) > 4) return yDiff;
-                return Number(a.bbox.x0) - Number(b.bbox.x0);
-            });
+            .sort((a, b) => Number(a.bbox.y0) - Number(b.bbox.y0));
 
         const skills = [];
 
