@@ -183,13 +183,27 @@ const RESUME_SECTION_HEADERS = [
     /^publications?$/i,
 ];
 
+function normalizeHeader(line) {
+    return String(line || '')
+        .replace(/[|•▪●·:;,_-]+/g, ' ')
+        .replace(/[^a-zA-Z0-9&/ ]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
 function isSkillsHeader(line) {
-    const clean = line.replace(/[:|•▪●]+$/g, '').trim();
+    const clean = normalizeHeader(line);
+    const compact = clean.replace(/[^a-z]/gi, '').toLowerCase();
+
+    // OCR can turn "SKILLS" into a slightly noisy heading, so accept
+    // the normalized form as well as the normal heading patterns.
+    if (compact === 'skills') return true;
+
     return SKILLS_SECTION_HEADERS.some((pattern) => pattern.test(clean));
 }
 
 function isResumeSectionHeader(line) {
-    const clean = line.replace(/[:|•▪●]+$/g, '').trim();
+    const clean = normalizeHeader(line);
     return RESUME_SECTION_HEADERS.some((pattern) => pattern.test(clean));
 }
 
@@ -204,7 +218,7 @@ function extractSkillsSection(text) {
         const line = lines[i];
 
         // Handles formats such as "Skills: Communication, Excel, Accounting".
-        const inlineMatch = line.match(/^(?:technical\s+|professional\s+|core\s+|key\s+)?skills?\s*:\s*(.+)$/i);
+        const inlineMatch = line.match(/^(?:technical\s+|professional\s+|core\s+|key\s+)?skills?\s*[:\-]\s*(.+)$/i);
         if (inlineMatch) {
             sections.push(inlineMatch[1]);
             let j = i + 1;
