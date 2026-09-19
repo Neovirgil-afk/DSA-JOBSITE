@@ -191,34 +191,69 @@ function normalizeHeader(line) {
         .trim();
 }
 
+function levenshteinDistance(a, b) {
+    const left = String(a || '');
+    const right = String(b || '');
+
+    const previous = Array.from({ length: right.length + 1 }, (_, i) => i);
+
+    for (let i = 1; i <= left.length; i++) {
+        const current = [i];
+
+        for (let j = 1; j <= right.length; j++) {
+            const cost = left[i - 1] === right[j - 1] ? 0 : 1;
+
+            current[j] = Math.min(
+                previous[j] + 1,
+                current[j - 1] + 1,
+                previous[j - 1] + cost
+            );
+        }
+
+        previous.splice(0, previous.length, ...current);
+    }
+
+    return previous[right.length];
+}
+
 function isSkillsHeader(line) {
     const clean = normalizeHeader(line);
     const compact = clean.replace(/[^a-z]/gi, '').toLowerCase();
 
-    // Handles OCR such as:
+    // Normal OCR:
     // "SKILLS"
     // "S K I L L S"
     if (compact === 'skills') return true;
 
-    // OCR may put the first skill on the same line as the heading,
-    // such as "SKILLS Microsoft Outlook".
-    if (/^skills?\b/i.test(clean)) return true;
-    if (/^(technical|professional|core|key)\s+skills?\b/i.test(clean)) return true;
+    // Common OCR mistakes:
+    // "SKILIS", "SKIILS", "SKILS", etc.
+    // Only apply fuzzy matching to short words so normal resume text
+    // does not accidentally become a Skills heading.
+    if (
+        compact.length >= 4 &&
+        compact.length <= 8 &&
+        levenshteinDistance(compact, 'skills') <= 1
+    ) {
+        return true;
+    }
+
+    // Handles headings such as:
+    // "SKILLS Microsoft Outlook"
+    // "TECHNICAL SKILLS Java Python"
+    if (/^skills?\\b/i.test(clean)) return true;
+    if (/^(technical|professional|core|key)\\s+skills?\\b/i.test(clean)) return true;
 
     return SKILLS_SECTION_HEADERS.some((pattern) => pattern.test(clean));
 }
 
 function getSkillsHeaderContent(line) {
     const clean = String(line || '')
-        .replace(/\s+/g, ' ')
+        .replace(/[\\u200B-\\u200D\\uFEFF]/g, '')
+        .replace(/\\s+/g, ' ')
         .trim();
 
-    // Example:
-    // "SKILLS Microsoft Outlook"
-    // becomes:
-    // "Microsoft Outlook"
     const match = clean.match(
-        /^(?:technical\s+|professional\s+|core\s+|key\s+)?skills?\s*(?::|-|–|—)?\s*(.*)$/i
+        /^(?:technical\\s+|professional\\s+|core\\s+|key\\s+)?skills?\\s*(?::|-|–|—)?\\s*(.*)$/i
     );
 
     if (!match) return '';
@@ -231,19 +266,50 @@ function isResumeSectionHeader(line) {
     return RESUME_SECTION_HEADERS.some((pattern) => pattern.test(clean));
 }
 
+function collectSkillsAfterHeader(lines, headerIndex, headerContent = '') {
+    const skillLines = [];
+
+    if (
+        headerContent &&
+        !isSkillsHeader(headerContent) &&
+        !isResumeSectionHeader(headerContent)
+    ) {
+        skillLines.push(headerContent);
+    }
+
+    for (let j = headerIndex + 1; j < lines.length; j++) {
+        const nextLine = lines[j];
+
+        if (isResumeSectionHeader(nextLine) && skillLines.length > 0) {
+            break;
+        }
+
+        if (isSkillsHeader(nextLine) && skillLines.length > 0) {
+            break;
+        }
+
+        if (nextLine) {
+            skillLines.push(nextLine);
+        }
+    }
+
+    return skillLines.join('\\n').trim();
+}
+
 function extractSkillsSection(text) {
-    const lines = String(text || '')
-        .split(/\r?\n/)
+    const rawText = String(text || '')
+        .replace(/[\\u200B-\\u200D\\uFEFF]/g, '');
+
+    const lines = rawText
+        .split(/\\r?\\n/)
         .map((line) => line.trim());
 
+    // First try the normal line-based extraction.
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
 
-        // Handles:
-        // Skills: Excel, Accounting, Communication
-        // Technical Skills: Java, Python
         const inlineMatch = line.match(
-            /^(?:technical\s+|professional\s+|core\s+|key\s+)?skills?\s*[:\\-–—]\s*(.+)$/i
+            /^(?:technical\\s+|professional\\s+|core\\s+|key\\s+)?skills?\\s*[:\\-–—]\\s*(.+)$/i
         );
 
         if (inlineMatch) {
@@ -264,41 +330,34 @@ function extractSkillsSection(text) {
 
         if (!isSkillsHeader(line)) continue;
 
-        const skillLines = [];
-
-        // OCR can put the first skill on the same line as "SKILLS".
         const headerContent = getSkillsHeaderContent(line);
-
-        if (
-            headerContent &&
-            !isSkillsHeader(headerContent) &&
-            !isResumeSectionHeader(headerContent)
-        ) {
-            skillLines.push(headerContent);
-        }
-
-        for (let j = i + 1; j < lines.length; j++) {
-            const nextLine = lines[j];
-
-            // Stop when we reach another resume section.
-            if (isResumeSectionHeader(nextLine) && skillLines.length > 0) {
-                break;
-            }
-
-            // Stop at another Skills heading.
-            if (isSkillsHeader(nextLine) && skillLines.length > 0) {
-                break;
-            }
-
-            if (nextLine) {
-                skillLines.push(nextLine);
-            }
-        }
-
-        const sectionText = skillLines.join('\\n').trim();
+        const sectionText = collectSkillsAfterHeader(lines, i, headerContent);
 
         if (sectionText) {
             return sectionText;
+        }
+    }
+
+    // Fallback for OCR where "SKILLS" is embedded in a longer line or
+    // separated by unusual whitespace/punctuation.
+    const rawSkillsMatch = rawText.match(
+        /(?:^|\\n)[^\\n]{0,80}\\bskills?\\b[^\\n]{0,120}(?=\\n|$)/i
+    );
+
+    if (rawSkillsMatch) {
+        const matchedLine = rawSkillsMatch[0].replace(/^\\n/, '').trim();
+        const index = lines.findIndex((line) => line === matchedLine);
+
+        if (index >= 0) {
+            const sectionText = collectSkillsAfterHeader(
+                lines,
+                index,
+                getSkillsHeaderContent(matchedLine)
+            );
+
+            if (sectionText) {
+                return sectionText;
+            }
         }
     }
 
@@ -447,6 +506,10 @@ async function scanResume(filePath, originalName) {
     console.log('[ResumeScanner] Skills section found:', Boolean(skillsSection));
     console.log('[ResumeScanner] Declared skill candidates:', declaredSkillCandidates);
     console.log('[ResumeScanner] Final detected skills:', finalSkills);
+
+    if (!skillsSection && ocrUsed) {
+        console.log('[ResumeScanner] OCR text tail for debugging:', text.slice(-1200));
+    }
 
     let warning = null;
 
