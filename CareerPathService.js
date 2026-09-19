@@ -1,35 +1,60 @@
-
-
 const { db } = require('./database');
-const Graph = require('./Graph')
-const { Tree } = require('./Tree')
-const { CATEGORY_TREE } = require('./seed')
-const { getLearningResources } = require('./LearningResources')
+const Graph = require('./Graph');
+const { Tree } = require('./Tree');
+const { CATEGORY_TREE } = require('./seed');
+const { getLearningResources } = require('./LearningResources');
+
+/*
+ * Default learning paths are used when a job does not have a row in
+ * career_paths yet. This keeps the Learning Hub relevant even when new jobs
+ * are added to the job database before their database career path is seeded.
+ */
+const DEFAULT_CAREER_PATHS = {
+    'Marketing Specialist': [
+        'Digital Marketing',
+        'Market Research',
+        'Content Marketing',
+        'Social Media Marketing',
+        'SEO',
+        'Email Marketing',
+        'Data Analytics',
+    ],
+};
 
 function getCareerPathForJob(jobId, userSkillNames = []) {
     const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(jobId);
     if (!job) return null;
 
     const pathRow = db.prepare('SELECT * FROM career_paths WHERE job_id = ? LIMIT 1').get(jobId);
-    if (!pathRow) return { job, steps: [] };
 
-    const stepRows = db.prepare(`
-        SELECT s.name, cps.step_order FROM career_path_skills cps
-        JOIN skills s ON s.id = cps.skill_id
-        WHERE cps.career_path_id = ?
-        ORDER BY cps.step_order ASC
-    `).all(pathRow.id);
+    let skillNames = [];
 
-    //  chain skills in sequence, ending at the job node.
+    if (pathRow) {
+        const stepRows = db.prepare(`
+            SELECT s.name, cps.step_order FROM career_path_skills cps
+            JOIN skills s ON s.id = cps.skill_id
+            WHERE cps.career_path_id = ?
+            ORDER BY cps.step_order ASC
+        `).all(pathRow.id);
+
+        skillNames = stepRows.map((r) => r.name);
+    }
+
+    // If the database has no career path yet, use a job-specific local path.
+    // This is especially useful for newly added jobs such as Marketing Specialist.
+    if (!skillNames.length && DEFAULT_CAREER_PATHS[job.title]) {
+        skillNames = DEFAULT_CAREER_PATHS[job.title];
+    }
+
+    // Chain skills in sequence, ending at the job node.
     const graph = new Graph();
     const jobNode = `JOB:${job.title}`;
-    const skillNames = stepRows.map((r) => r.name);
 
     for (let i = 0; i < skillNames.length; i++) {
-        const from = i === 0 ? skillNames[0] : skillNames[i - 1];
         graph.addNode(skillNames[i]);
         if (i > 0) graph.addEdge(skillNames[i - 1], skillNames[i]);
     }
+
     if (skillNames.length > 0) {
         graph.addEdge(skillNames[skillNames.length - 1], jobNode);
     } else {
@@ -37,9 +62,12 @@ function getCareerPathForJob(jobId, userSkillNames = []) {
     }
 
     // Confirms the graph traversal actually connects the first skill to the job.
-    const path = skillNames.length > 0 ? graph.bfsPath(skillNames[0], jobNode) : [jobNode];
+    const path = skillNames.length > 0
+        ? graph.bfsPath(skillNames[0], jobNode)
+        : [jobNode];
 
     const userSkillSetLower = new Set(userSkillNames.map((s) => s.toLowerCase()));
+
     const steps = skillNames.map((name, idx) => ({
         order: idx + 1,
         skill: name,
@@ -54,7 +82,6 @@ function getCareerPathForJob(jobId, userSkillNames = []) {
         targetLabel: job.title,
     };
 }
-
 
 function getCategoryTree() {
     const tree = new Tree('All Categories');
