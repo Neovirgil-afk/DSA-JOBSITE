@@ -202,15 +202,15 @@ function isSkillsHeader(line) {
 
     // OCR may put the first skill on the same line as the heading,
     // such as "SKILLS Microsoft Outlook".
-    if (/^skills?\\b/i.test(clean)) return true;
-    if (/^(technical|professional|core|key)\\s+skills?\\b/i.test(clean)) return true;
+    if (/^skills?\b/i.test(clean)) return true;
+    if (/^(technical|professional|core|key)\s+skills?\b/i.test(clean)) return true;
 
     return SKILLS_SECTION_HEADERS.some((pattern) => pattern.test(clean));
 }
 
 function getSkillsHeaderContent(line) {
     const clean = String(line || '')
-        .replace(/\\s+/g, ' ')
+        .replace(/\s+/g, ' ')
         .trim();
 
     // Example:
@@ -218,7 +218,7 @@ function getSkillsHeaderContent(line) {
     // becomes:
     // "Microsoft Outlook"
     const match = clean.match(
-        /^(?:technical\\s+|professional\\s+|core\\s+|key\\s+)?skills?\\s*(?::|-|–|—)?\\s*(.*)$/i
+        /^(?:technical\s+|professional\s+|core\s+|key\s+)?skills?\s*(?::|-|–|—)?\s*(.*)$/i
     );
 
     if (!match) return '';
@@ -233,7 +233,7 @@ function isResumeSectionHeader(line) {
 
 function extractSkillsSection(text) {
     const lines = String(text || '')
-        .split(/\\r?\\n/)
+        .split(/\r?\n/)
         .map((line) => line.trim());
 
     for (let i = 0; i < lines.length; i++) {
@@ -243,7 +243,7 @@ function extractSkillsSection(text) {
         // Skills: Excel, Accounting, Communication
         // Technical Skills: Java, Python
         const inlineMatch = line.match(
-            /^(?:technical\\s+|professional\\s+|core\\s+|key\\s+)?skills?\\s*[:\\-–—]\\s*(.+)$/i
+            /^(?:technical\s+|professional\s+|core\s+|key\s+)?skills?\s*[:\\-–—]\s*(.+)$/i
         );
 
         if (inlineMatch) {
