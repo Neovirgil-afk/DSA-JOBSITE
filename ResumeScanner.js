@@ -97,7 +97,6 @@ async function ocrPdf(filePath) {
     const totalPages = await getPdfPageCount(filePath);
     const pagesToScan = Math.min(totalPages, OCR_MAX_PAGES);
     const pageTexts = [];
-    const pageData = [];
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'jobpath-ocr-'));
     const worker = await createWorker('eng');
 
@@ -116,22 +115,10 @@ async function ocrPdf(filePath) {
 
             const imageBuffer = fs.readFileSync(imagePath);
             console.log(`[OCR] Recognizing page ${pageNumber}...`);
-            // Tesseract.js v6+ returns only text by default.
-            // Request the structured block data so we can use bounding boxes
-            // to correctly read multi-column resumes.
-            const result = await worker.recognize(
-                imageBuffer,
-                {},
-                { blocks: true, tsv: true }
-            );
-
+            const result = await worker.recognize(imageBuffer);
             const pageText = result?.data?.text || '';
 
             pageTexts.push(pageText);
-            pageData.push({
-                blocks: result?.data?.blocks || [],
-                tsv: result?.data?.tsv || '',
-            });
             console.log(`[OCR] Page ${pageNumber} complete (${pageText.length} characters).`);
 
             try {
@@ -147,195 +134,9 @@ async function ocrPdf(filePath) {
 
     return {
         text: pageTexts.join('\n\n'),
-        pageData,
         pagesScanned: pageTexts.length,
         totalPages,
     };
-}
-
-function cleanOCRSkillLine(line) {
-    return String(line || '')
-        .replace(/^[\s•▪●◦*+«»®©·\-–—]+/, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-}
-
-function extractSkillsSectionFromOCRData(pageData) {
-    function parseTSVLines(tsv) {
-        const lines = [];
-        const lineMap = new Map();
-
-        for (const rawLine of String(tsv || '').split(/\r?\n/)) {
-            if (!rawLine || rawLine.startsWith('level\t')) continue;
-
-            const parts = rawLine.split('\t');
-            if (parts.length < 12) continue;
-
-            const level = Number(parts[0]);
-            if (level !== 5) continue;
-
-            const pageNum = parts[1];
-            const blockNum = parts[2];
-            const paragraphNum = parts[3];
-            const lineNum = parts[4];
-            const wordNum = parts[5];
-            const left = Number(parts[6]);
-            const top = Number(parts[7]);
-            const width = Number(parts[8]);
-            const height = Number(parts[9]);
-            const confidence = Number(parts[10]);
-            const text = parts.slice(11).join('\t').trim();
-
-            if (
-                !Number.isFinite(left) ||
-                !Number.isFinite(top) ||
-                !Number.isFinite(width) ||
-                !Number.isFinite(height) ||
-                !text ||
-                confidence < 0
-            ) {
-                continue;
-            }
-
-            const key = [
-                pageNum,
-                blockNum,
-                paragraphNum,
-                lineNum,
-            ].join(':');
-
-            if (!lineMap.has(key)) {
-                lineMap.set(key, {
-                    text: '',
-                    bbox: {
-                        x0: left,
-                        y0: top,
-                        x1: left + width,
-                        y1: top + height,
-                    },
-                    wordNum,
-                });
-            }
-
-            const line = lineMap.get(key);
-            line.text = line.text
-                ? `${line.text} ${text}`
-                : text;
-
-            line.bbox.x0 = Math.min(line.bbox.x0, left);
-            line.bbox.y0 = Math.min(line.bbox.y0, top);
-            line.bbox.x1 = Math.max(line.bbox.x1, left + width);
-            line.bbox.y1 = Math.max(line.bbox.y1, top + height);
-        }
-
-        for (const line of lineMap.values()) {
-            lines.push(line);
-        }
-
-        return lines.sort((a, b) => {
-            if (a.bbox.y0 !== b.bbox.y0) return a.bbox.y0 - b.bbox.y0;
-            return a.bbox.x0 - b.bbox.x0;
-        });
-    }
-
-    function getOCRLines(data) {
-        const tsvLines = parseTSVLines(data?.tsv);
-        if (tsvLines.length > 0) return tsvLines;
-
-        const directLines = Array.isArray(data?.lines) ? data.lines : [];
-        if (directLines.length > 0) return directLines;
-
-        const result = [];
-        const blocks = Array.isArray(data?.blocks) ? data.blocks : [];
-
-        for (const block of blocks) {
-            for (const paragraph of block?.paragraphs || []) {
-                for (const line of paragraph?.lines || []) {
-                    result.push(line);
-                }
-            }
-        }
-
-        return result;
-    }
-
-    for (const data of pageData || []) {
-        const lines = getOCRLines(data);
-
-        const skillHeaders = lines.filter((line) => {
-            const text = String(line?.text || '').trim();
-            return /^skills?$/i.test(text) && line?.bbox;
-        });
-
-        if (skillHeaders.length === 0) continue;
-
-        // Pick the largest standalone "SKILLS" heading. This avoids treating
-        // phrases such as "interpersonal skills" in work history as headings.
-        const header = skillHeaders.sort((a, b) => {
-            const aBox = a.bbox || {};
-            const bBox = b.bbox || {};
-            const aHeight = Number(aBox.y1 || 0) - Number(aBox.y0 || 0);
-            const bHeight = Number(bBox.y1 || 0) - Number(bBox.y0 || 0);
-            return bHeight - aHeight;
-        })[0];
-
-        const headerBox = header.bbox;
-        const headerX = Number(headerBox.x0 || 0);
-        const headerY = Number(headerBox.y1 || 0);
-
-        const candidateLines = lines
-            .filter((line) => {
-                const box = line?.bbox;
-                if (!box) return false;
-
-                const text = String(line.text || '').trim();
-                if (!text) return false;
-
-                const x0 = Number(box.x0 || 0);
-                const y0 = Number(box.y0 || 0);
-
-                // The Skills list should be directly below the heading and
-                // start in approximately the same column.
-                return (
-                    y0 > headerY + 3 &&
-                    Math.abs(x0 - headerX) <= 100
-                );
-            })
-            .sort((a, b) => Number(a.bbox.y0) - Number(b.bbox.y0));
-
-        const skills = [];
-
-        for (const line of candidateLines) {
-            const text = cleanOCRSkillLine(line.text);
-            if (!text) continue;
-
-            const normalized = normalizeHeader(text);
-
-            // Stop if another major resume section starts in this column.
-            if (
-                skills.length > 0 &&
-                (
-                    isResumeSectionHeader(normalized) ||
-                    /^(?:career objective|education|experience|work experience|projects?|certifications?|awards?|summary|profile)$/i.test(normalized)
-                )
-            ) {
-                break;
-            }
-
-            // A Skills section item should normally be short. Ignore large
-            // OCR lines that clearly came from another part of the resume.
-            if (text.length > 80) continue;
-
-            skills.push(text);
-        }
-
-        if (skills.length > 0) {
-            console.log('[ResumeScanner] Skills extracted from OCR coordinates:', skills);
-            return skills.join('\n');
-        }
-    }
-
-    return '';
 }
 
 function buildSkillLookupTable() {
@@ -346,224 +147,7 @@ function buildSkillLookupTable() {
     return table;
 }
 
-const SKILLS_SECTION_HEADERS = [
-    /^skills?$/i,
-    /^technical skills?$/i,
-    /^professional skills?$/i,
-    /^core skills?$/i,
-    /^key skills?$/i,
-    /^skills? and competencies$/i,
-    /^core competencies$/i,
-    /^competencies$/i,
-    /^areas of expertise$/i,
-    /^areas of competency$/i,
-    /^expertise$/i,
-];
-
-const RESUME_SECTION_HEADERS = [
-    /^summary$/i,
-    /^professional summary$/i,
-    /^profile$/i,
-    /^objective$/i,
-    /^experience$/i,
-    /^work experience$/i,
-    /^professional experience$/i,
-    /^employment history$/i,
-    /^education$/i,
-    /^projects?$/i,
-    /^certifications?$/i,
-    /^awards?$/i,
-    /^achievements?$/i,
-    /^references?$/i,
-    /^languages?$/i,
-    /^interests?$/i,
-    /^volunteer experience$/i,
-    /^publications?$/i,
-];
-
-function normalizeHeader(line) {
-    return String(line || '')
-        .replace(/[|•▪●·:;,_-]+/g, ' ')
-        .replace(/[^a-zA-Z0-9&/ ]/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-}
-
-function levenshteinDistance(a, b) {
-    const left = String(a || '');
-    const right = String(b || '');
-
-    const previous = Array.from({ length: right.length + 1 }, (_, i) => i);
-
-    for (let i = 1; i <= left.length; i++) {
-        const current = [i];
-
-        for (let j = 1; j <= right.length; j++) {
-            const cost = left[i - 1] === right[j - 1] ? 0 : 1;
-
-            current[j] = Math.min(
-                previous[j] + 1,
-                current[j - 1] + 1,
-                previous[j - 1] + cost
-            );
-        }
-
-        previous.splice(0, previous.length, ...current);
-    }
-
-    return previous[right.length];
-}
-
-function isSkillsHeader(line) {
-    const clean = normalizeHeader(line);
-    const compact = clean.replace(/[^a-z]/gi, '').toLowerCase();
-
-    if (compact === 'skills') return true;
-
-    // OCR may slightly corrupt the heading, for example SKILIS or SKIILS.
-    if (
-        compact.length >= 4 &&
-        compact.length <= 8 &&
-        levenshteinDistance(compact, 'skills') <= 1
-    ) {
-        return true;
-    }
-
-    if (/^skills?\b/i.test(clean)) return true;
-    if (/^(technical|professional|core|key)\s+skills?\b/i.test(clean)) return true;
-
-    return SKILLS_SECTION_HEADERS.some((pattern) => pattern.test(clean));
-}
-
-function getSkillsHeaderContent(line) {
-    const clean = String(line || '')
-        .replace(/[\u200B-\u200D\uFEFF]/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-    const match = clean.match(
-        /^(?:technical\s+|professional\s+|core\s+|key\s+)?skills?\s*(?::|-|–|—)?\s*(.*)$/i
-    );
-
-    return match ? match[1].trim() : '';
-}
-
-function isResumeSectionHeader(line) {
-    const clean = normalizeHeader(line);
-    return RESUME_SECTION_HEADERS.some((pattern) => pattern.test(clean));
-}
-
-function collectSkillsAfterHeader(lines, headerIndex, headerContent = '') {
-    const skillLines = [];
-
-    if (
-        headerContent &&
-        !isSkillsHeader(headerContent) &&
-        !isResumeSectionHeader(headerContent)
-    ) {
-        skillLines.push(headerContent);
-    }
-
-    for (let j = headerIndex + 1; j < lines.length; j++) {
-        const nextLine = lines[j];
-
-        if (isResumeSectionHeader(nextLine) && skillLines.length > 0) {
-            break;
-        }
-
-        if (isSkillsHeader(nextLine) && skillLines.length > 0) {
-            break;
-        }
-
-        if (nextLine) {
-            skillLines.push(nextLine);
-        }
-    }
-
-    return skillLines.join('\n').trim();
-}
-
-function extractSkillsSection(text) {
-    const rawText = String(text || '')
-        .replace(/[\u200B-\u200D\uFEFF]/g, '');
-
-    // OCR can contain inconsistent line endings. Normalize them first.
-    const lines = rawText
-        .replace(/\r\n/g, '\n')
-        .replace(/\r/g, '\n')
-        .split('\n')
-        .map((line) => line.trim());
-
-    // First try exact/near-exact Skills headings.
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-
-        const inlineMatch = line.match(
-            /^(?:technical\s+|professional\s+|core\s+|key\s+)?skills?\s*[:\-–—]\s*(.+)$/i
-        );
-
-        if (inlineMatch) {
-            const sections = [inlineMatch[1].trim()];
-            let j = i + 1;
-
-            while (j < lines.length && lines[j]) {
-                if (isResumeSectionHeader(lines[j]) || isSkillsHeader(lines[j])) {
-                    break;
-                }
-
-                sections.push(lines[j]);
-                j++;
-            }
-
-            return sections.join('\n').trim();
-        }
-
-        if (!isSkillsHeader(line)) continue;
-
-        const headerContent = getSkillsHeaderContent(line);
-        const sectionText = collectSkillsAfterHeader(lines, i, headerContent);
-
-        if (sectionText) {
-            return sectionText;
-        }
-    }
-
-    // Final OCR fallback: sometimes a multi-column PDF causes the
-    // heading to be attached to the end of the previous sentence, e.g.
-    // "problem-solving by SKILLS". Only accept "skills" when it is at the
-    // end of a line so words such as "interpersonal skills" in work history
-    // cannot accidentally become the Skills section.
-    const trailingSkillsIndex = lines.findIndex((line) => /\bskills?\s*$/i.test(line));
-
-    if (trailingSkillsIndex >= 0) {
-        const matchedLine = lines[trailingSkillsIndex];
-        const headerContent = getSkillsHeaderContent(matchedLine);
-        const sectionText = collectSkillsAfterHeader(
-            lines,
-            trailingSkillsIndex,
-            headerContent
-        );
-
-        if (sectionText) {
-            return sectionText;
-        }
-    }
-
-    return '';
-}
-
-function extractDeclaredSkillCandidates(skillsSection) {
-    return String(skillsSection || '')
-        .split(/\r?\n/)
-        .map((line) => line
-            .replace(/^[\s•▪●◦*\-–—]+/, '')
-            .replace(/\s+/g, ' ')
-            .trim())
-        .filter((line) => line.length >= 2 && line.length <= 120)
-        .filter((line) => !isResumeSectionHeader(line) && !isSkillsHeader(line));
-}
-
-function detectLocalSkills(text) {
+function detectSkills(text) {
     const table = buildSkillLookupTable();
     const lowerText = text.toLowerCase();
     const detected = [];
@@ -581,23 +165,6 @@ function detectLocalSkills(text) {
     }
 
     return detected;
-}
-
-async function detectSkills(text) {
-    const localSkills = detectLocalSkills(text);
-    const apiSkills = await detectSkillsFromESCO(text);
-
-    const combined = [];
-    const seen = new Set();
-
-    for (const skill of [...localSkills, ...apiSkills]) {
-        const key = skill.toLowerCase();
-        if (seen.has(key)) continue;
-        seen.add(key);
-        combined.push(skill);
-    }
-
-    return combined;
 }
 
 function extractEmail(text) {
@@ -639,7 +206,6 @@ async function scanResume(filePath, originalName) {
     let ocrUsed = false;
     let ocrPagesScanned = 0;
     let ocrTotalPages = 0;
-    let ocrPageData = [];
 
     if (ext === '.pdf' && text.trim().length < 80) {
         try {
@@ -649,7 +215,6 @@ async function scanResume(filePath, originalName) {
             if (ocrResult.text.trim().length > text.trim().length) {
                 text = ocrResult.text;
                 ocrUsed = true;
-                ocrPageData = ocrResult.pageData || [];
                 ocrPagesScanned = ocrResult.pagesScanned;
                 ocrTotalPages = ocrResult.totalPages;
             }
@@ -672,43 +237,11 @@ async function scanResume(filePath, originalName) {
         };
     }
 
-    // Only use the resume's dedicated Skills section.
-    // The applicant's declared skills are the source of truth.
-    // Do NOT add ESCO suggestions here, because ESCO can return related
-    // skills and phrases that were never actually listed on the resume.
-    const coordinateSkillsSection = ocrUsed
-        ? extractSkillsSectionFromOCRData(ocrPageData)
-        : '';
-
-    const skillsSection = coordinateSkillsSection || extractSkillsSection(text);
-    const declaredSkillCandidates = extractDeclaredSkillCandidates(skillsSection);
-
-    const detectedSkills = [];
-    const seenSkills = new Set();
-
-    for (const skill of declaredSkillCandidates) {
-        const key = skill.toLowerCase();
-        if (seenSkills.has(key)) continue;
-        seenSkills.add(key);
-        detectedSkills.push(skill);
-    }
-
-    const finalSkills = detectedSkills;
-
-    console.log('[ResumeScanner] Skills section found:', Boolean(skillsSection));
-    console.log('[ResumeScanner] Declared skill candidates:', declaredSkillCandidates);
-    console.log('[ResumeScanner] Final detected skills:', finalSkills);
-
-    if (!skillsSection && ocrUsed) {
-        console.log('[ResumeScanner] OCR text tail for debugging:', text.slice(-1200));
-    }
-
+    const detectedSkills = detectSkills(text);
     let warning = null;
 
-    if (!skillsSection) {
-        warning = 'No Skills section was found in the resume. Add a Skills section so the analyzer knows which skills to save.';
-    } else if (finalSkills.length === 0) {
-        warning = 'No known skills were detected in the Skills section. Try adding them manually in your profile.';
+    if (detectedSkills.length === 0) {
+        warning = 'No known skills were detected. Try adding them manually in your profile.';
     } else if (ocrUsed && ocrTotalPages > ocrPagesScanned) {
         warning = `OCR scanned the first ${ocrPagesScanned} of ${ocrTotalPages} pages.`;
     }
@@ -718,7 +251,7 @@ async function scanResume(filePath, originalName) {
         name: extractName(text),
         email: extractEmail(text),
         degree: extractDegree(text),
-        detectedSkills: finalSkills,
+        detectedSkills,
         ocrUsed,
         ocrPagesScanned,
         ocrTotalPages,
@@ -726,4 +259,4 @@ async function scanResume(filePath, originalName) {
     };
 }
 
-module.exports = { scanResume, detectSkills, detectLocalSkills, extractSkillsSection };
+module.exports = { scanResume, detectSkills };
