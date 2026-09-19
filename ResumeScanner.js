@@ -283,26 +283,63 @@ function extractSkillsSectionFromOCRData(pageData) {
         const headerBox = header.bbox;
         const headerX = Number(headerBox.x0 || 0);
         const headerY = Number(headerBox.y1 || 0);
+        const headerHeight = Math.max(
+            1,
+            Number(headerBox.y1 || 0) - Number(headerBox.y0 || 0)
+        );
 
-        const candidateLines = lines
+        // Do not trust OCR reading order for multi-column resumes.
+        // First isolate the visual column containing the SKILLS heading.
+        // We estimate the column width from nearby OCR lines and keep only
+        // lines whose horizontal center stays close to the heading center.
+        const headerCenterX = (
+            Number(headerBox.x0 || 0) +
+            Number(headerBox.x1 || headerBox.x0 || 0)
+        ) / 2;
+
+        const nearbyLines = lines.filter((line) => {
+            const box = line?.bbox;
+            if (!box) return false;
+
+            const text = String(line.text || '').trim();
+            if (!text) return false;
+
+            const y0 = Number(box.y0 || 0);
+            const y1 = Number(box.y1 || 0);
+            return (
+                y0 > headerY &&
+                y0 <= headerY + Math.max(700, headerHeight * 20) &&
+                y1 > headerY
+            );
+        });
+
+        const sameColumnLines = nearbyLines.filter((line) => {
+            const box = line.bbox;
+            const centerX = (
+                Number(box.x0 || 0) +
+                Number(box.x1 || box.x0 || 0)
+            ) / 2;
+
+            return Math.abs(centerX - headerCenterX) <= 180;
+        });
+
+        const candidateLines = sameColumnLines
             .filter((line) => {
                 const box = line?.bbox;
-                if (!box) return false;
-
                 const text = String(line.text || '').trim();
-                if (!text) return false;
+                if (!box || !text) return false;
 
                 const x0 = Number(box.x0 || 0);
                 const y0 = Number(box.y0 || 0);
 
-                // The Skills list should be directly below the heading and
-                // start in approximately the same column.
-                return (
-                    y0 > headerY + 3 &&
-                    Math.abs(x0 - headerX) <= 100
-                );
+                return y0 > headerY + Math.max(3, headerHeight * 0.25)
+                    && Math.abs(x0 - headerX) <= 180;
             })
-            .sort((a, b) => Number(a.bbox.y0) - Number(b.bbox.y0));
+            .sort((a, b) => {
+                const yDiff = Number(a.bbox.y0) - Number(b.bbox.y0);
+                if (Math.abs(yDiff) > 4) return yDiff;
+                return Number(a.bbox.x0) - Number(b.bbox.x0);
+            });
 
         const skills = [];
 
