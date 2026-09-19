@@ -468,6 +468,22 @@ function extractSkillsSectionFromOCRData(pageData) {
     }
 
     for (const data of pageData || []) {
+        // Prefer the isolated second-pass OCR when available. Since this text
+        // came from the Skills-column rectangle, it cannot contain the
+        // neighboring work-history column.
+        if (String(data?.skillsText || '').trim()) {
+            const isolatedSkills = String(data.skillsText)
+                .split(/\r?\n/)
+                .map((line) => cleanOCRSkillLine(line))
+                .filter(Boolean)
+                .filter((line) => !/^skills?$/i.test(line))
+                .filter((line) => line.length <= 80);
+
+            if (isolatedSkills.length > 0) {
+                return isolatedSkills.join('\n');
+            }
+        }
+
         const lines = getOCRLines(data);
 
         const skillHeaders = lines.filter((line) => {
