@@ -13,10 +13,30 @@ function getAllJobsWithSkills() {
         WHERE js.job_id = ?
     `);
 
-    return jobs.map((job) => ({
-        ...job,
-        requiredSkills: skillStmt.all(job.id).map((r) => r.name),
-    }));
+    const uniqueJobs = new Map();
+
+    jobs.forEach((job) => {
+        const enrichedJob = {
+            ...job,
+            requiredSkills: skillStmt.all(job.id).map((r) => r.name),
+        };
+
+        const key = [
+            job.title,
+            job.company,
+            job.location,
+            job.category,
+            job.salary,
+            job.employment_type,
+            job.description
+        ].map((value) => String(value ?? '').trim().toLowerCase()).join('|');
+
+        if (!uniqueJobs.has(key)) {
+            uniqueJobs.set(key, enrichedJob);
+        }
+    });
+
+    return Array.from(uniqueJobs.values());
 }
 
 function getUserSkillNames(userId) {
