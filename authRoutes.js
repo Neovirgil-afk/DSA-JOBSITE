@@ -229,6 +229,15 @@ router.post('/login', (req, res) => {
 
         }
 
+        if (user.role === 'employer') {
+
+            return res.status(403).json({
+                error:
+                    'This is an employer account. Please use the Employer Area to log in.'
+            });
+
+        }
+
 
         /* ---------- CHECK PASSWORD ---------- */
 
