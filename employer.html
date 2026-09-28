@@ -201,6 +201,71 @@
   </div>
 </main>
 
+<div class="employer-modal employer-applicant-modal" id="applicantProfileModal" hidden>
+  <div class="employer-modal-backdrop" data-close-applicant-profile></div>
+  <section class="employer-modal-dialog employer-applicant-dialog" role="dialog" aria-modal="true" aria-labelledby="applicantProfileTitle">
+    <button type="button" class="employer-modal-close" data-close-applicant-profile>×</button>
+    <div class="employer-modal-heading">
+      <span class="employer-kicker">Candidate profile</span>
+      <h2 id="applicantProfileTitle">Applicant</h2>
+      <p id="applicantProfileSubtitle">Application details and JobSite skill matching.</p>
+    </div>
+
+    <div class="employer-applicant-profile-body">
+      <div class="employer-profile-hero">
+        <div class="employer-profile-avatar" id="applicantProfileAvatar">A</div>
+        <div>
+          <h3 id="applicantProfileName">Applicant</h3>
+          <p id="applicantProfileEmail">—</p>
+          <div class="employer-profile-meta">
+            <span id="applicantProfileLocation">Location not listed</span>
+            <span id="applicantProfileDegree">Education not listed</span>
+          </div>
+        </div>
+        <div class="employer-profile-match">
+          <strong id="applicantProfileMatch">0%</strong>
+          <span>skill match</span>
+        </div>
+      </div>
+
+      <div class="employer-profile-grid">
+        <section class="employer-profile-section">
+          <span class="employer-kicker">Target role</span>
+          <strong id="applicantProfileTarget">Not listed</strong>
+        </section>
+        <section class="employer-profile-section">
+          <span class="employer-kicker">Resume</span>
+          <strong id="applicantProfileResume">No resume attached</strong>
+        </section>
+        <section class="employer-profile-section employer-profile-section--wide">
+          <span class="employer-kicker">Matching skills</span>
+          <div id="applicantProfileMatchingSkills" class="employer-profile-tags"></div>
+        </section>
+        <section class="employer-profile-section employer-profile-section--wide">
+          <span class="employer-kicker">Missing required skills</span>
+          <div id="applicantProfileMissingSkills" class="employer-profile-tags"></div>
+        </section>
+        <section class="employer-profile-section employer-profile-section--wide">
+          <span class="employer-kicker">All detected skills</span>
+          <div id="applicantProfileAllSkills" class="employer-profile-tags"></div>
+        </section>
+      </div>
+
+      <div class="employer-profile-footer">
+        <span id="applicantProfileStatus" class="employer-status employer-status--new">New</span>
+        <select id="applicantProfileStatusSelect" class="employer-inline-select">
+          <option value="new">New</option>
+          <option value="reviewing">Reviewing</option>
+          <option value="shortlisted">Shortlisted</option>
+          <option value="interview">Interview</option>
+          <option value="hired">Hired</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+    </div>
+  </section>
+</div>
+
 <div class="employer-modal" id="jobEditorModal" hidden>
   <div class="employer-modal-backdrop" data-close-job-editor></div>
   <section class="employer-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="jobEditorTitle">
