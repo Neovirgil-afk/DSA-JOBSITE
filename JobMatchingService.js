@@ -6,7 +6,7 @@ const { mergeSort } = require('./Sorting')
 
 // Loads every job with its list of required skill names attached.
 function getAllJobsWithSkills() {
-    const jobs = db.prepare('SELECT * FROM jobs').all();
+    const jobs = db.prepare("SELECT * FROM jobs WHERE status = 'active' OR status IS NULL").all();
     const skillStmt = db.prepare(`
         SELECT s.name FROM job_skills js
         JOIN skills s ON s.id = js.skill_id
