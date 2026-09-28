@@ -415,6 +415,20 @@ async function viewApplicant(applicationId) {
         $('#applicantProfileDegree').textContent = applicant.degree || applicant.education || 'Education not listed';
         $('#applicantProfileTarget').textContent = applicant.target_job || 'Not listed';
         $('#applicantProfileResume').textContent = applicant.resume_name || 'No resume attached';
+
+        const resumeAction = $('#applicantProfileResumeAction');
+        if (applicant.resume_name) {
+            resumeAction.href = '/api/employer/applicants/' + applicationId + '/resume';
+            resumeAction.textContent =
+                String(applicant.resume_name).toLowerCase().endsWith('.pdf')
+                    ? 'Open resume'
+                    : 'Download resume';
+            resumeAction.hidden = false;
+        } else {
+            resumeAction.hidden = true;
+            resumeAction.removeAttribute('href');
+        }
+
         $('#applicantProfileMatch').textContent = Number(applicant.matchScore || 0) + '%';
 
         renderApplicantTags(
