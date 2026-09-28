@@ -593,7 +593,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 credentials: 'include'
             });
         } finally {
-            window.location.reload();
+            window.location.replace('/');
         }
     });
 
