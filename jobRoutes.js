@@ -241,4 +241,105 @@ router.get('/:id', (req, res) => {
     }
 });
 
+
+/* =========================================================
+   JOB APPLICATIONS
+   ========================================================= */
+
+router.post('/:id/apply', requireAuth, (req, res) => {
+    try {
+        const jobId = parseInt(req.params.id, 10);
+
+        if (Number.isNaN(jobId)) {
+            return res.status(400).json({ error: 'Invalid job id.' });
+        }
+
+        const user = db.prepare(
+            'SELECT id, role FROM users WHERE id = ?'
+        ).get(req.session.userId);
+
+        if (!user || user.role !== 'candidate') {
+            return res.status(403).json({
+                error: 'Only candidate accounts can apply for jobs.'
+            });
+        }
+
+        const job = db.prepare(
+            'SELECT id, title, status, application_deadline FROM jobs WHERE id = ?'
+        ).get(jobId);
+
+        if (!job) {
+            return res.status(404).json({ error: 'Job not found.' });
+        }
+
+        if (job.status !== 'active') {
+            return res.status(400).json({
+                error: 'This job is not currently accepting applications.'
+            });
+        }
+
+        if (
+            job.application_deadline &&
+            new Date(job.application_deadline) < new Date()
+        ) {
+            return res.status(400).json({
+                error: 'The application deadline has passed.'
+            });
+        }
+
+        const existing = db.prepare(
+            'SELECT id, status FROM applications WHERE job_id = ? AND user_id = ?'
+        ).get(jobId, req.session.userId);
+
+        if (existing) {
+            return res.status(409).json({
+                error: 'You already applied to this job.',
+                application: existing
+            });
+        }
+
+        const resume = db.prepare(
+            'SELECT id FROM user_resumes WHERE user_id = ? ORDER BY uploaded_at DESC, id DESC LIMIT 1'
+        ).get(req.session.userId);
+
+        const info = db.prepare(
+            "INSERT INTO applications (job_id, user_id, resume_id, status) VALUES (?, ?, ?, 'new')"
+        ).run(
+            jobId,
+            req.session.userId,
+            resume?.id || null
+        );
+
+        res.status(201).json({
+            success: true,
+            applicationId: Number(info.lastInsertRowid),
+            jobId,
+            resumeAttached: Boolean(resume)
+        });
+    } catch (err) {
+        console.error('[POST /api/jobs/:id/apply] error:', err);
+        res.status(500).json({
+            error: 'Failed to submit your application.'
+        });
+    }
+});
+
+router.get('/:id/application', requireAuth, (req, res) => {
+    try {
+        const jobId = parseInt(req.params.id, 10);
+
+        const application = db.prepare(
+            'SELECT id, status, applied_at, updated_at FROM applications WHERE job_id = ? AND user_id = ?'
+        ).get(jobId, req.session.userId);
+
+        res.json({
+            applied: Boolean(application),
+            application: application || null
+        });
+    } catch (err) {
+        console.error('[GET /api/jobs/:id/application] error:', err);
+        res.status(500).json({ error: 'Failed to check application status.' });
+    }
+});
+
 module.exports = router;
