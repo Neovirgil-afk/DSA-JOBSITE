@@ -158,7 +158,10 @@ router.post('/register', (req, res) => {
                 info.lastInsertRowid,
 
             fullName:
-                cleanFullName
+                cleanFullName,
+
+            role:
+                'candidate'
 
         });
 
