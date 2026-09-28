@@ -833,13 +833,52 @@ export function initJobs() {
             const applyButton =
                 document.querySelector('#jobApplyButton');
 
-            applyButton.onclick = () => {
-                if (job.apply_url) {
-                    window.open(job.apply_url, '_blank', 'noopener,noreferrer');
-                    return;
-                }
+            applyButton.onclick = async () => {
+                try {
+                    const response = await fetch(
+                        `/api/jobs/${encodeURIComponent(job.id)}/apply`,
+                        {
+                            method: 'POST',
+                            credentials: 'include'
+                        }
+                    );
 
-                alert('Application link is not configured for this job yet.');
+                    const result = await response.json();
+
+                    if (response.status === 401) {
+                        window.dispatchEvent(
+                            new CustomEvent('jobpath:open-auth', {
+                                detail: { mode: 'login' }
+                            })
+                        );
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(
+                            result.error || 'Failed to submit application.'
+                        );
+                    }
+
+                    applyButton.textContent = 'Application Sent';
+                    applyButton.disabled = true;
+                    applyButton.classList.add('is-applied');
+
+                    const resumeNote = result.resumeAttached
+                        ? ' Your saved resume was attached.'
+                        : ' No resume was attached yet.';
+
+                    document.querySelector('#jobDetailsMatch').innerHTML +=
+                        `<span>Application submitted.${escapeHtml(resumeNote)}</span>`;
+                } catch (error) {
+                    if (error.message === 'You already applied to this job.') {
+                        applyButton.textContent = 'Already Applied';
+                        applyButton.disabled = true;
+                        return;
+                    }
+
+                    alert(error.message || 'Failed to submit application.');
+                }
             };
 
         } catch (error) {
