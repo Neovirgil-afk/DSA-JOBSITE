@@ -5047,3 +5047,171 @@ body.employer-modal-open {
     display: none;
   }
 }
+
+
+/* Employer visibility + main-site visual alignment */
+.employer-page {
+  background: var(--cream);
+}
+
+.employer-header {
+  padding: 22px 0;
+  background: transparent;
+}
+
+.employer-header .header-inner {
+  min-height: 34px;
+}
+
+.employer-area-label {
+  position: relative;
+  padding-left: 12px;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.employer-area-label::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 1px;
+  height: 15px;
+  background: var(--line);
+  transform: translateY(-50%);
+}
+
+.employer-gate[hidden],
+.employer-dashboard[hidden],
+.employer-panel[hidden] {
+  display: none !important;
+}
+
+/* Immersive post-login transition */
+.employer-loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .28s ease, visibility .28s ease;
+}
+
+.employer-loading-screen.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.employer-loading-screen::before {
+  content: "";
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background: var(--indigo-tint);
+  opacity: .32;
+  filter: blur(2px);
+  animation: employerLoadingPulse 1.7s ease-in-out infinite;
+}
+
+.employer-loading-brand {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  color: var(--ink);
+  animation: employerLoadingBrand 1.7s ease-in-out infinite;
+}
+
+.employer-loading-logo {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -.055em;
+}
+
+.employer-loading-logo span {
+  color: var(--indigo);
+}
+
+.employer-loading-plane {
+  margin-left: 8px;
+  color: var(--indigo);
+  animation: employerLoadingPlane 1.7s ease-in-out infinite;
+}
+
+.employer-loading-screen > p {
+  position: absolute;
+  top: calc(50% + 55px);
+  margin: 0;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .025em;
+  animation: employerLoadingText 1.7s ease-in-out infinite;
+}
+
+.employer-loading-dot {
+  display: none;
+}
+
+@keyframes employerLoadingPulse {
+  0%, 100% {
+    transform: scale(.72);
+    opacity: .2;
+  }
+  50% {
+    transform: scale(1);
+    opacity: .48;
+  }
+}
+
+@keyframes employerLoadingBrand {
+  0%, 100% {
+    opacity: .48;
+    transform: scale(.97);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes employerLoadingPlane {
+  0%, 100% {
+    transform: translate3d(-2px, 2px, 0) rotate(-4deg);
+    opacity: .55;
+  }
+  50% {
+    transform: translate3d(4px, -3px, 0) rotate(4deg);
+    opacity: 1;
+  }
+}
+
+@keyframes employerLoadingText {
+  0%, 100% { opacity: .35; }
+  50% { opacity: .85; }
+}
+
+@media (max-width: 700px) {
+  .employer-header .logo-tagline {
+    display: none;
+  }
+
+  .employer-area-label {
+    display: none;
+  }
+
+  .employer-loading-logo {
+    font-size: 29px;
+  }
+}
