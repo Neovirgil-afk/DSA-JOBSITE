@@ -5304,3 +5304,100 @@ body.employer-modal-open {
     margin-left: 8px;
   }
 }
+
+
+/* Unified JobSite loading visual — same treatment on employee and employer areas */
+.jobsite-page-loader,
+.employer-loading-screen {
+  background: #fff;
+}
+
+.jobsite-page-loader__brand,
+.employer-loading-brand {
+  min-height: 58px;
+  transform-origin: center;
+  animation: jobsiteUnifiedLogoPulse 1.55s ease-in-out infinite;
+}
+
+.jobsite-page-loader__logo,
+.employer-loading-logo {
+  font-family: var(--font-display);
+  font-size: clamp(37px, 5vw, 48px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -.06em;
+}
+
+.jobsite-page-loader__logo span,
+.employer-loading-logo span {
+  color: var(--indigo);
+}
+
+.jobsite-page-loader__plane,
+.employer-loading-plane {
+  width: clamp(38px, 5vw, 47px);
+  height: clamp(38px, 5vw, 47px);
+  margin-left: clamp(8px, 1.1vw, 11px);
+  color: var(--indigo);
+  animation: jobsiteUnifiedPlanePulse 1.7s ease-in-out infinite;
+}
+
+.jobsite-page-loader__text,
+.employer-loading-screen > p {
+  position: absolute;
+  top: calc(50% + clamp(53px, 6vw, 59px));
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(10px, 1.4vw, 10.5px);
+  font-weight: 600;
+  letter-spacing: .025em;
+  text-align: center;
+  animation: jobsiteUnifiedTextPulse 1.7s ease-in-out infinite;
+}
+
+@keyframes jobsiteUnifiedLogoPulse {
+  0%, 100% {
+    opacity: .34;
+    transform: scale(.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.035);
+  }
+}
+
+@keyframes jobsiteUnifiedPlanePulse {
+  0%, 100% {
+    opacity: .55;
+    transform: translate3d(-2px, 2px, 0) rotate(-4deg);
+  }
+  50% {
+    opacity: 1;
+    transform: translate3d(4px, -3px, 0) rotate(4deg);
+  }
+}
+
+@keyframes jobsiteUnifiedTextPulse {
+  0%, 100% { opacity: .32; }
+  50% { opacity: .82; }
+}
+
+@media (max-width: 480px) {
+  .jobsite-page-loader__logo,
+  .employer-loading-logo {
+    font-size: 34px;
+  }
+
+  .jobsite-page-loader__plane,
+  .employer-loading-plane {
+    width: 35px;
+    height: 35px;
+    margin-left: 7px;
+  }
+
+  .jobsite-page-loader__text,
+  .employer-loading-screen > p {
+    top: calc(50% + 49px);
+    width: calc(100% - 32px);
+  }
+}
