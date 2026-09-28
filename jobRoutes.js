@@ -280,7 +280,7 @@ router.post('/:id/apply', requireAuth, (req, res) => {
 
         if (
             job.application_deadline &&
-            new Date(job.application_deadline) < new Date()
+            new Date(job.application_deadline + 'T23:59:59') < new Date()
         ) {
             return res.status(400).json({
                 error: 'The application deadline has passed.'
