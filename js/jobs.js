@@ -508,6 +508,21 @@ export function initJobs() {
                             <p id="jobDetailsDescription"></p>
                         </div>
 
+                        <div class="job-details-section" id="jobResponsibilitiesSection">
+                            <h3>Responsibilities</h3>
+                            <p id="jobDetailsResponsibilities"></p>
+                        </div>
+
+                        <div class="job-details-section" id="jobQualificationsSection">
+                            <h3>Qualifications</h3>
+                            <p id="jobDetailsQualifications"></p>
+                        </div>
+
+                        <div class="job-details-section" id="jobBenefitsSection">
+                            <h3>Benefits</h3>
+                            <p id="jobDetailsBenefits"></p>
+                        </div>
+
                         <div class="job-details-skills">
                             <div class="job-details-section">
                                 <h3>You have</h3>
@@ -534,6 +549,10 @@ export function initJobs() {
                             <span class="company-panel-label">Your resume</span>
                             <strong id="jobResumeStatus">No resume uploaded yet.</strong>
                             <p>Upload your resume here. It will be saved to your profile for future applications.</p>
+                            <div class="job-details-section job-details-application-info">
+                                <h3>How to apply</h3>
+                                <p id="jobDetailsHowToApply"></p>
+                            </div>
 
                             <input
                                 type="file"
@@ -603,6 +622,10 @@ export function initJobs() {
         document.querySelector('#jobDetailsMeta').innerHTML = '';
         document.querySelector('#jobDetailsMatch').innerHTML = '';
         document.querySelector('#jobDetailsDescription').textContent = 'Loading details...';
+        document.querySelector('#jobDetailsResponsibilities').textContent = '';
+        document.querySelector('#jobDetailsQualifications').textContent = '';
+        document.querySelector('#jobDetailsBenefits').textContent = '';
+        document.querySelector('#jobDetailsHowToApply').textContent = '';
         document.querySelector('#jobDetailsHave').innerHTML = '';
         document.querySelector('#jobDetailsMissing').innerHTML = '';
         document.querySelector('#jobCompanyName').textContent = '';
@@ -651,6 +674,21 @@ export function initJobs() {
 
             document.querySelector('#jobDetailsDescription').textContent =
                 job.description || 'No job description provided yet.';
+
+            const detailSections = [
+                ['jobResponsibilitiesSection', 'jobDetailsResponsibilities', job.responsibilities],
+                ['jobQualificationsSection', 'jobDetailsQualifications', job.qualifications],
+                ['jobBenefitsSection', 'jobDetailsBenefits', job.benefits]
+            ];
+
+            detailSections.forEach(([sectionId, textId, value]) => {
+                const section = document.querySelector('#' + sectionId);
+                document.querySelector('#' + textId).textContent = value || '';
+                section.hidden = !value;
+            });
+
+            document.querySelector('#jobDetailsHowToApply').textContent =
+                job.how_to_apply || 'Apply through JobPath using the button below.';
 
             const company = data.company || {};
 
