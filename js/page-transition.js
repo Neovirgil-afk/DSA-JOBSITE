@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-    const LOAD_DELAY = 1400;
+    const LOAD_DELAY = 2000;
     const loader = document.createElement('div');
 
     loader.className = 'jobsite-page-loader is-visible';
