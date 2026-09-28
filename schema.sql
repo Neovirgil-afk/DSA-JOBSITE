@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     degree TEXT,
     target_job TEXT,
     location TEXT,
+    role TEXT NOT NULL DEFAULT 'candidate',
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -25,7 +26,20 @@ CREATE TABLE IF NOT EXISTS jobs (
     location TEXT,
     category TEXT,
     salary TEXT,
-    employment_type TEXT
+    employment_type TEXT,
+    responsibilities TEXT,
+    qualifications TEXT,
+    work_schedule TEXT,
+    benefits TEXT,
+    application_requirements TEXT,
+    application_deadline TEXT,
+    how_to_apply TEXT,
+    contact_information TEXT,
+    status TEXT NOT NULL DEFAULT 'active',
+    employer_id INTEGER,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (employer_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS job_skills (
@@ -99,7 +113,28 @@ CREATE TABLE IF NOT EXISTS company_profiles (
     description TEXT,
     email TEXT,
     phone TEXT,
-    website TEXT
+    website TEXT,
+    industry TEXT,
+    company_size TEXT,
+    location TEXT,
+    founded_year TEXT,
+    benefits TEXT,
+    user_id INTEGER UNIQUE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS applications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    job_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    resume_id INTEGER,
+    status TEXT NOT NULL DEFAULT 'new',
+    applied_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(job_id, user_id),
+    FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (resume_id) REFERENCES user_resumes(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS user_resumes (
