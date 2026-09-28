@@ -495,6 +495,43 @@ router.get('/applicants/:id', requireEmployer, (req, res) => {
     }
 });
 
+router.get('/applicants/:id/resume', requireEmployer, (req, res) => {
+    try {
+        const application = db.prepare(
+            'SELECT ur.original_name, ur.stored_name FROM applications a JOIN jobs j ON j.id = a.job_id LEFT JOIN user_resumes ur ON ur.id = a.resume_id WHERE a.id = ? AND j.employer_id = ?'
+        ).get(Number(req.params.id), req.employer.id);
+
+        if (!application || !application.stored_name) {
+            return res.status(404).json({ error: 'No resume is attached to this application.' });
+        }
+
+        const fs = require('fs');
+        const path = require('path');
+        const uploadDir = path.join(__dirname, 'uploads');
+        const filePath = path.join(uploadDir, path.basename(application.stored_name));
+
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ error: 'The uploaded resume file could not be found.' });
+        }
+
+        const extension = path.extname(application.original_name || filePath).toLowerCase();
+        const disposition = extension === '.pdf' ? 'inline' : 'attachment';
+
+        res.setHeader(
+            'Content-Disposition',
+            disposition + '; filename="' +
+                String(application.original_name || 'resume')
+                    .replace(/["\\\r\n]/g, '_') +
+                '"'
+        );
+
+        res.sendFile(filePath);
+    } catch (err) {
+        console.error('[GET /api/employer/applicants/:id/resume] error:', err);
+        res.status(500).json({ error: 'Failed to open the applicant resume.' });
+    }
+});
+
 router.patch('/applications/:id/status', requireEmployer, (req, res) => {
     const status = clean(req.body.status);
     const allowed = ['new', 'reviewing', 'shortlisted', 'interview', 'hired', 'rejected'];
