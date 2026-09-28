@@ -5583,3 +5583,26 @@ body.employer-modal-open {
     flex: 1;
   }
 }
+
+
+.employer-resume-action {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 2px;
+  padding: 6px 9px;
+  align-items: center;
+  border: 1px solid #dddff0;
+  border-radius: 8px;
+  background: #f7f7ff;
+  color: var(--indigo);
+  font-size: 9.5px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+
+.employer-resume-action:hover {
+  transform: translateY(-1px);
+  background: var(--indigo-tint);
+  border-color: #d4d2ff;
+}
