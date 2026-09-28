@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employer Area — JobSite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="employer-page">
+
+<header class="site-header employer-header">
+  <div class="wrap header-inner">
+    <a class="logo" href="/">
+      <span class="logo-text">JOB<span class="logo-accent">SITE</span></span>
+      <span class="logo-tagline">Employer Area</span>
+    </a>
+    <div class="employer-header-actions">
+      <a href="/" class="employer-back-link">← Find Jobs</a>
+      <button type="button" class="btn btn-primary" id="employerLogout" hidden>Log Out</button>
+    </div>
+  </div>
+</header>
+
+<main class="employer-main">
+  <div class="wrap">
+
+    <section class="employer-gate" id="employerGate">
+      <div class="employer-gate-copy">
+        <p class="eyebrow">For Employers</p>
+        <h1>Find the right people.<br><span>Build your team.</span></h1>
+        <p>Create job postings, review applicants, and use JobPath's skill matching to find candidates whose skills fit your requirements.</p>
+      </div>
+
+      <div class="employer-auth-card">
+        <div class="employer-auth-tabs">
+          <button type="button" class="employer-auth-tab active" data-auth-tab="login">Log In</button>
+          <button type="button" class="employer-auth-tab" data-auth-tab="register">Create Employer Account</button>
+        </div>
+
+        <form id="employerLoginForm" class="employer-form">
+          <div class="employer-form-heading">
+            <h2>Welcome back</h2>
+            <p>Log in to manage your job postings and applicants.</p>
+          </div>
+          <label class="employer-field">
+            <span>Email</span>
+            <input type="email" id="employerLoginEmail" required placeholder="you@company.com">
+          </label>
+          <label class="employer-field">
+            <span>Password</span>
+            <input type="password" id="employerLoginPassword" required placeholder="Your password">
+          </label>
+          <div class="employer-form-message" id="employerLoginMessage"></div>
+          <button class="btn btn-primary employer-submit" type="submit">Log In</button>
+        </form>
+
+        <form id="employerRegisterForm" class="employer-form" hidden>
+          <div class="employer-form-heading">
+            <h2>Create your employer account</h2>
+            <p>Set up your company first, then start posting jobs.</p>
+          </div>
+          <div class="employer-form-grid">
+            <label class="employer-field">
+              <span>Your Full Name</span>
+              <input type="text" id="employerFullName" required placeholder="Recruiter name">
+            </label>
+            <label class="employer-field">
+              <span>Account Email</span>
+              <input type="email" id="employerRegisterEmail" required placeholder="recruiter@company.com">
+            </label>
+            <label class="employer-field">
+              <span>Password</span>
+              <input type="password" id="employerRegisterPassword" required minlength="6" placeholder="At least 6 characters">
+            </label>
+            <label class="employer-field">
+              <span>Confirm Password</span>
+              <input type="password" id="employerRegisterConfirm" required minlength="6" placeholder="Repeat password">
+            </label>
+            <label class="employer-field employer-field--full">
+              <span>Company Name</span>
+              <input type="text" id="employerCompanyName" required placeholder="Your company">
+            </label>
+            <label class="employer-field employer-field--full">
+              <span>Company Description</span>
+              <textarea id="employerCompanyDescription" rows="3" placeholder="What does your company do?"></textarea>
+            </label>
+            <label class="employer-field">
+              <span>Company Email</span>
+              <input type="email" id="employerCompanyEmail" placeholder="careers@company.com">
+            </label>
+            <label class="employer-field">
+              <span>Company Phone</span>
+              <input type="text" id="employerCompanyPhone" placeholder="+63 ...">
+            </label>
+            <label class="employer-field employer-field--full">
+              <span>Company Website</span>
+              <input type="url" id="employerCompanyWebsite" placeholder="https://example.com">
+            </label>
+          </div>
+          <div class="employer-form-message" id="employerRegisterMessage"></div>
+          <button class="btn btn-primary employer-submit" type="submit">Create Employer Account</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="employer-dashboard" id="employerDashboard" hidden>
+      <div class="employer-dashboard-heading">
+        <div>
+          <p class="eyebrow">Employer Dashboard</p>
+          <h1>Good to see you, <span id="employerName">Employer</span>.</h1>
+          <p id="employerCompanyLabel">Manage your hiring workflow from one place.</p>
+        </div>
+        <button type="button" class="btn btn-primary" id="openPostJob">+ Post a Job</button>
+      </div>
+
+      <nav class="employer-tabs" aria-label="Employer dashboard">
+        <button type="button" class="employer-tab active" data-panel="overview">Dashboard</button>
+        <button type="button" class="employer-tab" data-panel="jobs">My Jobs</button>
+        <button type="button" class="employer-tab" data-panel="applicants">Applicants</button>
+        <button type="button" class="employer-tab" data-panel="company">Company Profile</button>
+      </nav>
+
+      <section class="employer-panel active" id="panel-overview">
+        <div class="employer-stat-grid">
+          <article class="employer-stat-card"><span>Active Jobs</span><strong id="statActiveJobs">0</strong><small>Currently accepting applications</small></article>
+          <article class="employer-stat-card"><span>Total Applicants</span><strong id="statApplicants">0</strong><small>Across your job postings</small></article>
+          <article class="employer-stat-card"><span>New Applicants</span><strong id="statNewApplicants">0</strong><small>Ready for review</small></article>
+          <article class="employer-stat-card"><span>Expiring Soon</span><strong id="statExpiring">0</strong><small>Deadline within 7 days</small></article>
+        </div>
+
+        <div class="employer-card">
+          <div class="employer-card-heading">
+            <div><span class="employer-kicker">Recent activity</span><h2>Latest Applications</h2></div>
+            <button type="button" class="employer-text-button" data-open-panel="applicants">View applicants →</button>
+          </div>
+          <div id="recentApplications" class="employer-recent-list"></div>
+        </div>
+      </section>
+
+      <section class="employer-panel" id="panel-jobs" hidden>
+        <div class="employer-card">
+          <div class="employer-card-heading">
+            <div><span class="employer-kicker">Recruiting</span><h2>My Job Postings</h2></div>
+            <button type="button" class="btn btn-primary btn-small" id="openPostJobFromJobs">+ Post a Job</button>
+          </div>
+          <div id="employerJobsList" class="employer-jobs-list"></div>
+        </div>
+      </section>
+
+      <section class="employer-panel" id="panel-applicants" hidden>
+        <div class="employer-card">
+          <div class="employer-card-heading">
+            <div><span class="employer-kicker">Candidate matching</span><h2>Applicants</h2></div>
+            <select id="applicantJobSelect" class="employer-select"></select>
+          </div>
+          <div id="applicantSummary" class="employer-applicant-summary"></div>
+          <div id="applicantsList" class="employer-applicants-list"></div>
+        </div>
+      </section>
+
+      <section class="employer-panel" id="panel-company" hidden>
+        <form id="companyForm" class="employer-card employer-company-form">
+          <div class="employer-card-heading">
+            <div><span class="employer-kicker">Your organization</span><h2>Company Profile</h2></div>
+            <button class="btn btn-primary btn-small" type="submit">Save Changes</button>
+          </div>
+          <div class="employer-form-grid">
+            <label class="employer-field"><span>Company Name</span><input id="companyName" required></label>
+            <label class="employer-field"><span>Industry</span><input id="companyIndustry" placeholder="Technology, Healthcare, Finance..."></label>
+            <label class="employer-field employer-field--full"><span>Description</span><textarea id="companyDescription" rows="4"></textarea></label>
+            <label class="employer-field"><span>Email</span><input id="companyEmail" type="email"></label>
+            <label class="employer-field"><span>Phone</span><input id="companyPhone"></label>
+            <label class="employer-field"><span>Website</span><input id="companyWebsite" type="url"></label>
+            <label class="employer-field"><span>Company Size</span><input id="companySize" placeholder="e.g. 51–200 employees"></label>
+            <label class="employer-field"><span>Location</span><input id="companyLocation" placeholder="City, Province"></label>
+            <label class="employer-field"><span>Founded Year</span><input id="companyFoundedYear" placeholder="2020"></label>
+            <label class="employer-field employer-field--full"><span>Benefits</span><textarea id="companyBenefits" rows="3" placeholder="Health insurance, paid leave, training..."></textarea></label>
+          </div>
+          <div class="employer-form-message" id="companyMessage"></div>
+        </form>
+      </section>
+    </section>
+  </div>
+</main>
+
+<div class="employer-modal" id="jobEditorModal" hidden>
+  <div class="employer-modal-backdrop" data-close-job-editor></div>
+  <section class="employer-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="jobEditorTitle">
+    <button type="button" class="employer-modal-close" data-close-job-editor>×</button>
+    <div class="employer-modal-heading">
+      <span class="employer-kicker">Job posting</span>
+      <h2 id="jobEditorTitle">Create a Job</h2>
+      <p>Give candidates enough detail to understand the role before they apply.</p>
+    </div>
+
+    <form id="jobEditorForm" class="employer-form">
+      <input type="hidden" id="jobEditId">
+      <div class="employer-form-section"><h3>Basic Information</h3></div>
+      <div class="employer-form-grid">
+        <label class="employer-field"><span>Job Title *</span><input id="jobTitle" required placeholder="Junior Web Developer"></label>
+        <label class="employer-field"><span>Category</span><input id="jobCategory" placeholder="IT & Software"></label>
+        <label class="employer-field"><span>Employment Type *</span><select id="jobEmploymentType" required><option value="">Select type</option><option>Full-time</option><option>Part-time</option><option>Contract</option><option>Internship</option><option>Temporary</option></select></label>
+        <label class="employer-field"><span>Salary / Pay Range</span><input id="jobSalary" placeholder="₱20,000–₱25,000/month"></label>
+        <label class="employer-field"><span>Work Location *</span><input id="jobLocation" required placeholder="Dasmariñas, Cavite / Remote"></label>
+        <label class="employer-field"><span>Work Schedule</span><input id="jobSchedule" placeholder="Monday–Friday, 9 AM–6 PM"></label>
+        <label class="employer-field"><span>Application Deadline</span><input id="jobDeadline" type="date"></label>
+        <label class="employer-field"><span>Posting Status</span><select id="jobStatus"><option value="active">Active</option><option value="draft">Draft</option><option value="closed">Closed</option></select></label>
+      </div>
+
+      <div class="employer-form-section"><h3>Job Details</h3></div>
+      <div class="employer-form-grid">
+        <label class="employer-field employer-field--full"><span>Job Description *</span><textarea id="jobDescription" rows="4" required></textarea></label>
+        <label class="employer-field employer-field--full"><span>Responsibilities</span><textarea id="jobResponsibilities" rows="5" placeholder="Develop and maintain web applications&#10;Fix bugs and technical issues&#10;Work with the development team"></textarea></label>
+        <label class="employer-field employer-field--full"><span>Qualifications</span><textarea id="jobQualifications" rows="5" placeholder="Bachelor's degree or relevant experience&#10;Knowledge of HTML, CSS, JavaScript&#10;Good communication and teamwork"></textarea></label>
+        <label class="employer-field employer-field--full"><span>Skills Required * <small>Separate skills with commas</small></span><input id="jobSkills" required placeholder="HTML, CSS, JavaScript, Git"></label>
+        <label class="employer-field employer-field--full"><span>Benefits</span><textarea id="jobBenefits" rows="4" placeholder="Government-mandated benefits&#10;Health insurance&#10;Paid leave&#10;Training opportunities"></textarea></label>
+      </div>
+
+      <div class="employer-form-section"><h3>Application</h3></div>
+      <div class="employer-form-grid">
+        <label class="employer-field employer-field--full"><span>Application Requirements</span><textarea id="jobApplicationRequirements" rows="3" placeholder="Resume/CV, portfolio, certificates..."></textarea></label>
+        <label class="employer-field employer-field--full"><span>How to Apply *</span><textarea id="jobHowToApply" rows="3" required placeholder="Submit your resume and portfolio through JobPath."></textarea></label>
+        <label class="employer-field employer-field--full"><span>Contact Information</span><input id="jobContactInformation" placeholder="Recruiter email or HR contact"></label>
+      </div>
+
+      <div class="employer-form-message" id="jobEditorMessage"></div>
+      <div class="employer-modal-actions">
+        <button type="button" class="employer-secondary-button" data-close-job-editor>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="jobEditorSubmit">Publish Job</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<script type="module" src="/js/employer.js"></script>
+</body>
+</html>
