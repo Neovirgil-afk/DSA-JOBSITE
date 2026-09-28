@@ -5401,3 +5401,185 @@ body.employer-modal-open {
     width: calc(100% - 32px);
   }
 }
+
+
+/* APPLICANT PROFILE */
+.employer-applicant-dialog {
+  width: min(860px, 100%);
+}
+
+.employer-applicant-profile-body {
+  padding: 22px 28px 28px;
+}
+
+.employer-profile-hero {
+  display: grid;
+  grid-template-columns: 54px minmax(0,1fr) auto;
+  align-items: center;
+  gap: 13px;
+  padding: 16px;
+  border: 1px solid #e8e8ef;
+  border-radius: 15px;
+  background: #fcfcff;
+}
+
+.employer-profile-avatar {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--indigo-tint);
+  color: var(--indigo);
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.employer-profile-hero h3 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.employer-profile-hero p {
+  margin: 3px 0 7px;
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+.employer-profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.employer-profile-meta span {
+  color: var(--muted);
+  font-size: 9.5px;
+}
+
+.employer-profile-match {
+  display: flex;
+  min-width: 92px;
+  padding: 9px 12px;
+  align-items: center;
+  flex-direction: column;
+  border-radius: 12px;
+  background: var(--teal-tint);
+  color: #087a6e;
+}
+
+.employer-profile-match strong {
+  font-size: 23px;
+  line-height: 1;
+}
+
+.employer-profile-match span {
+  margin-top: 3px;
+  font-size: 8.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.employer-profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.employer-profile-section {
+  display: flex;
+  min-width: 0;
+  padding: 14px;
+  flex-direction: column;
+  gap: 5px;
+  border: 1px solid #e8e8ef;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.employer-profile-section--wide {
+  grid-column: 1 / -1;
+}
+
+.employer-profile-section > strong {
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  font-size: 11px;
+}
+
+.employer-profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.employer-profile-tags span {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #f4f4f8;
+  color: #596174;
+  font-size: 9.5px;
+  font-weight: 700;
+}
+
+.employer-profile-tags em {
+  color: var(--muted);
+  font-size: 10px;
+  font-style: normal;
+}
+
+.employer-profile-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 13px;
+  border-top: 1px solid #f0f0f4;
+}
+
+@media (max-width: 620px) {
+  .employer-applicant-profile-body {
+    padding: 18px;
+  }
+
+  .employer-profile-hero {
+    grid-template-columns: 48px minmax(0,1fr);
+  }
+
+  .employer-profile-avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .employer-profile-match {
+    grid-column: 1 / -1;
+    width: fit-content;
+    min-width: 0;
+    padding: 7px 11px;
+    flex-direction: row;
+    gap: 5px;
+  }
+
+  .employer-profile-match span {
+    margin-top: 0;
+  }
+
+  .employer-profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .employer-profile-section--wide {
+    grid-column: 1;
+  }
+
+  .employer-profile-footer {
+    justify-content: stretch;
+  }
+
+  .employer-profile-footer select {
+    flex: 1;
+  }
+}
