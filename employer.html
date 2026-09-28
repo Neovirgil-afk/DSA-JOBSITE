@@ -15,14 +15,29 @@
   <div class="wrap header-inner">
     <a class="logo" href="/">
       <span class="logo-text">JOB<span class="logo-accent">SITE</span></span>
-      <span class="logo-tagline">Employer Area</span>
+      <svg class="logo-plane" width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M21.5 2.5L2 10.2c-.8.3-.8 1.4 0 1.7l7.6 2.9 2.9 7.6c.3.8 1.4 1.4 1.7 0L21.9 3.9c.3-.9-.6-1.7-1.4-1.4z" fill="currentColor"/>
+      </svg>
+      <span class="logo-tagline">Find your path. Build your future.</span>
     </a>
     <div class="employer-header-actions">
+      <span class="employer-area-label">Employer Area</span>
       <a href="/" class="employer-back-link">← Find Jobs</a>
       <button type="button" class="btn btn-primary" id="employerLogout" hidden>Log Out</button>
     </div>
   </div>
 </header>
+
+<div class="employer-loading-screen" id="employerLoadingScreen" aria-hidden="true">
+  <div class="employer-loading-brand" aria-label="Loading JobSite">
+    <span class="employer-loading-logo">JOB<span>SITE</span></span>
+    <svg class="employer-loading-plane" width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M21.5 2.5L2 10.2c-.8.3-.8 1.4 0 1.7l7.6 2.9 2.9 7.6c.3.8 1.4 1.4 1.7 0L21.9 3.9c.3-.9-.6-1.7-1.4-1.4z" fill="currentColor"/>
+    </svg>
+    <span class="employer-loading-dot"></span>
+  </div>
+  <p>Preparing your employer workspace...</p>
+</div>
 
 <main class="employer-main">
   <div class="wrap">
