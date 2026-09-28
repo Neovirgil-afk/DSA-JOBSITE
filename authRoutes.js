@@ -262,7 +262,10 @@ router.post('/login', (req, res) => {
                 user.id,
 
             fullName:
-                user.full_name
+                user.full_name,
+
+            role:
+                user.role || 'candidate'
 
         });
 
@@ -327,7 +330,8 @@ router.get('/me', (req, res) => {
                 education,
                 degree,
                 target_job,
-                location
+                location,
+                role
             FROM users
             WHERE id = ?
         `).get(
