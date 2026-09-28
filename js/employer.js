@@ -1,5 +1,7 @@
 'use strict';
 
+const EMPLOYER_LOAD_DELAY = 2000;
+
 const state = {
     user: null,
     company: null,
@@ -53,6 +55,33 @@ function showDashboard() {
     $('#employerGate').hidden = true;
     $('#employerDashboard').hidden = false;
     $('#employerLogout').hidden = false;
+}
+
+function showEmployerLoading() {
+    const screen = $('#employerLoadingScreen');
+    screen.classList.add('is-visible');
+    screen.setAttribute('aria-hidden', 'false');
+}
+
+function hideEmployerLoading() {
+    const screen = $('#employerLoadingScreen');
+    screen.classList.remove('is-visible');
+    screen.setAttribute('aria-hidden', 'true');
+}
+
+async function withEmployerLoading(work) {
+    showEmployerLoading();
+    const startedAt = performance.now();
+
+    try {
+        return await work();
+    } finally {
+        const elapsed = performance.now() - startedAt;
+        const remaining = Math.max(0, EMPLOYER_LOAD_DELAY - elapsed);
+
+        await new Promise((resolve) => setTimeout(resolve, remaining));
+        hideEmployerLoading();
+    }
 }
 
 function showGate() {
@@ -434,7 +463,7 @@ async function handleLogin(event) {
         });
 
         state.user = data;
-        await loadEmployerSession();
+        await withEmployerLoading(() => loadEmployerSession());
     } catch (error) {
         showGateMessage('#employerLoginMessage', error.message);
     }
@@ -461,7 +490,7 @@ async function handleRegister(event) {
         });
 
         state.user = data;
-        await loadEmployerSession();
+        await withEmployerLoading(() => loadEmployerSession());
     } catch (error) {
         showGateMessage('#employerRegisterMessage', error.message);
     }
