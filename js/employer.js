@@ -51,10 +51,17 @@ function showGateMessage(selector, message) {
     element.className = message ? 'employer-form-message show error' : 'employer-form-message';
 }
 
+function updateEmployerHeaderAction(loggedIn) {
+    const button = $('#employerLogout');
+    button.hidden = false;
+    button.textContent = loggedIn ? 'Log Out' : 'Back to Homepage';
+    button.dataset.action = loggedIn ? 'logout' : 'home';
+}
+
 function showDashboard() {
     $('#employerGate').hidden = true;
     $('#employerDashboard').hidden = false;
-    $('#employerLogout').hidden = false;
+    updateEmployerHeaderAction(true);
 }
 
 function showEmployerLoading() {
@@ -87,7 +94,7 @@ async function withEmployerLoading(work) {
 function showGate() {
     $('#employerGate').hidden = false;
     $('#employerDashboard').hidden = true;
-    $('#employerLogout').hidden = true;
+    updateEmployerHeaderAction(false);
 }
 
 function switchAuthTab(mode) {
@@ -587,6 +594,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     $('#employerLogout').addEventListener('click', async () => {
+        const button = $('#employerLogout');
+
+        if (button.dataset.action !== 'logout') {
+            window.location.replace('/');
+            return;
+        }
+
         try {
             await fetch('/api/auth/logout', {
                 method: 'POST',
