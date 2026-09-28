@@ -2279,6 +2279,11 @@ export function initAuth() {
                 data.user
             ) {
 
+                if (data.user.role === 'employer') {
+                    window.location.replace('/employer.html');
+                    return;
+                }
+
                 isAuthenticated =
                     true;
 
