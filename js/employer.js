@@ -561,7 +561,7 @@ async function saveJob(event) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     document.querySelectorAll('[data-auth-tab]').forEach((button) => {
         button.addEventListener('click', () => switchAuthTab(button.dataset.authTab));
     });
@@ -640,5 +640,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    loadEmployerSession();
+    // Keep the immersive loading screen on first entry so the employer
+    // workspace has time to hydrate before it is revealed.
+    await withEmployerLoading(() => loadEmployerSession());
 });
