@@ -7,7 +7,8 @@ const state = {
     company: null,
     jobs: [],
     activeJobId: null,
-    editingJobId: null
+    editingJobId: null,
+    activeApplicationId: null
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -378,21 +379,72 @@ async function loadApplicants(jobId) {
     }
 }
 
+function renderApplicantTags(selector, skills, emptyText) {
+    const element = $(selector);
+    const values = Array.isArray(skills) ? skills : [];
+
+    element.innerHTML = values.length
+        ? values.map((skill) => '<span>' + escapeHtml(skill) + '</span>').join('')
+        : '<em>' + escapeHtml(emptyText) + '</em>';
+}
+
+function setApplicantProfileStatus(status) {
+    const label = $('#applicantProfileStatus');
+    label.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+    label.className = 'employer-status employer-status--' + status;
+    $('#applicantProfileStatusSelect').value = status;
+}
+
 async function viewApplicant(applicationId) {
     try {
         const data = await api('/api/employer/applicants/' + applicationId);
         const applicant = data.applicant;
 
-        alert(
-            applicant.full_name + '\\n\\n' +
-            'Match: ' + applicant.matchScore + '%\\n' +
-            'Education: ' + (applicant.degree || 'Not listed') + '\\n' +
-            'Skills: ' + (applicant.skills || []).join(', ') + '\\n\\n' +
-            'Missing skills: ' + (applicant.missingSkills || []).join(', ')
+        state.activeApplicationId = Number(applicationId);
+
+        $('#applicantProfileTitle').textContent = applicant.full_name || 'Applicant';
+        $('#applicantProfileSubtitle').textContent =
+            (applicant.job_title || 'Job application') + ' · Applied ' +
+            (applicant.applied_at ? new Date(applicant.applied_at).toLocaleDateString() : 'date unavailable');
+
+        $('#applicantProfileName').textContent = applicant.full_name || 'Applicant';
+        $('#applicantProfileEmail').textContent = applicant.email || 'Email not listed';
+        $('#applicantProfileAvatar').textContent =
+            (applicant.full_name || 'A').trim().charAt(0).toUpperCase();
+        $('#applicantProfileLocation').textContent = applicant.location || 'Location not listed';
+        $('#applicantProfileDegree').textContent = applicant.degree || applicant.education || 'Education not listed';
+        $('#applicantProfileTarget').textContent = applicant.target_job || 'Not listed';
+        $('#applicantProfileResume').textContent = applicant.resume_name || 'No resume attached';
+        $('#applicantProfileMatch').textContent = Number(applicant.matchScore || 0) + '%';
+
+        renderApplicantTags(
+            '#applicantProfileMatchingSkills',
+            applicant.matchingSkills,
+            'No required skills matched yet.'
         );
+        renderApplicantTags(
+            '#applicantProfileMissingSkills',
+            applicant.missingSkills,
+            'All required skills are matched.'
+        );
+        renderApplicantTags(
+            '#applicantProfileAllSkills',
+            applicant.skills,
+            'No skills detected.'
+        );
+
+        setApplicantProfileStatus(applicant.status || 'new');
+
+        $('#applicantProfileModal').hidden = false;
+        document.body.classList.add('employer-modal-open');
     } catch (error) {
         alert(error.message);
     }
+}
+
+function closeApplicantProfile() {
+    $('#applicantProfileModal').hidden = true;
+    document.body.classList.remove('employer-modal-open');
 }
 
 async function updateApplicationStatus(applicationId, status) {
@@ -657,4 +709,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Keep the immersive loading screen on first entry so the employer
     // workspace has time to hydrate before it is revealed.
     await withEmployerLoading(() => loadEmployerSession());
+});
+document.addEventListener('click', (event) => {
+    if (event.target.closest('[data-close-applicant-profile]')) {
+        closeApplicantProfile();
+    }
 });
