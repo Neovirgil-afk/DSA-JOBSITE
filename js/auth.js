@@ -569,6 +569,9 @@ export function initAuth() {
     let isAuthenticated =
         false;
 
+    let currentUser =
+        null;
+
 
     let signupStep =
         1;
@@ -1266,6 +1269,15 @@ export function initAuth() {
     }
 
 
+    // Expose only the safe UI controls needed by the mobile/desktop navigation.
+    // Authentication itself is still handled by the existing session API.
+    window.JobSiteAuth = {
+        openLogin: () => openAuth('login'),
+        isAuthenticated: () => isAuthenticated,
+        getCurrentUser: () => currentUser
+    };
+
+
     /* =====================================================
        NEW USER SKILL SETUP
        ===================================================== */
@@ -1420,6 +1432,12 @@ export function initAuth() {
     }
 
 
+    function getInitials(name) {
+        const parts = String(name || 'Account').trim().split(/\s+/).filter(Boolean);
+        return parts.slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join('') || 'A';
+    }
+
+
     /* =====================================================
        UPDATE HEADER AFTER LOGIN
        ===================================================== */
@@ -1480,7 +1498,7 @@ export function initAuth() {
                         font-size: 17px;
                     "
                 >
-                    👤
+                    ${escapeHtml(getInitials(name))}
                 </span>
 
 
@@ -2166,9 +2184,18 @@ export function initAuth() {
                         closeAuth();
 
 
+                        currentUser = data.user || currentUser;
                         updateHeaderAfterLogin(
                             data
                         );
+
+                        if (authMode === 'login') {
+                            const redirectTarget = sessionStorage.getItem('jobsite_redirect_after_login');
+                            if (redirectTarget) {
+                                sessionStorage.removeItem('jobsite_redirect_after_login');
+                                window.location.href = redirectTarget;
+                            }
+                        }
 
 
                         if (
@@ -2286,6 +2313,7 @@ export function initAuth() {
 
                 isAuthenticated =
                     true;
+                currentUser = data.user;
 
                 updateHeaderAfterLogin({
 
