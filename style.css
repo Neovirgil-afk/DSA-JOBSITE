@@ -6533,3 +6533,250 @@ body.employer-modal-open {
 @media (min-width: 900px) {
   .mobile-page-shell-header, .mobile-page-bottom-nav { display: none !important; }
 }
+
+
+/* =========================================================
+   APPLICATIONS PAGE
+   ========================================================= */
+
+.applications-main {
+    min-height: calc(100vh - 90px);
+    padding: 64px 0 100px;
+    background: #f8f6ff;
+}
+
+.applications-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.applications-heading h1 {
+    margin: 8px 0 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(32px, 4vw, 48px);
+    line-height: 1.05;
+}
+
+.applications-heading p {
+    margin: 0;
+    color: #667085;
+}
+
+.application-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding: 12px 18px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(31, 35, 77, .07);
+}
+
+.application-summary strong {
+    font-size: 24px;
+    color: #4338ca;
+}
+
+.application-summary span {
+    color: #667085;
+}
+
+.applications-list {
+    display: grid;
+    gap: 14px;
+}
+
+.application-card {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 22px;
+    border: 1px solid #e8e5f4;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(31, 35, 77, .05);
+}
+
+.application-company {
+    color: #667085;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.application-card h2 {
+    margin: 5px 0 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 22px;
+}
+
+.application-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: #667085;
+    font-size: 14px;
+}
+
+.application-meta span {
+    padding-right: 8px;
+    border-right: 1px solid #ddd9e9;
+}
+
+.application-meta span:last-child {
+    border-right: 0;
+}
+
+.application-card-side {
+    display: flex;
+    min-width: 145px;
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.application-card-side small {
+    color: #8a8fa3;
+}
+
+.application-status {
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: #eeecff;
+    color: #4338ca;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.application-status--shortlisted,
+.application-status--interview,
+.application-status--hired {
+    background: #e8f8ef;
+    color: #18794e;
+}
+
+.application-status--rejected {
+    background: #fff0f0;
+    color: #b42318;
+}
+
+.application-view-link {
+    color: #4338ca;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.applications-loading,
+.applications-empty {
+    padding: 60px 24px;
+    border: 1px dashed #d8d3e8;
+    border-radius: 20px;
+    background: #fff;
+    text-align: center;
+    color: #667085;
+}
+
+.applications-empty h2 {
+    margin: 8px 0;
+    color: #1f234d;
+    font-family: 'Poppins', sans-serif;
+}
+
+.applications-empty p {
+    margin: 0 auto 20px;
+    max-width: 460px;
+}
+
+.applications-empty-icon {
+    font-size: 40px;
+}
+
+.mobile-page-bottom-nav {
+    display: none;
+}
+
+@media (max-width: 899px) {
+    .applications-main {
+        min-height: 100vh;
+        padding: 28px 16px 100px;
+        background: #f8f6ff;
+    }
+
+    .applications-main .wrap {
+        width: 100%;
+        max-width: none;
+    }
+
+    .applications-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        margin-bottom: 18px;
+    }
+
+    .applications-heading h1 {
+        font-size: 30px;
+    }
+
+    .applications-heading .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .application-card {
+        flex-direction: column;
+        gap: 16px;
+        padding: 18px;
+        border-radius: 18px;
+    }
+
+    .application-card-side {
+        min-width: 0;
+        align-items: flex-start;
+    }
+
+    .application-meta {
+        font-size: 13px;
+    }
+
+    .mobile-page-bottom-nav {
+        position: fixed;
+        z-index: 100;
+        right: 12px;
+        bottom: 12px;
+        left: 12px;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        padding: 8px;
+        border-radius: 20px;
+        background: #27205f;
+        box-shadow: 0 14px 30px rgba(25, 20, 70, .25);
+    }
+
+    .mobile-page-bottom-nav a {
+        display: flex;
+        min-height: 52px;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 2px;
+        border-radius: 14px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 17px;
+    }
+
+    .mobile-page-bottom-nav small {
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+    .applications-page .site-header {
+        display: none;
+    }
+}
