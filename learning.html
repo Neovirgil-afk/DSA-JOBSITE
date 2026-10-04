@@ -122,10 +122,48 @@
 .learning-path-number{display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border-radius:50%;background:#eceaf8;color:var(--indigo);font-size:9px;font-weight:900}.completed .learning-path-number{background:#17a689;color:#fff}.learning-path-copy{min-width:0;flex:1}.learning-path-copy strong{display:block;color:var(--ink);font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.learning-path-copy small{display:block;margin-top:2px;color:var(--muted);font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.learning-path-arrow{color:var(--muted);font-size:12px}
 .learning-career-empty{display:flex;align-items:center;gap:15px;flex-wrap:wrap}.learning-career-empty strong{display:block;color:var(--navy);font-size:14px}.learning-career-empty span{color:var(--muted);font-size:11px}.learning-mini-button{margin-left:auto;padding:9px 12px;border-radius:9px;background:var(--indigo);color:#fff;text-decoration:none;font-size:10px;font-weight:800}.learning-why{margin-top:10px;padding:9px 11px;border-radius:9px;background:var(--indigo-tint);color:var(--muted);font-size:10px;line-height:1.45}.learning-why strong{color:var(--indigo-dark)}
 @media(max-width:900px){.learning-path-list{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.learning-career-overview{padding:18px}.learning-career-header{flex-direction:column}.learning-career-progress{text-align:left}.learning-career-summary{grid-template-columns:1fr}.learning-path-list{grid-template-columns:1fr}.learning-section-title{align-items:flex-start;flex-direction:column}.learning-mini-button{margin-left:0}}
-</style></head>
+</style><style>
+@media(max-width:700px){
+  .learning-page{padding-bottom:74px!important;background:#f7f7fb!important}
+  .learning-page>.site-header,.learning-page>.profile-mobile-menu{display:none!important}
+  .learning-main{padding:18px 0 20px!important}
+  .learning-main>.wrap{width:100%;padding:0 14px}
+  .learning-hero{margin:0 0 14px!important;padding:18px;border-radius:18px;background:linear-gradient(145deg,#4f46e5,#3730a3);color:#fff}
+  .learning-hero .learning-eyebrow,.learning-hero h1,.learning-hero p{color:#fff!important}
+  .learning-hero h1{font-size:27px!important;line-height:1.12}
+  .learning-hero p{font-size:11px!important;line-height:1.5}
+  .learning-hero>.btn{display:none}
+  .learning-mobile-course{margin-bottom:12px!important}
+  .learning-career-overview,.learning-content-card{border-radius:16px!important;box-shadow:0 7px 20px rgba(24,28,55,.05)!important}
+  .learning-career-overview{padding:17px!important}
+  .learning-layout{gap:12px!important}
+  .learning-content-card{padding:15px!important}
+  .learning-content-top h2{font-size:22px!important}
+  .learning-lesson{padding:16px!important}
+  .learning-resources{grid-template-columns:1fr!important}
+  .mobile-page-bottom-nav{position:fixed;left:10px;right:10px;bottom:10px;z-index:200;display:grid;grid-template-columns:repeat(4,1fr);padding:7px;border:1px solid #e3e2ed;border-radius:17px;background:rgba(255,255,255,.96);box-shadow:0 10px 30px rgba(24,28,55,.15);backdrop-filter:blur(12px)}
+  .mobile-page-bottom-nav a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 3px;border-radius:11px;color:#697386;text-decoration:none}
+  .mobile-page-bottom-nav a span{font-size:16px;font-weight:800}
+  .mobile-page-bottom-nav a small{font-size:8px;font-weight:800}
+  .mobile-page-bottom-nav a.active{background:#eeecfb;color:#4f46e5}
+}
+@media(min-width:701px){.mobile-page-shell-header,.mobile-page-bottom-nav{display:none}}
+</style>
+</head>
 <body class="learning-page">
 <header class="site-header"><div class="wrap header-inner"><a class="logo" href="/" aria-label="JobSite home"><span class="logo-text">JOB<span class="logo-accent">SITE</span></span><svg class="logo-plane" width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21.5 2.5L2 10.2c-.8.3-.8 1.4 0 1.7l7.6 2.9 2.9 7.6c.3.8 1.4 0 1.7 0L21.9 3.9c.3-.9-.6-1.7-1.4-1.4z" fill="currentColor"/></svg><span class="logo-tagline">Find your path. Build your future.</span></a>
 <nav class="main-nav" aria-label="Primary"><a href="/">Find Jobs</a><a href="/profile.html">Dashboard</a><a href="/resume.html">Resume Analyzer</a><a href="/learning.html" class="active">Learn</a></nav><button class="menu-toggle" aria-label="Open menu"><span></span><span></span><span></span></button></div></header>
-<main class="learning-main"><div class="wrap"><section class="learning-hero"><div><p class="learning-eyebrow">JOBSITE LEARNING</p><h1>Learn the skills that move your career forward.</h1><p>Short, beginner-friendly lessons for skills connected to your career path. After the foundation, continue with curated articles and YouTube resources.</p></div><a href="/profile.html" class="btn btn-primary">Back to Dashboard</a></section><div class="learning-mobile-course"><select id="courseSelect" aria-label="Choose a skill to learn"></select></div><div id="learningCareerOverview" class="learning-career-overview"></div><div class="learning-layout"><aside class="learning-sidebar"><div class="learning-sidebar-label">YOUR LEARNING PATH</div><div id="courseList"></div></aside><section class="learning-content-card"><div id="learningContent" class="learning-loading">Loading your recommendations...</div></section></div></div></main>
+<div class="mobile-page-shell-header">
+  <a href="/" class="mobile-page-back" data-mobile-route="/">←</a>
+  <div><span>JOBSITE</span><strong>Learning Hub</strong></div>
+  <a href="/profile.html" class="mobile-page-header-action" data-mobile-route="/profile.html">Profile</a>
+</div>
+<main class="learning-main"><div class="wrap"><section class="learning-hero"><div><p class="learning-eyebrow">JOBSITE LEARNING</p><h1>Learn the skills that move your career forward.</h1><p>Short, beginner-friendly lessons for skills connected to your career path. After the foundation, continue with curated articles and YouTube resources.</p></div><a href="/profile.html" class="btn btn-primary">Back to Dashboard</a></section><div class="learning-mobile-course"><select id="courseSelect" aria-label="Choose a skill to learn"></select></div><div id="learningCareerOverview" class="learning-career-overview"></div><div class="learning-layout"><aside class="learning-sidebar"><div class="learning-sidebar-label">YOUR LEARNING PATH</div><div id="courseList"></div></aside><section class="learning-content-card"><div id="learningContent" class="learning-loading">Loading your recommendations...</div></section></div></div><nav class="mobile-page-bottom-nav" aria-label="Mobile page navigation">
+  <a href="/" data-mobile-route="/"><span>⌂</span><small>Home</small></a>
+  <a href="/resume.html" data-mobile-route="/resume.html"><span>▤</span><small>Resume</small></a>
+  <a href="/learning.html" class="active" data-mobile-route="/learning.html"><span>↗</span><small>Learn</small></a>
+  <a href="/profile.html" data-mobile-route="/profile.html"><span>●</span><small>Profile</small></a>
+</nav>
+</main>
 <script src="/js/mobile-nav.js" defer></script><script src="/js/learning.js" defer></script><script src="/js/page-transition.js" defer></script>
 </body></html>
