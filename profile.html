@@ -718,6 +718,48 @@
 }
 </style>
 
+<style>
+@media(max-width:700px){
+  .profile-page{background:#f7f7fb;padding-bottom:74px}
+  .profile-page>.site-header,.profile-page>.profile-mobile-menu{display:none!important}
+  .mobile-page-shell-header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:#17203a;color:#fff;box-shadow:0 4px 16px rgba(23,32,58,.16)}
+  .mobile-page-shell-header>div{display:flex;flex-direction:column;align-items:center;gap:1px}
+  .mobile-page-shell-header>div span{font-size:8px;font-weight:800;letter-spacing:.16em;color:#f2b84b}
+  .mobile-page-shell-header>div strong{font:700 14px Poppins,sans-serif}
+  .mobile-page-back,.mobile-page-header-action{display:grid;place-items:center;min-width:38px;height:34px;border-radius:10px;text-decoration:none;color:#fff;font-size:12px;font-weight:800;background:rgba(255,255,255,.1)}
+  .mobile-page-header-action{padding:0 11px;background:#4f46e5}
+  .profile-main{padding:20px 0 18px!important}
+  .profile-main>.wrap{width:100%;padding:0 14px}
+  .profile-page-heading{display:block;margin:0 0 14px;padding:18px;border-radius:18px;background:linear-gradient(145deg,#4f46e5,#3730a3);color:#fff;box-shadow:0 10px 24px rgba(79,70,229,.18)}
+  .profile-page-heading .eyebrow,.profile-page-heading h1,.profile-page-heading .profile-page-subtitle{color:#fff}
+  .profile-page-heading h1{font-size:27px!important;margin:4px 0}
+  .profile-page-subtitle{font-size:11px!important;line-height:1.5!important}
+  .profile-back-button{display:none!important}
+  .profile-layout{display:flex!important;flex-direction:column;gap:14px!important}
+  .profile-career-column{display:contents}
+  .profile-card{border-radius:16px!important;padding:17px!important;box-shadow:0 7px 20px rgba(24,28,55,.05)!important}
+  .profile-card-heading h2{font-size:17px!important}
+  .profile-card-heading{gap:10px}
+  .profile-identity{padding:12px!important;border-radius:13px!important}
+  .profile-large-avatar{width:48px!important;height:48px!important}
+  .profile-info-list{grid-template-columns:1fr 1fr!important;gap:8px!important}
+  .profile-info-item{padding:10px!important}
+  .profile-resume-row{padding:12px!important}
+  .profile-resume-actions{width:100%;display:grid!important;grid-template-columns:1fr!important}
+  .profile-resume-link-button,.profile-resume-button{width:100%!important}
+  .profile-skill-actions{flex-wrap:wrap}
+  .profile-saved-skills{gap:7px!important}
+  .profile-learning-body{padding:13px!important}
+  .profile-learning-button{width:100%!important}
+  .profile-saved-jobs-list,.profile-applications-list{gap:8px!important}
+  .mobile-page-bottom-nav{position:fixed;left:10px;right:10px;bottom:10px;z-index:200;display:grid;grid-template-columns:repeat(4,1fr);padding:7px;border:1px solid #e3e2ed;border-radius:17px;background:rgba(255,255,255,.96);box-shadow:0 10px 30px rgba(24,28,55,.15);backdrop-filter:blur(12px)}
+  .mobile-page-bottom-nav a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 3px;border-radius:11px;color:#697386;text-decoration:none}
+  .mobile-page-bottom-nav a span{font-size:16px;font-weight:800}
+  .mobile-page-bottom-nav a small{font-size:8px;font-weight:800}
+  .mobile-page-bottom-nav a.active{background:#eeecfb;color:#4f46e5}
+}
+@media(min-width:701px){.mobile-page-shell-header,.mobile-page-bottom-nav{display:none}}
+</style>
 </head>
 
 
@@ -912,7 +954,12 @@
          PROFILE MAIN
          ===================================================== -->
 
-    <main class="profile-main">
+    <div class="mobile-page-shell-header">
+  <a href="/" class="mobile-page-back" data-mobile-route="/">←</a>
+  <div><span>JOBSITE</span><strong>My Profile</strong></div>
+  <a href="/learning.html" class="mobile-page-header-action" data-mobile-route="/learning.html">Learn</a>
+</div>
+<main class="profile-main">
 
         <div class="wrap">
 
@@ -1461,6 +1508,13 @@
     </main>
 
 
+
+<nav class="mobile-page-bottom-nav" aria-label="Mobile page navigation">
+  <a href="/" data-mobile-route="/"><span>⌂</span><small>Home</small></a>
+  <a href="/resume.html" data-mobile-route="/resume.html"><span>▤</span><small>Resume</small></a>
+  <a href="/learning.html" data-mobile-route="/learning.html"><span>↗</span><small>Learn</small></a>
+  <a href="/profile.html" class="active" data-mobile-route="/profile.html"><span>●</span><small>Profile</small></a>
+</nav>
 
     <!-- =====================================================
          SCRIPT
