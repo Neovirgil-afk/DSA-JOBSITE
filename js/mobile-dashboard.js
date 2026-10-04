@@ -9,22 +9,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsGrid = document.querySelector('#resultsGrid');
     const savedCount = document.querySelector('#mobileSavedCount');
     const recommendedCount = document.querySelector('#mobileRecommendedCount');
+    const analyticsFilter = document.querySelector('#mobileAnalyticsFilter');
+
+    function showJobs() {
+        if (!desktopForm || !resultsSection) return;
+
+        // Use the existing desktop job-search logic so mobile and desktop
+        // always use the same backend/API and job cards.
+        if (typeof desktopForm.requestSubmit === 'function') {
+            desktopForm.requestSubmit();
+        } else {
+            desktopForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        }
+
+        window.setTimeout(() => {
+            resultsSection.hidden = false;
+            resultsSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }, 120);
+    }
 
     if (mobileForm && mobileInput && desktopForm && desktopInput) {
         mobileForm.addEventListener('submit', (event) => {
             event.preventDefault();
-
-            const query = mobileInput.value.trim();
-            desktopInput.value = query;
-
-            desktopForm.requestSubmit();
-
-            window.setTimeout(() => {
-                resultsSection?.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }, 80);
+            desktopInput.value = mobileInput.value.trim();
+            showJobs();
         });
     }
 
@@ -63,17 +74,37 @@ document.addEventListener('DOMContentLoaded', () => {
         syncRecommendedCount();
     }
 
+    // Mobile Jobs links: show the real job results instead of trying to
+    // scroll to a section that is hidden until a search is performed.
     document.querySelectorAll('.mobile-bottom-nav a, .mobile-quick-card').forEach((link) => {
         link.addEventListener('click', (event) => {
             const href = link.getAttribute('href');
 
             if (href === '#resultsSection') {
                 event.preventDefault();
-                document.querySelector('#resultsSection')?.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+                showJobs();
             }
+        });
+    });
+
+    // Make the mobile analytics filter button functional.
+    if (analyticsFilter) {
+        const filters = ['Monthly⌄', 'Weekly⌄', 'Yearly⌄'];
+        let filterIndex = 0;
+
+        analyticsFilter.addEventListener('click', () => {
+            filterIndex = (filterIndex + 1) % filters.length;
+            analyticsFilter.textContent = filters[filterIndex];
+        });
+    }
+
+    // Keep the active state of the bottom navigation in sync with taps.
+    document.querySelectorAll('.mobile-bottom-nav a').forEach((link) => {
+        link.addEventListener('click', () => {
+            document.querySelectorAll('.mobile-bottom-nav a').forEach((item) => {
+                item.classList.remove('is-active');
+            });
+            link.classList.add('is-active');
         });
     });
 
