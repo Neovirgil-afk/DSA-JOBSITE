@@ -325,8 +325,10 @@ async function loadApplicants(jobId) {
         const data = await api('/api/employer/jobs/' + jobId + '/applicants');
         const applicants = data.applicants || [];
 
+        const topApplicant = applicants[0];
         $('#applicantSummary').innerHTML =
-            '<strong>' + applicants.length + '</strong> applicants · ranked by skill match using the JobPath matching system';
+            '<strong>' + applicants.length + '</strong> applicants · ranked highest to lowest by skill match using the Max Heap DSA algorithm' +
+            (topApplicant ? ' · <strong>#1 ' + escapeHtml(topApplicant.full_name) + ' (' + Number(topApplicant.matchScore) + '%)</strong>' : '');
 
         if (!applicants.length) {
             $('#applicantsList').innerHTML =
@@ -340,8 +342,8 @@ async function loadApplicants(jobId) {
         $('#applicantsList').innerHTML = applicants.map((applicant) => {
             return '<article class="employer-applicant-card">' +
                 '<div class="employer-applicant-score">' +
-                    '<strong>' + Number(applicant.matchScore) + '%</strong>' +
-                    '<span>match</span>' +
+                    '<strong>#' + Number(applicant.rank || 0) + '</strong>' +
+                    '<span>' + Number(applicant.matchScore) + '% match</span>' +
                 '</div>' +
                 '<div class="employer-applicant-main">' +
                     '<div class="employer-applicant-heading">' +
