@@ -28,6 +28,11 @@
   </div>
 </header>
 
+<div class="employer-mobile-shell-header">
+  <a href="/" class="employer-mobile-brand" aria-label="JobSite home"><span>JOB<span>SITE</span></span></a>
+  <div class="employer-mobile-title"><span>JOBSITE</span><strong>Employer Workspace</strong></div>
+  <button type="button" class="employer-mobile-profile" data-open-panel="company" aria-label="Company profile">●</button>
+</div>
 <div class="employer-loading-screen is-visible" id="employerLoadingScreen" aria-hidden="false">
   <div class="employer-loading-brand" aria-label="Loading JobSite">
     <span class="employer-loading-logo">JOB<span>SITE</span></span>
@@ -376,5 +381,12 @@
 </div>
 
 <script type="module" src="/js/employer.js"></script>
+<nav class="employer-mobile-bottom-nav" aria-label="Employer mobile navigation">
+  <button type="button" class="employer-tab active" data-panel="overview"><span>⌂</span><small>Dashboard</small></button>
+  <button type="button" class="employer-tab" data-panel="jobs"><span>▦</span><small>Jobs</small></button>
+  <button type="button" class="employer-tab" data-panel="applicants"><span>●</span><small>Applicants</small></button>
+  <button type="button" class="employer-tab" data-panel="analytics"><span>◫</span><small>Analytics</small></button>
+  <button type="button" class="employer-tab" data-panel="company"><span>⚙</span><small>Company</small></button>
+</nav>
 </body>
 </html>
