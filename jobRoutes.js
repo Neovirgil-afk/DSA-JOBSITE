@@ -310,6 +310,10 @@ router.post('/:id/apply', requireAuth, (req, res) => {
             resume?.id || null
         );
 
+        db.prepare(
+            "INSERT INTO application_history (application_id, status) VALUES (?, 'new')"
+        ).run(Number(info.lastInsertRowid));
+
         res.status(201).json({
             success: true,
             applicationId: Number(info.lastInsertRowid),
