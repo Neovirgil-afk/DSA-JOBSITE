@@ -545,15 +545,30 @@ router.patch('/applications/:id/status', requireEmployer, (req, res) => {
         return res.status(400).json({ error: 'Invalid application status.' });
     }
 
-    const result = db.prepare(
-        'UPDATE applications SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND job_id IN (SELECT id FROM jobs WHERE employer_id = ?)'
-    ).run(status, Number(req.params.id), req.employer.id);
+    const applicationId = Number(req.params.id);
+    const current = db.prepare(
+        'SELECT a.status FROM applications a JOIN jobs j ON j.id = a.job_id WHERE a.id = ? AND j.employer_id = ?'
+    ).get(applicationId, req.employer.id);
 
-    if (!result.changes) {
+    if (!current) {
         return res.status(404).json({ error: 'Application not found.' });
     }
 
-    res.json({ success: true, status });
+    if (current.status === status) {
+        return res.json({ success: true, status, changed: false });
+    }
+
+    db.transaction(() => {
+        db.prepare(
+            'UPDATE applications SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+        ).run(status, applicationId);
+
+        db.prepare(
+            'INSERT INTO application_history (application_id, status) VALUES (?, ?)'
+        ).run(applicationId, status);
+    })();
+
+    res.json({ success: true, status, changed: true });
 });
 
 /* =========================================================
