@@ -68,6 +68,138 @@
   </div>
 </header>
 
+
+<!-- MOBILE APP DASHBOARD
+     Visible only on small screens. Desktop layout below remains unchanged. -->
+<section class="mobile-app-shell" aria-label="Mobile JobSite dashboard">
+  <div class="mobile-app-topbar">
+    <a class="mobile-app-brand" href="/" aria-label="JobSite home">
+      <span class="mobile-brand-mark">✦</span>
+    </a>
+    <div class="mobile-app-search-wrap">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      <form id="mobileSearchForm">
+        <input id="mobileSearchQuery" type="search" placeholder="Search jobs..." autocomplete="off" />
+      </form>
+      <a class="mobile-app-avatar" href="/profile.html" aria-label="Open profile">J</a>
+    </div>
+  </div>
+
+  <div class="mobile-app-content">
+    <div class="mobile-dashboard-heading">
+      <div>
+        <span class="mobile-kicker">JOBSEEKER DASHBOARD</span>
+        <h1>Find your next opportunity</h1>
+        <p>Recommended jobs and career progress, all in one place.</p>
+      </div>
+      <span class="mobile-status-dot" aria-label="Online"></span>
+    </div>
+
+    <div class="mobile-stat-grid">
+      <article class="mobile-stat-card mobile-stat-card--jobs">
+        <span class="mobile-stat-icon">💼</span>
+        <span class="mobile-stat-label">Recommended Jobs</span>
+        <strong id="mobileRecommendedCount">9</strong>
+        <small>matched for you</small>
+      </article>
+      <article class="mobile-stat-card mobile-stat-card--saved">
+        <span class="mobile-stat-icon">♡</span>
+        <span class="mobile-stat-label">Saved Jobs</span>
+        <strong id="mobileSavedCount">0</strong>
+        <small>keep for later</small>
+      </article>
+      <article class="mobile-stat-card mobile-stat-card--applications">
+        <span class="mobile-stat-icon">✓</span>
+        <span class="mobile-stat-label">Applications</span>
+        <strong>5</strong>
+        <small>this month</small>
+      </article>
+      <article class="mobile-stat-card mobile-stat-card--profile">
+        <span class="mobile-stat-icon">★</span>
+        <span class="mobile-stat-label">Profile Match</span>
+        <strong>92%</strong>
+        <small>strong profile</small>
+      </article>
+    </div>
+
+    <section class="mobile-panel mobile-analytics-panel">
+      <div class="mobile-panel-heading">
+        <div>
+          <span class="mobile-panel-eyebrow">JOB SEARCH ANALYTICS</span>
+          <h2>Your activity</h2>
+        </div>
+        <button type="button" class="mobile-filter-pill" id="mobileAnalyticsFilter">Monthly⌄</button>
+      </div>
+
+      <div class="mobile-analytics-summary">
+        <span>Job views <strong>+16%</strong></span>
+        <span>Applications <strong>12</strong></span>
+      </div>
+
+      <div class="mobile-chart" aria-label="Job activity chart">
+        <div class="mobile-chart-grid">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="mobile-chart-line">
+          <i style="height:38%"></i>
+          <i style="height:30%"></i>
+          <i style="height:52%"></i>
+          <i style="height:45%"></i>
+          <i style="height:68%"></i>
+          <i style="height:82%"></i>
+        </div>
+        <div class="mobile-chart-labels">
+          <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="mobile-panel mobile-quick-panel">
+      <div class="mobile-panel-heading">
+        <div>
+          <span class="mobile-panel-eyebrow">QUICK ACCESS</span>
+          <h2>Keep moving forward</h2>
+        </div>
+      </div>
+      <div class="mobile-quick-grid">
+        <a href="#categories" class="mobile-quick-card">
+          <span>⌕</span><strong>Browse Jobs</strong><small>Explore categories</small>
+        </a>
+        <a href="/resume-builder.html" class="mobile-quick-card">
+          <span>▣</span><strong>Build Resume</strong><small>Improve your profile</small>
+        </a>
+        <a href="/learning.html" class="mobile-quick-card">
+          <span>↗</span><strong>Learn Skills</strong><small>Grow your career</small>
+        </a>
+        <a href="/profile.html" class="mobile-quick-card">
+          <span>●</span><strong>My Profile</strong><small>Update your details</small>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+    <a href="/" class="is-active">
+      <span>⌂</span><small>Home</small>
+    </a>
+    <a href="#categories">
+      <span>⌕</span><small>Jobs</small>
+    </a>
+    <a href="/resume.html">
+      <span>▤</span><small>Resume</small>
+    </a>
+    <a href="/learning.html">
+      <span>↗</span><small>Learn</small>
+    </a>
+    <a href="/profile.html">
+      <span>●</span><small>Profile</small>
+    </a>
+  </nav>
+</section>
+
 <main>
 
   <section class="hero">
