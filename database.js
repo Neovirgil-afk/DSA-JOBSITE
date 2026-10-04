@@ -66,4 +66,14 @@ db.exec(`
     )
 `);
 
+db.exec(`
+    CREATE TABLE IF NOT EXISTS application_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        application_id INTEGER NOT NULL,
+        status TEXT NOT NULL,
+        changed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE
+    )
+`);
+
 module.exports = { db, isFreshDatabase: !dbExisted };
