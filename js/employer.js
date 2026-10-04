@@ -59,6 +59,8 @@ function showGateMessage(selector, message) {
 }
 
 function updateEmployerHeaderAction(loggedIn) {
+    document.body.classList.toggle('employer-logged-in', loggedIn);
+    document.body.classList.toggle('employer-logged-out', !loggedIn);
     const button = $('#employerLogout');
     button.hidden = false;
     button.textContent = loggedIn ? 'Log Out' : 'Back to Homepage';
