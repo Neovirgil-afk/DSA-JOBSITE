@@ -34,8 +34,21 @@
     />
 
     <style>
-
-
+        .profile-applications-card{margin-top:18px}
+        .profile-applications-list{display:grid;gap:10px}
+        .profile-application-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 16px;border:1px solid #e7e8ef;border-radius:13px;background:#faf9ff}
+        .profile-application-main{min-width:0}
+        .profile-application-main h3{margin:0;color:#17203a;font-size:14px}
+        .profile-application-main p{margin:4px 0;color:#697386;font-size:12px}
+        .profile-application-meta{display:flex;flex-wrap:wrap;gap:7px;color:#697386;font-size:11px}
+        .profile-application-status{display:inline-flex;align-items:center;justify-content:center;min-width:88px;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;text-transform:capitalize;background:#eeecfb;color:#4f46e5}
+        .profile-application-status--hired{background:#e8f7ee;color:#16834b}
+        .profile-application-status--rejected{background:#fdecec;color:#c0392b}
+        .profile-application-status--interview,.profile-application-status--reviewing{background:#fff4d9;color:#916000}
+        .profile-application-status--shortlisted{background:#e8f0ff;color:#315db5}
+        @media(max-width:700px){.profile-application-item{align-items:flex-start;flex-direction:column}.profile-application-status{align-self:flex-start}}
+ 
+ 
         /* =====================================================
            RESUME CARD
            ===================================================== */
@@ -1389,6 +1402,20 @@
                     </div>
                 </div>
 
+            </section>
+
+            <section class="profile-card profile-applications-card">
+                <div class="profile-card-heading profile-skills-heading">
+                    <div>
+                        <span class="profile-section-label">APPLICATIONS</span>
+                        <h2>My Applications</h2>
+                        <p>Track the jobs you applied for and the current hiring status.</p>
+                    </div>
+                    <div class="profile-skill-count" id="applicationCount">0 applications</div>
+                </div>
+                <div class="profile-applications-list" id="applicationsList">
+                    <div class="profile-saved-jobs-empty">Loading applications...</div>
+                </div>
             </section>
 
 
