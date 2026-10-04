@@ -19,12 +19,17 @@
     <nav class="main-nav" aria-label="Primary">
       <a href="/">Find Jobs</a>
       <a href="/applications.html" class="active">My Applications</a>
-      <a href="/profile.html">Profile</a>
+      <a href="/profile.html" data-mobile-route="/profile.html">Profile</a>
     </nav>
     <div class="header-actions"><a href="/" class="btn btn-primary">Find Jobs</a></div>
   </div>
 </header>
 
+<div class="mobile-page-shell-header">
+  <a href="/" class="mobile-page-brand" aria-label="JobSite home"><svg class="mobile-brand-plane-only" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21.5 2.5L2 10.2c-.8.3-.8 1.4 0 1.7l7.6 2.9 2.9 7.6c.3.8 1.4 0 1.7 0L21.9 3.9c-.3-.9-.6-1.7-1.4-1.4z" fill="currentColor"/></svg></a>
+  <div class="mobile-page-title"><span>JOBSITE</span><strong>My Applications</strong></div>
+  <a href="/profile.html" class="mobile-page-header-action" aria-label="Open profile">●</a>
+</div>
 <main class="applications-main">
   <div class="wrap">
     <div class="applications-heading">
@@ -50,8 +55,8 @@
 <nav class="mobile-page-bottom-nav" aria-label="Mobile navigation">
   <a href="/"><span>⌂</span><small>Home</small></a>
   <a href="/#resultsSection"><span>⌕</span><small>Jobs</small></a>
-  <a href="/resume.html"><span>▤</span><small>Resume</small></a>
-  <a href="/learning.html"><span>↗</span><small>Learn</small></a>
+  <a href="/resume.html" data-mobile-route="/resume.html"><span>▤</span><small>Resume</small></a>
+  <a href="/learning.html" data-mobile-route="/learning.html"><span>↗</span><small>Learn</small></a>
   <a href="/profile.html"><span>●</span><small>Profile</small></a>
 </nav>
 
