@@ -100,13 +100,69 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Keep the active state of the bottom navigation in sync with taps.
     document.querySelectorAll('.mobile-bottom-nav a').forEach((link) => {
-        link.addEventListener('click', () => {
+        link.addEventListener('click', (event) => {
             document.querySelectorAll('.mobile-bottom-nav a').forEach((item) => {
                 item.classList.remove('is-active');
             });
             link.classList.add('is-active');
+
+            // Force real page navigation for mobile pages. This avoids
+            // another mobile/desktop click handler interfering with links.
+            const href = link.getAttribute('href');
+            if (href && href !== '#' && !href.startsWith('#')) {
+                event.preventDefault();
+                event.stopPropagation();
+                window.location.assign(new URL(href, window.location.href).href);
+            }
         });
     });
+
+    // Make the mobile profile avatar and quick-access page links navigate
+    // directly to their real HTML pages.
+    document.querySelectorAll(
+        '.mobile-app-avatar, .mobile-quick-card[href="/learning.html"], .mobile-quick-card[href="/profile.html"], .mobile-quick-card[href="/resume-builder.html"]'
+    ).forEach((link) => {
+        link.addEventListener('click', (event) => {
+            const href = link.getAttribute('href');
+            if (!href || href.startsWith('#')) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            window.location.assign(new URL(href, window.location.href).href);
+        });
+    });
+
+    // The dashboard stat cards are also useful shortcuts on mobile.
+    const savedCard = document.querySelector('.mobile-stat-card--saved');
+    const profileCard = document.querySelector('.mobile-stat-card--profile');
+
+    if (savedCard) {
+        savedCard.setAttribute('role', 'button');
+        savedCard.setAttribute('tabindex', '0');
+        const openSavedJobs = () => showJobs();
+        savedCard.addEventListener('click', openSavedJobs);
+        savedCard.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openSavedJobs();
+            }
+        });
+    }
+
+    if (profileCard) {
+        profileCard.setAttribute('role', 'link');
+        profileCard.setAttribute('tabindex', '0');
+        const openProfile = () => {
+            window.location.assign(new URL('/profile.html', window.location.href).href);
+        };
+        profileCard.addEventListener('click', openProfile);
+        profileCard.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openProfile();
+            }
+        });
+    }
 
     loadSavedCount();
 });
