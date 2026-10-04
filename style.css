@@ -7152,3 +7152,57 @@ body.employer-modal-open {
   .employer-analytics-job-row strong{overflow-wrap:anywhere}
   .employer-modal-dialog{width:100%;min-width:0}
 }
+
+
+/* =========================================================
+   RESOURCE GUIDES
+   ========================================================= */
+.resource-page{background:var(--cream);min-height:100vh}
+.resource-hero{position:relative;overflow:hidden;padding:76px 0 58px;background:linear-gradient(135deg,var(--indigo-tint) 0%,#fff 58%,var(--amber-tint) 100%)}
+.resource-hero::after{content:"";position:absolute;width:300px;height:300px;border-radius:50%;right:-100px;top:-130px;background:rgba(79,70,229,.10)}
+.resource-hero-inner{position:relative;z-index:1;max-width:900px}
+.resource-eyebrow{display:inline-flex;align-items:center;gap:8px;margin:0 0 12px;color:var(--indigo);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.resource-hero h1{font-size:clamp(38px,5vw,58px);letter-spacing:-.04em;max-width:760px}
+.resource-hero h1 span{color:var(--indigo)}
+.resource-hero p{max-width:680px;margin:16px 0 0;color:var(--muted);font-size:16px;line-height:1.7}
+.resource-content{padding:44px 0 80px}
+.resource-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-bottom:42px}
+.resource-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 10px 28px rgba(35,25,90,.055)}
+.resource-card-number{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--indigo-tint);color:var(--indigo);font:800 13px/1 var(--font-display);margin-bottom:15px}
+.resource-card h2{font-size:19px;margin-bottom:8px}
+.resource-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.65}
+.resource-section{max-width:920px;margin:0 auto 34px}
+.resource-section h2{font-size:25px;margin-bottom:14px}
+.resource-section p{color:var(--muted);line-height:1.7;font-size:14px}
+.resource-checklist{display:grid;gap:10px;margin:16px 0 0;padding:0;list-style:none}
+.resource-checklist li{display:flex;gap:10px;align-items:flex-start;padding:13px 15px;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--ink);font-size:13px;line-height:1.5}
+.resource-checklist li::before{content:"✓";display:grid;place-items:center;flex:0 0 22px;height:22px;border-radius:50%;background:var(--indigo-tint);color:var(--indigo);font-weight:800}
+.resource-tip{margin-top:18px;padding:18px 20px;border-left:4px solid var(--amber);border-radius:0 14px 14px 0;background:var(--amber-tint)}
+.resource-tip strong{display:block;margin-bottom:4px;font-size:13px}
+.resource-tip p{margin:0;font-size:13px}
+.resource-nav{display:flex;justify-content:space-between;gap:12px;max-width:920px;margin:42px auto 0;padding-top:24px;border-top:1px solid var(--line)}
+.resource-nav a{display:flex;flex-direction:column;gap:4px;padding:13px 16px;border:1px solid var(--line);border-radius:14px;background:#fff;transition:.18s ease}
+.resource-nav a:hover{border-color:var(--indigo);transform:translateY(-2px)}
+.resource-nav small{color:var(--muted);font-size:11px}
+.resource-nav strong{font-size:13px;color:var(--indigo)}
+.resource-page .site-footer{margin-top:0}
+.resource-mobile-nav{display:none}
+@media(max-width:899px){
+  .resource-page{padding-bottom:88px}
+  .resource-hero{padding:40px 0 34px}
+  .resource-hero h1{font-size:34px}
+  .resource-hero p{font-size:13px;line-height:1.6}
+  .resource-content{padding:28px 0 55px}
+  .resource-grid{grid-template-columns:1fr;gap:12px;margin-bottom:30px}
+  .resource-card{padding:18px;border-radius:18px}
+  .resource-section h2{font-size:21px}
+  .resource-section p,.resource-checklist li{font-size:12.5px}
+  .resource-nav{flex-direction:column}
+  .resource-nav a{width:100%}
+  .resource-mobile-nav{position:fixed;left:50%;bottom:max(8px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:250;width:calc(100% - 18px);max-width:560px;display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:7px;border:1px solid var(--line);border-radius:22px;background:#fff;box-shadow:0 12px 30px rgba(35,25,90,.14)}
+  .resource-mobile-nav a{min-width:0;min-height:50px;padding:5px 2px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;border-radius:15px;color:var(--muted);font-weight:700}
+  .resource-mobile-nav a.active{background:var(--indigo-tint);color:var(--indigo)}
+  .resource-mobile-nav span{font-size:16px;line-height:1}
+  .resource-mobile-nav small{font-size:7.5px;font-weight:800}
+  .resource-page .site-header .main-nav{display:none}
+}
