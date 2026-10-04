@@ -13,7 +13,8 @@ const state = {
     applicantSearch: '',
     applicantStatus: 'all',
     applicantMatch: 'all',
-    applicantSort: 'match-desc'
+    applicantSort: 'match-desc',
+    analytics: null
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -125,6 +126,7 @@ function switchPanel(panelName) {
 
     if (panelName === 'overview') loadDashboard();
     if (panelName === 'jobs') loadJobs();
+    if (panelName === 'analytics') loadAnalytics();
     if (panelName === 'applicants') {
         loadJobs().then(() => {
             if (state.activeJobId) {
@@ -230,6 +232,60 @@ async function loadDashboard() {
         }).join('');
     } catch (error) {
         console.error('[Employer] dashboard:', error);
+    }
+}
+
+function renderAnalytics(data) {
+    const stats = data?.stats || {};
+    $('#analyticsTotalApplicants').textContent = stats.totalApplicants ?? 0;
+    $('#analyticsShortlisted').textContent = stats.shortlisted ?? 0;
+    $('#analyticsInterview').textContent = stats.interview ?? 0;
+    $('#analyticsHired').textContent = stats.hired ?? 0;
+    $('#analyticsAverageMatch').textContent = Math.round(stats.averageMatch || 0) + '%';
+
+    const statusOrder = ['new', 'reviewing', 'shortlisted', 'interview', 'hired', 'rejected'];
+    const statusLabels = {
+        new: 'New',
+        reviewing: 'Reviewing',
+        shortlisted: 'Shortlisted',
+        interview: 'Interview',
+        hired: 'Hired',
+        rejected: 'Rejected'
+    };
+    const statusCounts = data?.statusCounts || {};
+    const total = Number(stats.totalApplicants || 0);
+
+    $('#analyticsStatusList').innerHTML = statusOrder.map((status) => {
+        const count = Number(statusCounts[status] || 0);
+        const percent = total ? Math.round((count / total) * 100) : 0;
+        return '<div class="employer-analytics-status-row">' +
+            '<div><strong>' + escapeHtml(statusLabels[status]) + '</strong><span>' + count + ' applicant' + (count === 1 ? '' : 's') + '</span></div>' +
+            '<div class="employer-analytics-bar"><i style="width:' + percent + '%"></i></div>' +
+            '<b>' + percent + '%</b>' +
+            '</div>';
+    }).join('');
+
+    const jobs = Array.isArray(data?.jobs) ? data.jobs : [];
+    $('#analyticsJobsList').innerHTML = jobs.length
+        ? jobs.map((job) => {
+            return '<div class="employer-analytics-job-row">' +
+                '<div><strong>' + escapeHtml(job.title) + '</strong><span>' +
+                escapeHtml(job.statusLabel) + ' · ' + Number(job.applicants) + ' applicants</span></div>' +
+                '<strong>' + Math.round(job.averageMatch || 0) + '%</strong>' +
+                '</div>';
+        }).join('')
+        : '<div class="employer-empty">No job postings yet.</div>';
+}
+
+async function loadAnalytics() {
+    try {
+        const data = await api('/api/employer/analytics');
+        state.analytics = data;
+        renderAnalytics(data);
+    } catch (error) {
+        console.error('[Employer] analytics:', error);
+        $('#analyticsStatusList').innerHTML = '<div class="employer-empty">Unable to load analytics.</div>';
+        $('#analyticsJobsList').innerHTML = '';
     }
 }
 
@@ -687,6 +743,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('#jobEditorForm').addEventListener('submit', saveJob);
 
     $('#openPostJob').addEventListener('click', () => openJobEditor());
+    $('#refreshEmployerAnalytics').addEventListener('click', loadAnalytics);
     $('#openPostJobFromJobs').addEventListener('click', () => openJobEditor());
 
     document.querySelectorAll('[data-close-job-editor]').forEach((element) => {
