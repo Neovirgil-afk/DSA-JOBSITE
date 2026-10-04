@@ -6860,3 +6860,31 @@ body.employer-modal-open {
 .employer-activity-item div{display:flex;flex-direction:column;gap:3px;flex:1}
 .employer-activity-item small{color:var(--muted)}
 .employer-activity-current{font-size:.75rem;font-weight:700;text-transform:uppercase;color:var(--indigo);white-space:nowrap}
+
+
+/* Employer analytics */
+.employer-analytics-stat-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.employer-analytics-stat{padding:18px;border:1px solid var(--line);border-radius:18px;background:#fff}
+.employer-analytics-stat span{display:block;color:var(--muted);font-size:.78rem;font-weight:700}
+.employer-analytics-stat strong{display:block;margin:7px 0 3px;color:var(--ink);font:800 28px/1 var(--font-display)}
+.employer-analytics-stat small{color:var(--muted);font-size:.72rem}
+.employer-analytics-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:16px}
+.employer-analytics-card{min-width:0;padding:18px;border:1px solid var(--line);border-radius:18px;background:#fff}
+.employer-analytics-card h3{margin:2px 0 0;color:var(--ink);font-size:1rem}
+.employer-analytics-status-list,.employer-analytics-jobs-list{display:grid;gap:14px;margin-top:16px}
+.employer-analytics-status-row{display:grid;grid-template-columns:105px 1fr 42px;align-items:center;gap:10px}
+.employer-analytics-status-row>div:first-child{display:flex;flex-direction:column;gap:2px}
+.employer-analytics-status-row strong{font-size:.78rem;color:var(--ink)}
+.employer-analytics-status-row span{font-size:.7rem;color:var(--muted)}
+.employer-analytics-status-row>b{font-size:.72rem;text-align:right;color:var(--indigo)}
+.employer-analytics-bar{height:8px;overflow:hidden;border-radius:999px;background:var(--indigo-tint)}
+.employer-analytics-bar i{display:block;height:100%;border-radius:inherit;background:var(--indigo)}
+.employer-analytics-job-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid var(--line)}
+.employer-analytics-job-row:last-child{border-bottom:0}
+.employer-analytics-job-row>div{min-width:0;display:flex;flex-direction:column;gap:4px}
+.employer-analytics-job-row strong{color:var(--ink);font-size:.82rem}
+.employer-analytics-job-row span{color:var(--muted);font-size:.7rem}
+.employer-analytics-job-row>strong{color:var(--indigo);white-space:nowrap}
+@media (max-width:1000px){.employer-analytics-stat-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:700px){.employer-analytics-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.employer-analytics-grid{grid-template-columns:1fr}.employer-analytics-status-row{grid-template-columns:95px 1fr 38px}}
+@media (max-width:480px){.employer-analytics-stat-grid{grid-template-columns:1fr}.employer-analytics-stat{padding:15px}.employer-analytics-card{padding:15px}}
