@@ -263,6 +263,111 @@ router.get('/dashboard', requireEmployer, (req, res) => {
     }
 });
 
+router.get('/analytics', requireEmployer, (req, res) => {
+    try {
+        const employerId = req.employer.id;
+
+        const applications = db.prepare(
+            'SELECT a.id, a.status, a.job_id, a.user_id FROM applications a JOIN jobs j ON j.id = a.job_id WHERE j.employer_id = ?'
+        ).all(employerId);
+
+        const statusCounts = {
+            new: 0,
+            reviewing: 0,
+            shortlisted: 0,
+            interview: 0,
+            hired: 0,
+            rejected: 0
+        };
+
+        const jobCache = new Map();
+        const userCache = new Map();
+        let matchTotal = 0;
+
+        for (const application of applications) {
+            const status = statusCounts.hasOwnProperty(application.status) ? application.status : 'new';
+            statusCounts[status] += 1;
+
+            if (!jobCache.has(application.job_id)) {
+                jobCache.set(application.job_id, db.prepare(
+                    'SELECT id, title, status FROM jobs WHERE id = ? AND employer_id = ?'
+                ).get(application.job_id, employerId));
+            }
+
+            if (!userCache.has(application.user_id)) {
+                userCache.set(application.user_id, new Set(
+                    db.prepare(
+                        'SELECT s.name FROM user_skills us JOIN skills s ON s.id = us.skill_id WHERE us.user_id = ?'
+                    ).all(application.user_id).map((row) => String(row.name).toLowerCase())
+                ));
+            }
+
+            const required = db.prepare(
+                'SELECT s.name FROM job_skills js JOIN skills s ON s.id = js.skill_id WHERE js.job_id = ?'
+            ).all(application.job_id).map((row) => String(row.name).toLowerCase());
+
+            const userSkills = userCache.get(application.user_id);
+            const score = required.length
+                ? Math.round((required.filter((skill) => userSkills.has(skill)).length / required.length) * 100)
+                : 0;
+
+            matchTotal += score;
+        }
+
+        const jobs = db.prepare(
+            "SELECT j.id, j.title, j.status, COUNT(a.id) AS applicants FROM jobs j LEFT JOIN applications a ON a.job_id = j.id WHERE j.employer_id = ? GROUP BY j.id ORDER BY applicants DESC, j.created_at DESC"
+        ).all(employerId);
+
+        const jobAverages = new Map();
+        for (const job of jobs) jobAverages.set(Number(job.id), { total: 0, count: 0 });
+
+        for (const application of applications) {
+            const bucket = jobAverages.get(Number(application.job_id));
+            if (!bucket) continue;
+
+            const required = db.prepare(
+                'SELECT s.name FROM job_skills js JOIN skills s ON s.id = js.skill_id WHERE js.job_id = ?'
+            ).all(application.job_id).map((row) => String(row.name).toLowerCase());
+
+            const userSkills = userCache.get(application.user_id);
+            const score = required.length
+                ? Math.round((required.filter((skill) => userSkills.has(skill)).length / required.length) * 100)
+                : 0;
+
+            bucket.total += score;
+            bucket.count += 1;
+        }
+
+        const statusLabels = { active: 'Active', draft: 'Draft', closed: 'Closed' };
+        const jobResults = jobs.map((job) => {
+            const bucket = jobAverages.get(Number(job.id));
+            return {
+                id: job.id,
+                title: job.title,
+                statusLabel: statusLabels[job.status] || job.status,
+                applicants: Number(job.applicants || 0),
+                averageMatch: bucket?.count ? Math.round(bucket.total / bucket.count) : 0
+            };
+        });
+
+        res.json({
+            success: true,
+            stats: {
+                totalApplicants: applications.length,
+                shortlisted: statusCounts.shortlisted,
+                interview: statusCounts.interview,
+                hired: statusCounts.hired,
+                averageMatch: applications.length ? Math.round(matchTotal / applications.length) : 0
+            },
+            statusCounts,
+            jobs: jobResults
+        });
+    } catch (err) {
+        console.error('[GET /api/employer/analytics] error:', err);
+        res.status(500).json({ error: 'Failed to load employer analytics.' });
+    }
+});
+
 router.get('/jobs', requireEmployer, (req, res) => {
     try {
         const jobs = db.prepare(
