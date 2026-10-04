@@ -1,4 +1,31 @@
-'use strict';
+    document.addEventListener('click', (event) => {
+        const link = event.target.closest('[data-mobile-route]');
+        if (!link || window.innerWidth > 899) return;
+
+        const href = link.getAttribute('data-mobile-route');
+        if (!href) return;
+
+        const protectedRoute = ['/profile.html', '/learning.html', '/resume.html'].includes(href);
+
+        if (protectedRoute) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+
+            getCurrentUser().then((user) => {
+                if (user) {
+                    window.location.href = new URL(href, window.location.href).href;
+                } else {
+                    requireLogin(href);
+                }
+            });
+
+            return;
+        }
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        window.location.href = new URL(href, window.location.href).href;
+    }, true);'use strict';
 
 document.addEventListener('click', (event) => {
     const link = event.target.closest('[data-mobile-route]');
