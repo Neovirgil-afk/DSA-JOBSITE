@@ -8,7 +8,12 @@ const state = {
     jobs: [],
     activeJobId: null,
     editingJobId: null,
-    activeApplicationId: null
+    activeApplicationId: null,
+    applicants: [],
+    applicantSearch: '',
+    applicantStatus: 'all',
+    applicantMatch: 'all',
+    applicantSort: 'match-desc'
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -311,76 +316,83 @@ async function updateJobStatus(jobId, status) {
     }
 }
 
+function getFilteredApplicants() {
+    const query = state.applicantSearch.trim().toLowerCase();
+    const minimumMatch = state.applicantMatch === 'all' ? 0 : Number(state.applicantMatch);
+
+    return state.applicants.filter((applicant) => {
+        const searchable = [
+            applicant.full_name, applicant.email, applicant.degree, applicant.location,
+            ...(applicant.skills || []), ...(applicant.matchingSkills || []), ...(applicant.missingSkills || [])
+        ].join(' ').toLowerCase();
+
+        return (!query || searchable.includes(query)) &&
+            (state.applicantStatus === 'all' || applicant.status === state.applicantStatus) &&
+            Number(applicant.matchScore || 0) >= minimumMatch;
+    }).sort((a, b) => {
+        switch (state.applicantSort) {
+            case 'match-asc': return Number(a.matchScore || 0) - Number(b.matchScore || 0);
+            case 'newest': return new Date(b.applied_at || 0) - new Date(a.applied_at || 0);
+            case 'oldest': return new Date(a.applied_at || 0) - new Date(b.applied_at || 0);
+            case 'name-asc': return String(a.full_name || '').localeCompare(String(b.full_name || ''));
+            default: return Number(b.matchScore || 0) - Number(a.matchScore || 0);
+        }
+    });
+}
+
+function renderApplicants() {
+    const applicants = getFilteredApplicants();
+    const total = state.applicants.length;
+    const topApplicant = applicants[0];
+
+    $('#applicantSummary').innerHTML =
+        '<strong>' + applicants.length + '</strong> of <strong>' + total + '</strong> applicants shown' +
+        (topApplicant ? ' · <strong>Top result: ' + escapeHtml(topApplicant.full_name) + ' (' + Number(topApplicant.matchScore) + '%)</strong>' : '');
+
+    if (!total) {
+        $('#applicantsList').innerHTML = '<div class="employer-empty employer-empty--large"><strong>No applicants yet.</strong><span>Applications will appear here once candidates apply to this job.</span></div>';
+        return;
+    }
+    if (!applicants.length) {
+        $('#applicantsList').innerHTML = '<div class="employer-empty employer-empty--large"><strong>No applicants match these filters.</strong><span>Try clearing the search or changing the filters.</span></div>';
+        return;
+    }
+
+    $('#applicantsList').innerHTML = applicants.map((applicant, index) => {
+        return '<article class="employer-applicant-card">' +
+            '<div class="employer-applicant-score"><strong>#' + Number(applicant.rank || index + 1) + '</strong><span>' + Number(applicant.matchScore) + '% match</span></div>' +
+            '<div class="employer-applicant-main">' +
+                '<div class="employer-applicant-heading"><div><h3>' + escapeHtml(applicant.full_name) + '</h3><p>' + escapeHtml(applicant.email) + '</p></div>' +
+                '<span class="employer-status employer-status--' + escapeHtml(applicant.status) + '">' + escapeHtml(applicant.status) + '</span></div>' +
+                '<div class="employer-applicant-meta"><span>' + escapeHtml(applicant.degree || 'Education not listed') + '</span><span>' + escapeHtml(applicant.location || 'Location not listed') + '</span></div>' +
+                '<div class="employer-match-skills"><div><small>Matched</small>' +
+                (applicant.matchingSkills || []).slice(0, 7).map((skill) => '<span class="match-have">' + escapeHtml(skill) + '</span>').join('') + '</div><div><small>Missing</small>' +
+                (applicant.missingSkills || []).slice(0, 5).map((skill) => '<span class="match-missing">' + escapeHtml(skill) + '</span>').join('') + '</div></div>' +
+                '<div class="employer-applicant-actions"><button type="button" class="employer-secondary-button" data-view-applicant="' + applicant.application_id + '">View Profile</button>' +
+                '<select class="employer-inline-select" data-application-status="' + applicant.application_id + '">' +
+                ['new','reviewing','shortlisted','interview','hired','rejected'].map((status) => '<option value="' + status + '"' + (applicant.status === status ? ' selected' : '') + '>' + status.charAt(0).toUpperCase() + status.slice(1) + '</option>').join('') +
+                '</select></div></div></article>';
+    }).join('');
+}
+
 async function loadApplicants(jobId) {
     if (!jobId) {
+        state.applicants = [];
         $('#applicantSummary').textContent = '';
-        $('#applicantsList').innerHTML =
-            '<div class="employer-empty">Select a job to view applicants.</div>';
+        $('#applicantsList').innerHTML = '<div class="employer-empty">Select a job to view applicants.</div>';
         return;
     }
 
     state.activeJobId = Number(jobId);
-
     try {
         const data = await api('/api/employer/jobs/' + jobId + '/applicants');
-        const applicants = data.applicants || [];
-
-        const topApplicant = applicants[0];
-        $('#applicantSummary').innerHTML =
-            '<strong>' + applicants.length + '</strong> applicants · ranked highest to lowest by skill match using the Max Heap DSA algorithm' +
-            (topApplicant ? ' · <strong>#1 ' + escapeHtml(topApplicant.full_name) + ' (' + Number(topApplicant.matchScore) + '%)</strong>' : '');
-
-        if (!applicants.length) {
-            $('#applicantsList').innerHTML =
-                '<div class="employer-empty employer-empty--large">' +
-                '<strong>No applicants yet.</strong>' +
-                '<span>Applications will appear here once candidates apply to this job.</span>' +
-                '</div>';
-            return;
-        }
-
-        $('#applicantsList').innerHTML = applicants.map((applicant) => {
-            return '<article class="employer-applicant-card">' +
-                '<div class="employer-applicant-score">' +
-                    '<strong>#' + Number(applicant.rank || 0) + '</strong>' +
-                    '<span>' + Number(applicant.matchScore) + '% match</span>' +
-                '</div>' +
-                '<div class="employer-applicant-main">' +
-                    '<div class="employer-applicant-heading">' +
-                        '<div><h3>' + escapeHtml(applicant.full_name) + '</h3>' +
-                        '<p>' + escapeHtml(applicant.email) + '</p></div>' +
-                        '<span class="employer-status employer-status--' + escapeHtml(applicant.status) + '">' + escapeHtml(applicant.status) + '</span>' +
-                    '</div>' +
-                    '<div class="employer-applicant-meta">' +
-                        '<span>' + escapeHtml(applicant.degree || 'Education not listed') + '</span>' +
-                        '<span>' + escapeHtml(applicant.location || 'Location not listed') + '</span>' +
-                    '</div>' +
-                    '<div class="employer-match-skills">' +
-                        '<div><small>Matched</small>' +
-                        (applicant.matchingSkills || []).slice(0, 7).map((skill) => '<span class="match-have">' + escapeHtml(skill) + '</span>').join('') +
-                        '</div>' +
-                        '<div><small>Missing</small>' +
-                        (applicant.missingSkills || []).slice(0, 5).map((skill) => '<span class="match-missing">' + escapeHtml(skill) + '</span>').join('') +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="employer-applicant-actions">' +
-                        '<button type="button" class="employer-secondary-button" data-view-applicant="' + applicant.application_id + '">View Profile</button>' +
-                        '<select class="employer-inline-select" data-application-status="' + applicant.application_id + '">' +
-                            ['new', 'reviewing', 'shortlisted', 'interview', 'hired', 'rejected'].map((status) =>
-                                '<option value="' + status + '"' + (applicant.status === status ? ' selected' : '') + '>' +
-                                status.charAt(0).toUpperCase() + status.slice(1) + '</option>'
-                            ).join('') +
-                        '</select>' +
-                    '</div>' +
-                '</div>' +
-            '</article>';
-        }).join('');
+        state.applicants = data.applicants || [];
+        renderApplicants();
     } catch (error) {
-        $('#applicantsList').innerHTML =
-            '<div class="employer-empty">Unable to load applicants.</div>';
+        state.applicants = [];
+        $('#applicantsList').innerHTML = '<div class="employer-empty">Unable to load applicants.</div>';
     }
 }
-
 function renderApplicantTags(selector, skills, emptyText) {
     const element = $(selector);
     const values = Array.isArray(skills) ? skills : [];
@@ -681,7 +693,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     $('#applicantJobSelect').addEventListener('change', (event) => {
         state.activeJobId = Number(event.target.value);
+        state.applicantSearch = '';
+        state.applicantStatus = 'all';
+        state.applicantMatch = 'all';
+        state.applicantSort = 'match-desc';
+        $('#applicantSearch').value = '';
+        $('#applicantStatusFilter').value = 'all';
+        $('#applicantMatchFilter').value = 'all';
+        $('#applicantSort').value = 'match-desc';
         loadApplicants(state.activeJobId);
+    });
+
+    $('#applicantSearch').addEventListener('input', (event) => {
+        state.applicantSearch = event.target.value;
+        renderApplicants();
+    });
+    $('#applicantStatusFilter').addEventListener('change', (event) => {
+        state.applicantStatus = event.target.value;
+        renderApplicants();
+    });
+    $('#applicantMatchFilter').addEventListener('change', (event) => {
+        state.applicantMatch = event.target.value;
+        renderApplicants();
+    });
+    $('#applicantSort').addEventListener('change', (event) => {
+        state.applicantSort = event.target.value;
+        renderApplicants();
     });
 
     $('#employerJobsList').addEventListener('click', async (event) => {
