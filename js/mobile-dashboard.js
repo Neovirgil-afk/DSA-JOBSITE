@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const recommendedCount = document.querySelector('#mobileRecommendedCount');
     const analyticsFilter = document.querySelector('#mobileAnalyticsFilter');
 
-    const protectedRoutes = ['/profile.html', '/learning.html', '/resume.html'];
+    const protectedRoutes = ['/profile.html', '/learning.html', '/resume.html', '/applications.html'];
 
     async function getCurrentUser() {
         try {
@@ -226,6 +226,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    async function loadApplicationCount() {
+        const applicationCount = document.querySelector('#mobileApplicationCount');
+        if (!applicationCount) return;
+
+        try {
+            const response = await fetch('/api/applications', {
+                credentials: 'include'
+            });
+
+            if (!response.ok) return;
+
+            const data = await response.json();
+            applicationCount.textContent = String(
+                Array.isArray(data.applications) ? data.applications.length : 0
+            );
+        } catch (_) {
+            // User may simply be logged out.
+        }
+    }
+
     async function loadSavedCount() {
         if (!savedCount) return;
 
@@ -303,6 +323,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const applicationsCard = document.querySelector('.mobile-stat-card--applications');
+    if (applicationsCard) {
+        applicationsCard.setAttribute('role', 'link');
+        applicationsCard.setAttribute('tabindex', '0');
+        const openApplications = () => {
+            const fakeLink = document.createElement('a');
+            fakeLink.setAttribute('data-mobile-route', '/applications.html');
+            handleProtectedRoute(fakeLink);
+        };
+        applicationsCard.addEventListener('click', openApplications);
+        applicationsCard.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openApplications();
+            }
+        });
+    }
+
     const profileCard = document.querySelector('.mobile-stat-card--profile');
     if (profileCard) {
         profileCard.setAttribute('role', 'link');
@@ -316,4 +354,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadUserState();
     loadSavedCount();
+    loadApplicationCount();
 });
