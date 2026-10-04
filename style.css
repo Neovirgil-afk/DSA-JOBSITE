@@ -5606,3 +5606,507 @@ body.employer-modal-open {
   background: var(--indigo-tint);
   border-color: #d4d2ff;
 }
+
+
+/* =========================================================
+   MOBILE APP DASHBOARD
+   The desktop JobSite stays unchanged. This shell is only
+   shown on phones/tablets and follows the supplied reference:
+   compact header, rounded metric cards, analytics and bottom nav.
+   ========================================================= */
+
+.mobile-app-shell {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  body {
+    background: #f4f8f1;
+    padding-bottom: 78px;
+  }
+
+  .flight-layer,
+  .site-header,
+  .hero,
+  .trust-strip,
+  .categories,
+  .cta-banner,
+  .site-footer {
+    display: none !important;
+  }
+
+  .mobile-app-shell {
+    display: block;
+    min-height: 100vh;
+    color: #153d20;
+    background:
+      radial-gradient(circle at 8% 4%, rgba(198, 232, 115, .24), transparent 30%),
+      linear-gradient(180deg, #eaf4e5 0, #f7faf5 42%, #f4f8f1 100%);
+  }
+
+  .mobile-app-topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: max(14px, env(safe-area-inset-top)) 16px 12px;
+    background: #0c4a1d;
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+  }
+
+  .mobile-app-brand {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #b8f45b;
+    color: #123b1d;
+    box-shadow: 0 8px 18px rgba(0,0,0,.12);
+  }
+
+  .mobile-brand-mark {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .mobile-app-search-wrap {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 8px 8px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.13);
+  }
+
+  .mobile-app-search-wrap > svg {
+    flex: 0 0 auto;
+    color: rgba(255,255,255,.92);
+  }
+
+  #mobileSearchForm {
+    flex: 1;
+    min-width: 0;
+  }
+
+  #mobileSearchQuery {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    color: #fff;
+    background: transparent;
+    font: 600 13px/1.2 var(--font-body);
+  }
+
+  #mobileSearchQuery::placeholder {
+    color: rgba(255,255,255,.72);
+  }
+
+  .mobile-app-avatar {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 32px;
+    border-radius: 50%;
+    background: #f4f5ef;
+    color: #173d22;
+    font: 800 12px/1 var(--font-display);
+  }
+
+  .mobile-app-content {
+    width: min(100% - 28px, 560px);
+    margin: 0 auto;
+    padding: 22px 0 94px;
+  }
+
+  .mobile-dashboard-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .mobile-kicker,
+  .mobile-panel-eyebrow {
+    display: block;
+    color: #4f7b58;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .11em;
+    text-transform: uppercase;
+  }
+
+  .mobile-dashboard-heading h1 {
+    margin: 5px 0 5px;
+    color: #163f20;
+    font-size: clamp(24px, 7vw, 32px);
+    line-height: 1.08;
+    letter-spacing: -.045em;
+  }
+
+  .mobile-dashboard-heading p {
+    max-width: 320px;
+    margin: 0;
+    color: #718076;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .mobile-status-dot {
+    width: 10px;
+    height: 10px;
+    flex: 0 0 10px;
+    margin-top: 7px;
+    border-radius: 50%;
+    background: #75cf39;
+    box-shadow: 0 0 0 5px rgba(117,207,57,.13);
+  }
+
+  .mobile-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .mobile-stat-card {
+    position: relative;
+    min-height: 128px;
+    overflow: hidden;
+    padding: 14px 14px 13px;
+    border: 1px solid rgba(29, 82, 40, .07);
+    border-radius: 19px;
+    background: rgba(255,255,255,.88);
+    box-shadow: 0 12px 28px rgba(38, 70, 44, .08);
+  }
+
+  .mobile-stat-card::after {
+    content: "";
+    position: absolute;
+    width: 54px;
+    height: 54px;
+    right: -16px;
+    top: -16px;
+    border-radius: 50%;
+    opacity: .42;
+  }
+
+  .mobile-stat-card--jobs::after { background: #d9f4a9; }
+  .mobile-stat-card--saved::after { background: #f6d6e2; }
+  .mobile-stat-card--applications::after { background: #d7e3ff; }
+  .mobile-stat-card--profile::after { background: #e2dbff; }
+
+  .mobile-stat-icon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #f0f5eb;
+    font-size: 13px;
+    z-index: 1;
+  }
+
+  .mobile-stat-label {
+    display: block;
+    max-width: 72%;
+    color: #345a3b;
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .mobile-stat-card strong {
+    display: block;
+    margin-top: 11px;
+    color: #12421e;
+    font: 800 25px/1 var(--font-display);
+    letter-spacing: -.045em;
+  }
+
+  .mobile-stat-card small {
+    display: block;
+    margin-top: 7px;
+    color: #7b887e;
+    font-size: 9.5px;
+  }
+
+  .mobile-panel {
+    margin-top: 14px;
+    padding: 17px;
+    border: 1px solid rgba(29, 82, 40, .07);
+    border-radius: 20px;
+    background: rgba(255,255,255,.9);
+    box-shadow: 0 12px 28px rgba(38, 70, 44, .07);
+  }
+
+  .mobile-panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .mobile-panel-heading h2 {
+    margin: 4px 0 0;
+    color: #1a4224;
+    font-size: 17px;
+    letter-spacing: -.025em;
+  }
+
+  .mobile-filter-pill {
+    border: 1px solid #e1e8dd;
+    border-radius: 999px;
+    padding: 7px 10px;
+    background: #fff;
+    color: #4d6653;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .mobile-analytics-summary {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 17px 0 10px;
+    color: #617366;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .mobile-analytics-summary strong {
+    margin-left: 4px;
+    color: #328642;
+  }
+
+  .mobile-chart {
+    position: relative;
+    height: 148px;
+    padding-top: 8px;
+  }
+
+  .mobile-chart-grid {
+    position: absolute;
+    inset: 8px 0 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .mobile-chart-grid span {
+    display: block;
+    height: 1px;
+    background: #edf0eb;
+  }
+
+  .mobile-chart-line {
+    position: absolute;
+    left: 3%;
+    right: 3%;
+    bottom: 25px;
+    height: 105px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .mobile-chart-line::before {
+    content: "";
+    position: absolute;
+    left: 2%;
+    right: 2%;
+    bottom: 12%;
+    height: 42px;
+    background: repeating-linear-gradient(
+      135deg,
+      rgba(142, 220, 78, .14) 0 4px,
+      transparent 4px 8px
+    );
+    transform: skewY(-7deg);
+    border-radius: 10px;
+  }
+
+  .mobile-chart-line i {
+    position: relative;
+    width: 6px;
+    min-height: 20px;
+    z-index: 1;
+    border-radius: 999px;
+    background: #78d84a;
+    box-shadow: 0 0 0 4px rgba(120,216,74,.10);
+  }
+
+  .mobile-chart-line i:nth-child(4) {
+    background: #2e7d3a;
+    box-shadow: 0 0 0 5px rgba(46,125,58,.11);
+  }
+
+  .mobile-chart-labels {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    color: #87938a;
+    font-size: 9px;
+  }
+
+  .mobile-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    margin-top: 13px;
+  }
+
+  .mobile-quick-card {
+    display: flex;
+    min-height: 78px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 12px;
+    border: 1px solid #e8eee5;
+    border-radius: 14px;
+    background: #fbfcfa;
+  }
+
+  .mobile-quick-card > span {
+    color: #3c9946;
+    font-size: 16px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .mobile-quick-card strong {
+    color: #24492d;
+    font-size: 11px;
+  }
+
+  .mobile-quick-card small {
+    color: #879188;
+    font-size: 9px;
+  }
+
+  .mobile-bottom-nav {
+    position: fixed;
+    left: 50%;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 50;
+    width: min(calc(100% - 28px), 520px);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 3px;
+    padding: 8px 7px;
+    border-radius: 23px;
+    background: #2f8b42;
+    box-shadow: 0 14px 30px rgba(30, 82, 38, .24);
+  }
+
+  .mobile-bottom-nav a {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 3px;
+    padding: 5px 3px;
+    border-radius: 15px;
+    color: rgba(255,255,255,.83);
+    transition: background .18s ease, color .18s ease;
+  }
+
+  .mobile-bottom-nav a.is-active {
+    background: #b8f45b;
+    color: #174722;
+  }
+
+  .mobile-bottom-nav a span {
+    font-size: 17px;
+    line-height: 1;
+  }
+
+  .mobile-bottom-nav a small {
+    font-size: 8.5px;
+    font-weight: 800;
+  }
+
+  /* Keep the existing live job results functional on mobile. */
+  .results {
+    width: min(100% - 28px, 560px);
+    margin: 0 auto;
+    padding: 0 0 22px;
+  }
+
+  .results-head {
+    margin-bottom: 10px;
+  }
+
+  .results-head h2 {
+    color: #193f22;
+    font-size: 18px;
+  }
+
+  .results-grid {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .result-card {
+    padding: 14px;
+    border: 1px solid #e4ebe1;
+    border-radius: 15px;
+    box-shadow: 0 8px 18px rgba(38, 70, 44, .05);
+  }
+
+  .result-card h3 {
+    padding-right: 65px;
+    color: #21492a;
+  }
+
+  .jobs-pagination {
+    padding-bottom: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .mobile-app-content {
+    width: min(100% - 22px, 560px);
+  }
+
+  .mobile-stat-card {
+    min-height: 120px;
+    padding: 13px;
+  }
+
+  .mobile-stat-card strong {
+    font-size: 23px;
+  }
+
+  .mobile-panel {
+    padding: 15px;
+  }
+
+  .mobile-bottom-nav {
+    width: calc(100% - 18px);
+    bottom: max(6px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (min-width: 900px) {
+  .mobile-app-shell {
+    display: none !important;
+  }
+}
