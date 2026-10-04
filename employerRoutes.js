@@ -483,6 +483,10 @@ router.get('/applicants/:id', requireEmployer, (req, res) => {
             ? Math.round((gap.have.length / requiredSkills.length) * 100)
             : 0;
 
+        const history = db.prepare(
+            'SELECT status, changed_at FROM application_history WHERE application_id = ? ORDER BY changed_at ASC, id ASC'
+        ).all(application.id);
+
         res.json({
             success: true,
             applicant: {
@@ -491,7 +495,8 @@ router.get('/applicants/:id', requireEmployer, (req, res) => {
                 requiredSkills,
                 matchingSkills: gap.have,
                 missingSkills: gap.missing,
-                matchScore
+                matchScore,
+                history
             }
         });
     } catch (err) {
