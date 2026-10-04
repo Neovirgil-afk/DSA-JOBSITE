@@ -19,6 +19,56 @@ document.addEventListener('DOMContentLoaded', () => {
     const desktopInput = document.querySelector('#searchQuery');
     const resultsSection = document.querySelector('#resultsSection');
     const resultsGrid = document.querySelector('#resultsGrid');
+    const mobileUserAvatar = document.querySelector('#mobileUserAvatar');
+
+    async function getCurrentUser() {
+        try {
+            const response = await fetch('/api/auth/me', { credentials: 'include' });
+            if (!response.ok) return null;
+            const data = await response.json();
+            return data.user || null;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    function getInitials(name) {
+        const parts = String(name || 'Account').trim().split(/\\s+/).filter(Boolean);
+        return parts.slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join('') || 'A';
+    }
+
+    async function syncMobileUser() {
+        if (!mobileUserAvatar) return;
+        const user = await getCurrentUser();
+        mobileUserAvatar.textContent = user ? getInitials(user.full_name || user.fullName) : '👤';
+        mobileUserAvatar.setAttribute('aria-label', user ? 'Open your profile' : 'Log in to open your profile');
+    }
+
+    function requireLogin(href) {
+        sessionStorage.setItem('jobsite_redirect_after_login', href);
+        const loginLink = document.querySelector('.login-link');
+        if (loginLink) {
+            loginLink.click();
+            return;
+        }
+        if (window.JobSiteAuth && typeof window.JobSiteAuth.openLogin === 'function') {
+            window.JobSiteAuth.openLogin();
+            return;
+        }
+        window.location.href = href;
+    }
+
+    async function handleProtectedMobileRoute(event, link) {
+        const href = link.getAttribute('data-mobile-route') || link.getAttribute('href');
+        if (!href || !['/profile.html', '/learning.html', '/resume.html'].includes(href)) return false;
+        const user = await getCurrentUser();
+        if (user) return false;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        requireLogin(href);
+        return true;
+    }
+
     const savedCount = document.querySelector('#mobileSavedCount');
     const recommendedCount = document.querySelector('#mobileRecommendedCount');
     const analyticsFilter = document.querySelector('#mobileAnalyticsFilter');
@@ -176,5 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    syncMobileUser();
     loadSavedCount();
 });
