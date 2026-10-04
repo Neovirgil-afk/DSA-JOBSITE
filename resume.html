@@ -304,6 +304,30 @@ input[type=file]{display:none}
 }
 </style>
 
+<style>
+@media(max-width:700px){
+  .resume-page{padding-bottom:74px!important;background:#f7f7fb!important}
+  .resume-page>.resume-header{display:none!important}
+  .resume-main{padding:18px 0 20px!important}
+  .resume-main>.wrap{width:100%;padding:0 14px}
+  .resume-heading{margin:0 0 14px!important;padding:18px;border-radius:18px;background:linear-gradient(145deg,#4f46e5,#3730a3)}
+  .resume-heading .eyebrow,.resume-heading h1,.resume-heading .subtitle{color:#fff!important}
+  .resume-heading h1{font-size:27px!important}
+  .resume-heading .subtitle{font-size:11px!important;line-height:1.5}
+  .resume-grid{display:flex!important;flex-direction:column;gap:12px!important}
+  .resume-card{width:100%;box-sizing:border-box;border-radius:16px!important;padding:16px!important;box-shadow:0 7px 20px rgba(24,28,55,.05)!important}
+  .dropzone{min-height:135px!important}
+  .scan-button{width:100%!important}
+  .skills{max-height:none}
+  .jobs-card{order:3}
+  .mobile-page-bottom-nav{position:fixed;left:10px;right:10px;bottom:10px;z-index:200;display:grid;grid-template-columns:repeat(4,1fr);padding:7px;border:1px solid #e3e2ed;border-radius:17px;background:rgba(255,255,255,.96);box-shadow:0 10px 30px rgba(24,28,55,.15);backdrop-filter:blur(12px)}
+  .mobile-page-bottom-nav a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 3px;border-radius:11px;color:#697386;text-decoration:none}
+  .mobile-page-bottom-nav a span{font-size:16px;font-weight:800}
+  .mobile-page-bottom-nav a small{font-size:8px;font-weight:800}
+  .mobile-page-bottom-nav a.active{background:#eeecfb;color:#4f46e5}
+}
+@media(min-width:701px){.mobile-page-shell-header,.mobile-page-bottom-nav{display:none}}
+</style>
 </head>
 <body class="resume-page">
 <header class="resume-header">
@@ -322,6 +346,11 @@ input[type=file]{display:none}
 </nav>
 </div>
 </header>
+<div class="mobile-page-shell-header">
+  <a href="/" class="mobile-page-back" data-mobile-route="/">←</a>
+  <div><span>JOBSITE</span><strong>Resume Analyzer</strong></div>
+  <a href="/profile.html" class="mobile-page-header-action" data-mobile-route="/profile.html">Profile</a>
+</div>
 <main class="resume-main">
 <div class="wrap">
 <section class="resume-heading"><p class="eyebrow">CAREER MATCHING</p><h1>Analyze your resume.</h1><p class="subtitle">Upload your resume and JobSite will scan it for known skills, save the detected skills to your profile, and calculate which jobs match your current skill set.</p></section>
@@ -348,6 +377,12 @@ input[type=file]{display:none}
 </section>
 </div>
 </div>
+<nav class="mobile-page-bottom-nav" aria-label="Mobile page navigation">
+  <a href="/" data-mobile-route="/"><span>⌂</span><small>Home</small></a>
+  <a href="/resume.html" class="active" data-mobile-route="/resume.html"><span>▤</span><small>Resume</small></a>
+  <a href="/learning.html" data-mobile-route="/learning.html"><span>↗</span><small>Learn</small></a>
+  <a href="/profile.html" data-mobile-route="/profile.html"><span>●</span><small>Profile</small></a>
+</nav>
 </main>
 <script type="module" src="/js/resume.js"></script>
 <script src="/js/page-transition.js" defer></script>
