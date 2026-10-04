@@ -444,10 +444,15 @@ router.get('/jobs/:id/applicants', requireEmployer, (req, res) => {
             });
         }
 
+        const rankedApplicants = heap.toSortedArray().map((applicant, index) => ({
+            ...applicant,
+            rank: index + 1
+        }));
+
         res.json({
             success: true,
             job: { id: job.id, title: job.title, requiredSkills },
-            applicants: heap.toSortedArray()
+            applicants: rankedApplicants
         });
     } catch (err) {
         console.error('[GET /api/employer/jobs/:id/applicants] error:', err);
