@@ -1,43 +1,4 @@
-    document.addEventListener('click', (event) => {
-        const link = event.target.closest('[data-mobile-route]');
-        if (!link || window.innerWidth > 899) return;
-
-        const href = link.getAttribute('data-mobile-route');
-        if (!href) return;
-
-        const protectedRoute = ['/profile.html', '/learning.html', '/resume.html'].includes(href);
-
-        if (protectedRoute) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-
-            getCurrentUser().then((user) => {
-                if (user) {
-                    window.location.href = new URL(href, window.location.href).href;
-                } else {
-                    requireLogin(href);
-                }
-            });
-
-            return;
-        }
-
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        window.location.href = new URL(href, window.location.href).href;
-    }, true);'use strict';
-
-document.addEventListener('click', (event) => {
-    const link = event.target.closest('[data-mobile-route]');
-    if (!link || window.innerWidth > 899) return;
-
-    const href = link.getAttribute('data-mobile-route');
-    if (!href) return;
-
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    window.location.href = new URL(href, window.location.href).href;
-}, true);
+'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
     const mobileForm = document.querySelector('#mobileSearchForm');
@@ -47,6 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsSection = document.querySelector('#resultsSection');
     const resultsGrid = document.querySelector('#resultsGrid');
     const mobileUserAvatar = document.querySelector('#mobileUserAvatar');
+    const savedCount = document.querySelector('#mobileSavedCount');
+    const recommendedCount = document.querySelector('#mobileRecommendedCount');
+    const analyticsFilter = document.querySelector('#mobileAnalyticsFilter');
+
+    const protectedRoutes = ['/profile.html', '/learning.html', '/resume.html'];
 
     async function getCurrentUser() {
         try {
@@ -60,55 +26,187 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getInitials(name) {
-        const parts = String(name || 'Account').trim().split(/\\s+/).filter(Boolean);
-        return parts.slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join('') || 'A';
+        const parts = String(name || 'Account').trim().split(/\s+/).filter(Boolean);
+        return parts.slice(0, 2)
+            .map((part) => part.charAt(0).toUpperCase())
+            .join('') || 'A';
     }
 
-    async function syncMobileUser() {
-        if (!mobileUserAvatar) return;
-        const user = await getCurrentUser();
-        mobileUserAvatar.textContent = user ? getInitials(user.full_name || user.fullName) : '👤';
-        mobileUserAvatar.setAttribute('aria-label', user ? 'Open your profile' : 'Log in to open your profile');
+    function ensureMobileLoginModal() {
+        let overlay = document.querySelector('#mobileLoginOverlay');
+        if (overlay) return overlay;
+
+        overlay = document.createElement('div');
+        overlay.id = 'mobileLoginOverlay';
+        overlay.className = 'mobile-login-overlay';
+        overlay.innerHTML = `
+            <div class="mobile-login-modal" role="dialog" aria-modal="true" aria-labelledby="mobileLoginTitle">
+                <button type="button" class="mobile-login-close" id="mobileLoginClose" aria-label="Close login">×</button>
+                <div class="mobile-login-brand"><span>✦</span></div>
+                <div class="mobile-login-heading">
+                    <span>WELCOME BACK</span>
+                    <h2 id="mobileLoginTitle">Log in to JobSite</h2>
+                    <p>Sign in to access your profile, learning tools, and resume features.</p>
+                </div>
+                <form id="mobileLoginForm" class="mobile-login-form">
+                    <label>
+                        Email
+                        <input id="mobileLoginEmail" type="email" autocomplete="email" placeholder="Enter your email" required>
+                    </label>
+                    <label>
+                        Password
+                        <input id="mobileLoginPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+                    </label>
+                    <p id="mobileLoginMessage" class="mobile-login-message" aria-live="polite"></p>
+                    <button type="submit" id="mobileLoginSubmit">Log In</button>
+                </form>
+                <button type="button" class="mobile-login-signup" id="mobileLoginSignup">
+                    New to JobSite? <strong>Create an account</strong>
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        const close = () => {
+            overlay.classList.remove('is-open');
+            document.body.style.overflow = '';
+        };
+
+        overlay.querySelector('#mobileLoginClose').addEventListener('click', close);
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) close();
+        });
+
+        overlay.querySelector('#mobileLoginSignup').addEventListener('click', () => {
+            close();
+            if (window.JobSiteAuth && typeof window.JobSiteAuth.openLogin === 'function') {
+                window.JobSiteAuth.openLogin();
+            }
+        });
+
+        overlay.querySelector('#mobileLoginForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const email = overlay.querySelector('#mobileLoginEmail');
+            const password = overlay.querySelector('#mobileLoginPassword');
+            const message = overlay.querySelector('#mobileLoginMessage');
+            const submit = overlay.querySelector('#mobileLoginSubmit');
+
+            message.textContent = '';
+            submit.disabled = true;
+            submit.textContent = 'Logging in...';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email: email.value.trim(),
+                        password: password.value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || data.error || 'Invalid email or password.');
+                }
+
+                message.textContent = 'Login successful!';
+                message.className = 'mobile-login-message is-success';
+
+                const redirectTarget = sessionStorage.getItem('jobsite_redirect_after_login') || '/';
+                sessionStorage.removeItem('jobsite_redirect_after_login');
+
+                if (data.user && mobileUserAvatar) {
+                    mobileUserAvatar.textContent = getInitials(data.user.full_name || data.user.fullName);
+                    mobileUserAvatar.setAttribute('aria-label', 'Open your profile');
+                }
+
+                window.setTimeout(() => {
+                    close();
+                    window.location.assign(redirectTarget);
+                }, 450);
+            } catch (error) {
+                message.textContent = error.message || 'Login failed. Please try again.';
+                message.className = 'mobile-login-message is-error';
+                submit.disabled = false;
+                submit.textContent = 'Log In';
+            }
+        });
+
+        return overlay;
     }
 
-    function requireLogin(href) {
+    function openMobileLogin(href) {
         sessionStorage.setItem('jobsite_redirect_after_login', href);
-        const loginLink = document.querySelector('.login-link');
-        if (loginLink) {
-            loginLink.click();
-            return;
-        }
-        if (window.JobSiteAuth && typeof window.JobSiteAuth.openLogin === 'function') {
-            window.JobSiteAuth.openLogin();
-            return;
-        }
-        window.location.href = href;
+        const overlay = ensureMobileLoginModal();
+        overlay.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+        window.setTimeout(() => overlay.querySelector('#mobileLoginEmail')?.focus(), 50);
     }
 
-    async function handleProtectedMobileRoute(event, link) {
+    async function handleProtectedRoute(link) {
         const href = link.getAttribute('data-mobile-route') || link.getAttribute('href');
-        if (!href || !['/profile.html', '/learning.html', '/resume.html'].includes(href)) return false;
+        if (!protectedRoutes.includes(href)) return;
+
         const user = await getCurrentUser();
-        if (user) return false;
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        requireLogin(href);
-        return true;
+
+        if (user) {
+            window.location.assign(href);
+            return;
+        }
+
+        openMobileLogin(href);
     }
 
-    const savedCount = document.querySelector('#mobileSavedCount');
-    const recommendedCount = document.querySelector('#mobileRecommendedCount');
-    const analyticsFilter = document.querySelector('#mobileAnalyticsFilter');
+    // Mobile-only protected navigation. This runs in capture phase so the
+    // desktop page-transition and desktop auth handlers cannot redirect first.
+    document.addEventListener('click', (event) => {
+        if (window.innerWidth > 899) return;
+
+        const link = event.target.closest('a');
+        if (!link) return;
+
+        const href = link.getAttribute('data-mobile-route') || link.getAttribute('href');
+        if (!href) return;
+
+        if (protectedRoutes.includes(href)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            handleProtectedRoute(link);
+        }
+    }, true);
+
+    function syncMobileUser(user) {
+        if (!mobileUserAvatar) return;
+
+        mobileUserAvatar.textContent = user
+            ? getInitials(user.full_name || user.fullName)
+            : '👤';
+
+        mobileUserAvatar.setAttribute(
+            'aria-label',
+            user ? 'Open your profile' : 'Log in to open your profile'
+        );
+    }
+
+    async function loadUserState() {
+        syncMobileUser(await getCurrentUser());
+    }
 
     function showJobs() {
         if (!desktopForm || !resultsSection) return;
 
-        // Use the existing desktop job-search logic so mobile and desktop
-        // always use the same backend/API and job cards.
         if (typeof desktopForm.requestSubmit === 'function') {
             desktopForm.requestSubmit();
         } else {
-            desktopForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+            desktopForm.dispatchEvent(new Event('submit', {
+                bubbles: true,
+                cancelable: true
+            }));
         }
 
         window.setTimeout(() => {
@@ -143,16 +241,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 Array.isArray(data.jobs) ? data.jobs.length : 0
             );
         } catch (_) {
-            // Keep the dashboard usable when the user is not signed in.
+            // User may simply be logged out.
         }
     }
 
     if (resultsGrid && recommendedCount) {
         const syncRecommendedCount = () => {
             const count = resultsGrid.querySelectorAll('.result-card[data-job-id]').length;
-            if (count > 0) {
-                recommendedCount.textContent = String(count);
-            }
+            if (count > 0) recommendedCount.textContent = String(count);
         };
 
         new MutationObserver(syncRecommendedCount).observe(resultsGrid, {
@@ -163,8 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
         syncRecommendedCount();
     }
 
-    // Mobile Jobs links: show the real job results instead of trying to
-    // scroll to a section that is hidden until a search is performed.
     document.querySelectorAll('.mobile-bottom-nav a, .mobile-quick-card').forEach((link) => {
         link.addEventListener('click', (event) => {
             const href = link.getAttribute('href');
@@ -176,7 +270,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Make the mobile analytics filter button functional.
     if (analyticsFilter) {
         const filters = ['Monthly⌄', 'Weekly⌄', 'Yearly⌄'];
         let filterIndex = 0;
@@ -187,44 +280,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Keep the active state of the bottom navigation in sync with taps.
     document.querySelectorAll('.mobile-bottom-nav a').forEach((link) => {
-        link.addEventListener('click', (event) => {
+        link.addEventListener('click', () => {
             document.querySelectorAll('.mobile-bottom-nav a').forEach((item) => {
                 item.classList.remove('is-active');
             });
             link.classList.add('is-active');
-
-            // Force real page navigation for mobile pages. This avoids
-            // another mobile/desktop click handler interfering with links.
-            const href = link.getAttribute('href');
-            if (href && href !== '#' && !href.startsWith('#')) {
-                event.preventDefault();
-                event.stopPropagation();
-                window.location.assign(new URL(href, window.location.href).href);
-            }
         });
     });
 
-    // Make the mobile profile avatar and quick-access page links navigate
-    // directly to their real HTML pages.
-    document.querySelectorAll(
-        '.mobile-app-avatar, .mobile-quick-card[href="/learning.html"], .mobile-quick-card[href="/profile.html"], .mobile-quick-card[href="/resume-builder.html"]'
-    ).forEach((link) => {
-        link.addEventListener('click', (event) => {
-            const href = link.getAttribute('href');
-            if (!href || href.startsWith('#')) return;
-
-            event.preventDefault();
-            event.stopPropagation();
-            window.location.assign(new URL(href, window.location.href).href);
-        });
-    });
-
-    // The dashboard stat cards are also useful shortcuts on mobile.
     const savedCard = document.querySelector('.mobile-stat-card--saved');
-    const profileCard = document.querySelector('.mobile-stat-card--profile');
-
     if (savedCard) {
         savedCard.setAttribute('role', 'button');
         savedCard.setAttribute('tabindex', '0');
@@ -238,21 +303,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const profileCard = document.querySelector('.mobile-stat-card--profile');
     if (profileCard) {
         profileCard.setAttribute('role', 'link');
         profileCard.setAttribute('tabindex', '0');
-        const openProfile = () => {
-            window.location.assign(new URL('/profile.html', window.location.href).href);
-        };
-        profileCard.addEventListener('click', openProfile);
-        profileCard.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                openProfile();
-            }
+        profileCard.addEventListener('click', () => {
+            const fakeLink = document.createElement('a');
+            fakeLink.setAttribute('data-mobile-route', '/profile.html');
+            handleProtectedRoute(fakeLink);
         });
     }
 
-    syncMobileUser();
+    loadUserState();
     loadSavedCount();
 });
