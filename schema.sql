@@ -137,6 +137,14 @@ CREATE TABLE IF NOT EXISTS applications (
     FOREIGN KEY (resume_id) REFERENCES user_resumes(id) ON DELETE SET NULL
 );
 
+CREATE TABLE IF NOT EXISTS application_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    application_id INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    changed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS user_resumes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
