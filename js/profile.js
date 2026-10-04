@@ -330,7 +330,7 @@ function renderApplications(applications) {
             ? new Date(application.applied_at).toLocaleDateString()
             : '';
 
-        return '<article class="profile-application-item">' +
+        return '<article class="profile-application-item" data-application-id="' + Number(application.id) + '">' +
             '<div class="profile-application-main">' +
                 '<h3>' + escapeHTML(application.job_title || 'Job') + '</h3>' +
                 '<p>' + escapeHTML(application.company || 'Company not listed') + '</p>' +
@@ -345,6 +345,47 @@ function renderApplications(applications) {
             '</span>' +
         '</article>';
     }).join('');
+}
+
+async function openApplicationDetails(applicationId) {
+    const modal = document.querySelector('#applicationDetails');
+    const body = document.querySelector('#applicationDetailsBody');
+    const title = document.querySelector('#applicationDetailsTitle');
+    if (!modal || !body) return;
+
+    modal.hidden = false;
+    body.innerHTML = 'Loading application details...';
+
+    try {
+        const response = await fetch('/api/auth/applications/' + encodeURIComponent(applicationId), {
+            credentials: 'include'
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Failed to load application details.');
+
+        const application = data.application;
+        title.textContent = application.job_title || 'Job Application';
+
+        const matching = Array.isArray(data.matchingSkills) ? data.matchingSkills : [];
+        const missing = Array.isArray(data.missingSkills) ? data.missingSkills : [];
+
+        body.innerHTML =
+            '<div class="application-detail-grid">' +
+                '<div class="application-detail-box"><span class="application-detail-label">Match Score</span><div class="application-detail-score">' + escapeHTML(String(data.matchScore)) + '%</div></div>' +
+                '<div class="application-detail-box"><span class="application-detail-label">Status</span><strong>' + escapeHTML(application.status || 'new') + '</strong></div>' +
+            '</div>' +
+            '<div class="application-detail-box"><span class="application-detail-label">Company</span><strong>' + escapeHTML(application.company || 'Company not listed') + '</strong><br>' + escapeHTML(application.location || 'Location not listed') + '</div>' +
+            '<div class="application-detail-section"><h3>Matching Skills (' + matching.length + ')</h3><div class="application-detail-skills">' +
+                (matching.length ? matching.map((skill) => '<span class="application-detail-skill application-detail-skill--match">' + escapeHTML(skill) + '</span>').join('') : '<span>No matching skills found.</span>') +
+            '</div></div>' +
+            '<div class="application-detail-section"><h3>Missing Skills (' + missing.length + ')</h3><div class="application-detail-skills">' +
+                (missing.length ? missing.map((skill) => '<span class="application-detail-skill application-detail-skill--missing">' + escapeHTML(skill) + '</span>').join('') : '<span>You have all required skills.</span>') +
+            '</div></div>';
+    } catch (error) {
+        body.innerHTML = '<p>Unable to load application details.</p>';
+        console.error('[profile] Application details error:', error);
+    }
 }
 
 async function loadApplications() {
@@ -1618,6 +1659,27 @@ if (saveProfileSkillsButton) {
         'click',
         saveProfileSkills
     );
+}
+
+
+const applicationsList = document.querySelector('#applicationsList');
+const applicationDetails = document.querySelector('#applicationDetails');
+
+if (applicationsList) {
+    applicationsList.addEventListener('click', (event) => {
+        const item = event.target.closest('.profile-application-item');
+        if (item && item.dataset.applicationId) {
+            openApplicationDetails(Number(item.dataset.applicationId));
+        }
+    });
+}
+
+if (applicationDetails) {
+    applicationDetails.addEventListener('click', (event) => {
+        if (event.target.closest('[data-application-close]')) {
+            applicationDetails.hidden = true;
+        }
+    });
 }
 
 
