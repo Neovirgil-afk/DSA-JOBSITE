@@ -47,6 +47,27 @@
         .profile-application-status--interview,.profile-application-status--reviewing{background:#fff4d9;color:#916000}
         .profile-application-status--shortlisted{background:#e8f0ff;color:#315db5}
         @media(max-width:700px){.profile-application-item{align-items:flex-start;flex-direction:column}.profile-application-status{align-self:flex-start}}
+        .profile-application-item{cursor:pointer}
+        .profile-application-details{position:fixed;inset:0;z-index:1000;display:grid;place-items:center}
+        .profile-application-details[hidden]{display:none}
+        .profile-application-details-backdrop{position:absolute;inset:0;background:rgba(20,24,40,.48)}
+        .profile-application-details-dialog{position:relative;width:min(680px,calc(100% - 32px));max-height:85vh;overflow:auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.18)}
+        .profile-application-details-header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;border-bottom:1px solid #eeeef3;padding-bottom:14px}
+        .profile-application-details-header h2{margin:5px 0 0;color:#17203a}
+        .profile-application-details-close{border:0;background:#f1f1f5;border-radius:50%;width:34px;height:34px;cursor:pointer}
+        .profile-application-details-body{padding-top:18px;color:#4b5563;font-size:13px;line-height:1.6}
+        .application-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+        .application-detail-box{padding:13px;border:1px solid #e8e8ef;border-radius:12px;background:#fafaff}
+        .application-detail-label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;color:#8a8fa0;margin-bottom:4px}
+        .application-detail-score{font-size:28px;font-weight:900;color:#4f46e5}
+        .application-detail-skills{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+        .application-detail-skill{padding:5px 9px;border-radius:999px;background:#eef0f7;font-size:11px}
+        .application-detail-skill--match{background:#e8f7ee;color:#16834b}
+        .application-detail-skill--missing{background:#fff0ed;color:#c0392b}
+        .application-detail-section{margin-top:18px}
+        .application-detail-section h3{font-size:13px;color:#17203a;margin-bottom:7px}
+        @media(max-width:700px){.application-detail-grid{grid-template-columns:1fr}}
+
  
  
         /* =====================================================
@@ -1417,6 +1438,22 @@
                     <div class="profile-saved-jobs-empty">Loading applications...</div>
                 </div>
             </section>
+
+            <div class="profile-application-details" id="applicationDetails" hidden>
+                <div class="profile-application-details-backdrop" data-application-close></div>
+                <section class="profile-application-details-dialog" role="dialog" aria-modal="true" aria-labelledby="applicationDetailsTitle">
+                    <div class="profile-application-details-header">
+                        <div>
+                            <span class="profile-section-label">APPLICATION DETAILS</span>
+                            <h2 id="applicationDetailsTitle">Job Application</h2>
+                        </div>
+                        <button type="button" class="profile-application-details-close" data-application-close aria-label="Close">✕</button>
+                    </div>
+                    <div class="profile-application-details-body" id="applicationDetailsBody">
+                        Loading application details...
+                    </div>
+                </section>
+            </div>
 
 
         </div>
