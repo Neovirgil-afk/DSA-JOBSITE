@@ -4864,6 +4864,77 @@ body.job-modal-open {
   font-size: 13px;
 }
 
+.employer-applicant-tools {
+  display: grid;
+  grid-template-columns: minmax(210px, 1.5fr) repeat(3, minmax(130px, .75fr));
+  gap: 9px;
+  margin: 0 0 15px;
+  padding: 10px;
+  border: 1px solid #e8e8ef;
+  border-radius: 14px;
+  background: #fafaff;
+}
+
+.employer-applicant-search,
+.employer-applicant-control {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.employer-applicant-control > span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.employer-applicant-search input {
+  width: 100%;
+  min-height: 38px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid #dedfe8;
+  border-radius: 9px;
+  outline: 0;
+  background: #fff;
+  color: var(--ink);
+  font: 600 11px/1 var(--font-body);
+}
+
+.employer-applicant-search input:focus,
+.employer-applicant-tools .employer-select:focus {
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px var(--indigo-tint);
+}
+
+.employer-applicant-tools .employer-select {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+}
+
+@media (max-width: 800px) {
+  .employer-applicant-tools {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .employer-applicant-search {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 620px) {
+  .employer-applicant-tools {
+    grid-template-columns: 1fr;
+  }
+
+  .employer-applicant-search {
+    grid-column: auto;
+  }
+}
+
 /* JOB EDITOR */
 
 .employer-modal {
