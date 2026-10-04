@@ -6221,3 +6221,39 @@ body.employer-modal-open {
 
   .result-card h3 { color: var(--ink); }
 }
+
+/* FINAL MOBILE PALETTE OVERRIDE — exact desktop JobSite palette */
+@media (max-width: 899px) {
+  body { background: var(--cream) !important; }
+  .mobile-app-shell { color: var(--ink) !important; background: var(--cream) !important; }
+  .mobile-app-topbar { background: var(--navy) !important; color: #fff !important; }
+  .mobile-app-brand { background: var(--indigo) !important; color: #fff !important; }
+  .mobile-app-search-wrap { background: rgba(255,255,255,.10) !important; }
+  .mobile-app-avatar { background: #fff !important; color: var(--ink) !important; }
+  .mobile-kicker, .mobile-panel-eyebrow { color: var(--indigo) !important; }
+  .mobile-dashboard-heading h1, .mobile-panel-heading h2, .mobile-stat-card strong, .mobile-quick-card strong { color: var(--ink) !important; }
+  .mobile-dashboard-heading p, .mobile-stat-card small, .mobile-quick-card small, .mobile-chart-labels, .mobile-analytics-summary, .mobile-stat-label { color: var(--muted) !important; }
+  .mobile-status-dot { background: var(--green) !important; box-shadow: 0 0 0 5px rgba(34,197,94,.13) !important; }
+  .mobile-stat-card, .mobile-panel, .mobile-quick-card { background: #fff !important; border-color: var(--line) !important; box-shadow: var(--shadow-card) !important; }
+  .mobile-stat-card--jobs::after { background: var(--indigo-tint) !important; }
+  .mobile-stat-card--saved::after { background: var(--amber-tint) !important; }
+  .mobile-stat-card--applications::after { background: var(--teal-tint) !important; }
+  .mobile-stat-card--profile::after { background: var(--pink-tint) !important; }
+  .mobile-stat-icon { background: var(--indigo-tint) !important; color: var(--indigo) !important; }
+  .mobile-stat-card--saved .mobile-stat-icon { background: var(--amber-tint) !important; color: var(--amber-dark) !important; }
+  .mobile-stat-card--applications .mobile-stat-icon { background: var(--teal-tint) !important; color: var(--teal) !important; }
+  .mobile-stat-card--profile .mobile-stat-icon { background: var(--pink-tint) !important; color: var(--pink) !important; }
+  .mobile-analytics-summary strong { color: var(--green) !important; }
+  .mobile-filter-pill { background: #fff !important; border-color: var(--line) !important; color: var(--muted) !important; }
+  .mobile-chart-grid span { background: var(--line) !important; }
+  .mobile-chart-line::before { background: repeating-linear-gradient(135deg, rgba(79,70,229,.10) 0 4px, transparent 4px 8px) !important; }
+  .mobile-chart-line i { background: var(--indigo) !important; box-shadow: 0 0 0 4px rgba(79,70,229,.10) !important; }
+  .mobile-chart-line i:nth-child(4) { background: var(--amber) !important; box-shadow: 0 0 0 5px rgba(245,166,35,.12) !important; }
+  .mobile-quick-card > span { color: var(--indigo) !important; }
+  .mobile-bottom-nav { background: var(--indigo) !important; box-shadow: 0 14px 30px rgba(55,48,163,.24) !important; }
+  .mobile-bottom-nav a { color: rgba(255,255,255,.83) !important; }
+  .mobile-bottom-nav a.is-active { background: var(--amber) !important; color: var(--navy) !important; }
+  .results .result-card { background: #fff !important; border-color: var(--line) !important; box-shadow: var(--shadow-card) !important; }
+  .result-card h3 { color: var(--ink) !important; }
+  .result-card .match { background: var(--teal-tint) !important; color: #0D8C7C !important; }
+}
