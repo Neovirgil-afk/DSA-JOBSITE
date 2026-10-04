@@ -6888,3 +6888,202 @@ body.employer-modal-open {
 @media (max-width:1000px){.employer-analytics-stat-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:700px){.employer-analytics-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.employer-analytics-grid{grid-template-columns:1fr}.employer-analytics-status-row{grid-template-columns:95px 1fr 38px}}
 @media (max-width:480px){.employer-analytics-stat-grid{grid-template-columns:1fr}.employer-analytics-stat{padding:15px}.employer-analytics-card{padding:15px}}
+
+
+/* =========================================================
+   MOBILE APP-STYLE POLISH — JOBSITE
+   Inspired by the supplied mobile dashboard reference.
+   Desktop layout remains unchanged.
+   ========================================================= */
+@media (max-width:899px){
+  body{padding-bottom:88px!important;overflow-x:hidden}
+
+  /* Main JobSite dashboard: airy, app-like header */
+  .mobile-app-shell{
+    background:
+      radial-gradient(circle at 92% 2%, rgba(245,166,35,.13), transparent 24%),
+      linear-gradient(180deg,#f7f5ff 0,#fff 30%,var(--cream) 100%)!important;
+  }
+  .mobile-app-topbar{
+    position:sticky;
+    top:0;
+    padding:12px 16px!important;
+    background:rgba(255,255,255,.94)!important;
+    color:var(--ink)!important;
+    border-bottom:1px solid var(--line);
+    backdrop-filter:blur(14px);
+  }
+  .mobile-app-brand{
+    width:42px;height:42px;
+    background:var(--indigo)!important;
+    color:#fff!important;
+  }
+  .mobile-app-search-wrap{
+    background:var(--indigo-tint)!important;
+    color:var(--ink)!important;
+    border:1px solid rgba(79,70,229,.08);
+  }
+  .mobile-app-search-wrap>svg{color:var(--indigo)!important}
+  #mobileSearchQuery{color:var(--ink)!important}
+  #mobileSearchQuery::placeholder{color:var(--muted)!important}
+  .mobile-app-avatar{
+    background:#fff!important;
+    border:1px solid var(--line);
+    color:var(--indigo)!important;
+  }
+  .mobile-dashboard-heading{margin-top:5px}
+  .mobile-dashboard-heading h1{font-size:clamp(26px,7.2vw,33px)!important}
+  .mobile-stat-card,.mobile-panel,.mobile-quick-card{
+    border-radius:22px!important;
+    box-shadow:0 10px 28px rgba(35,25,90,.065)!important;
+  }
+  .mobile-stat-card{min-height:132px}
+  .mobile-panel{padding:18px!important}
+  .mobile-bottom-nav{
+    background:#fff!important;
+    border:1px solid var(--line);
+    box-shadow:0 12px 30px rgba(35,25,90,.14)!important;
+  }
+  .mobile-bottom-nav a{color:var(--muted)!important}
+  .mobile-bottom-nav a.is-active{
+    background:var(--indigo-tint)!important;
+    color:var(--indigo)!important;
+  }
+
+  /* Inner-page header matches the same app shell */
+  .mobile-page-shell-header{
+    position:sticky!important;
+    top:0!important;
+    z-index:100!important;
+    background:rgba(255,255,255,.95)!important;
+    color:var(--ink)!important;
+    border-bottom:1px solid var(--line)!important;
+    box-shadow:0 6px 20px rgba(35,25,90,.06)!important;
+    backdrop-filter:blur(14px);
+  }
+  .mobile-page-brand{
+    background:var(--indigo)!important;
+    color:#fff!important;
+  }
+  .mobile-page-title span{color:var(--indigo)!important}
+  .mobile-page-title strong{color:var(--ink)!important}
+  .mobile-page-header-action{
+    background:var(--indigo-tint)!important;
+    color:var(--indigo)!important;
+    border:1px solid var(--line);
+  }
+  .mobile-page-bottom-nav{
+    background:#fff!important;
+    border:1px solid var(--line)!important;
+    box-shadow:0 12px 30px rgba(35,25,90,.14)!important;
+  }
+  .mobile-page-bottom-nav a{color:var(--muted)!important}
+  .mobile-page-bottom-nav a.active{
+    background:var(--indigo-tint)!important;
+    color:var(--indigo)!important;
+  }
+
+  /* Profile / Resume / Builder cards become thumb-friendly */
+  .profile-main,.resume-main,.builder-main,.learning-main{
+    padding-top:24px!important;
+    padding-bottom:105px!important;
+  }
+  .profile-page-heading,.learning-hero,.builder-heading,.resume-heading{margin-bottom:20px!important}
+  .profile-page-heading{align-items:flex-start!important}
+  .profile-page-heading h1,.resume-heading h1,.builder-heading h1,.learning-hero h1{
+    font-size:30px!important;
+  }
+  .profile-layout,.resume-grid,.builder-grid,.learning-layout{
+    grid-template-columns:1fr!important;
+    gap:14px!important;
+  }
+  .profile-info-card,.profile-resume-card,.profile-skills-card,
+  .resume-card,.builder-card,.learning-content-card,.learning-sidebar{
+    border-radius:20px!important;
+    box-shadow:0 9px 24px rgba(35,25,90,.055)!important;
+  }
+  .profile-info-card,.profile-resume-card,.profile-skills-card{padding:20px!important}
+  .resume-card,.builder-card,.learning-content-card{padding:18px!important}
+  .learning-sidebar{position:static!important}
+  .learning-course-item{min-height:48px!important}
+  .resume-heading .subtitle,.learning-hero p{font-size:12px!important;line-height:1.6!important}
+
+  /* Employer becomes an app-style workspace */
+  .employer-mobile-shell-header{
+    display:flex!important;
+    align-items:center;
+    gap:11px;
+    position:sticky;
+    top:0;
+    z-index:100;
+    min-height:62px;
+    padding:10px 14px;
+    background:rgba(255,255,255,.95);
+    border-bottom:1px solid var(--line);
+    box-shadow:0 6px 20px rgba(35,25,90,.06);
+    backdrop-filter:blur(14px);
+  }
+  .employer-mobile-brand{
+    width:42px;height:42px;flex:0 0 42px;
+    display:grid;place-items:center;
+    border-radius:50%;
+    background:var(--indigo);
+    color:#fff;
+    font:800 10px/1 var(--font-display);
+    letter-spacing:-.05em;
+  }
+  .employer-mobile-brand span span{color:var(--amber)}
+  .employer-mobile-title{min-width:0;flex:1;display:flex;flex-direction:column;gap:1px}
+  .employer-mobile-title span{color:var(--indigo);font-size:8px;font-weight:800;letter-spacing:.16em}
+  .employer-mobile-title strong{color:var(--ink);font:700 14px/1.2 var(--font-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .employer-mobile-profile{
+    width:35px;height:35px;display:grid;place-items:center;flex:0 0 35px;
+    border:1px solid var(--line);border-radius:50%;background:var(--indigo-tint);color:var(--indigo);
+  }
+  .employer-page{padding-bottom:92px!important;background:var(--cream)!important}
+  .employer-page>.site-header{display:none!important}
+  .employer-main{padding:22px 0 105px!important}
+  .employer-dashboard{width:min(100% - 24px,620px)!important}
+  .employer-dashboard-heading{align-items:flex-start!important;flex-direction:column!important;gap:14px!important;margin-bottom:18px!important}
+  .employer-dashboard-heading h1{font-size:29px!important;margin-bottom:7px!important}
+  .employer-dashboard-heading .btn{width:100%;justify-content:center}
+  .employer-tabs{display:none!important}
+  .employer-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+  .employer-stat-card{padding:16px!important;border-radius:20px!important}
+  .employer-stat-card strong{font-size:27px!important}
+  .employer-card{padding:18px!important;border-radius:20px!important}
+  .employer-card-heading{align-items:flex-start!important}
+  .employer-card-heading h2{font-size:18px!important}
+  .employer-applicant-tools{grid-template-columns:1fr!important}
+  .employer-applicants-list{gap:10px!important}
+  .employer-analytics-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .employer-analytics-grid{grid-template-columns:1fr!important}
+  .employer-mobile-bottom-nav{
+    position:fixed;left:50%;bottom:max(8px,env(safe-area-inset-bottom));
+    transform:translateX(-50%);z-index:250;
+    width:calc(100% - 18px);max-width:560px;
+    display:grid!important;grid-template-columns:repeat(5,1fr);gap:3px;
+    padding:7px;border:1px solid var(--line);border-radius:22px;
+    background:#fff;box-shadow:0 12px 30px rgba(35,25,90,.14);
+  }
+  .employer-mobile-bottom-nav .employer-tab{
+    min-width:0;min-height:50px;padding:5px 2px;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;
+    border:0;border-radius:15px;background:transparent;color:var(--muted);
+    font:inherit;
+  }
+  .employer-mobile-bottom-nav .employer-tab span{font-size:16px;line-height:1}
+  .employer-mobile-bottom-nav .employer-tab small{font-size:7.5px;font-weight:800;white-space:nowrap}
+  .employer-mobile-bottom-nav .employer-tab.active{background:var(--indigo-tint);color:var(--indigo)}
+
+  /* Login/register on phones */
+  .employer-gate{grid-template-columns:1fr!important;gap:20px!important;margin:10px auto!important;width:min(100% - 24px,620px)!important}
+  .employer-gate-copy h1{font-size:31px!important}
+  .employer-auth-card{border-radius:20px!important}
+  .employer-form{padding:19px!important}
+  .employer-form-grid{grid-template-columns:1fr!important}
+  .employer-field--full{grid-column:auto!important}
+}
+@media (min-width:900px){
+  .employer-mobile-shell-header,.employer-mobile-bottom-nav{display:none!important}
+}
