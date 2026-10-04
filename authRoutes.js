@@ -712,4 +712,57 @@ router.put('/profile/skills', (req, res) => {
 });
 
 
+/* =========================================================
+   APPLICATION DETAILS
+   ========================================================= */
+
+router.get('/applications/:id', (req, res) => {
+    try {
+        if (!req.session.userId) {
+            return res.status(401).json({ error: 'Not logged in.' });
+        }
+
+        const applicationId = parseInt(req.params.id, 10);
+        if (Number.isNaN(applicationId)) {
+            return res.status(400).json({ error: 'Invalid application id.' });
+        }
+
+        const application = db.prepare(
+            'SELECT a.id, a.status, a.applied_at, a.updated_at, j.id AS job_id, j.title AS job_title, j.company, j.location, j.employment_type, j.salary, j.description FROM applications a JOIN jobs j ON j.id = a.job_id WHERE a.id = ? AND a.user_id = ?'
+        ).get(applicationId, req.session.userId);
+
+        if (!application) {
+            return res.status(404).json({ error: 'Application not found.' });
+        }
+
+        const requiredSkills = db.prepare(
+            'SELECT s.name FROM job_skills js JOIN skills s ON s.id = js.skill_id WHERE js.job_id = ? ORDER BY s.name ASC'
+        ).all(application.job_id).map((row) => row.name);
+
+        const userSkills = db.prepare(
+            'SELECT s.name FROM user_skills us JOIN skills s ON s.id = us.skill_id WHERE us.user_id = ?'
+        ).all(req.session.userId).map((row) => row.name);
+
+        const userSkillSet = new Set(userSkills.map((skill) => skill.toLowerCase()));
+        const matchingSkills = requiredSkills.filter((skill) => userSkillSet.has(skill.toLowerCase()));
+        const missingSkills = requiredSkills.filter((skill) => !userSkillSet.has(skill.toLowerCase()));
+        const matchScore = requiredSkills.length
+            ? Math.round((matchingSkills.length / requiredSkills.length) * 100)
+            : 0;
+
+        res.json({
+            success: true,
+            application,
+            requiredSkills,
+            matchingSkills,
+            missingSkills,
+            matchScore
+        });
+    } catch (err) {
+        console.error('[GET /api/auth/applications/:id] error:', err);
+        res.status(500).json({ error: 'Failed to load application details.' });
+    }
+});
+
+
 module.exports = router;
