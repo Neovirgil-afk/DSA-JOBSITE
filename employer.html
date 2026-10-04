@@ -135,6 +135,7 @@
         <button type="button" class="employer-tab active" data-panel="overview">Dashboard</button>
         <button type="button" class="employer-tab" data-panel="jobs">My Jobs</button>
         <button type="button" class="employer-tab" data-panel="applicants">Applicants</button>
+        <button type="button" class="employer-tab" data-panel="analytics">Analytics</button>
         <button type="button" class="employer-tab" data-panel="company">Company Profile</button>
       </nav>
 
@@ -152,6 +153,35 @@
             <button type="button" class="employer-text-button" data-open-panel="applicants">View applicants →</button>
           </div>
           <div id="recentApplications" class="employer-recent-list"></div>
+        </div>
+      </section>
+
+      <section class="employer-panel" id="panel-analytics" hidden>
+        <div class="employer-card">
+          <div class="employer-card-heading">
+            <div><span class="employer-kicker">Hiring insights</span><h2>Employer Analytics</h2></div>
+            <button type="button" class="employer-text-button" id="refreshEmployerAnalytics">Refresh ↻</button>
+          </div>
+
+          <div class="employer-analytics-stat-grid">
+            <article class="employer-analytics-stat"><span>Total Applicants</span><strong id="analyticsTotalApplicants">0</strong><small>Across all job postings</small></article>
+            <article class="employer-analytics-stat"><span>Shortlisted</span><strong id="analyticsShortlisted">0</strong><small>Strong candidates to consider</small></article>
+            <article class="employer-analytics-stat"><span>Interviews</span><strong id="analyticsInterview">0</strong><small>Applicants in interview stage</small></article>
+            <article class="employer-analytics-stat"><span>Hired</span><strong id="analyticsHired">0</strong><small>Successful applications</small></article>
+            <article class="employer-analytics-stat"><span>Average Match</span><strong id="analyticsAverageMatch">0%</strong><small>Average skill match</small></article>
+          </div>
+
+          <div class="employer-analytics-grid">
+            <section class="employer-analytics-card">
+              <div class="employer-card-heading"><div><span class="employer-kicker">Pipeline</span><h3>Application Status</h3></div></div>
+              <div id="analyticsStatusList" class="employer-analytics-status-list"></div>
+            </section>
+
+            <section class="employer-analytics-card">
+              <div class="employer-card-heading"><div><span class="employer-kicker">Performance</span><h3>Job Postings</h3></div></div>
+              <div id="analyticsJobsList" class="employer-analytics-jobs-list"></div>
+            </section>
+          </div>
         </div>
       </section>
 
