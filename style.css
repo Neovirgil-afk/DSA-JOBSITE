@@ -7087,3 +7087,68 @@ body.employer-modal-open {
 @media (min-width:900px){
   .employer-mobile-shell-header,.employer-mobile-bottom-nav{display:none!important}
 }
+
+
+/* Final responsive balance + employer auth-state cleanup */
+@media (max-width:899px){
+  body.employer-logged-out .employer-mobile-shell-header,
+  body.employer-logged-out .employer-mobile-bottom-nav{display:none!important}
+
+  .applications-main{
+    min-height:calc(100vh - 62px)!important;
+    padding:22px 14px 110px!important;
+    background:var(--cream)!important;
+  }
+  .applications-heading{
+    gap:14px!important;
+    margin-bottom:16px!important;
+  }
+  .applications-heading h1{
+    margin:4px 0 7px!important;
+    color:var(--ink)!important;
+    font-size:clamp(27px,8vw,32px)!important;
+    letter-spacing:-.04em;
+  }
+  .applications-heading p{
+    max-width:520px;
+    color:var(--muted)!important;
+    font-size:12px;
+    line-height:1.55;
+  }
+  .applications-heading .btn{
+    width:100%;
+    justify-content:center;
+  }
+  .application-summary{
+    width:100%;
+    box-sizing:border-box;
+    margin-bottom:14px;
+    border:1px solid var(--line);
+    box-shadow:0 8px 22px rgba(35,25,90,.05);
+  }
+  .application-card{
+    min-width:0;
+    gap:14px!important;
+    padding:17px!important;
+    border:1px solid var(--line)!important;
+    border-radius:20px!important;
+    box-shadow:0 8px 22px rgba(35,25,90,.05)!important;
+  }
+  .application-card h2,
+  .application-company,
+  .application-meta,
+  .application-card-side{min-width:0;overflow-wrap:anywhere}
+  .application-card h2{font-size:18px!important;line-height:1.25}
+  .application-meta{line-height:1.45}
+  .applications-loading,.applications-empty{padding:46px 18px!important}
+
+  .employer-dashboard,.employer-gate,
+  .profile-main>.wrap,.resume-main>.wrap,.builder-main>.wrap,
+  .learning-main>.wrap{min-width:0}
+  .employer-card,.employer-job-card,.employer-applicant-card,
+  .employer-analytics-card,.resume-card,.builder-card,
+  .learning-content-card,.learning-sidebar{min-width:0}
+  .employer-job-card h3,.employer-applicant-card strong,
+  .employer-analytics-job-row strong{overflow-wrap:anywhere}
+  .employer-modal-dialog{width:100%;min-width:0}
+}
