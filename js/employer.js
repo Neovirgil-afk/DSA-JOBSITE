@@ -402,6 +402,24 @@ function renderApplicantTags(selector, skills, emptyText) {
         : '<em>' + escapeHtml(emptyText) + '</em>';
 }
 
+function renderApplicationHistory(history, appliedAt) {
+    const element = $('#applicantProfileHistory');
+    const entries = Array.isArray(history) && history.length
+        ? history
+        : [{ status: 'new', changed_at: appliedAt }];
+
+    element.innerHTML = entries.map((entry, index) => {
+        const label = String(entry.status || 'new').replace(/^./, (char) => char.toUpperCase());
+        const date = entry.changed_at ? new Date(entry.changed_at).toLocaleString() : 'Date unavailable';
+
+        return '<div class="employer-activity-item">' +
+            '<span class="employer-activity-dot"></span>' +
+            '<div><strong>' + escapeHtml(label) + '</strong><small>' + escapeHtml(date) + '</small></div>' +
+            (index === entries.length - 1 ? '<span class="employer-activity-current">Current</span>' : '') +
+            '</div>';
+    }).join('');
+}
+
 function setApplicantProfileStatus(status) {
     const label = $('#applicantProfileStatus');
     label.textContent = status.charAt(0).toUpperCase() + status.slice(1);
@@ -444,6 +462,8 @@ async function viewApplicant(applicationId) {
         }
 
         $('#applicantProfileMatch').textContent = Number(applicant.matchScore || 0) + '%';
+
+        renderApplicationHistory(applicant.history, applicant.applied_at);
 
         renderApplicantTags(
             '#applicantProfileMatchingSkills',
