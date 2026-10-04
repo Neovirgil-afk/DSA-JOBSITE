@@ -305,6 +305,71 @@ async function removeSavedJob(jobId) {
 
 
 /* =========================================================
+   APPLICATION HISTORY
+   ========================================================= */
+
+function renderApplications(applications) {
+    const list = document.querySelector('#applicationsList');
+    const count = document.querySelector('#applicationCount');
+
+    if (!list) return;
+
+    if (count) {
+        count.textContent = applications.length + ' ' + (applications.length === 1 ? 'application' : 'applications');
+    }
+
+    if (!applications.length) {
+        list.innerHTML = '<div class="profile-saved-jobs-empty">No applications yet. Apply to a job from the Find Jobs page.</div>';
+        return;
+    }
+
+    list.innerHTML = applications.map((application) => {
+        const status = application.status || 'new';
+        const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+        const date = application.applied_at
+            ? new Date(application.applied_at).toLocaleDateString()
+            : '';
+
+        return '<article class="profile-application-item">' +
+            '<div class="profile-application-main">' +
+                '<h3>' + escapeHTML(application.job_title || 'Job') + '</h3>' +
+                '<p>' + escapeHTML(application.company || 'Company not listed') + '</p>' +
+                '<div class="profile-application-meta">' +
+                    '<span>' + escapeHTML(application.location || 'Location not listed') + '</span>' +
+                    (application.employment_type ? '<span>· ' + escapeHTML(application.employment_type) + '</span>' : '') +
+                    (date ? '<span>· Applied ' + escapeHTML(date) + '</span>' : '') +
+                '</div>' +
+            '</div>' +
+            '<span class="profile-application-status profile-application-status--' + escapeHTML(status) + '">' +
+                escapeHTML(statusLabel) +
+            '</span>' +
+        '</article>';
+    }).join('');
+}
+
+async function loadApplications() {
+    const list = document.querySelector('#applicationsList');
+    if (!list) return;
+
+    try {
+        const response = await fetch('/api/auth/applications', {
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to load applications.');
+        }
+
+        const data = await response.json();
+        renderApplications(Array.isArray(data.applications) ? data.applications : []);
+    } catch (error) {
+        list.innerHTML = '<div class="profile-saved-jobs-empty">Unable to load applications right now.</div>';
+        console.error('[profile] Failed to load applications:', error);
+    }
+}
+
+
+/* =========================================================
    SAVED SKILLS VIEW
    ========================================================= */
 
@@ -1355,6 +1420,7 @@ async function loadProfile() {
         renderSkillEditor();
 
         loadSavedJobs();
+        loadApplications();
         loadSavedResume();
         loadLearningRecommendations();
 
