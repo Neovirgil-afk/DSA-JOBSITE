@@ -6110,3 +6110,114 @@ body.employer-modal-open {
     display: none !important;
   }
 }
+
+
+/* Mobile UI uses the same JobSite palette as the desktop UI */
+@media (max-width: 899px) {
+  body { background: var(--cream); }
+
+  .mobile-app-shell {
+    color: var(--ink);
+    background:
+      radial-gradient(circle at 8% 4%, rgba(79,70,229,.08), transparent 30%),
+      linear-gradient(180deg, #F3F2FA 0, var(--cream) 42%, #F8F7FC 100%);
+  }
+
+  .mobile-app-topbar { background: var(--navy); }
+  .mobile-app-brand { background: var(--indigo); color: #fff; }
+  .mobile-app-avatar { background: #fff; color: var(--ink); }
+
+  .mobile-kicker,
+  .mobile-panel-eyebrow { color: var(--indigo); }
+
+  .mobile-dashboard-heading h1,
+  .mobile-panel-heading h2,
+  .mobile-stat-card strong,
+  .mobile-quick-card strong { color: var(--ink); }
+
+  .mobile-dashboard-heading p,
+  .mobile-stat-card small,
+  .mobile-quick-card small,
+  .mobile-chart-labels { color: var(--muted); }
+
+  .mobile-stat-card,
+  .mobile-panel,
+  .mobile-quick-card {
+    border-color: var(--line);
+    background: #fff;
+    box-shadow: var(--shadow-card);
+  }
+
+  .mobile-stat-card--jobs::after { background: var(--indigo-tint); }
+  .mobile-stat-card--saved::after { background: var(--amber-tint); }
+  .mobile-stat-card--applications::after { background: var(--teal-tint); }
+  .mobile-stat-card--profile::after { background: var(--pink-tint); }
+
+  .mobile-stat-icon {
+    background: var(--indigo-tint);
+    color: var(--indigo);
+  }
+
+  .mobile-stat-card--saved .mobile-stat-icon {
+    background: var(--amber-tint);
+    color: var(--amber-dark);
+  }
+
+  .mobile-stat-card--applications .mobile-stat-icon {
+    background: var(--teal-tint);
+    color: var(--teal);
+  }
+
+  .mobile-stat-card--profile .mobile-stat-icon {
+    background: var(--pink-tint);
+    color: var(--pink);
+  }
+
+  .mobile-stat-label,
+  .mobile-analytics-summary { color: var(--muted); }
+  .mobile-analytics-summary strong { color: var(--green); }
+
+  .mobile-filter-pill {
+    border-color: var(--line);
+    color: var(--muted);
+  }
+
+  .mobile-chart-grid span { background: var(--line); }
+
+  .mobile-chart-line::before {
+    background: repeating-linear-gradient(
+      135deg,
+      rgba(79,70,229,.10) 0 4px,
+      transparent 4px 8px
+    );
+  }
+
+  .mobile-chart-line i {
+    background: var(--indigo);
+    box-shadow: 0 0 0 4px rgba(79,70,229,.10);
+  }
+
+  .mobile-chart-line i:nth-child(4) {
+    background: var(--amber);
+    box-shadow: 0 0 0 5px rgba(245,166,35,.12);
+  }
+
+  .mobile-quick-card > span { color: var(--indigo); }
+
+  .mobile-bottom-nav {
+    background: var(--indigo);
+    box-shadow: 0 14px 30px rgba(55,48,163,.24);
+  }
+
+  .mobile-bottom-nav a.is-active {
+    background: var(--amber);
+    color: var(--navy);
+  }
+
+  .result-card {
+    border-color: var(--line);
+    box-shadow: var(--shadow-card);
+  }
+
+  .result-card h3 { color: var(--ink); }
+}
