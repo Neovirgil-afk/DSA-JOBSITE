@@ -369,6 +369,28 @@ router.get('/me', (req, res) => {
 
 
 /* =========================================================
+   CANDIDATE APPLICATION HISTORY
+   ========================================================= */
+
+router.get('/applications', (req, res) => {
+    try {
+        if (!req.session.userId) {
+            return res.status(401).json({ error: 'Not logged in.' });
+        }
+
+        const applications = db.prepare(
+            'SELECT a.id, a.status, a.applied_at, a.updated_at, j.id AS job_id, j.title AS job_title, j.company, j.location, j.employment_type, j.salary FROM applications a JOIN jobs j ON j.id = a.job_id WHERE a.user_id = ? ORDER BY datetime(a.applied_at) DESC, a.id DESC'
+        ).all(req.session.userId);
+
+        res.json({ success: true, applications });
+    } catch (err) {
+        console.error('[GET /api/auth/applications] error:', err);
+        res.status(500).json({ error: 'Failed to load application history.' });
+    }
+});
+
+
+/* =========================================================
    GET ALL SKILLS
    ========================================================= */
 
