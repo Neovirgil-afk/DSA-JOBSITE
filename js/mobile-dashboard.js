@@ -1,5 +1,17 @@
 'use strict';
 
+document.addEventListener('click', (event) => {
+    const link = event.target.closest('[data-mobile-route]');
+    if (!link || window.innerWidth > 899) return;
+
+    const href = link.getAttribute('data-mobile-route');
+    if (!href) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    window.location.href = new URL(href, window.location.href).href;
+}, true);
+
 document.addEventListener('DOMContentLoaded', () => {
     const mobileForm = document.querySelector('#mobileSearchForm');
     const mobileInput = document.querySelector('#mobileSearchQuery');
