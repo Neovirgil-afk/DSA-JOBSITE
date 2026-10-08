@@ -369,6 +369,20 @@ async function openApplicationDetails(applicationId) {
 
         const matching = Array.isArray(data.matchingSkills) ? data.matchingSkills : [];
         const missing = Array.isArray(data.missingSkills) ? data.missingSkills : [];
+        const history = Array.isArray(data.history) ? data.history : [];
+
+        const historyMarkup = history.length
+            ? history.map((item) => {
+                const status = item.status || 'new';
+                const date = item.changed_at
+                    ? new Date(item.changed_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
+                    : 'Date unavailable';
+                return '<div class="application-timeline-item">' +
+                    '<div class="application-timeline-rail" aria-hidden="true"></div>' +
+                    '<div><div class="application-timeline-status">' + escapeHTML(status) + '</div><span class="application-timeline-date">' + escapeHTML(date) + '</span></div>' +
+                '</div>';
+            }).join('')
+            : '<div class="application-timeline-empty">No status history is available yet.</div>';
 
         body.innerHTML =
             '<div class="application-detail-grid">' +
@@ -376,6 +390,9 @@ async function openApplicationDetails(applicationId) {
                 '<div class="application-detail-box"><span class="application-detail-label">Status</span><strong>' + escapeHTML(application.status || 'new') + '</strong></div>' +
             '</div>' +
             '<div class="application-detail-box"><span class="application-detail-label">Company</span><strong>' + escapeHTML(application.company || 'Company not listed') + '</strong><br>' + escapeHTML(application.location || 'Location not listed') + '</div>' +
+            '<div class="application-detail-section"><h3>Application Timeline</h3><div class="application-timeline">' +
+                historyMarkup +
+            '</div></div>' +
             '<div class="application-detail-section"><h3>Matching Skills (' + matching.length + ')</h3><div class="application-detail-skills">' +
                 (matching.length ? matching.map((skill) => '<span class="application-detail-skill application-detail-skill--match">' + escapeHTML(skill) + '</span>').join('') : '<span>No matching skills found.</span>') +
             '</div></div>' +
