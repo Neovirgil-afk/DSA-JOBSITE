@@ -1,6 +1,6 @@
 const { db } = require('./database');
 const Graph = require('./Graph');
-const { Tree } = require('./Tree');
+const { Tree, TreeNode } = require('./Tree');
 const { CATEGORY_TREE } = require('./seed');
 const { getLearningResources } = require('./LearningResources');
 
@@ -46,6 +46,27 @@ function getCareerPathForJob(jobId, userSkillNames = []) {
         skillNames = DEFAULT_CAREER_PATHS[job.title];
     }
 
+    // Newly posted jobs may not have a seeded career path yet.
+    // Use their required skills as a safe fallback so the Learning Hub
+    // still has a path instead of silently returning zero steps.
+    if (!skillNames.length) {
+        skillNames = db.prepare(
+            'SELECT s.name FROM job_skills js JOIN skills s ON s.id = js.skill_id WHERE js.job_id = ? ORDER BY js.skill_id ASC'
+        ).all(jobId).map((row) => row.name);
+    }
+
+    // Normalize and deduplicate path skills case-insensitively.
+    // This prevents malformed career-path data from creating repeated steps.
+    const seenSkills = new Set();
+    skillNames = skillNames
+        .map((skill) => String(skill ?? '').trim())
+        .filter((skill) => {
+            const normalized = skill.toLowerCase();
+            if (!normalized || seenSkills.has(normalized)) return false;
+            seenSkills.add(normalized);
+            return true;
+        });
+
     // Chain skills in sequence, ending at the job node.
     const graph = new Graph();
     const jobNode = `JOB:${job.title}`;
@@ -87,11 +108,16 @@ function getCategoryTree() {
     const tree = new Tree('All Categories');
 
     for (const [topCategory, subMap] of Object.entries(CATEGORY_TREE)) {
-        const topNode = tree.root.addChild(new (require('../algorithms/Tree').TreeNode)(topCategory));
+        const topNode = tree.root.addChild(new TreeNode(topCategory));
         for (const [subCategory, jobTitles] of Object.entries(subMap)) {
-            const subNode = topNode.addChild(new (require('../algorithms/Tree').TreeNode)(subCategory));
+            const subNode = topNode.addChild(new TreeNode(subCategory));
+            const seenJobs = new Set();
+
             for (const jobTitle of jobTitles) {
-                subNode.addChild(new (require('../algorithms/Tree').TreeNode)(jobTitle, { isJob: true }));
+                const normalized = String(jobTitle ?? '').trim().toLowerCase();
+                if (!normalized || seenJobs.has(normalized)) continue;
+                seenJobs.add(normalized);
+                subNode.addChild(new TreeNode(jobTitle, { isJob: true }));
             }
         }
     }
