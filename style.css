@@ -7309,3 +7309,14 @@ body.employer-modal-open {
   .application-card-side{min-width:0;width:100%;align-items:flex-start}
   .application-timeline-mini span{justify-content:flex-start}
 }
+
+
+/* Candidate application assets */
+.application-assets{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:9px}
+.application-resume-badge,.application-resume-name,.application-job-state{display:inline-flex;align-items:center;max-width:100%;padding:5px 8px;border-radius:999px;font-size:9px;font-weight:800}
+.application-resume-badge.has-resume{background:var(--green-tint);color:#16834b}
+.application-resume-badge.no-resume{background:#f3f3f6;color:#7b7f8d}
+.application-resume-name{background:#f5f5f9;color:#737887;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.application-job-state.is-open{background:var(--indigo-tint);color:var(--indigo)}
+.application-job-state.is-closed{background:#f1f1f4;color:#737887}
+@media(max-width:700px){.application-assets{align-items:flex-start}.application-resume-name{max-width:100%}}
