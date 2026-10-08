@@ -10,6 +10,14 @@ const { SKILLS_LIST } = require('./skillsList');
 
 const router = express.Router();
 
+function requireCandidate(req, res, next) {
+    const user = db.prepare('SELECT role FROM users WHERE id = ?').get(req.session.userId);
+    if (!user || user.role !== 'candidate') {
+        return res.status(403).json({ error: 'Only candidate accounts can use resume tools.' });
+    }
+    next();
+}
+
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
@@ -60,7 +68,7 @@ function ensureSkillDictionaryInDatabase() {
     syncSkills();
 }
 
-router.get('/builder', requireAuth, (req, res) => {
+router.get('/builder', requireAuth, requireCandidate, (req, res) => {
     try {
         const row = db.prepare(`
             SELECT resume_data, updated_at
@@ -82,7 +90,7 @@ router.get('/builder', requireAuth, (req, res) => {
     }
 });
 
-router.put('/builder', requireAuth, (req, res) => {
+router.put('/builder', requireAuth, requireCandidate, (req, res) => {
     try {
         const data = req.body?.resume;
 
@@ -148,7 +156,7 @@ router.put('/builder', requireAuth, (req, res) => {
     }
 });
 
-router.get('/current', requireAuth, (req, res) => {
+router.get('/current', requireAuth, requireCandidate, (req, res) => {
     try {
         const resume = db.prepare(`
             SELECT original_name, stored_name, uploaded_at
@@ -166,7 +174,7 @@ router.get('/current', requireAuth, (req, res) => {
 });
 
 // Serve the candidate's current resume through an authenticated endpoint.
-router.get('/file', requireAuth, (req, res) => {
+router.get('/file', requireAuth, requireCandidate, (req, res) => {
     try {
         const resume = db.prepare(`
             SELECT original_name, stored_name
@@ -198,7 +206,7 @@ router.get('/file', requireAuth, (req, res) => {
 });
 
 // Upload + scan + auto-save detected skills to the logged-in user's profile.
-router.post('/scan', requireAuth, (req, res) => {
+router.post('/scan', requireAuth, requireCandidate, (req, res) => {
     upload.single('resume')(req, res, async (err) => {
         if (err) return handleUploadErrors(err, req, res, () => {});
 
