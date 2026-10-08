@@ -240,9 +240,34 @@
                 return data;
             });
         })
-        .then(function () {
+        .then(function (data) {
             if (status) status.textContent = 'Saved to your profile.';
-            debug('Resume saved successfully.');
+
+            // Keep the main profile fields synchronized with the builder.
+            var resume = data.resume || collect();
+            var education = Array.isArray(resume.education) ? resume.education : [];
+            var primaryEducation = education[0] || {};
+
+            return fetch('/api/auth/profile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    full_name: resume.fullName || '',
+                    location: resume.location || '',
+                    education: primaryEducation.school || '',
+                    degree: primaryEducation.degree || ''
+                })
+            }).then(function (profileResponse) {
+                if (!profileResponse.ok) {
+                    return profileResponse.json().catch(function () { return {}; })
+                        .then(function (profileData) {
+                            throw new Error(profileData.error || 'Resume saved, but profile sync failed.');
+                        });
+                }
+
+                debug('Resume and profile saved successfully.');
+            });
         })
         .catch(function (error) {
             if (status) status.textContent = error.message;
