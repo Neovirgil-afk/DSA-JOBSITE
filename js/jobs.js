@@ -666,10 +666,12 @@ export function initJobs() {
                     .join('');
 
             const score = Number(data.matchScore) || 0;
+            const acceptingApplications = data.acceptingApplications !== false;
 
             document.querySelector('#jobDetailsMatch').innerHTML = `
                 <strong>${score}% match</strong>
                 <span>${score > 0 ? 'Based on your skills' : 'Upload a resume to personalize this match'}</span>
+                ${acceptingApplications ? '' : '<span class="job-closed-notice">Applications are closed for this job.</span>'}
             `;
 
             document.querySelector('#jobDetailsDescription').textContent =
@@ -908,7 +910,18 @@ export function initJobs() {
 
             refreshApplicationStatus();
 
+            if (!acceptingApplications) {
+                applyButton.textContent = data.deadlinePassed
+                    ? 'Deadline Passed'
+                    : 'Applications Closed';
+                applyButton.disabled = true;
+                applyButton.classList.add('is-applied');
+            }
+
             applyButton.onclick = async () => {
+                if (!acceptingApplications) {
+                    return;
+                }
                 try {
                     const response = await fetch(
                         `/api/jobs/${encodeURIComponent(job.id)}/apply`,
