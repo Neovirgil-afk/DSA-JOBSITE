@@ -129,6 +129,58 @@ function updateSelectedCount() {
 
 
 /* =========================================================
+   PROFILE COMPLETION
+   ========================================================= */
+
+function renderProfileCompletion() {
+    const scoreEl = document.querySelector('#profileCompletionScore');
+    const barEl = document.querySelector('#profileCompletionBar');
+    const noteEl = document.querySelector('#profileCompletionNote');
+    const checksEl = document.querySelector('#profileCompletionChecks');
+
+    if (!scoreEl || !barEl || !noteEl || !checksEl) return;
+
+    const hasResume = Boolean(window.__jobsiteResumeUploaded);
+    const checks = [
+        { label: 'Name', done: Boolean(profileData?.full_name) },
+        { label: 'Location', done: Boolean(profileData?.location) },
+        { label: 'Education', done: Boolean(profileData?.education || profileData?.degree) },
+        { label: 'Target role', done: Boolean(profileData?.target_job) },
+        { label: 'Skills', done: Array.isArray(profileData?.skills) && profileData.skills.length > 0 },
+        { label: 'Resume', done: hasResume }
+    ];
+
+    const completed = checks.filter((item) => item.done).length;
+    const percent = Math.round((completed / checks.length) * 100);
+
+    scoreEl.textContent = percent + '%';
+    barEl.style.width = percent + '%';
+    noteEl.textContent = percent === 100
+        ? 'Your profile is ready for personalized job matching.'
+        : 'Complete the remaining items to improve your recommendations.';
+
+    checksEl.innerHTML = checks.map((item) =>
+        '<span class="profile-completion-check ' + (item.done ? 'done' : '') + '">' +
+        (item.done ? '✓ ' : '') + escapeHTML(item.label) +
+        '</span>'
+    ).join('');
+}
+
+async function loadResumeCompletionState() {
+    try {
+        const response = await fetch('/api/resume/current', { credentials: 'include' });
+        if (!response.ok) return;
+        const data = await response.json();
+        window.__jobsiteResumeUploaded = Boolean(data.resume);
+    } catch (error) {
+        console.warn('[profile] Could not check resume completion:', error);
+    }
+
+    renderProfileCompletion();
+}
+
+
+/* =========================================================
    PROFILE INFORMATION
    ========================================================= */
 
@@ -208,6 +260,8 @@ function renderProfileInformation() {
     if (headerUserName) {
         headerUserName.textContent = name;
     }
+
+    renderProfileCompletion();
 }
 
 
@@ -1479,6 +1533,7 @@ async function loadProfile() {
 
 
         renderProfileInformation();
+    loadResumeCompletionState();
 
         renderSavedSkills();
 
