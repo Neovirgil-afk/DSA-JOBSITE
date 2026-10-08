@@ -293,9 +293,9 @@ router.get('/:id', (req, res) => {
 
 router.post('/:id/apply', requireAuth, (req, res) => {
     try {
-        const jobId = parseInt(req.params.id, 10);
+        const jobId = Number(req.params.id);
 
-        if (Number.isNaN(jobId)) {
+        if (!Number.isInteger(jobId) || jobId <= 0) {
             return res.status(400).json({ error: 'Invalid job id.' });
         }
 
@@ -372,6 +372,20 @@ router.post('/:id/apply', requireAuth, (req, res) => {
             resumeAttached: Boolean(resume)
         });
     } catch (err) {
+        if (err && err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+            const existing = db.prepare(
+                'SELECT id, status FROM applications WHERE job_id = ? AND user_id = ?'
+            ).get(
+                Number(req.params.id),
+                req.session.userId
+            );
+
+            return res.status(409).json({
+                error: 'You already applied to this job.',
+                application: existing || null
+            });
+        }
+
         console.error('[POST /api/jobs/:id/apply] error:', err);
         res.status(500).json({
             error: 'Failed to submit your application.'
@@ -381,7 +395,11 @@ router.post('/:id/apply', requireAuth, (req, res) => {
 
 router.get('/:id/application', requireAuth, (req, res) => {
     try {
-        const jobId = parseInt(req.params.id, 10);
+        const jobId = Number(req.params.id);
+
+        if (!Number.isInteger(jobId) || jobId <= 0) {
+            return res.status(400).json({ error: 'Invalid job id.' });
+        }
 
         const application = db.prepare(
             'SELECT id, status, applied_at, updated_at FROM applications WHERE job_id = ? AND user_id = ?'
