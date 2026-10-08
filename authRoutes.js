@@ -750,13 +750,18 @@ router.get('/applications/:id', (req, res) => {
             ? Math.round((matchingSkills.length / requiredSkills.length) * 100)
             : 0;
 
+        const history = db.prepare(
+            'SELECT status, changed_at FROM application_history WHERE application_id = ? ORDER BY datetime(changed_at) ASC, id ASC'
+        ).all(applicationId);
+
         res.json({
             success: true,
             application,
             requiredSkills,
             matchingSkills,
             missingSkills,
-            matchScore
+            matchScore,
+            history
         });
     } catch (err) {
         console.error('[GET /api/auth/applications/:id] error:', err);
