@@ -13,6 +13,18 @@ const { computeSkillGap } = require('./SkillGapService')
 
 const router = express.Router();
 
+function requireCandidate(req, res, next) {
+    const user = db.prepare('SELECT role FROM users WHERE id = ?').get(req.session.userId);
+
+    if (!user || user.role !== 'candidate') {
+        return res.status(403).json({
+            error: 'Only candidate accounts can use candidate job features.'
+        });
+    }
+
+    next();
+}
+
 function isValidDateOnly(value) {
     if (!value) return true;
 
@@ -95,7 +107,7 @@ router.get('/categories', (req, res) => {
     }
 });
 
-router.get('/saved', requireAuth, (req, res) => {
+router.get('/saved', requireAuth, requireCandidate, (req, res) => {
     try {
         const jobs = db.prepare(`
             SELECT
@@ -117,7 +129,7 @@ router.get('/saved', requireAuth, (req, res) => {
     }
 });
 
-router.post('/saved/:id', requireAuth, (req, res) => {
+router.post('/saved/:id', requireAuth, requireCandidate, (req, res) => {
     try {
         const jobId = parseInt(req.params.id, 10);
         const job = db.prepare('SELECT id FROM jobs WHERE id = ?').get(jobId);
@@ -138,7 +150,7 @@ router.post('/saved/:id', requireAuth, (req, res) => {
     }
 });
 
-router.delete('/saved/:id', requireAuth, (req, res) => {
+router.delete('/saved/:id', requireAuth, requireCandidate, (req, res) => {
     try {
         const jobId = parseInt(req.params.id, 10);
 
@@ -154,7 +166,7 @@ router.delete('/saved/:id', requireAuth, (req, res) => {
     }
 });
 
-router.get('/recommended', requireAuth, (req, res) => {
+router.get('/recommended', requireAuth, requireCandidate, (req, res) => {
     const userId = req.session.userId;
 
     try {
@@ -281,7 +293,7 @@ router.get('/:id', (req, res) => {
    JOB APPLICATIONS
    ========================================================= */
 
-router.post('/:id/apply', requireAuth, (req, res) => {
+router.post('/:id/apply', requireAuth, requireCandidate, (req, res) => {
     try {
         const jobId = Number(req.params.id);
 
@@ -386,7 +398,7 @@ router.post('/:id/apply', requireAuth, (req, res) => {
     }
 });
 
-router.get('/:id/application', requireAuth, (req, res) => {
+router.get('/:id/application', requireAuth, requireCandidate, (req, res) => {
     try {
         const jobId = Number(req.params.id);
 
