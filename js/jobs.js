@@ -948,6 +948,13 @@ export function initJobs() {
                         return;
                     }
 
+                    if (response.status === 409) {
+                        applyButton.textContent = 'Already Applied';
+                        applyButton.disabled = true;
+                        applyButton.classList.add('is-applied');
+                        return;
+                    }
+
                     if (!response.ok) {
                         throw new Error(
                             result.error || 'Failed to submit application.'
@@ -965,12 +972,6 @@ export function initJobs() {
                     document.querySelector('#jobDetailsMatch').innerHTML +=
                         `<span>Application submitted.${escapeHtml(resumeNote)}</span>`;
                 } catch (error) {
-                    if (error.message === 'You already applied to this job.') {
-                        applyButton.textContent = 'Already Applied';
-                        applyButton.disabled = true;
-                        return;
-                    }
-
                     alert(error.message || 'Failed to submit application.');
                 }
             };
