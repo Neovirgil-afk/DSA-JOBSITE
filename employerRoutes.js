@@ -27,16 +27,24 @@ function clean(value) {
 }
 
 function splitSkills(value) {
-    if (Array.isArray(value)) {
-        return [...new Set(value.map(clean).filter(Boolean))];
+    const values = Array.isArray(value)
+        ? value
+        : clean(value).split(/[,\n]/);
+
+    const seen = new Set();
+    const skills = [];
+
+    for (const value of values) {
+        const skill = clean(value);
+        const key = skill.toLowerCase();
+
+        if (!skill || seen.has(key)) continue;
+
+        seen.add(key);
+        skills.push(skill);
     }
 
-    return [...new Set(
-        clean(value)
-            .split(/[,\\n]/)
-            .map((skill) => skill.trim())
-            .filter(Boolean)
-    )];
+    return skills;
 }
 
 function parseJobPayload(body) {
@@ -63,11 +71,17 @@ function parseJobPayload(body) {
 
 function ensureSkills(skillNames) {
     const insertSkill = db.prepare('INSERT OR IGNORE INTO skills (name, category) VALUES (?, ?)');
-    const getSkill = db.prepare('SELECT id FROM skills WHERE name = ?');
+    const findSkill = db.prepare('SELECT id, name FROM skills WHERE name = ? COLLATE NOCASE LIMIT 1');
 
     return skillNames.map((name) => {
+        const existing = findSkill.get(name);
+
+        if (existing) {
+            return existing;
+        }
+
         insertSkill.run(name, 'Job Requirement');
-        return getSkill.get(name);
+        return findSkill.get(name);
     }).filter(Boolean);
 }
 
@@ -432,7 +446,10 @@ router.post('/jobs', requireEmployer, (req, res) => {
         );
 
         const jobId = Number(info.lastInsertRowid);
-        syncJobSkills(jobId, payload.skills);
+
+        db.transaction(() => {
+            syncJobSkills(jobId, payload.skills);
+        })();
 
         res.status(201).json({ success: true, job: getJobWithSkills(jobId) });
     } catch (err) {
@@ -459,29 +476,31 @@ router.put('/jobs/:id', requireEmployer, (req, res) => {
             });
         }
 
-        db.prepare(
-            'UPDATE jobs SET title = ?, description = ?, location = ?, category = ?, salary = ?, employment_type = ?, responsibilities = ?, qualifications = ?, work_schedule = ?, benefits = ?, application_requirements = ?, application_deadline = ?, how_to_apply = ?, contact_information = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND employer_id = ?'
-        ).run(
-            payload.title,
-            payload.description,
-            payload.location,
-            payload.category,
-            payload.salary,
-            payload.employmentType,
-            payload.responsibilities,
-            payload.qualifications,
-            payload.workSchedule,
-            payload.benefits,
-            payload.applicationRequirements,
-            payload.applicationDeadline,
-            payload.howToApply,
-            payload.contactInformation,
-            payload.status,
-            jobId,
-            req.employer.id
-        );
+        db.transaction(() => {
+            db.prepare(
+                'UPDATE jobs SET title = ?, description = ?, location = ?, category = ?, salary = ?, employment_type = ?, responsibilities = ?, qualifications = ?, work_schedule = ?, benefits = ?, application_requirements = ?, application_deadline = ?, how_to_apply = ?, contact_information = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND employer_id = ?'
+            ).run(
+                payload.title,
+                payload.description,
+                payload.location,
+                payload.category,
+                payload.salary,
+                payload.employmentType,
+                payload.responsibilities,
+                payload.qualifications,
+                payload.workSchedule,
+                payload.benefits,
+                payload.applicationRequirements,
+                payload.applicationDeadline,
+                payload.howToApply,
+                payload.contactInformation,
+                payload.status,
+                jobId,
+                req.employer.id
+            );
 
-        syncJobSkills(jobId, payload.skills);
+            syncJobSkills(jobId, payload.skills);
+        })();
 
         res.json({ success: true, job: getJobWithSkills(jobId) });
     } catch (err) {
