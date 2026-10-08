@@ -883,14 +883,6 @@ export function initJobs() {
                         { credentials: 'include' }
                     );
 
-                    if (statusResponse.status === 401) {
-                        applyButton.textContent = 'Apply Now';
-                        applyButton.disabled = false;
-                        return;
-                    }
-
-                    const statusData = await statusResponse.json();
-
                     if (!acceptingApplications) {
                         applyButton.textContent = data.deadlinePassed
                             ? 'Deadline Passed'
@@ -899,6 +891,15 @@ export function initJobs() {
                         applyButton.classList.add('is-applied');
                         return;
                     }
+
+                    if (statusResponse.status === 401) {
+                        applyButton.textContent = 'Apply Now';
+                        applyButton.disabled = false;
+                        applyButton.classList.remove('is-applied');
+                        return;
+                    }
+
+                    const statusData = await statusResponse.json();
 
                     if (statusResponse.ok && statusData.applied) {
                         applyButton.textContent = 'Already Applied';
@@ -910,6 +911,13 @@ export function initJobs() {
                         applyButton.classList.remove('is-applied');
                     }
                 } catch (statusError) {
+                    if (!acceptingApplications) {
+                        applyButton.textContent = data.deadlinePassed
+                            ? 'Deadline Passed'
+                            : 'Applications Closed';
+                        applyButton.disabled = true;
+                        applyButton.classList.add('is-applied');
+                    }
                     console.warn('[JobPath] Could not check application status:', statusError);
                 }
             }
