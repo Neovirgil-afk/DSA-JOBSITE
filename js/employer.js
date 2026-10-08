@@ -501,9 +501,17 @@ function setApplicantProfileStatus(status) {
 }
 
 async function viewApplicant(applicationId) {
+    const numericApplicationId = Number(applicationId);
+
+    if (!Number.isInteger(numericApplicationId) || numericApplicationId <= 0) {
+        throw new Error('Invalid application id.');
+    }
+
     try {
-        const data = await api('/api/employer/applicants/' + applicationId);
+        const data = await api('/api/employer/applicants/' + numericApplicationId);
         const applicant = data.applicant;
+
+        state.activeApplicationId = numericApplicationId;
 
         state.activeApplicationId = Number(applicationId);
 
