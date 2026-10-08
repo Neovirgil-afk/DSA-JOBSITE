@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const { db } = require('./database');
 const { computeSkillGap } = require('./SkillGapService');
+const { getUserSkillNames } = require('./JobMatchingService');
 const MaxHeap = require('./MaxHeap');
 
 const router = express.Router();
@@ -296,9 +297,8 @@ router.get('/analytics', requireEmployer, (req, res) => {
 
             if (!userCache.has(application.user_id)) {
                 userCache.set(application.user_id, new Set(
-                    db.prepare(
-                        'SELECT s.name FROM user_skills us JOIN skills s ON s.id = us.skill_id WHERE us.user_id = ?'
-                    ).all(application.user_id).map((row) => String(row.name).toLowerCase())
+                    getUserSkillNames(application.user_id)
+                        .map((name) => String(name).toLowerCase())
                 ));
             }
 
@@ -532,9 +532,7 @@ router.get('/jobs/:id/applicants', requireEmployer, (req, res) => {
         const heap = new MaxHeap();
 
         for (const applicant of applicants) {
-            const userSkills = db.prepare(
-                'SELECT s.name FROM user_skills us JOIN skills s ON s.id = us.skill_id WHERE us.user_id = ?'
-            ).all(applicant.user_id).map((row) => row.name);
+            const userSkills = getUserSkillNames(applicant.user_id);
 
             const gap = computeSkillGap(requiredSkills, userSkills);
             const matchScore = requiredSkills.length
@@ -579,9 +577,7 @@ router.get('/applicants/:id', requireEmployer, (req, res) => {
             'SELECT s.name FROM job_skills js JOIN skills s ON s.id = js.skill_id WHERE js.job_id = ?'
         ).all(application.job_id).map((row) => row.name);
 
-        const userSkills = db.prepare(
-            'SELECT s.name FROM user_skills us JOIN skills s ON s.id = us.skill_id WHERE us.user_id = ?'
-        ).all(application.user_id).map((row) => row.name);
+        const userSkills = getUserSkillNames(application.user_id);
 
         const gap = computeSkillGap(requiredSkills, userSkills);
         const matchScore = requiredSkills.length
