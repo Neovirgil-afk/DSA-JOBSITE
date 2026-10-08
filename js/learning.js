@@ -135,8 +135,8 @@
         const items = state.recommendations.length ? state.recommendations : state.catalog;
         list.innerHTML = '<span class="learning-course-active-indicator" aria-hidden="true"></span>' + items.map((item, index) => {
             const progress = state.learningProgress.find((entry) => entry.skill?.toLowerCase() === item.skill?.toLowerCase());
-            const statusLabel = progress?.status === 'verified' ? '✓ Verified' : progress?.status === 'needs_review' ? 'Review quiz' : (item.reason || (item.hasLesson === false ? 'Resources only' : 'Beginner lesson'));
-            return '<button type="button" class="learning-course-item ' + (item.skill === state.activeSkill ? 'active' : '') + '" data-skill="' + escapeHTML(item.skill) + '"><span class="learning-course-number">' + (index + 1) + '</span><span class="learning-course-copy"><strong>' + escapeHTML(item.skill) + '</strong><small>' + escapeHTML(statusLabel) + '</small></span></button>';
+            const statusLabel = progress?.status === 'verified' ? '✓ Verified' : progress?.status === 'needs_review' ? 'Review quiz' : (item.reason || (item.hasLesson === false ? 'Resources only' : 'Beginner lesson')); const statusClass = progress?.status === 'verified' ? 'verified' : progress?.status === 'needs_review' ? 'review' : '';
+            return '<button type="button" class="learning-course-item ' + statusClass + ' ' + (item.skill === state.activeSkill ? 'active' : '') + '" data-skill="' + escapeHTML(item.skill) + '"><span class="learning-course-number">' + (index + 1) + '</span><span class="learning-course-copy"><strong>' + escapeHTML(item.skill) + '</strong><small>' + escapeHTML(statusLabel) + '</small></span></button>';
         }).join('');
         select.innerHTML = items.map((item) => '<option value="' + escapeHTML(item.skill) + '">' + escapeHTML(item.skill) + '</option>').join('');
         if (state.activeSkill) select.value = state.activeSkill;
