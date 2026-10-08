@@ -1521,27 +1521,32 @@ async function loadProfile() {
 
 
         if (!profileResponse.ok) {
-
-            if (
-                profileResponse.status === 401
-            ) {
+            if (profileResponse.status === 401 || profileResponse.status === 403) {
                 window.location.href = '/';
                 return;
             }
 
+            let profileError = 'Failed to load profile.';
+            try {
+                const profileData = await profileResponse.json();
+                profileError = profileData.error || profileError;
+            } catch (_) {}
 
-            throw new Error(
-                'Failed to load profile.'
-            );
+            throw new Error(profileError);
         }
 
+        if (!skillsResponse.ok) {
+            let skillsError = 'Failed to load the skills list.';
+            try {
+                const skillsData = await skillsResponse.json();
+                skillsError = skillsData.error || skillsError;
+            } catch (_) {}
 
-        const profileResult =
-            await profileResponse.json();
+            throw new Error(skillsError);
+        }
 
-
-        const skillsResult =
-            await skillsResponse.json();
+        const profileResult = await profileResponse.json();
+        const skillsResult = await skillsResponse.json();
 
 
         profileData =
