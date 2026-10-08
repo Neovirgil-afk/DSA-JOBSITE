@@ -47,6 +47,22 @@ function splitSkills(value) {
     return skills;
 }
 
+function isValidDateOnly(value) {
+    if (!value) return true;
+
+    const match = /^\\d{4}-\\d{2}-\\d{2}$/.exec(String(value));
+    if (!match) return false;
+
+    const date = new Date(String(value) + 'T00:00:00Z');
+    return !Number.isNaN(date.getTime()) &&
+        date.toISOString().slice(0, 10) === String(value);
+}
+
+function isPastDeadline(value) {
+    if (!value) return false;
+    return new Date(String(value) + 'T23:59:59') < new Date();
+}
+
 function parseJobPayload(body) {
     return {
         title: clean(body.title),
@@ -406,6 +422,18 @@ router.post('/jobs', requireEmployer, (req, res) => {
     try {
         const payload = parseJobPayload(req.body);
 
+        if (payload.applicationDeadline && !isValidDateOnly(payload.applicationDeadline)) {
+            return res.status(400).json({
+                error: 'Application deadline must be a valid date in YYYY-MM-DD format.'
+            });
+        }
+
+        if (payload.status === 'active' && isPastDeadline(payload.applicationDeadline)) {
+            return res.status(400).json({
+                error: 'An active job cannot have an application deadline in the past.'
+            });
+        }
+
         if (!payload.title || !payload.description || !payload.skills.length ||
             !payload.employmentType || !payload.location || !payload.howToApply) {
             return res.status(400).json({
@@ -475,6 +503,18 @@ router.put('/jobs/:id', requireEmployer, (req, res) => {
         }
 
         const payload = parseJobPayload(req.body);
+
+        if (payload.applicationDeadline && !isValidDateOnly(payload.applicationDeadline)) {
+            return res.status(400).json({
+                error: 'Application deadline must be a valid date in YYYY-MM-DD format.'
+            });
+        }
+
+        if (payload.status === 'active' && isPastDeadline(payload.applicationDeadline)) {
+            return res.status(400).json({
+                error: 'An active job cannot have an application deadline in the past.'
+            });
+        }
 
         if (!payload.title || !payload.description || !payload.skills.length ||
             !payload.employmentType || !payload.location || !payload.howToApply) {
