@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let applicationData = [];
     let activityRange = 'monthly';
 
-    const protectedRoutes = ['/learning.html', '/resume.html', '/applications.html'];
+    const protectedRoutes = ['/profile.html', '/learning.html', '/resume.html', '/applications.html'];
 
     async function getCurrentUser() {
         try {
