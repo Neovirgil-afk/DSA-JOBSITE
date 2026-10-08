@@ -383,6 +383,8 @@ async function updateJobStatus(jobId, status) {
         await loadJobs();
         await loadDashboard();
     } catch (error) {
+        await loadJobs().catch(() => {});
+        await loadDashboard().catch(() => {});
         alert(error.message);
     }
 }
