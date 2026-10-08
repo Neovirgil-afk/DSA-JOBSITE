@@ -687,6 +687,7 @@ router.put('/profile/skills', (req, res) => {
                 db.prepare(`
                     DELETE FROM user_skills
                     WHERE user_id = ?
+                      AND source = 'manual'
                 `).run(
                     req.session.userId
                 );
@@ -696,7 +697,7 @@ router.put('/profile/skills', (req, res) => {
 
                 const insert =
                     db.prepare(`
-                        INSERT INTO user_skills (
+                        INSERT OR IGNORE INTO user_skills (
                             user_id,
                             skill_id,
                             source
