@@ -795,9 +795,20 @@ router.get('/applications/:id', (req, res) => {
             'SELECT s.name FROM job_skills js JOIN skills s ON s.id = js.skill_id WHERE js.job_id = ? ORDER BY s.name ASC'
         ).all(application.job_id).map((row) => row.name);
 
-        const userSkills = db.prepare(
-            'SELECT s.name FROM user_skills us JOIN skills s ON s.id = us.skill_id WHERE us.user_id = ?'
-        ).all(req.session.userId).map((row) => row.name);
+        const userSkills = db.prepare(`
+            SELECT DISTINCT s.name
+            FROM skills s
+            WHERE s.id IN (
+                SELECT us.skill_id
+                FROM user_skills us
+                WHERE us.user_id = ?
+                UNION
+                SELECT lp.skill_id
+                FROM learning_progress lp
+                WHERE lp.user_id = ?
+                  AND lp.status = 'verified'
+            )
+        `).all(req.session.userId, req.session.userId).map((row) => row.name);
 
         const userSkillSet = new Set(userSkills.map((skill) => skill.toLowerCase()));
         const matchingSkills = requiredSkills.filter((skill) => userSkillSet.has(skill.toLowerCase()));
