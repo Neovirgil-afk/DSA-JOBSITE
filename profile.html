@@ -66,6 +66,15 @@
         .application-detail-skill--missing{background:#fff0ed;color:#c0392b}
         .application-detail-section{margin-top:18px}
         .application-detail-section h3{font-size:13px;color:#17203a;margin-bottom:7px}
+        .application-timeline{display:grid;gap:0;margin-top:10px}
+        .application-timeline-item{position:relative;display:grid;grid-template-columns:18px 1fr;gap:11px;padding-bottom:15px}
+        .application-timeline-item:last-child{padding-bottom:0}
+        .application-timeline-rail{position:relative;display:flex;justify-content:center}
+        .application-timeline-rail::before{content:"";width:9px;height:9px;border-radius:50%;background:#4f46e5;margin-top:4px;box-shadow:0 0 0 4px #eeecfb;z-index:1}
+        .application-timeline-item:not(:last-child) .application-timeline-rail::after{content:"";position:absolute;top:13px;bottom:-1px;width:1px;background:#dfe1ea}
+        .application-timeline-status{font-size:12px;font-weight:800;color:#17203a;text-transform:capitalize}
+        .application-timeline-date{display:block;margin-top:3px;font-size:11px;color:#8a8fa0}
+        .application-timeline-empty{font-size:12px;color:#8a8fa0}
         @media(max-width:700px){.application-detail-grid{grid-template-columns:1fr}}
 
  
@@ -849,9 +858,9 @@
                     </button>
 
                     <div class="nav-dropdown-panel">
-                        <a href="#">Resume Tips</a>
-                        <a href="#">Interview Prep</a>
-                        <a href="#">Career Guides</a>
+                        <a href="/resume-tips.html">Resume Tips</a>
+                        <a href="/interview-prep.html">Interview Prep</a>
+                        <a href="/career-guides.html">Career Guides</a>
                     </div>
                 </div>
 
@@ -927,15 +936,15 @@
             Find Jobs
         </a>
 
-        <a href="#">
+        <a href="/employer.html">
             For Employers
         </a>
 
-        <a href="#">
+        <a href="/companies.html">
             Browse Companies
         </a>
 
-        <a href="#">
+        <a href="/about.html">
             About Us
         </a>
 
