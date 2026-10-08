@@ -766,14 +766,11 @@ export function initJobs() {
                 const resume = resumeData.resume;
 
                 const status = document.querySelector('#jobResumeStatus');
-                const view = document.querySelector('#jobResumeView');
 
                 if (resume) {
                     status.textContent = 'Resume saved to your profile';
-                    view.hidden = true;
                 } else {
                     status.textContent = 'No resume uploaded yet.';
-                    view.hidden = true;
                 }
             }
 
