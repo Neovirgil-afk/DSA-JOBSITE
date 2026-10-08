@@ -392,6 +392,8 @@ function renderApplications(applications) {
             ? new Date(application.applied_at).toLocaleDateString()
             : '';
 
+        const history = Array.isArray(application.history) ? application.history : [];
+        const latestHistory = history.length ? history[history.length - 1] : null;
         return '<article class="profile-application-item" data-application-id="' + Number(application.id) + '">' +
             '<div class="profile-application-main">' +
                 '<h3>' + escapeHTML(application.job_title || 'Job') + '</h3>' +
@@ -400,6 +402,7 @@ function renderApplications(applications) {
                     '<span>' + escapeHTML(application.location || 'Location not listed') + '</span>' +
                     (application.employment_type ? '<span>· ' + escapeHTML(application.employment_type) + '</span>' : '') +
                     (date ? '<span>· Applied ' + escapeHTML(date) + '</span>' : '') +
+                    (latestHistory?.changed_at ? '<span>· Updated ' + escapeHTML(new Date(latestHistory.changed_at).toLocaleDateString()) + '</span>' : '') +
                 '</div>' +
             '</div>' +
             '<span class="profile-application-status profile-application-status--' + escapeHTML(status) + '">' +
