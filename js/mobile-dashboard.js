@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileMatch = document.querySelector('#mobileProfileMatch');
     const analyticsSaved = document.querySelector('#mobileAnalyticsSaved');
     const analyticsApplications = document.querySelector('#mobileAnalyticsApplications');
+    const activityChart = document.querySelector('#mobileActivityChart');
+    let applicationData = [];
+    let activityRange = 'monthly';
 
     const protectedRoutes = ['/profile.html', '/learning.html', '/resume.html', '/applications.html'];
 
@@ -229,21 +232,64 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function renderActivityChart() {
+        if (!activityChart) return;
+
+        const bars = [...activityChart.querySelectorAll('.mobile-chart-line i')];
+        const labels = [...activityChart.querySelectorAll('.mobile-chart-labels span')];
+        const now = new Date();
+
+        const buckets = Array.from({ length: 6 }, (_, index) => {
+            const date = new Date(now);
+            if (activityRange === 'weekly') {
+                date.setDate(now.getDate() - (5 - index) * 7);
+                return { key: date.getFullYear() + '-W' + Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 1).getTime()) / 604800000), label: date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) };
+            }
+            if (activityRange === 'yearly') {
+                date.setFullYear(now.getFullYear() - (5 - index));
+                return { key: String(date.getFullYear()), label: date.getFullYear() };
+            }
+            date.setMonth(now.getMonth() - (5 - index));
+            return { key: date.getFullYear() + '-' + date.getMonth(), label: date.toLocaleDateString(undefined, { month: 'short' }) };
+        });
+
+        const counts = buckets.map((bucket, index) => {
+            return applicationData.filter((application) => {
+                const date = new Date(application.applied_at);
+                if (Number.isNaN(date.getTime())) return false;
+                if (activityRange === 'yearly') return String(date.getFullYear()) === String(bucket.key);
+                if (activityRange === 'weekly') {
+                    const diff = Math.floor((date.getTime() - new Date(now.getFullYear(), 0, 1).getTime()) / 604800000);
+                    return String(date.getFullYear()) + '-W' + diff === String(bucket.key);
+                }
+                return date.getFullYear() + '-' + date.getMonth() === bucket.key;
+            });
+        });
+
+        const max = Math.max(...counts, 1);
+        bars.forEach((bar, index) => {
+            bar.style.height = `${Math.max(12, Math.round((counts[index] / max) * 82))}%`;
+        });
+        labels.forEach((label, index) => {
+            label.textContent = String(buckets[index].label);
+        });
+    }
+
     async function loadApplicationCount() {
         const applicationCount = document.querySelector('#mobileApplicationCount');
-        if (!applicationCount) return;
-
         try {
             const response = await fetch('/api/applications', {
                 credentials: 'include'
             });
-
             if (!response.ok) return;
 
             const data = await response.json();
-            const total = Array.isArray(data.applications) ? data.applications.length : 0;
-            applicationCount.textContent = String(total);
+            applicationData = Array.isArray(data.applications) ? data.applications : [];
+            const total = applicationData.length;
+
+            if (applicationCount) applicationCount.textContent = String(total);
             if (analyticsApplications) analyticsApplications.textContent = String(total);
+            renderActivityChart();
         } catch (_) {
             // User may simply be logged out.
         }
@@ -313,12 +359,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (analyticsFilter) {
-        const filters = ['Monthly⌄', 'Weekly⌄', 'Yearly⌄'];
+        const filters = [
+            ['monthly', 'Monthly⌄'],
+            ['weekly', 'Weekly⌄'],
+            ['yearly', 'Yearly⌄']
+        ];
         let filterIndex = 0;
 
         analyticsFilter.addEventListener('click', () => {
             filterIndex = (filterIndex + 1) % filters.length;
-            analyticsFilter.textContent = filters[filterIndex];
+            activityRange = filters[filterIndex][0];
+            analyticsFilter.textContent = filters[filterIndex][1];
+            renderActivityChart();
         });
     }
 
