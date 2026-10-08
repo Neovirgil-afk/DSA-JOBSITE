@@ -93,7 +93,7 @@ router.get('/saved', requireAuth, (req, res) => {
             LEFT JOIN applications a ON a.job_id = j.id AND a.user_id = ?
             WHERE sj.user_id = ?
             ORDER BY sj.saved_at DESC, j.title ASC
-        `).all(req.session.userId);
+        `).all(req.session.userId, req.session.userId);
 
         res.json({ jobs });
     } catch (err) {
