@@ -284,7 +284,7 @@ router.get('/dashboard', requireEmployer, (req, res) => {
         };
 
         const recentApplications = db.prepare(
-            'SELECT a.id, a.status, a.applied_at, u.full_name AS applicant_name, j.title AS job_title FROM applications a JOIN users u ON u.id = a.user_id JOIN jobs j ON j.id = a.job_id WHERE j.employer_id = ? ORDER BY a.applied_at DESC LIMIT 8'
+            'SELECT a.id, a.status, a.applied_at, a.job_id, u.full_name AS applicant_name, j.title AS job_title FROM applications a JOIN users u ON u.id = a.user_id JOIN jobs j ON j.id = a.job_id WHERE j.employer_id = ? ORDER BY a.applied_at DESC LIMIT 8'
         ).all(employerId);
 
         res.json({ success: true, stats, recentApplications });
