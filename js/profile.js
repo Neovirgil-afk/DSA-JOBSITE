@@ -354,6 +354,10 @@ async function loadSavedJobs() {
 
 
 async function removeSavedJob(jobId) {
+    if (!Number.isInteger(jobId) || jobId <= 0) {
+        throw new Error('Invalid saved job.');
+    }
+
     const response = await fetch(
         `/api/jobs/saved/${jobId}`,
         {
@@ -362,11 +366,27 @@ async function removeSavedJob(jobId) {
         }
     );
 
-    if (!response.ok) {
-        throw new Error('Failed to remove saved job.');
+    let data = {};
+    try {
+        data = await response.json();
+    } catch {
+        // The endpoint may return an empty body on success.
     }
 
-    loadSavedJobs();
+    if (response.status === 401 || response.status === 403) {
+        window.dispatchEvent(
+            new CustomEvent('jobpath:open-auth', {
+                detail: { mode: 'login' }
+            })
+        );
+        throw new Error('Please log in to manage saved jobs.');
+    }
+
+    if (!response.ok) {
+        throw new Error(data.error || 'Failed to remove saved job.');
+    }
+
+    await loadSavedJobs();
 }
 
 
