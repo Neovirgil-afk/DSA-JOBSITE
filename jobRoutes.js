@@ -347,21 +347,27 @@ router.post('/:id/apply', requireAuth, (req, res) => {
             'SELECT id FROM user_resumes WHERE user_id = ? ORDER BY uploaded_at DESC, id DESC LIMIT 1'
         ).get(req.session.userId);
 
-        const info = db.prepare(
-            "INSERT INTO applications (job_id, user_id, resume_id, status) VALUES (?, ?, ?, 'new')"
-        ).run(
-            jobId,
-            req.session.userId,
-            resume?.id || null
-        );
+        const createApplication = db.transaction(() => {
+            const info = db.prepare(
+                "INSERT INTO applications (job_id, user_id, resume_id, status) VALUES (?, ?, ?, 'new')"
+            ).run(
+                jobId,
+                req.session.userId,
+                resume?.id || null
+            );
 
-        db.prepare(
-            "INSERT INTO application_history (application_id, status) VALUES (?, 'new')"
-        ).run(Number(info.lastInsertRowid));
+            db.prepare(
+                "INSERT INTO application_history (application_id, status) VALUES (?, 'new')"
+            ).run(Number(info.lastInsertRowid));
+
+            return Number(info.lastInsertRowid);
+        });
+
+        const applicationId = createApplication();
 
         res.status(201).json({
             success: true,
-            applicationId: Number(info.lastInsertRowid),
+            applicationId,
             jobId,
             resumeAttached: Boolean(resume)
         });
