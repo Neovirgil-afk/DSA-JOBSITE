@@ -741,7 +741,7 @@ export function initJobs() {
             document.querySelector('#jobDetailsMissing').innerHTML =
                 missing.length
                     ? missing.map((skill) =>
-                        `<span>${escapeHtml(skill)}</span>`
+                        `<span class="job-missing-skill">${escapeHtml(skill)} <a href="/learning.html?skill=${encodeURIComponent(skill)}" class="job-missing-skill-learn">Learn</a></span>`
                     ).join('')
                     : '<span class="job-details-empty">You meet the listed skill requirements.</span>';
             async function refreshJobResume() {
