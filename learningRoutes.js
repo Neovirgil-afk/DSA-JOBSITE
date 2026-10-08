@@ -16,11 +16,11 @@ const { getCareerPathForJob } = require('./CareerPathService');
 
 const router = express.Router();
 
-router.get('/catalog', requireAuth, (req, res) => {
+router.get('/catalog', requireAuth, requireCandidate, (req, res) => {
     res.json({ lessons: getAvailableLessons() });
 });
 
-router.get('/skill/:skill', requireAuth, (req, res) => {
+router.get('/skill/:skill', requireAuth, requireCandidate, (req, res) => {
     const skill = decodeURIComponent(req.params.skill || '').trim();
     const lesson = getLesson(skill);
     if (!lesson) {
@@ -29,7 +29,7 @@ router.get('/skill/:skill', requireAuth, (req, res) => {
     res.json({ lesson, resources: getLearningResources(skill) });
 });
 
-router.get('/recommended', requireAuth, (req, res) => {
+router.get('/recommended', requireAuth, requireCandidate, (req, res) => {
     try {
         const userId = req.session.userId;
         const userSkills = getUserSkillNames(userId);
