@@ -247,32 +247,51 @@ router.post('/scan', requireAuth, requireCandidate, (req, res) => {
                 // Make sure newly added skills exist even when using an older database.
                 ensureSkillDictionaryInDatabase();
 
-                // The newest resume scan replaces skills previously learned
-                // from an uploaded resume. Keep manually added and verified
-                // learning skills untouched.
-                db.prepare(
-                    "DELETE FROM user_skills WHERE user_id = ? AND source = 'resume'"
-                ).run(req.session.userId);
+                // Replace previous resume-derived skills only when the new scan
+                // actually detected skills. An unreadable/low-text resume should
+                // not silently erase skills from the previous successful scan.
+                const detectedSkills = Array.isArray(result.detectedSkills)
+                    ? [...new Set(
+                        result.detectedSkills
+                            .map((skill) => String(skill ?? '').trim())
+                            .filter(Boolean)
+                    )]
+                    : [];
 
                 const insertDetectedSkill = db.prepare(
                     'INSERT OR IGNORE INTO skills (name, category) VALUES (?, ?)'
                 );
-                for (const skillName of result.detectedSkills) {
+                for (const skillName of detectedSkills) {
                     insertDetectedSkill.run(skillName, 'ESCO Skill');
                 }
 
-                const getSkillId = db.prepare('SELECT id FROM skills WHERE name = ?');
+                const getSkillId = db.prepare(
+                    'SELECT id, name FROM skills WHERE name = ? COLLATE NOCASE LIMIT 1'
+                );
                 const insertUserSkill = db.prepare(
                     'INSERT OR IGNORE INTO user_skills (user_id, skill_id, source) VALUES (?, ?, ?)'
                 );
 
                 const savedSkills = [];
-                for (const skillName of result.detectedSkills) {
-                    const skillRow = getSkillId.get(skillName);
-                    if (skillRow) {
-                        insertUserSkill.run(req.session.userId, skillRow.id, 'resume');
-                        savedSkills.push(skillName);
+
+                if (detectedSkills.length > 0) {
+                    db.prepare(
+                        "DELETE FROM user_skills WHERE user_id = ? AND source = 'resume'"
+                    ).run(req.session.userId);
+
+                    for (const skillName of detectedSkills) {
+                        const skillRow = getSkillId.get(skillName);
+                        if (skillRow) {
+                            insertUserSkill.run(req.session.userId, skillRow.id, 'resume');
+                            savedSkills.push(skillRow.name);
+                        }
                     }
+                } else {
+                    const existingSkills = db.prepare(
+                        "SELECT s.name FROM user_skills us JOIN skills s ON s.id = us.skill_id WHERE us.user_id = ? AND us.source = 'resume' ORDER BY s.name COLLATE NOCASE ASC"
+                    ).all(req.session.userId);
+
+                    savedSkills.push(...existingSkills.map((skill) => skill.name));
                 }
 
                 // Update profile fields if they were empty and we found something useful.
