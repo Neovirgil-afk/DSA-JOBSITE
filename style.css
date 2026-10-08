@@ -3235,6 +3235,8 @@ body.job-modal-open {
   color: var(--indigo-dark);
 }
 
+.job-closed-notice{display:block;margin-top:8px;padding:7px 10px;border-radius:9px;background:#f3f3f6;color:#777c8c;font-size:11px;font-weight:700}
+#jobApplyButton.is-applied:disabled{opacity:.72;cursor:not-allowed}
 .job-details-match {
   display: flex;
   align-items: center;
