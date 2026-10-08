@@ -93,7 +93,7 @@ router.post('/assessment/complete', requireAuth, (req, res) => {
         }
 
         db.prepare(
-            "INSERT INTO learning_progress (user_id, skill_id, status, score, total_questions, completed_at) VALUES (?, ?, ?, ?, ?, CASE WHEN ? = 1 THEN CURRENT_TIMESTAMP ELSE NULL END) ON CONFLICT(user_id, skill_id) DO UPDATE SET status = excluded.status, score = excluded.score, total_questions = excluded.total_questions, completed_at = excluded.completed_at"
+            "INSERT INTO learning_progress (user_id, skill_id, status, score, total_questions, completed_at) VALUES (?, ?, ?, ?, ?, CASE WHEN ? = 1 THEN CURRENT_TIMESTAMP ELSE NULL END) ON CONFLICT(user_id, skill_id) DO UPDATE SET status = CASE WHEN learning_progress.status = 'verified' OR excluded.status = 'verified' THEN 'verified' ELSE excluded.status END, score = CASE WHEN excluded.status = 'verified' OR learning_progress.status != 'verified' THEN excluded.score ELSE learning_progress.score END, total_questions = CASE WHEN excluded.status = 'verified' OR learning_progress.status != 'verified' THEN excluded.total_questions ELSE learning_progress.total_questions END, completed_at = CASE WHEN excluded.status = 'verified' THEN excluded.completed_at ELSE learning_progress.completed_at END"
         ).run(
             req.session.userId,
             skillRow.id,
