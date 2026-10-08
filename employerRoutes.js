@@ -645,18 +645,15 @@ router.get('/jobs/:id/applicants', requireEmployer, (req, res) => {
 
 router.get('/applicants/:id', requireEmployer, (req, res) => {
     try {
+        const applicationId = Number(req.params.id);
+
+        if (!Number.isInteger(applicationId) || applicationId <= 0) {
+            return res.status(400).json({ error: 'Invalid application id.' });
+        }
+
         const application = db.prepare(
-            (() => {
-            const applicationId = Number(req.params.id);
-
-            if (!Number.isInteger(applicationId) || applicationId <= 0) {
-                return null;
-            }
-
-            return db.prepare(
-                'SELECT a.*, j.title AS job_title, j.company, u.id AS user_id, u.full_name, u.email, u.education, u.degree, u.target_job, u.location, ur.original_name AS resume_name, ur.stored_name AS resume_stored_name FROM applications a JOIN jobs j ON j.id = a.job_id JOIN users u ON u.id = a.user_id LEFT JOIN user_resumes ur ON ur.id = a.resume_id WHERE a.id = ? AND j.employer_id = ?'
-            ).get(applicationId, req.employer.id);
-        })();
+            'SELECT a.*, j.title AS job_title, j.company, u.id AS user_id, u.full_name, u.email, u.education, u.degree, u.target_job, u.location, ur.original_name AS resume_name, ur.stored_name AS resume_stored_name FROM applications a JOIN jobs j ON j.id = a.job_id JOIN users u ON u.id = a.user_id LEFT JOIN user_resumes ur ON ur.id = a.resume_id WHERE a.id = ? AND j.employer_id = ?'
+        ).get(applicationId, req.employer.id);
 
         if (!application) {
             return res.status(404).json({ error: 'Applicant not found.' });
