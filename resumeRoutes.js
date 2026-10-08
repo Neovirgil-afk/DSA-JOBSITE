@@ -138,13 +138,32 @@ router.put('/builder', requireAuth, requireCandidate, (req, res) => {
 
         const json = JSON.stringify(clean);
 
-        db.prepare(`
-            INSERT INTO resume_builder (user_id, resume_data, updated_at)
-            VALUES (?, ?, CURRENT_TIMESTAMP)
-            ON CONFLICT(user_id) DO UPDATE SET
-                resume_data = excluded.resume_data,
-                updated_at = CURRENT_TIMESTAMP
-        `).run(req.session.userId, json);
+        const saveResume = db.transaction(() => {
+            db.prepare(`
+                INSERT INTO resume_builder (user_id, resume_data, updated_at)
+                VALUES (?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(user_id) DO UPDATE SET
+                    resume_data = excluded.resume_data,
+                    updated_at = CURRENT_TIMESTAMP
+            `).run(req.session.userId, json);
+
+            db.prepare(`
+                UPDATE users
+                SET full_name = ?,
+                    location = ?,
+                    education = ?,
+                    degree = ?
+                WHERE id = ?
+            `).run(
+                clean.fullName || null,
+                clean.location || null,
+                clean.education[0]?.school || null,
+                clean.education[0]?.degree || null,
+                req.session.userId
+            );
+        });
+
+        saveResume();
 
         res.json({
             success: true,
