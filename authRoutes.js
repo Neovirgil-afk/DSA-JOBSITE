@@ -194,7 +194,8 @@ router.post('/login', (req, res) => {
 
         const {
             email,
-            password
+            password,
+            rememberMe
         } = req.body;
 
 
@@ -262,6 +263,10 @@ router.post('/login', (req, res) => {
 
         req.session.userId =
             user.id;
+
+        req.session.cookie.maxAge = rememberMe
+            ? 1000 * 60 * 60 * 24 * 30
+            : 1000 * 60 * 60 * 24;
 
 
         /* ---------- RESPONSE ---------- */
