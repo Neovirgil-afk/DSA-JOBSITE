@@ -423,33 +423,35 @@ router.post('/jobs', requireEmployer, (req, res) => {
             });
         }
 
-        const info = db.prepare(
-            'INSERT INTO jobs (title, description, company, location, category, salary, employment_type, responsibilities, qualifications, work_schedule, benefits, application_requirements, application_deadline, how_to_apply, contact_information, status, employer_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)'
-        ).run(
-            payload.title,
-            payload.description,
-            company.company_name,
-            payload.location,
-            payload.category,
-            payload.salary,
-            payload.employmentType,
-            payload.responsibilities,
-            payload.qualifications,
-            payload.workSchedule,
-            payload.benefits,
-            payload.applicationRequirements,
-            payload.applicationDeadline,
-            payload.howToApply,
-            payload.contactInformation,
-            payload.status,
-            req.employer.id
-        );
+        const createJob = db.transaction(() => {
+            const info = db.prepare(
+                'INSERT INTO jobs (title, description, company, location, category, salary, employment_type, responsibilities, qualifications, work_schedule, benefits, application_requirements, application_deadline, how_to_apply, contact_information, status, employer_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)'
+            ).run(
+                payload.title,
+                payload.description,
+                company.company_name,
+                payload.location,
+                payload.category,
+                payload.salary,
+                payload.employmentType,
+                payload.responsibilities,
+                payload.qualifications,
+                payload.workSchedule,
+                payload.benefits,
+                payload.applicationRequirements,
+                payload.applicationDeadline,
+                payload.howToApply,
+                payload.contactInformation,
+                payload.status,
+                req.employer.id
+            );
 
-        const jobId = Number(info.lastInsertRowid);
-
-        db.transaction(() => {
+            const jobId = Number(info.lastInsertRowid);
             syncJobSkills(jobId, payload.skills);
-        })();
+            return jobId;
+        });
+
+        const jobId = createJob();
 
         res.status(201).json({ success: true, job: getJobWithSkills(jobId) });
     } catch (err) {
@@ -461,6 +463,11 @@ router.post('/jobs', requireEmployer, (req, res) => {
 router.put('/jobs/:id', requireEmployer, (req, res) => {
     try {
         const jobId = Number(req.params.id);
+
+        if (!Number.isInteger(jobId) || jobId <= 0) {
+            return res.status(400).json({ error: 'Invalid job id.' });
+        }
+
         const existing = getEmployerJob(jobId, req.employer.id);
 
         if (!existing) {
@@ -516,9 +523,15 @@ router.patch('/jobs/:id/status', requireEmployer, (req, res) => {
         return res.status(400).json({ error: 'Invalid job status.' });
     }
 
+    const jobId = Number(req.params.id);
+
+    if (!Number.isInteger(jobId) || jobId <= 0) {
+        return res.status(400).json({ error: 'Invalid job id.' });
+    }
+
     const result = db.prepare(
         'UPDATE jobs SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND employer_id = ?'
-    ).run(status, Number(req.params.id), req.employer.id);
+    ).run(status, jobId, req.employer.id);
 
     if (!result.changes) {
         return res.status(404).json({ error: 'Job posting not found.' });
