@@ -378,6 +378,16 @@ router.get('/applications', (req, res) => {
             return res.status(401).json({ error: 'Not logged in.' });
         }
 
+        const user = db.prepare(
+            'SELECT role FROM users WHERE id = ?'
+        ).get(req.session.userId);
+
+        if (!user || user.role !== 'candidate') {
+            return res.status(403).json({
+                error: 'Only candidate accounts can view applications.'
+            });
+        }
+
         const applications = db.prepare(
             'SELECT a.id, a.status, a.applied_at, a.updated_at, j.id AS job_id, j.title AS job_title, j.company, j.location, j.employment_type, j.salary FROM applications a JOIN jobs j ON j.id = a.job_id WHERE a.user_id = ? ORDER BY datetime(a.applied_at) DESC, a.id DESC'
         ).all(req.session.userId);
@@ -491,6 +501,12 @@ router.get('/profile', (req, res) => {
                     'Not logged in.'
             });
 
+        }
+
+        if (user.role !== 'candidate') {
+            return res.status(403).json({
+                error: 'Only candidate accounts can access the candidate profile.'
+            });
         }
 
 
