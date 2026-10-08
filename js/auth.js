@@ -331,6 +331,11 @@ export function initAuth() {
 
                         </div>
 
+                        <label class="auth-remember">
+                            <input type="checkbox" id="authRememberMe" />
+                            <span>Keep me logged in for 30 days</span>
+                        </label>
+
                     </div>
 
 
@@ -2085,7 +2090,12 @@ export function initAuth() {
                             loginEmail.value.trim(),
 
                         password:
-                            loginPassword.value
+                            loginPassword.value,
+
+                        rememberMe:
+                            Boolean(
+                                document.querySelector('#authRememberMe')?.checked
+                            )
                     };
 
 
