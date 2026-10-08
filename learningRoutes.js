@@ -1,6 +1,14 @@
 const express = require('express');
 const { db } = require('./database');
 const { requireAuth } = require('./auth');
+
+function requireCandidate(req, res, next) {
+    const user = db.prepare('SELECT role FROM users WHERE id = ?').get(req.session.userId);
+    if (!user || user.role !== 'candidate') {
+        return res.status(403).json({ error: 'Only candidate accounts can use Learning Hub assessments.' });
+    }
+    next();
+}
 const { getLesson, getAvailableLessons, gradeQuiz } = require('./LearningLessons');
 const { getLearningResources } = require('./LearningResources');
 const { getUserSkillNames, getRankedJobsForUser } = require('./JobMatchingService');
@@ -87,7 +95,7 @@ router.get('/recommended', requireAuth, (req, res) => {
     }
 });
 
-router.post('/assessment/complete', requireAuth, (req, res) => {
+router.post('/assessment/complete', requireAuth, requireCandidate, (req, res) => {
     try {
         const result = gradeQuiz(req.body?.skill, req.body?.answers);
         if (!result) return res.status(400).json({ error: 'Invalid assessment.' });
@@ -99,16 +107,26 @@ router.post('/assessment/complete', requireAuth, (req, res) => {
             return res.status(404).json({ error: 'Skill is not available in the JobSite skill catalog.' });
         }
 
-        db.prepare(
-            "INSERT INTO learning_progress (user_id, skill_id, status, score, total_questions, completed_at) VALUES (?, ?, ?, ?, ?, CASE WHEN ? = 1 THEN CURRENT_TIMESTAMP ELSE NULL END) ON CONFLICT(user_id, skill_id) DO UPDATE SET status = CASE WHEN learning_progress.status = 'verified' OR excluded.status = 'verified' THEN 'verified' ELSE excluded.status END, score = CASE WHEN excluded.status = 'verified' OR learning_progress.status != 'verified' THEN excluded.score ELSE learning_progress.score END, total_questions = CASE WHEN excluded.status = 'verified' OR learning_progress.status != 'verified' THEN excluded.total_questions ELSE learning_progress.total_questions END, completed_at = CASE WHEN excluded.status = 'verified' THEN excluded.completed_at ELSE learning_progress.completed_at END"
-        ).run(
-            req.session.userId,
-            skillRow.id,
-            result.passed ? 'verified' : 'needs_review',
-            result.score,
-            result.total,
-            result.passed ? 1 : 0
-        );
+        const saveAssessment = db.transaction(() => {
+            db.prepare(
+                "INSERT INTO learning_progress (user_id, skill_id, status, score, total_questions, completed_at) VALUES (?, ?, ?, ?, ?, CASE WHEN ? = 1 THEN CURRENT_TIMESTAMP ELSE NULL END) ON CONFLICT(user_id, skill_id) DO UPDATE SET status = CASE WHEN learning_progress.status = 'verified' OR excluded.status = 'verified' THEN 'verified' ELSE excluded.status END, score = CASE WHEN excluded.status = 'verified' OR learning_progress.status != 'verified' THEN excluded.score ELSE learning_progress.score END, total_questions = CASE WHEN excluded.status = 'verified' OR learning_progress.status != 'verified' THEN excluded.total_questions ELSE learning_progress.total_questions END, completed_at = CASE WHEN excluded.status = 'verified' THEN excluded.completed_at ELSE learning_progress.completed_at END"
+            ).run(
+                req.session.userId,
+                skillRow.id,
+                result.passed ? 'verified' : 'needs_review',
+                result.score,
+                result.total,
+                result.passed ? 1 : 0
+            );
+
+            if (result.passed) {
+                db.prepare(
+                    "INSERT INTO user_skills (user_id, skill_id, source) VALUES (?, ?, 'simulator') ON CONFLICT(user_id, skill_id) DO UPDATE SET source = 'simulator'"
+                ).run(req.session.userId, skillRow.id);
+            }
+        });
+
+        saveAssessment();
 
         if (!result.passed) {
             return res.json({
@@ -117,10 +135,6 @@ router.post('/assessment/complete', requireAuth, (req, res) => {
                 message: 'Keep practicing the lesson and try again.'
             });
         }
-
-        db.prepare(
-            "INSERT INTO user_skills (user_id, skill_id, source) VALUES (?, ?, 'simulator') ON CONFLICT(user_id, skill_id) DO UPDATE SET source = 'simulator'"
-        ).run(req.session.userId, skillRow.id);
 
         const updatedSkills = getUserSkillNames(req.session.userId);
         const rankedJobs = getRankedJobsForUser(req.session.userId);
