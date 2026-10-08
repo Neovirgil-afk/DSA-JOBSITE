@@ -1472,8 +1472,8 @@ export function initAuth() {
 
         actions.innerHTML = `
 
-            <button
-                type="button"
+            <a
+                href="/profile.html"
                 class="profile-header-button"
                 id="profileButton"
                 style="
@@ -1488,6 +1488,7 @@ export function initAuth() {
                     font-size: 14px;
                     font-weight: 700;
                     cursor: pointer;
+                    text-decoration: none;
                 "
             >
 
@@ -1532,11 +1533,7 @@ export function initAuth() {
 
 
         if (profileButton) {
-
-            profileButton.addEventListener(
-                'click',
-                openProfile
-            );
+            profileButton.setAttribute('aria-label', 'Open your profile');
         }
 
 
