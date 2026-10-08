@@ -569,6 +569,32 @@ router.patch('/jobs/:id/status', requireEmployer, (req, res) => {
         return res.status(400).json({ error: 'Invalid job id.' });
     }
 
+    const existing = db.prepare(
+        'SELECT application_deadline FROM jobs WHERE id = ? AND employer_id = ?'
+    ).get(jobId, req.employer.id);
+
+    if (!existing) {
+        return res.status(404).json({ error: 'Job posting not found.' });
+    }
+
+    if (status === 'active' && existing.application_deadline) {
+        const deadline = String(existing.application_deadline);
+        const validDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(deadline) &&
+            !Number.isNaN(new Date(deadline + 'T00:00:00Z').getTime());
+
+        if (!validDate) {
+            return res.status(400).json({
+                error: 'An active job must have a valid application deadline.'
+            });
+        }
+
+        if (new Date(deadline + 'T23:59:59') < new Date()) {
+            return res.status(400).json({
+                error: 'An active job cannot have an application deadline in the past.'
+            });
+        }
+    }
+
     const result = db.prepare(
         'UPDATE jobs SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND employer_id = ?'
     ).run(status, jobId, req.employer.id);
