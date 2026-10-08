@@ -13,6 +13,7 @@
 class MaxHeap {
     constructor() {
         this.heap = [];
+        this._sequence = 0;
     }
 
     size() {
@@ -32,14 +33,19 @@ class MaxHeap {
     }
 
     insert(priority, data) {
-        this.heap.push({ priority, data });
+        this.heap.push({ priority, data, sequence: this._sequence++ });
         this._bubbleUp(this.heap.length - 1);
+    }
+
+    _higherPriority(a, b) {
+        if (a.priority !== b.priority) return a.priority > b.priority;
+        return a.sequence < b.sequence;
     }
 
     _bubbleUp(index) {
         while (index > 0) {
             const parentIndex = this._parent(index);
-            if (this.heap[parentIndex].priority < this.heap[index].priority) {
+            if (this._higherPriority(this.heap[index], this.heap[parentIndex])) {
                 this._swap(parentIndex, index);
                 index = parentIndex;
             } else break;
@@ -64,8 +70,8 @@ class MaxHeap {
             const right = this._right(index);
             let largest = index;
 
-            if (left < n && this.heap[left].priority > this.heap[largest].priority) largest = left;
-            if (right < n && this.heap[right].priority > this.heap[largest].priority) largest = right;
+            if (left < n && this._higherPriority(this.heap[left], this.heap[largest])) largest = left;
+            if (right < n && this._higherPriority(this.heap[right], this.heap[largest])) largest = right;
 
             if (largest === index) break;
             this._swap(index, largest);
@@ -78,6 +84,7 @@ class MaxHeap {
     toSortedArray() {
         const clone = new MaxHeap();
         clone.heap = this.heap.map((n) => ({ ...n }));
+        clone._sequence = this._sequence;
         const result = [];
         let node;
         while ((node = clone.extractMax()) !== null) {
