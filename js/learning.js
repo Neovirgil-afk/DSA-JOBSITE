@@ -335,10 +335,22 @@
             state.progress = data.progress || { completed: 0, total: 0, percent: 0 };
             state.recommendations = data.recommendations || [];
             state.catalog = data.availableLessons || [];
+
+            const requestedSkill = new URLSearchParams(window.location.search).get('skill')?.trim() || '';
+            const requestedLower = requestedSkill.toLowerCase();
+            const requestedItem = [...state.recommendations, ...state.catalog].find(
+                (item) => item.skill?.toLowerCase() === requestedLower
+            );
+
             renderCareerOverview();
             renderCourseList();
-            if (state.recommendations.length) {
+
+            if (requestedSkill && requestedItem) {
+                loadLesson(requestedItem.skill);
+            } else if (state.recommendations.length) {
                 loadLesson(state.recommendations[0].skill);
+            } else if (requestedSkill) {
+                loadLesson(requestedSkill);
             } else {
                 $('#learningContent').innerHTML = '<div class="learning-empty">No beginner lessons are recommended yet. Upload a resume or add skills to your profile first.</div>';
             }
