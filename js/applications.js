@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="application-card-side">
                     <span class="application-status application-status--${escapeHtml(app.status)}">${statusLabel(app.status)}</span>
                     <small>Applied ${new Date(app.applied_at).toLocaleDateString()}</small>
+                    <div class="application-timeline-mini">${(Array.isArray(app.history) && app.history.length ? app.history : [{ status: app.status, changed_at: app.applied_at }]).map((item) => `<span><b>${escapeHtml(statusLabel(item.status))}</b><em>${new Date(item.changed_at).toLocaleDateString()}</em></span>`).join('')}</div>
                     <a href="/?job=${encodeURIComponent(app.job_id)}" class="application-view-link">View job</a>
                 </div>
             </article>
