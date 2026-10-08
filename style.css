@@ -7261,3 +7261,7 @@ body.employer-modal-open {
   .companies-page .resource-hero-inner{padding-top:34px!important}
   .company-search{font-size:14px;padding:13px 15px}
 }
+
+.profile-saved-job-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.profile-view-job-button{display:inline-flex;align-items:center;justify-content:center;padding:8px 11px;border:1px solid #e1e3ec;border-radius:9px;color:var(--indigo);background:#fff;font:700 11px Inter,sans-serif;text-decoration:none}
+.profile-view-job-button:hover{background:#f6f5ff}
