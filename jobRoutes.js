@@ -235,7 +235,9 @@ router.get('/:id', (req, res) => {
             ? getCareerPathForJob(jobId, getUserSkillNames(req.session.userId))
             : getCareerPathForJob(jobId, []);
 
-        const verifiedSkills = req.session.userId ? db.prepare('SELECT s.name FROM learning_progress lp JOIN skills s ON s.id = lp.skill_id WHERE lp.user_id = ? AND lp.status = \'verified\'').all(req.session.userId).map((row) => row.name) : [];\n\n        let company = null;
+        const verifiedSkills = req.session.userId ? db.prepare('SELECT s.name FROM learning_progress lp JOIN skills s ON s.id = lp.skill_id WHERE lp.user_id = ? AND lp.status = \'verified\'').all(req.session.userId).map((row) => row.name) : [];
+
+        let company = null;
 
         if (job.company) {
             try {
@@ -256,6 +258,7 @@ router.get('/:id', (req, res) => {
             matchScore,
             matchingSkills,
             missingSkills,
+            verifiedSkills,
             careerPath,
             experienceLevel: getExperienceLevel(job.title),
         });
