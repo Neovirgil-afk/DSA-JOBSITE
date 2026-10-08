@@ -21,8 +21,10 @@ router.get('/', requireAuth, (req, res) => {
         const applications = db.prepare(
             'SELECT a.id, a.status, a.applied_at, a.updated_at, ' +
             'j.id AS job_id, j.title, j.company, j.location, ' +
-            'j.employment_type, j.salary, j.status AS job_status ' +
+            'j.employment_type, j.salary, j.status AS job_status, ' +
+            'a.resume_id, ur.original_name AS resume_name ' +
             'FROM applications a JOIN jobs j ON j.id = a.job_id ' +
+            'LEFT JOIN user_resumes ur ON ur.id = a.resume_id ' +
             'WHERE a.user_id = ? ORDER BY a.applied_at DESC, a.id DESC'
         ).all(req.session.userId);
 
