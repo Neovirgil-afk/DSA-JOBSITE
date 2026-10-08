@@ -11,14 +11,24 @@ const MaxHeap = require('./MaxHeap');
 function calculateMatches(jobs, userSkills) {
     // Hash Table: O(1) average membership check for "does the user have skill X"
     const userSkillSet = new HashTable();
-    for (const skill of userSkills) {
-        userSkillSet.set(skill.toLowerCase(), true);
+    for (const skill of userSkills || []) {
+        const normalized = String(skill ?? '').trim().toLowerCase();
+        if (normalized) userSkillSet.set(normalized, true);
     }
 
     const heap = new MaxHeap();
 
-    for (const job of jobs) {
-        const required = job.requiredSkills || [];
+    for (const job of jobs || []) {
+        const seenRequired = new Set();
+        const required = (Array.isArray(job.requiredSkills) ? job.requiredSkills : [])
+            .map((skill) => String(skill ?? '').trim())
+            .filter((skill) => {
+                const normalized = skill.toLowerCase();
+                if (!normalized || seenRequired.has(normalized)) return false;
+                seenRequired.add(normalized);
+                return true;
+            });
+
         const matching = required.filter((s) => userSkillSet.has(s.toLowerCase()));
         const missing = required.filter((s) => !userSkillSet.has(s.toLowerCase()));
 
