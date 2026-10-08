@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Browse Companies — JobSite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="logo" href="/"><span class="logo-text">JOB<span class="logo-accent">SITE</span></span><span class="logo-tagline">Find your path. Build your future.</span></a>
+    <nav class="main-nav" aria-label="Primary">
+      <a href="/">Find Jobs</a><a href="/employer.html">For Employers</a><a href="/companies.html" class="active">Browse Companies</a>
+      <div class="nav-dropdown"><button type="button" class="nav-dropdown-btn">Resume ▾</button><div class="nav-dropdown-panel"><a href="/resume-builder.html">Resume Builder</a><a href="/resume.html">Resume Analyzer</a></div></div>
+      <div class="nav-dropdown"><button type="button" class="nav-dropdown-btn">Resources ▾</button><div class="nav-dropdown-panel"><a href="/resume-tips.html">Resume Tips</a><a href="/interview-prep.html">Interview Prep</a><a href="/career-guides.html">Career Guides</a></div></div>
+      <a href="/about.html">About Us</a>
+    </nav>
+    <div class="header-actions"><a href="#" class="login-link">Log In</a><a href="#" class="btn btn-primary">Sign Up</a></div>
+    <button class="menu-toggle" aria-label="Open menu" id="menuToggle"><span></span><span></span><span></span></button>
+  </div>
+</header>
+<main class="resource-content companies-page">
+  <div class="wrap">
+    <section class="resource-hero-inner" style="padding:64px 0 34px">
+      <p class="resource-eyebrow">✦ COMPANY DIRECTORY</p>
+      <h1>Explore companies hiring on <span>JobSite.</span></h1>
+      <p>Discover employers, learn about their organizations, and find open opportunities that fit your career goals.</p>
+    </section>
+    <div class="resource-section">
+      <input id="companySearch" class="company-search" type="search" placeholder="Search companies, industries, or locations..." autocomplete="off">
+    </div>
+    <section id="companyGrid" class="resource-grid" aria-live="polite"></section>
+  </div>
+</main>
+<footer class="site-footer"><div class="wrap footer-inner"><span>© 2026 JobSite. Find your path. Build your future.</span><div class="footer-links"><a href="/about.html#contact">Contact</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a></div></div></footer>
+<script type="module">
+import { initUI } from '/js/ui.js';
+import { initAuth } from '/js/auth.js';
+initUI();
+initAuth();
+</script>
+<script src="/js/page-transition.js" defer></script>
+<script src="/js/mobile-nav.js" defer></script>
+<script src="/js/companies.js" defer></script>
+</body>
+</html>
