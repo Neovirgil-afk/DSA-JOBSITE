@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedCount = document.querySelector('#mobileSavedCount');
     const recommendedCount = document.querySelector('#mobileRecommendedCount');
     const analyticsFilter = document.querySelector('#mobileAnalyticsFilter');
+    const profileMatch = document.querySelector('#mobileProfileMatch');
+    const analyticsSaved = document.querySelector('#mobileAnalyticsSaved');
+    const analyticsApplications = document.querySelector('#mobileAnalyticsApplications');
 
     const protectedRoutes = ['/profile.html', '/learning.html', '/resume.html', '/applications.html'];
 
@@ -238,11 +241,30 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) return;
 
             const data = await response.json();
-            applicationCount.textContent = String(
-                Array.isArray(data.applications) ? data.applications.length : 0
-            );
+            const total = Array.isArray(data.applications) ? data.applications.length : 0;
+            applicationCount.textContent = String(total);
+            if (analyticsApplications) analyticsApplications.textContent = String(total);
         } catch (_) {
             // User may simply be logged out.
+        }
+    }
+
+    async function loadProfileMatch() {
+        if (!profileMatch) return;
+        try {
+            const response = await fetch('/api/jobs/recommended', { credentials: 'include' });
+            if (!response.ok) return;
+            const data = await response.json();
+            const jobs = Array.isArray(data.jobs) ? data.jobs : [];
+            const scores = jobs.map((job) => Number(job.matchScore)).filter(Number.isFinite);
+            if (scores.length) {
+                const average = Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
+                profileMatch.textContent = `${average}%`;
+            } else {
+                profileMatch.textContent = '—';
+            }
+        } catch (_) {
+            profileMatch.textContent = '—';
         }
     }
 
@@ -257,9 +279,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) return;
 
             const data = await response.json();
-            savedCount.textContent = String(
-                Array.isArray(data.jobs) ? data.jobs.length : 0
-            );
+            const total = Array.isArray(data.jobs) ? data.jobs.length : 0;
+            savedCount.textContent = String(total);
+            if (analyticsSaved) analyticsSaved.textContent = String(total);
         } catch (_) {
             // User may simply be logged out.
         }
@@ -355,4 +377,5 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUserState();
     loadSavedCount();
     loadApplicationCount();
+    loadProfileMatch();
 });
