@@ -300,6 +300,10 @@ function renderSavedJobs(jobs) {
                 </span>
             </div>
 
+                <div class="profile-saved-job-statuses">
+                    ${job.application_status ? `<span class="profile-saved-job-status is-applied">Applied · ${escapeHTML(job.application_status)}</span>` : job.status !== "active" ? `<span class="profile-saved-job-status is-closed">Job ${escapeHTML(job.status || "closed")}</span>` : `<span class="profile-saved-job-status is-open">Open</span>`}
+                </div>
+
             <div class="profile-saved-job-actions">
                 <a
                     class="profile-view-job-button"
