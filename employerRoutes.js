@@ -337,6 +337,33 @@ router.get('/analytics', requireEmployer, (req, res) => {
         };
 
         for (const application of applications) {
+            const status = Object.prototype.hasOwnProperty.call(
+                statusCounts,
+                application.status
+            ) ? application.status : 'new';
+
+            statusCounts[status] += 1;
+
+            const requiredSkills = getCachedRequiredSkills(application.job_id);
+            const userSkills = getCachedUserSkills(application.user_id);
+            const gap = computeSkillGap(requiredSkills, userSkills);
+            const score = requiredSkills.length
+                ? Math.round((gap.have.length / requiredSkills.length) * 100)
+                : 0;
+
+            matchTotal += score;
+        }
+
+        const jobs = db.prepare(
+            "SELECT j.id, j.title, j.status, COUNT(a.id) AS applicants FROM jobs j LEFT JOIN applications a ON a.job_id = j.id WHERE j.employer_id = ? GROUP BY j.id ORDER BY applicants DESC, j.created_at DESC"
+        ).all(employerId);
+
+        const jobAverages = new Map();
+        for (const job of jobs) {
+            jobAverages.set(Number(job.id), { total: 0, count: 0 });
+        }
+
+        for (const application of applications) {
             const bucket = jobAverages.get(Number(application.job_id));
             if (!bucket) continue;
 
@@ -350,6 +377,7 @@ router.get('/analytics', requireEmployer, (req, res) => {
             bucket.total += score;
             bucket.count += 1;
         }
+
         const statusLabels = { active: 'Active', draft: 'Draft', closed: 'Closed' };
         const jobResults = jobs.map((job) => {
             const bucket = jobAverages.get(Number(job.id));
@@ -369,7 +397,9 @@ router.get('/analytics', requireEmployer, (req, res) => {
                 shortlisted: statusCounts.shortlisted,
                 interview: statusCounts.interview,
                 hired: statusCounts.hired,
-                averageMatch: applications.length ? Math.round(matchTotal / applications.length) : 0
+                averageMatch: applications.length
+                    ? Math.round(matchTotal / applications.length)
+                    : 0
             },
             statusCounts,
             jobs: jobResults
