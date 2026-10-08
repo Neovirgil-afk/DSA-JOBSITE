@@ -41,10 +41,20 @@ function getAllJobsWithSkills() {
 
 function getUserSkillNames(userId) {
     const rows = db.prepare(`
-        SELECT s.name FROM user_skills us
-        JOIN skills s ON s.id = us.skill_id
-        WHERE us.user_id = ?
-    `).all(userId);
+        SELECT DISTINCT s.name
+        FROM skills s
+        WHERE s.id IN (
+            SELECT us.skill_id
+            FROM user_skills us
+            WHERE us.user_id = ?
+            UNION
+            SELECT lp.skill_id
+            FROM learning_progress lp
+            WHERE lp.user_id = ?
+              AND lp.status = 'verified'
+        )
+        ORDER BY s.name COLLATE NOCASE ASC
+    `).all(userId, userId);
     return rows.map((r) => r.name);
 }
 
