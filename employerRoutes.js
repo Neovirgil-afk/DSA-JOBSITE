@@ -627,9 +627,15 @@ router.get('/applicants/:id', requireEmployer, (req, res) => {
 
 router.get('/applicants/:id/resume', requireEmployer, (req, res) => {
     try {
+        const applicationId = Number(req.params.id);
+
+        if (!Number.isInteger(applicationId) || applicationId <= 0) {
+            return res.status(400).json({ error: 'Invalid application id.' });
+        }
+
         const application = db.prepare(
             'SELECT ur.original_name, ur.stored_name FROM applications a JOIN jobs j ON j.id = a.job_id LEFT JOIN user_resumes ur ON ur.id = a.resume_id WHERE a.id = ? AND j.employer_id = ?'
-        ).get(Number(req.params.id), req.employer.id);
+        ).get(applicationId, req.employer.id);
 
         if (!application || !application.stored_name) {
             return res.status(404).json({ error: 'No resume is attached to this application.' });
