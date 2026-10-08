@@ -539,6 +539,54 @@ router.get('/profile', (req, res) => {
 
 
 /* =========================================================
+   UPDATE PROFILE FROM RESUME BUILDER
+   ========================================================= */
+
+router.put('/profile', (req, res) => {
+    try {
+        if (!req.session.userId) {
+            return res.status(401).json({ error: 'Not logged in.' });
+        }
+
+        const fullName = String(req.body?.full_name || '').trim();
+        const education = String(req.body?.education || '').trim();
+        const degree = String(req.body?.degree || '').trim();
+        const location = String(req.body?.location || '').trim();
+
+        if (!fullName) {
+            return res.status(400).json({ error: 'Full name is required.' });
+        }
+
+        db.prepare(`
+            UPDATE users
+            SET full_name = ?,
+                education = ?,
+                degree = ?,
+                location = ?
+            WHERE id = ?
+        `).run(
+            fullName,
+            education || null,
+            degree || null,
+            location || null,
+            req.session.userId
+        );
+
+        const profile = db.prepare(`
+            SELECT id, full_name, email, education, degree, target_job, location
+            FROM users
+            WHERE id = ?
+        `).get(req.session.userId);
+
+        res.json({ success: true, profile });
+    } catch (err) {
+        console.error('[PUT /api/auth/profile] error:', err);
+        res.status(500).json({ error: 'Failed to update profile.' });
+    }
+});
+
+
+/* =========================================================
    SAVE PROFILE SKILLS
    ========================================================= */
 
