@@ -240,34 +240,9 @@
                 return data;
             });
         })
-        .then(function (data) {
+        .then(function () {
             if (status) status.textContent = 'Saved to your profile.';
-
-            // Keep the main profile fields synchronized with the builder.
-            var resume = data.resume || collect();
-            var education = Array.isArray(resume.education) ? resume.education : [];
-            var primaryEducation = education[0] || {};
-
-            return fetch('/api/auth/profile', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({
-                    full_name: resume.fullName || '',
-                    location: resume.location || '',
-                    education: primaryEducation.school || '',
-                    degree: primaryEducation.degree || ''
-                })
-            }).then(function (profileResponse) {
-                if (!profileResponse.ok) {
-                    return profileResponse.json().catch(function () { return {}; })
-                        .then(function (profileData) {
-                            throw new Error(profileData.error || 'Resume saved, but profile sync failed.');
-                        });
-                }
-
-                debug('Resume and profile saved successfully.');
-            });
+            debug('Resume and profile saved successfully.');
         })
         .catch(function (error) {
             if (status) status.textContent = error.message;
@@ -302,9 +277,18 @@
                 fullName: profile.full_name || '',
                 email: profile.email || '',
                 phone: '',
-                location: '',
+                location: profile.location || '',
                 summary: '',
-                education: []
+                education: profile.education || profile.degree
+                    ? [{
+                        school: profile.education || '',
+                        degree: profile.degree || '',
+                        year: ''
+                    }]
+                    : [],
+                experience: [],
+                projects: [],
+                certifications: []
             };
 
             ['fullName', 'email', 'phone', 'location', 'summary'].forEach(function (key) {
