@@ -189,6 +189,30 @@ router.get('/recommended', requireAuth, (req, res) => {
     }
 });
 
+router.get('/companies', (req, res) => {
+    try {
+        const companies = db.prepare(`
+            SELECT
+                cp.company_name,
+                cp.description,
+                cp.industry,
+                cp.company_size,
+                cp.location,
+                cp.website,
+                COUNT(DISTINCT CASE WHEN j.status = 'active' THEN j.id END) AS open_jobs
+            FROM company_profiles cp
+            LEFT JOIN jobs j ON j.company = cp.company_name
+            GROUP BY cp.id
+            ORDER BY cp.company_name COLLATE NOCASE ASC
+        `).all();
+
+        res.json({ success: true, companies });
+    } catch (err) {
+        console.error('[GET /api/jobs/companies] error:', err);
+        res.status(500).json({ error: 'Failed to load companies.' });
+    }
+});
+
 router.get('/:id', (req, res) => {
     try {
         const jobId = parseInt(req.params.id, 10);
