@@ -804,8 +804,8 @@ router.get('/applications/:id', (req, res) => {
             return res.status(401).json({ error: 'Not logged in.' });
         }
 
-        const applicationId = parseInt(req.params.id, 10);
-        if (Number.isNaN(applicationId)) {
+        const applicationId = Number(req.params.id);
+        if (!Number.isInteger(applicationId) || applicationId <= 0) {
             return res.status(400).json({ error: 'Invalid application id.' });
         }
 
