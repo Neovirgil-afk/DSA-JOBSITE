@@ -165,6 +165,38 @@ router.get('/current', requireAuth, (req, res) => {
     }
 });
 
+// Serve the candidate's current resume through an authenticated endpoint.
+router.get('/file', requireAuth, (req, res) => {
+    try {
+        const resume = db.prepare(`
+            SELECT original_name, stored_name
+            FROM user_resumes
+            WHERE user_id = ?
+            ORDER BY uploaded_at DESC, id DESC
+            LIMIT 1
+        `).get(req.session.userId);
+
+        if (!resume) {
+            return res.status(404).json({ error: 'No resume uploaded.' });
+        }
+
+        const filePath = path.join(UPLOAD_DIR, path.basename(resume.stored_name));
+
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ error: 'Resume file not found.' });
+        }
+
+        res.sendFile(filePath, {
+            headers: {
+                'Content-Disposition': `inline; filename="${resume.original_name.replace(/"/g, '')}"`
+            }
+        });
+    } catch (error) {
+        console.error('[resume/file] error:', error);
+        res.status(500).json({ error: 'Failed to open resume.' });
+    }
+});
+
 // Upload + scan + auto-save detected skills to the logged-in user's profile.
 router.post('/scan', requireAuth, (req, res) => {
     upload.single('resume')(req, res, async (err) => {
