@@ -307,18 +307,31 @@ async function loadJobs() {
                 '</div>';
         } else {
             list.innerHTML = state.jobs.map((job) => {
+                const deadlineText = String(job.application_deadline || '');
+                const deadlineDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(deadlineText)
+                    ? new Date(deadlineText + 'T23:59:59')
+                    : null;
+                const deadlinePassed = job.status === 'active' &&
+                    deadlineDate &&
+                    !Number.isNaN(deadlineDate.getTime()) &&
+                    deadlineDate < new Date();
+
                 const statusLabel = job.status === 'closed'
                     ? 'Closed'
                     : job.status === 'draft'
                         ? 'Draft'
-                        : 'Active';
+                        : deadlinePassed
+                            ? 'Deadline Passed'
+                            : 'Active';
 
                 return '<article class="employer-job-card">' +
                     '<div class="employer-job-card-top">' +
                         '<div>' +
                             '<span class="employer-status employer-status--' + escapeHtml(job.status) + '">' + statusLabel + '</span>' +
                             '<h3>' + escapeHtml(job.title) + '</h3>' +
-                            '<p>' + escapeHtml(job.location || 'Remote') + ' · ' + escapeHtml(job.employment_type || 'Flexible') + '</p>' +
+                            '<p>' + escapeHtml(job.location || 'Remote') + ' · ' + escapeHtml(job.employment_type || 'Flexible') +
+                                (job.application_deadline ? ' · Deadline: ' + escapeHtml(job.application_deadline) : '') +
+                            '</p>' +
                         '</div>' +
                         '<strong class="employer-applicant-count">' + Number(job.applicant_count || 0) + '<small>Applicants</small></strong>' +
                     '</div>' +
