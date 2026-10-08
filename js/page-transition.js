@@ -34,6 +34,7 @@
             event.defaultPrevented ||
             link.target === '_blank' ||
             link.hasAttribute('download') ||
+            link.hasAttribute('data-mobile-route') ||
             link.origin !== window.location.origin ||
             link.pathname === window.location.pathname && link.search === window.location.search
         ) {
