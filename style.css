@@ -3307,6 +3307,27 @@ body.job-modal-open {
   font-weight: 500;
 }
 
+.job-missing-skill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.job-missing-skill-learn {
+  color: var(--indigo);
+  font-size: 10px;
+  font-weight: 800;
+  text-decoration: none;
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: rgba(79, 70, 229, 0.08);
+}
+
+.job-missing-skill-learn:hover {
+  background: rgba(79, 70, 229, 0.14);
+  text-decoration: underline;
+}
+
 .job-details-actions {
   display: flex;
   align-items: center;
