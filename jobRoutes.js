@@ -221,9 +221,16 @@ router.get('/:id', (req, res) => {
         const jobId = parseInt(req.params.id, 10);
         if (Number.isNaN(jobId)) return res.status(400).json({ error: 'Invalid job id.' });
 
-        const jobs = getAllJobsWithSkills();
-        const job = jobs.find((j) => j.id === jobId);
+        const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(jobId);
         if (!job) return res.status(404).json({ error: 'Job not found.' });
+
+        const requiredSkills = db.prepare(`
+            SELECT s.name FROM job_skills js
+            JOIN skills s ON s.id = js.skill_id
+            WHERE js.job_id = ?
+        `).all(jobId).map((row) => row.name);
+
+        job.requiredSkills = requiredSkills;
 
         let matchScore = 0, matchingSkills = [], missingSkills = job.requiredSkills;
         if (req.session.userId) {
@@ -255,8 +262,16 @@ router.get('/:id', (req, res) => {
             }
         }
 
+        const deadlinePassed = Boolean(
+            job.application_deadline &&
+            new Date(job.application_deadline + 'T23:59:59') < new Date()
+        );
+        const acceptingApplications = job.status === 'active' && !deadlinePassed;
+
         res.json({
             job,
+            acceptingApplications,
+            deadlinePassed,
             company,
             matchScore,
             matchingSkills,
