@@ -154,7 +154,7 @@ router.post('/register', (req, res) => {
             return res.status(409).json({ error: 'An account with that email already exists.' });
         }
 
-        if (db.prepare('SELECT id FROM company_profiles WHERE company_name = ?').get(cleanCompany)) {
+        if (db.prepare('SELECT id FROM company_profiles WHERE company_name = ? COLLATE NOCASE').get(cleanCompany)) {
             return res.status(409).json({ error: 'That company name is already registered.' });
         }
 
@@ -713,7 +713,7 @@ router.put('/company', requireEmployer, (req, res) => {
         const companyName = clean(req.body.companyName) || current.company_name;
 
         const duplicate = db.prepare(
-            'SELECT id FROM company_profiles WHERE company_name = ? AND id != ?'
+            'SELECT id FROM company_profiles WHERE company_name = ? COLLATE NOCASE AND id != ?'
         ).get(companyName, current.id);
 
         if (duplicate) {
