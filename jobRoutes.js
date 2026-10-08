@@ -85,9 +85,12 @@ router.get('/saved', requireAuth, (req, res) => {
         const jobs = db.prepare(`
             SELECT
                 j.*,
-                sj.saved_at
+                sj.saved_at,
+                a.status AS application_status,
+                a.applied_at
             FROM saved_jobs sj
             JOIN jobs j ON j.id = sj.job_id
+            LEFT JOIN applications a ON a.job_id = j.id AND a.user_id = ?
             WHERE sj.user_id = ?
             ORDER BY sj.saved_at DESC, j.title ASC
         `).all(req.session.userId);
