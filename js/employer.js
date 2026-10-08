@@ -218,8 +218,8 @@ async function loadDashboard() {
         }
 
         list.innerHTML = data.recentApplications.map((application) => {
-            return '<button type="button" class="employer-recent-item" data-open-applicants="' +
-                escapeHtml(application.job_title) + '">' +
+            return '<button type="button" class="employer-recent-item" data-open-job-applicants="' +
+                escapeHtml(application.job_id) + '">' +
                 '<span class="employer-recent-avatar">👤</span>' +
                 '<span class="employer-recent-main"><strong>' +
                 escapeHtml(application.applicant_name) +
@@ -575,10 +575,21 @@ async function updateApplicationStatus(applicationId, status) {
             body: JSON.stringify({ status })
         });
 
+        if (Number(state.activeApplicationId) === Number(applicationId)) {
+            setApplicantProfileStatus(status);
+            await viewApplicant(applicationId);
+        }
+
         await loadApplicants(state.activeJobId);
         await loadDashboard();
     } catch (error) {
         alert(error.message);
+
+        if (Number(state.activeApplicationId) === Number(applicationId)) {
+            try {
+                await viewApplicant(applicationId);
+            } catch (_) {}
+        }
     }
 }
 
@@ -783,6 +794,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         } finally {
             window.location.replace('/');
         }
+    });
+
+    $('#recentApplications').addEventListener('click', (event) => {
+        const item = event.target.closest('[data-open-job-applicants]');
+
+        if (!item) {
+            return;
+        }
+
+        const jobId = Number(item.dataset.openJobApplicants);
+
+        if (!Number.isInteger(jobId) || jobId <= 0) {
+            return;
+        }
+
+        state.activeJobId = jobId;
+        switchPanel('applicants');
+    });
+
+    $('#applicantProfileStatusSelect').addEventListener('change', (event) => {
+        const applicationId = Number(state.activeApplicationId);
+        const status = event.target.value;
+
+        if (!Number.isInteger(applicationId) || applicationId <= 0) {
+            return;
+        }
+
+        updateApplicationStatus(applicationId, status);
     });
 
     $('#applicantJobSelect').addEventListener('change', (event) => {
