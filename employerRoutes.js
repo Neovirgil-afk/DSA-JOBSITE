@@ -682,29 +682,41 @@ router.patch('/applications/:id/status', requireEmployer, (req, res) => {
         return res.status(400).json({ error: 'Invalid application id.' });
     }
 
-    const current = db.prepare(
-        'SELECT a.status FROM applications a JOIN jobs j ON j.id = a.job_id WHERE a.id = ? AND j.employer_id = ?'
-    ).get(applicationId, req.employer.id);
+    const updateApplication = db.transaction(() => {
+        const current = db.prepare(
+            'SELECT a.status FROM applications a JOIN jobs j ON j.id = a.job_id WHERE a.id = ? AND j.employer_id = ?'
+        ).get(applicationId, req.employer.id);
 
-    if (!current) {
-        return res.status(404).json({ error: 'Application not found.' });
-    }
+        if (!current) {
+            return { found: false, changed: false };
+        }
 
-    if (current.status === status) {
-        return res.json({ success: true, status, changed: false });
-    }
+        if (current.status === status) {
+            return { found: true, changed: false };
+        }
 
-    db.transaction(() => {
-        db.prepare(
+        const result = db.prepare(
             'UPDATE applications SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
         ).run(status, applicationId);
+
+        if (!result.changes) {
+            return { found: true, changed: false };
+        }
 
         db.prepare(
             'INSERT INTO application_history (application_id, status) VALUES (?, ?)'
         ).run(applicationId, status);
-    })();
 
-    res.json({ success: true, status, changed: true });
+        return { found: true, changed: true };
+    });
+
+    const result = updateApplication();
+
+    if (!result.found) {
+        return res.status(404).json({ error: 'Application not found.' });
+    }
+
+    res.json({ success: true, status, changed: result.changed });
 });
 
 /* =========================================================
