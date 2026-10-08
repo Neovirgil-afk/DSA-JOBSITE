@@ -382,6 +382,13 @@ router.get('/applications', (req, res) => {
             'SELECT a.id, a.status, a.applied_at, a.updated_at, j.id AS job_id, j.title AS job_title, j.company, j.location, j.employment_type, j.salary FROM applications a JOIN jobs j ON j.id = a.job_id WHERE a.user_id = ? ORDER BY datetime(a.applied_at) DESC, a.id DESC'
         ).all(req.session.userId);
 
+        const historyQuery = db.prepare(
+            'SELECT status, changed_at FROM application_history WHERE application_id = ? ORDER BY datetime(changed_at) ASC, id ASC'
+        );
+        applications.forEach((application) => {
+            application.history = historyQuery.all(application.id);
+        });
+
         res.json({ success: true, applications });
     } catch (err) {
         console.error('[GET /api/auth/applications] error:', err);
