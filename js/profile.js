@@ -1316,8 +1316,7 @@ async function loadSavedResume() {
             const note = document.querySelector('#profileResumePreviewNote');
             const openLink = document.querySelector('#profileResumeOpenLink');
 
-            const resumeUrl =
-                `/uploads/${encodeURIComponent(resume.stored_name)}`;
+            const resumeUrl = '/api/resume/file';
 
             openLink.href = resumeUrl;
             document.querySelector('#profileResumePreviewTitle').textContent =
