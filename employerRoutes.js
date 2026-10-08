@@ -267,7 +267,7 @@ router.get('/dashboard', requireEmployer, (req, res) => {
 
         const stats = {
             activeJobs: db.prepare(
-                "SELECT COUNT(*) AS count FROM jobs WHERE employer_id = ? AND status = 'active'"
+                "SELECT COUNT(*) AS count FROM jobs WHERE employer_id = ? AND status = 'active' AND (application_deadline IS NULL OR (date(application_deadline) = application_deadline AND date(application_deadline) >= date('now')))"
             ).get(employerId).count,
 
             totalApplicants: db.prepare(
