@@ -268,7 +268,7 @@ router.get('/:id', (req, res) => {
             job.application_deadline &&
             (!deadlineValid || isPastDeadline(job.application_deadline))
         );
-        const acceptingApplications = job.status === 'active' && deadlineValid && !deadlinePassed;
+        const acceptingApplications = job.status === 'active' && !deadlinePassed;
 
         res.json({
             job,
