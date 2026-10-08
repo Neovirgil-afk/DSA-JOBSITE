@@ -610,6 +610,16 @@ router.put('/profile/skills', (req, res) => {
 
         }
 
+        const currentUser = db.prepare(
+            'SELECT role FROM users WHERE id = ?'
+        ).get(req.session.userId);
+
+        if (!currentUser || currentUser.role !== 'candidate') {
+            return res.status(403).json({
+                error: 'Only candidate accounts can edit profile skills.'
+            });
+        }
+
 
         const {
             skillIds
