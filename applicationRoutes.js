@@ -26,6 +26,14 @@ router.get('/', requireAuth, (req, res) => {
             'WHERE a.user_id = ? ORDER BY a.applied_at DESC, a.id DESC'
         ).all(req.session.userId);
 
+        const historyQuery = db.prepare(
+            'SELECT status, changed_at FROM application_history WHERE application_id = ? ORDER BY datetime(changed_at) ASC, id ASC'
+        );
+
+        applications.forEach((application) => {
+            application.history = historyQuery.all(application.id);
+        });
+
         res.json({ success: true, applications });
     } catch (err) {
         console.error('[GET /api/applications] error:', err);
