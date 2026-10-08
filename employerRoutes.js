@@ -671,6 +671,11 @@ router.patch('/applications/:id/status', requireEmployer, (req, res) => {
     }
 
     const applicationId = Number(req.params.id);
+
+    if (!Number.isInteger(applicationId) || applicationId <= 0) {
+        return res.status(400).json({ error: 'Invalid application id.' });
+    }
+
     const current = db.prepare(
         'SELECT a.status FROM applications a JOIN jobs j ON j.id = a.job_id WHERE a.id = ? AND j.employer_id = ?'
     ).get(applicationId, req.employer.id);
