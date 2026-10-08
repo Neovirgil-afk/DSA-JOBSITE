@@ -61,10 +61,17 @@ router.get('/recommended', requireAuth, (req, res) => {
 
         const pathSteps = careerPath?.steps || [];
         const completedCount = pathSteps.filter((step) => step.completed).length;
+        const learningProgress = db.prepare(`
+            SELECT s.name AS skill, lp.status, lp.score, lp.total_questions, lp.completed_at
+            FROM learning_progress lp
+            JOIN skills s ON s.id = lp.skill_id
+            WHERE lp.user_id = ?
+        `).all(userId);
 
         res.json({
             targetJob: targetJob?.title || user?.target_job || null,
             currentSkills: userSkills,
+            learningProgress,
             careerPath: pathSteps,
             progress: {
                 completed: completedCount,
