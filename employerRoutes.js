@@ -311,63 +311,45 @@ router.get('/analytics', requireEmployer, (req, res) => {
             rejected: 0
         };
 
-        const jobCache = new Map();
         const userCache = new Map();
+        const jobSkillCache = new Map();
         let matchTotal = 0;
 
-        for (const application of applications) {
-            const status = statusCounts.hasOwnProperty(application.status) ? application.status : 'new';
-            statusCounts[status] += 1;
-
-            if (!jobCache.has(application.job_id)) {
-                jobCache.set(application.job_id, db.prepare(
-                    'SELECT id, title, status FROM jobs WHERE id = ? AND employer_id = ?'
-                ).get(application.job_id, employerId));
+        const getCachedUserSkills = (userId) => {
+            if (!userCache.has(userId)) {
+                userCache.set(userId, getUserSkillNames(userId));
             }
 
-            if (!userCache.has(application.user_id)) {
-                userCache.set(application.user_id, new Set(
-                    getUserSkillNames(application.user_id)
-                        .map((name) => String(name).toLowerCase())
-                ));
+            return userCache.get(userId);
+        };
+
+        const getCachedRequiredSkills = (jobId) => {
+            if (!jobSkillCache.has(jobId)) {
+                jobSkillCache.set(
+                    jobId,
+                    db.prepare(
+                        'SELECT s.name FROM job_skills js JOIN skills s ON s.id = js.skill_id WHERE js.job_id = ?'
+                    ).all(jobId).map((row) => row.name)
+                );
             }
 
-            const required = db.prepare(
-                'SELECT s.name FROM job_skills js JOIN skills s ON s.id = js.skill_id WHERE js.job_id = ?'
-            ).all(application.job_id).map((row) => String(row.name).toLowerCase());
-
-            const userSkills = userCache.get(application.user_id);
-            const score = required.length
-                ? Math.round((required.filter((skill) => userSkills.has(skill)).length / required.length) * 100)
-                : 0;
-
-            matchTotal += score;
-        }
-
-        const jobs = db.prepare(
-            "SELECT j.id, j.title, j.status, COUNT(a.id) AS applicants FROM jobs j LEFT JOIN applications a ON a.job_id = j.id WHERE j.employer_id = ? GROUP BY j.id ORDER BY applicants DESC, j.created_at DESC"
-        ).all(employerId);
-
-        const jobAverages = new Map();
-        for (const job of jobs) jobAverages.set(Number(job.id), { total: 0, count: 0 });
+            return jobSkillCache.get(jobId);
+        };
 
         for (const application of applications) {
             const bucket = jobAverages.get(Number(application.job_id));
             if (!bucket) continue;
 
-            const required = db.prepare(
-                'SELECT s.name FROM job_skills js JOIN skills s ON s.id = js.skill_id WHERE js.job_id = ?'
-            ).all(application.job_id).map((row) => String(row.name).toLowerCase());
-
-            const userSkills = userCache.get(application.user_id);
-            const score = required.length
-                ? Math.round((required.filter((skill) => userSkills.has(skill)).length / required.length) * 100)
+            const requiredSkills = getCachedRequiredSkills(application.job_id);
+            const userSkills = getCachedUserSkills(application.user_id);
+            const gap = computeSkillGap(requiredSkills, userSkills);
+            const score = requiredSkills.length
+                ? Math.round((gap.have.length / requiredSkills.length) * 100)
                 : 0;
 
             bucket.total += score;
             bucket.count += 1;
         }
-
         const statusLabels = { active: 'Active', draft: 'Draft', closed: 'Closed' };
         const jobResults = jobs.map((job) => {
             const bucket = jobAverages.get(Number(job.id));
