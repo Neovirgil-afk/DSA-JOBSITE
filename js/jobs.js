@@ -731,11 +731,17 @@ export function initJobs() {
                 ? data.missingSkills
                 : [];
 
+            const verified = new Set(
+                (Array.isArray(data.verifiedSkills) ? data.verifiedSkills : [])
+                    .map((skill) => String(skill).toLowerCase())
+            );
+
             document.querySelector('#jobDetailsHave').innerHTML =
                 have.length
-                    ? have.map((skill) =>
-                        `<span>${escapeHtml(skill)}</span>`
-                    ).join('')
+                    ? have.map((skill) => {
+                        const isVerified = verified.has(String(skill).toLowerCase());
+                        return `<span class="${isVerified ? 'job-verified-skill' : ''}">${escapeHtml(skill)}${isVerified ? ' ✓ Verified' : ''}</span>`;
+                    }).join('')
                     : '<span class="job-details-empty">No matching skills yet.</span>';
 
             document.querySelector('#jobDetailsMissing').innerHTML =
