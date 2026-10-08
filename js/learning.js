@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    const state = { recommendations: [], catalog: [], careerPath: [], targetJob: '', progress: { completed: 0, total: 0, percent: 0 }, activeSkill: '', activeLesson: 0, phase: 'lesson', quiz: null, quizAnswers: [], resources: [] };
+    const state = { recommendations: [], catalog: [], careerPath: [], targetJob: '', progress: { completed: 0, total: 0, percent: 0 }, learningProgress: [], activeSkill: '', activeLesson: 0, phase: 'lesson', quiz: null, quizAnswers: [], resources: [] };
     const $ = (selector) => document.querySelector(selector);
 
     function escapeHTML(value) {
@@ -133,7 +133,11 @@
         const select = $('#courseSelect');
         if (!list || !select) return;
         const items = state.recommendations.length ? state.recommendations : state.catalog;
-        list.innerHTML = '<span class="learning-course-active-indicator" aria-hidden="true"></span>' + items.map((item, index) => '<button type="button" class="learning-course-item ' + (item.skill === state.activeSkill ? 'active' : '') + '" data-skill="' + escapeHTML(item.skill) + '"><span class="learning-course-number">' + (index + 1) + '</span><span class="learning-course-copy"><strong>' + escapeHTML(item.skill) + '</strong><small>' + escapeHTML(item.reason || (item.hasLesson === false ? 'Resources only' : 'Beginner lesson')) + '</small></span></button>').join('');
+        list.innerHTML = '<span class="learning-course-active-indicator" aria-hidden="true"></span>' + items.map((item, index) => {
+            const progress = state.learningProgress.find((entry) => entry.skill?.toLowerCase() === item.skill?.toLowerCase());
+            const statusLabel = progress?.status === 'verified' ? '✓ Verified' : progress?.status === 'needs_review' ? 'Review quiz' : (item.reason || (item.hasLesson === false ? 'Resources only' : 'Beginner lesson'));
+            return '<button type="button" class="learning-course-item ' + (item.skill === state.activeSkill ? 'active' : '') + '" data-skill="' + escapeHTML(item.skill) + '"><span class="learning-course-number">' + (index + 1) + '</span><span class="learning-course-copy"><strong>' + escapeHTML(item.skill) + '</strong><small>' + escapeHTML(statusLabel) + '</small></span></button>';
+        }).join('');
         select.innerHTML = items.map((item) => '<option value="' + escapeHTML(item.skill) + '">' + escapeHTML(item.skill) + '</option>').join('');
         if (state.activeSkill) select.value = state.activeSkill;
     }
@@ -333,6 +337,7 @@
             state.targetJob = data.targetJob || '';
             state.careerPath = data.careerPath || [];
             state.progress = data.progress || { completed: 0, total: 0, percent: 0 };
+            state.learningProgress = data.learningProgress || [];
             state.recommendations = data.recommendations || [];
             state.catalog = data.availableLessons || [];
 
