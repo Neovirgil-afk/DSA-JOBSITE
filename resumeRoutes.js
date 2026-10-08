@@ -300,6 +300,19 @@ router.post('/scan', requireAuth, requireCandidate, (req, res) => {
                 ocrTotalPages: result.ocrTotalPages || 0,
             });
         } catch (error) {
+            // The file is not stored in user_resumes until scanning succeeds.
+            // Remove failed uploads so invalid/corrupt files do not accumulate
+            // in the server's upload directory.
+            if (req.file?.path) {
+                try {
+                    if (fs.existsSync(req.file.path)) {
+                        fs.unlinkSync(req.file.path);
+                    }
+                } catch (cleanupError) {
+                    console.error('[resume/scan] upload cleanup failed:', cleanupError);
+                }
+            }
+
             console.error('[resume/scan] error:', error);
             res.status(500).json({ error: 'Failed to scan resume. ' + error.message });
         }
