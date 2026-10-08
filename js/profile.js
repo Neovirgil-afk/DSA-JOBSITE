@@ -410,6 +410,13 @@ function renderApplications(applications) {
             '</span>' +
         '</article>';
     }).join('');
+
+    list.querySelectorAll('.profile-application-item').forEach((item) => {
+        item.addEventListener('click', () => {
+            const applicationId = Number(item.dataset.applicationId);
+            if (applicationId) openApplicationDetails(applicationId);
+        });
+    });
 }
 
 async function openApplicationDetails(applicationId) {
