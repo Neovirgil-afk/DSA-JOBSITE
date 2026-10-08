@@ -13,6 +13,21 @@ const { computeSkillGap } = require('./SkillGapService')
 
 const router = express.Router();
 
+function isValidDateOnly(value) {
+    if (!value) return true;
+
+    const text = String(value);
+    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(text)) return false;
+
+    const date = new Date(text + 'T00:00:00Z');
+    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === text;
+}
+
+function isPastDeadline(value) {
+    if (!value) return false;
+    return new Date(String(value) + 'T23:59:59') < new Date();
+}
+
 const EXPERIENCE_LEVELS = {
     'Frontend Developer': 'Entry Level',
     'Backend Developer': 'Intermediate',
@@ -262,11 +277,12 @@ router.get('/:id', (req, res) => {
             }
         }
 
+        const deadlineValid = isValidDateOnly(job.application_deadline);
         const deadlinePassed = Boolean(
             job.application_deadline &&
-            new Date(job.application_deadline + 'T23:59:59') < new Date()
+            (!deadlineValid || isPastDeadline(job.application_deadline))
         );
-        const acceptingApplications = job.status === 'active' && !deadlinePassed;
+        const acceptingApplications = job.status === 'active' && deadlineValid && !deadlinePassed;
 
         res.json({
             job,
@@ -323,10 +339,13 @@ router.post('/:id/apply', requireAuth, (req, res) => {
             });
         }
 
-        if (
-            job.application_deadline &&
-            new Date(job.application_deadline + 'T23:59:59') < new Date()
-        ) {
+        if (job.application_deadline && !isValidDateOnly(job.application_deadline)) {
+            return res.status(400).json({
+                error: 'This job has an invalid application deadline.'
+            });
+        }
+
+        if (isPastDeadline(job.application_deadline)) {
             return res.status(400).json({
                 error: 'The application deadline has passed.'
             });
