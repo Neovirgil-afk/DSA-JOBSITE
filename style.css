@@ -3307,6 +3307,12 @@ body.job-modal-open {
   font-weight: 500;
 }
 
+.job-verified-skill {
+  background: #E8F7EE !important;
+  color: #16834B !important;
+  font-weight: 800;
+}
+
 .job-missing-skill {
   display: inline-flex;
   align-items: center;
