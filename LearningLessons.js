@@ -201,10 +201,20 @@ const QUIZZES = {
   ]
 };
 
+function findLessonKey(skill) {
+  const requested = String(skill || '').trim().toLowerCase();
+  if (!requested) return null;
+
+  return Object.keys(LESSONS).find(
+    (key) => key.toLowerCase() === requested
+  ) || null;
+}
+
 function getLesson(skill) {
-  const name = String(skill || '').trim();
+  const name = findLessonKey(skill);
+  if (!name) return null;
+
   const lessons = LESSONS[name];
-  if (!lessons) return null;
   return {
     skill: name,
     level: 'Beginner',
@@ -223,7 +233,9 @@ function getAvailableLessons() {
 }
 
 function gradeQuiz(skill, answers) {
-  const name = String(skill || '').trim();
+  const name = findLessonKey(skill);
+  if (!name) return null;
+
   const quiz = QUIZZES[name];
   if (!quiz || !Array.isArray(answers) || answers.length !== quiz.length) return null;
 
