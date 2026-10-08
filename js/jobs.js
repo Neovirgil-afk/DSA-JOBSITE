@@ -45,7 +45,7 @@ export function initJobs() {
     function money(job) {
 
         return job.salary
-            ? `<span>${job.salary}</span>`
+            ? `<span>${escapeHtml(job.salary)}</span>`
             : '';
     }
 
@@ -194,13 +194,13 @@ export function initJobs() {
                         ${savedJobIds.has(Number(job.id)) ? 'Saved' : 'Save job'}
                     </button>
 
-                    <h3>${job.title}</h3>
+                    <h3>${escapeHtml(job.title || '')}</h3>
 
-                    <p class="company">${job.company || ''}</p>
+                    <p class="company">${escapeHtml(job.company || '')}</p>
 
                     <div class="meta">
-                        <span>${job.location || 'Remote'}</span>
-                        ${job.employment_type ? `<span>${job.employment_type}</span>` : ''}
+                        <span>${escapeHtml(job.location || 'Remote')}</span>
+                        ${job.employment_type ? `<span>${escapeHtml(job.employment_type)}</span>` : ''}
                         ${money(job)}
                     </div>
 
@@ -890,6 +890,15 @@ export function initJobs() {
                     }
 
                     const statusData = await statusResponse.json();
+
+                    if (!acceptingApplications) {
+                        applyButton.textContent = data.deadlinePassed
+                            ? 'Deadline Passed'
+                            : 'Applications Closed';
+                        applyButton.disabled = true;
+                        applyButton.classList.add('is-applied');
+                        return;
+                    }
 
                     if (statusResponse.ok && statusData.applied) {
                         applyButton.textContent = 'Already Applied';
