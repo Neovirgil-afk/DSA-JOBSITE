@@ -871,6 +871,37 @@ export function initJobs() {
             const applyButton =
                 document.querySelector('#jobApplyButton');
 
+            async function refreshApplicationStatus() {
+                try {
+                    const statusResponse = await fetch(
+                        '/api/jobs/' + encodeURIComponent(job.id) + '/application',
+                        { credentials: 'include' }
+                    );
+
+                    if (statusResponse.status === 401) {
+                        applyButton.textContent = 'Apply Now';
+                        applyButton.disabled = false;
+                        return;
+                    }
+
+                    const statusData = await statusResponse.json();
+
+                    if (statusResponse.ok && statusData.applied) {
+                        applyButton.textContent = 'Already Applied';
+                        applyButton.disabled = true;
+                        applyButton.classList.add('is-applied');
+                    } else {
+                        applyButton.textContent = 'Apply Now';
+                        applyButton.disabled = false;
+                        applyButton.classList.remove('is-applied');
+                    }
+                } catch (statusError) {
+                    console.warn('[JobPath] Could not check application status:', statusError);
+                }
+            }
+
+            refreshApplicationStatus();
+
             applyButton.onclick = async () => {
                 try {
                     const response = await fetch(
