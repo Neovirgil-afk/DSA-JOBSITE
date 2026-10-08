@@ -89,6 +89,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         render(Array.isArray(data.applications) ? data.applications : []);
     } catch (error) {
-        list.innerHTML = `<div class="applications-empty"><h2>Could not load applications</h2><p>${escapeHtml(error.message)}</p><button class="btn btn-primary" onclick="location.reload()">Try Again</button></div>`;
+        list.innerHTML = `
+            <div class="applications-empty">
+                <h2>Could not load applications</h2>
+                <p>${escapeHtml(error.message)}</p>
+                <button class="btn btn-primary" type="button" id="retryApplications">Try Again</button>
+            </div>
+        `;
+        document.querySelector('#retryApplications')?.addEventListener('click', () => window.location.reload());
     }
 });
