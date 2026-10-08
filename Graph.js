@@ -25,21 +25,39 @@ class Graph {
         if (!this.adjacencyList.has(start) || !this.adjacencyList.has(target)) return null;
         if (start === target) return [start];
 
+        // Store each node's predecessor instead of copying the full path
+        // into every queue entry. This keeps BFS at O(V + E).
         const visited = new Set([start]);
-        const queue = [[start]];
+        const previous = new Map();
+        const queue = [start];
+        let head = 0;
 
-        while (queue.length > 0) {
-            const path = queue.shift();
-            const node = path[path.length - 1];
+        while (head < queue.length) {
+            const node = queue[head++];
 
             for (const neighbor of this.getNeighbors(node)) {
                 if (visited.has(neighbor)) continue;
-                const newPath = [...path, neighbor];
-                if (neighbor === target) return newPath;
+
                 visited.add(neighbor);
-                queue.push(newPath);
+                previous.set(neighbor, node);
+
+                if (neighbor === target) {
+                    const path = [target];
+                    let current = target;
+
+                    while (current !== start) {
+                        current = previous.get(current);
+                        if (current === undefined) return null;
+                        path.push(current);
+                    }
+
+                    return path.reverse();
+                }
+
+                queue.push(neighbor);
             }
         }
+
         return null;
     }
 }
