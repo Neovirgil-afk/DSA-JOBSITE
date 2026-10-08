@@ -246,13 +246,21 @@ function renderSavedJobs(jobs) {
                 </span>
             </div>
 
-            <button
-                type="button"
-                class="profile-remove-job-button"
-                data-job-id="${Number(job.id)}"
-            >
-                Remove
-            </button>
+            <div class="profile-saved-job-actions">
+                <a
+                    class="profile-view-job-button"
+                    href="/?job=${encodeURIComponent(Number(job.id))}"
+                >
+                    View Job
+                </a>
+                <button
+                    type="button"
+                    class="profile-remove-job-button"
+                    data-job-id="${Number(job.id)}"
+                >
+                    Remove
+                </button>
+            </div>
         </article>
     `).join('');
 }
