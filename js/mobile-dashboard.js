@@ -63,6 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         Password
                         <input id="mobileLoginPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required>
                     </label>
+                    <label class="mobile-login-remember">
+                        <input id="mobileLoginRememberMe" type="checkbox">
+                        <span>Keep me logged in for 30 days</span>
+                    </label>
                     <p id="mobileLoginMessage" class="mobile-login-message" aria-live="polite"></p>
                     <button type="submit" id="mobileLoginSubmit">Log In</button>
                 </form>
@@ -110,7 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     credentials: 'include',
                     body: JSON.stringify({
                         email: email.value.trim(),
-                        password: password.value
+                        password: password.value,
+                        rememberMe: Boolean(
+                            overlay.querySelector('#mobileLoginRememberMe')?.checked
+                        )
                     })
                 });
 
