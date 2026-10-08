@@ -76,4 +76,18 @@ db.exec(`
     )
 `);
 
+// Backfill the initial history row for applications created before
+// application history was introduced. This keeps every application
+// consistent with the current timeline model.
+db.exec(`
+    INSERT INTO application_history (application_id, status, changed_at)
+    SELECT a.id, a.status, COALESCE(a.applied_at, CURRENT_TIMESTAMP)
+    FROM applications a
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM application_history ah
+        WHERE ah.application_id = a.id
+    )
+`);
+
 module.exports = { db, isFreshDatabase: !dbExisted };
