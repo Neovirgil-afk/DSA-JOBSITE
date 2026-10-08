@@ -50,6 +50,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                         ${app.employment_type ? `<span>${escapeHtml(app.employment_type)}</span>` : ''}
                         ${app.salary ? `<span>${escapeHtml(app.salary)}</span>` : ''}
                     </div>
+                    <div class="application-assets">
+                        <span class="application-resume-badge ${app.resume_id ? 'has-resume' : 'no-resume'}">
+                            ${app.resume_id ? '✓ Resume attached' : 'No resume attached'}
+                        </span>
+                        ${app.resume_name ? `<span class="application-resume-name">${escapeHtml(app.resume_name)}</span>` : ''}
+                        <span class="application-job-state ${app.job_status === 'active' ? 'is-open' : 'is-closed'}">
+                            ${app.job_status === 'active' ? 'Job active' : 'Job closed'}
+                        </span>
+                    </div>
                 </div>
                 <div class="application-card-side">
                     <span class="application-status application-status--${escapeHtml(app.status)}">${statusLabel(app.status)}</span>
