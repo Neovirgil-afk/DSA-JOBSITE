@@ -491,7 +491,8 @@ router.get('/profile', (req, res) => {
                     education,
                     degree,
                     target_job,
-                    location
+                    location,
+                    role
                 FROM users
                 WHERE id = ?
             `).get(
