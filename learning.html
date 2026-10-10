@@ -43,6 +43,9 @@
 @keyframes learningSkeletonShine{0%{transform:translateX(-120%)}55%,100%{transform:translateX(120%)}}
 @media (max-width:620px){.learning-skeleton-header{gap:10px}.learning-skeleton-title{width:70%}.learning-skeleton-description{width:100%}.learning-skeleton-description--short{width:78%}.learning-skeleton-resource-grid{grid-template-columns:1fr}.learning-skeleton-shell{min-height:650px}}
 
+.learning-continue-panel{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 18px;padding:18px 21px;border:1px solid #dcd9f4;border-radius:15px;background:linear-gradient(110deg,#f7f6ff,#fff);box-shadow:0 7px 22px rgba(24,28,55,.035)}
+.learning-continue-copy{min-width:0}.learning-continue-panel strong{display:block;margin-top:3px;color:var(--navy);font-size:15px}.learning-continue-panel p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
+@media(max-width:620px){.learning-continue-panel{align-items:stretch;flex-direction:column;padding:15px}.learning-continue-panel .learning-action-button{width:100%}}
 .learning-tools-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin:0 0 24px}
 .learning-tool-card{min-width:0;padding:22px;border:1px solid #e3e2ed;border-radius:17px;background:#fff;box-shadow:0 7px 22px rgba(24,28,55,.045)}
 .learning-tool-heading{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:18px}
@@ -243,7 +246,7 @@
     <div id="learningDiscoverResults" class="learning-discover-results"><p class="learning-tool-muted">Search for a skill to see suggestions and learning resources.</p></div>
   </section>
 </section>
-<div class="learning-layout"><aside class="learning-sidebar"><div class="learning-sidebar-label">YOUR LEARNING PATH</div><div id="courseList"></div></aside><section class="learning-content-card"><div id="learningContent" class="learning-loading">Loading your recommendations...</div></section></div></div><nav class="mobile-page-bottom-nav" aria-label="Mobile navigation">
+<section id="learningContinue" class="learning-continue-panel" aria-live="polite"><div><span class="learning-eyebrow">PICK UP ANYTIME</span><strong>Loading your learning history…</strong></div></section><div class="learning-layout"><aside class="learning-sidebar"><div class="learning-sidebar-label">YOUR LEARNING PATH</div><div id="courseList"></div></aside><section class="learning-content-card"><div id="learningContent" class="learning-loading">Loading your recommendations...</div></section></div></div><nav class="mobile-page-bottom-nav" aria-label="Mobile navigation">
   <a href="/" data-mobile-route="/"><span>⌂</span><small>Home</small></a>
   <a href="/#resultsSection"><span>⌕</span><small>Jobs</small></a>
   <a href="/resume.html" data-mobile-route="/resume.html"><span>▤</span><small>Resume</small></a>
