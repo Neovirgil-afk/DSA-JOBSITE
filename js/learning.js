@@ -262,7 +262,7 @@
         content.innerHTML = '<div class="learning-content-top"><div><span class="learning-eyebrow">BEGINNER LESSON</span><h2>' + escapeHTML(lesson.skill) + '</h2><p>' + escapeHTML(lesson.description) + '</p>' + (state.recommendations.find((item) => item.skill === lesson.skill)?.reason ? '<div class="learning-why"><strong>Why this is recommended:</strong> ' + escapeHTML(state.recommendations.find((item) => item.skill === lesson.skill).reason) + '</div>' : '') + '</div><span class="learning-badge">Beginner</span></div>' +
             '<div class="learning-progress"><div class="learning-progress-track"><span style="width:' + percent + '%"></span></div><span class="learning-progress-label">' + (state.activeLesson + 1) + ' / ' + total + '</span></div>' +
             '<div class="learning-lesson-list"><article class="learning-lesson"><span class="learning-lesson-kicker">LESSON ' + current.step + '</span><h3>' + escapeHTML(current.title) + '</h3><p>' + escapeHTML(current.content) + '</p></article></div>' +
-            '<section class="learning-notes-panel"><div><span class="learning-eyebrow">YOUR STUDY NOTES</span><h3>Remember this for later</h3><p>Write down key ideas, questions, or examples for this skill. Notes are saved on this device.</p></div><textarea id="learningLessonNotes" rows="4" placeholder="Example: A variable stores a value that I can reuse…">' + escapeHTML(getLessonNotes(lesson.skill)) + '</textarea><div class="learning-notes-actions"><button type="button" class="learning-action-button primary" id="saveLearningNotes">Save notes</button><button type="button" class="learning-action-button" id="exportLearningNotes">Export .txt</button><span id="learningNotesStatus" role="status">Notes are stored on this device.</span></div></section>' +
+            '<section class="learning-notes-panel"><div><span class="learning-eyebrow">YOUR STUDY NOTES</span><h3>Remember this for later</h3><p>Write down key ideas, questions, or examples for this skill. Notes are saved on this device.</p></div><textarea id="learningLessonNotes" rows="4" placeholder="Example: A variable stores a value that I can reuse…">' + escapeHTML(getLessonNotes(lesson.skill)) + '</textarea><div class="learning-notes-actions"><button type="button" class="learning-action-button primary" id="saveLearningNotes">Save notes</button><button type="button" class="learning-action-button" id="copyLearningNotes">Copy notes</button><button type="button" class="learning-action-button" id="exportLearningNotes">Export .txt</button><span id="learningNotesStatus" role="status">Notes are stored on this device.</span></div></section>' +
             '<section class="learning-resources-panel"><h3>Continue learning</h3><p class="learning-resource-intro">Want more detail? Use these curated resources after the foundation lesson.</p><div class="learning-resource-grid">' +
             resources.map((resource) => '<a class="learning-resource-card" href="' + escapeHTML(resource.url) + '" target="_blank" rel="noopener noreferrer"><span class="resource-icon">' + (resource.provider === 'YouTube' ? '▶' : '↗') + '</span><span><strong>' + escapeHTML(resource.title) + '</strong><small>' + escapeHTML(resource.provider) + ' · ' + escapeHTML(resource.description) + '</small></span></a>').join('') +
             '</div></section>' +
@@ -287,6 +287,35 @@
             if (notesSaveTimer) window.clearTimeout(notesSaveTimer);
             const saved = saveLessonNotes(lesson.skill, notesInput?.value || '');
             if (notesStatus) notesStatus.textContent = saved ? 'Notes saved ✓' : 'Could not save. Check your browser storage settings.';
+        });
+
+        $('#copyLearningNotes')?.addEventListener('click', async () => {
+            const notes = notesInput?.value || '';
+            if (!notes.trim()) {
+                if (notesStatus) notesStatus.textContent = 'Write some notes before copying.';
+                notesInput?.focus();
+                return;
+            }
+
+            try {
+                if (navigator.clipboard?.writeText) {
+                    await navigator.clipboard.writeText(notes);
+                } else {
+                    const temporaryInput = document.createElement('textarea');
+                    temporaryInput.value = notes;
+                    temporaryInput.setAttribute('readonly', '');
+                    temporaryInput.style.position = 'fixed';
+                    temporaryInput.style.opacity = '0';
+                    document.body.appendChild(temporaryInput);
+                    temporaryInput.select();
+                    const copied = document.execCommand('copy');
+                    temporaryInput.remove();
+                    if (!copied) throw new Error('Copy command was blocked.');
+                }
+                if (notesStatus) notesStatus.textContent = 'Notes copied to clipboard ✓';
+            } catch (_) {
+                if (notesStatus) notesStatus.textContent = 'Could not copy automatically. Select your notes and copy them manually.';
+            }
         });
 
         $('#exportLearningNotes')?.addEventListener('click', () => {
