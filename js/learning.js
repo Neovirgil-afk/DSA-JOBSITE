@@ -368,6 +368,8 @@
             if (response.status === 401) { window.location.href = '/'; return; }
             if (!response.ok) throw new Error(data.error || 'Unable to load this lesson.');
 
+            state.activeLesson = Math.min(state.activeLesson, Math.max((data.lesson?.lessons?.length || 1) - 1, 0));
+            saveLastLearning();
             renderLesson(data.lesson, data.resources || []);
         } catch (error) {
             if (requestId !== lessonRequestId) return;
