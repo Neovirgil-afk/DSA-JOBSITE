@@ -83,6 +83,16 @@
 @media(max-width:900px){.learning-tools-grid{grid-template-columns:1fr}.learning-tool-card{padding:18px}}
 @media(max-width:620px){.learning-tools-grid{gap:12px;margin-bottom:16px}.learning-tool-card{padding:15px;border-radius:15px}.learning-tool-heading h2{font-size:20px}.learning-form-row{grid-template-columns:1fr}.learning-search-row{align-items:stretch}.learning-search-row button{padding:8px 10px}}
 
+
+.learning-notes-panel{display:grid;gap:11px;margin-top:20px;padding:18px;border:1px solid #e3e2ed;border-radius:14px;background:#faf9ff}
+.learning-notes-panel h3{margin:2px 0 5px;color:var(--navy);font-family:var(--font-display);font-size:17px}
+.learning-notes-panel p:not(.learning-eyebrow){margin:0;color:var(--muted);font-size:11px;line-height:1.55}
+.learning-notes-panel textarea{width:100%;min-height:100px;resize:vertical;padding:12px;border:1px solid #deddea;border-radius:10px;background:#fff;color:var(--ink);font:12px/1.6 Inter,sans-serif;outline:none}
+.learning-notes-panel textarea:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(79,70,229,.09)}
+.learning-notes-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.learning-notes-actions button{padding:9px 13px}
+.learning-notes-actions span{color:var(--muted);font-size:10px}
+@media(max-width:620px){.learning-notes-panel{padding:14px}.learning-notes-actions{align-items:stretch;flex-direction:column}.learning-notes-actions button{width:100%}}
 </style>
 <style>
 /* Final Learning Hub UI polish */
