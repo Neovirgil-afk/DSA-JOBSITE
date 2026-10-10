@@ -93,6 +93,12 @@
 .learning-notes-actions button{padding:9px 13px}
 .learning-notes-actions span{color:var(--muted);font-size:10px}
 @media(max-width:620px){.learning-notes-panel{padding:14px}.learning-notes-actions{align-items:stretch;flex-direction:column}.learning-notes-actions button{width:100%}}
+
+.learning-planner-filters{display:flex;gap:7px;flex-wrap:wrap;margin:13px 0 4px}
+.learning-planner-filters button{padding:7px 10px;border:1px solid #e1e0eb;border-radius:999px;background:#fff;color:var(--muted);font-size:10px;font-weight:800;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.learning-planner-filters button:hover{border-color:#c9c5ed;color:var(--indigo)}
+.learning-planner-filters button.active{border-color:var(--indigo);background:var(--indigo-tint);color:var(--indigo-dark)}
+.learning-planner-filters button:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
 </style>
 <style>
 /* Final Learning Hub UI polish */
@@ -244,6 +250,12 @@
       <p id="learningPlannerMessage" class="learning-tool-message" role="status" aria-live="polite"></p>
     </form>
     <div id="learningPlannerSummary" class="learning-planner-summary" aria-live="polite"></div>
+    <div id="learningPlannerFilters" class="learning-planner-filters" aria-label="Filter learning goals">
+      <button type="button" data-planner-filter="all" class="active" aria-pressed="true">All goals</button>
+      <button type="button" data-planner-filter="not_started" aria-pressed="false">Not started</button>
+      <button type="button" data-planner-filter="in_progress" aria-pressed="false">In progress</button>
+      <button type="button" data-planner-filter="completed" aria-pressed="false">Completed</button>
+    </div>
     <div id="learningPlannerList" class="learning-planner-list"><p class="learning-tool-muted">Loading your learning goals…</p></div>
   </section>
   <section class="learning-tool-card" aria-labelledby="discoverHeading">
