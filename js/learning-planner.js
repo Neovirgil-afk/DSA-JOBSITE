@@ -55,6 +55,20 @@
 
     function renderPlanner(items) {
         if (!plannerList) return;
+
+        const summary = $('#learningPlannerSummary');
+        const total = items.length;
+        const inProgress = items.filter((item) => item.status === 'in_progress').length;
+        const completed = items.filter((item) => item.status === 'completed').length;
+        const percent = total ? Math.round((completed / total) * 100) : 0;
+        if (summary) {
+            summary.innerHTML =
+                '<div class="learning-planner-stat"><strong>' + total + '</strong><span>Total goals</span></div>' +
+                '<div class="learning-planner-stat"><strong>' + inProgress + '</strong><span>In progress</span></div>' +
+                '<div class="learning-planner-stat"><strong>' + completed + '</strong><span>Completed</span></div>' +
+                '<div class="learning-planner-progress" role="progressbar" aria-label="Learning goals completed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + percent + '"><span style="width:' + percent + '%"></span></div>';
+        }
+
         if (!items.length) {
             plannerList.innerHTML = '<p class="learning-tool-muted">Your planner is empty for now. Add a goal above or search for a skill and add it here.</p>';
             return;
