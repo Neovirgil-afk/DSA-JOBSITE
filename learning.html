@@ -187,6 +187,15 @@
 }
 @media(min-width:701px){.mobile-page-shell-header,.mobile-page-bottom-nav{display:none}}
 </style>
+<style>
+.learning-planner-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:14px}
+.learning-planner-stat{min-width:0;padding:10px;border:1px solid #e8e7f0;border-radius:11px;background:#fafaff}
+.learning-planner-stat strong{display:block;color:var(--navy);font:800 20px/1.2 var(--font-display)}
+.learning-planner-stat span{display:block;margin-top:4px;color:var(--muted);font-size:9px;font-weight:700}
+.learning-planner-progress{grid-column:1/-1;height:5px;overflow:hidden;border-radius:999px;background:#ecebf4}
+.learning-planner-progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#4f46e5,#18a886);transition:width .35s ease}
+@media(max-width:620px){.learning-planner-stat{padding:9px}.learning-planner-stat strong{font-size:18px}.learning-planner-stat span{font-size:8.5px}}
+</style>
 </head>
 <body class="learning-page">
 <header class="site-header"><div class="wrap header-inner"><a class="logo" href="/" aria-label="JobSite home"><span class="logo-text">JOB<span class="logo-accent">SITE</span></span><svg class="logo-plane" width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21.5 2.5L2 10.2c-.8.3-.8 1.4 0 1.7l7.6 2.9 2.9 7.6c.3.8 1.4 0 1.7 0L21.9 3.9c.3-.9-.6-1.7-1.4-1.4z" fill="currentColor"/></svg><span class="logo-tagline">Find your path. Build your future.</span></a>
@@ -207,6 +216,7 @@
       <button class="learning-action-button primary" type="submit">+ Add to planner</button>
       <p id="learningPlannerMessage" class="learning-tool-message" role="status" aria-live="polite"></p>
     </form>
+    <div id="learningPlannerSummary" class="learning-planner-summary" aria-live="polite"></div>
     <div id="learningPlannerList" class="learning-planner-list"><p class="learning-tool-muted">Loading your learning goals…</p></div>
   </section>
   <section class="learning-tool-card" aria-labelledby="discoverHeading">
