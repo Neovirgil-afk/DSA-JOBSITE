@@ -41,7 +41,7 @@ router.get('/', requireAuth, requireCandidate, (req, res) => {
         const owned = new Set(currentSkills.map((skill) => skill.toLowerCase()));
         const available = getAvailableLessons();
         const lowerQuery = query.toLowerCase();
-        const words = lowerQuery.split(/\\s+/).filter((word) => word.length > 2);
+        const words = lowerQuery.split(/\s+/).filter((word) => word.length > 2);
         const topic = TOPIC_MAP.find((entry) => entry.match.some((phrase) => lowerQuery.includes(phrase)));
         const exact = available.filter((item) =>
             item.skill.toLowerCase().includes(lowerQuery) ||
