@@ -262,7 +262,7 @@
         content.innerHTML = '<div class="learning-content-top"><div><span class="learning-eyebrow">BEGINNER LESSON</span><h2>' + escapeHTML(lesson.skill) + '</h2><p>' + escapeHTML(lesson.description) + '</p>' + (state.recommendations.find((item) => item.skill === lesson.skill)?.reason ? '<div class="learning-why"><strong>Why this is recommended:</strong> ' + escapeHTML(state.recommendations.find((item) => item.skill === lesson.skill).reason) + '</div>' : '') + '</div><span class="learning-badge">Beginner</span></div>' +
             '<div class="learning-progress"><div class="learning-progress-track"><span style="width:' + percent + '%"></span></div><span class="learning-progress-label">' + (state.activeLesson + 1) + ' / ' + total + '</span></div>' +
             '<div class="learning-lesson-list"><article class="learning-lesson"><span class="learning-lesson-kicker">LESSON ' + current.step + '</span><h3>' + escapeHTML(current.title) + '</h3><p>' + escapeHTML(current.content) + '</p></article></div>' +
-            '<section class="learning-notes-panel"><div><span class="learning-eyebrow">YOUR STUDY NOTES</span><h3>Remember this for later</h3><p>Write down key ideas, questions, or examples for this skill. Notes are saved on this device.</p></div><textarea id="learningLessonNotes" rows="4" placeholder="Example: A variable stores a value that I can reuse…">' + escapeHTML(getLessonNotes(lesson.skill)) + '</textarea><div class="learning-notes-actions"><button type="button" class="learning-action-button primary" id="saveLearningNotes">Save notes</button><span id="learningNotesStatus" role="status">Notes are stored on this device.</span></div></section>' +
+            '<section class="learning-notes-panel"><div><span class="learning-eyebrow">YOUR STUDY NOTES</span><h3>Remember this for later</h3><p>Write down key ideas, questions, or examples for this skill. Notes are saved on this device.</p></div><textarea id="learningLessonNotes" rows="4" placeholder="Example: A variable stores a value that I can reuse…">' + escapeHTML(getLessonNotes(lesson.skill)) + '</textarea><div class="learning-notes-actions"><button type="button" class="learning-action-button primary" id="saveLearningNotes">Save notes</button><button type="button" class="learning-action-button" id="exportLearningNotes">Export .txt</button><span id="learningNotesStatus" role="status">Notes are stored on this device.</span></div></section>' +
             '<section class="learning-resources-panel"><h3>Continue learning</h3><p class="learning-resource-intro">Want more detail? Use these curated resources after the foundation lesson.</p><div class="learning-resource-grid">' +
             resources.map((resource) => '<a class="learning-resource-card" href="' + escapeHTML(resource.url) + '" target="_blank" rel="noopener noreferrer"><span class="resource-icon">' + (resource.provider === 'YouTube' ? '▶' : '↗') + '</span><span><strong>' + escapeHTML(resource.title) + '</strong><small>' + escapeHTML(resource.provider) + ' · ' + escapeHTML(resource.description) + '</small></span></a>').join('') +
             '</div></section>' +
@@ -276,6 +276,28 @@
         $('#saveLearningNotes')?.addEventListener('click', () => {
             const saved = saveLessonNotes(lesson.skill, notesInput?.value || '');
             if (notesStatus) notesStatus.textContent = saved ? 'Notes saved ✓' : 'Could not save. Check your browser storage settings.';
+        });
+
+        $('#exportLearningNotes')?.addEventListener('click', () => {
+            const notes = notesInput?.value || '';
+            if (!notes.trim()) {
+                if (notesStatus) notesStatus.textContent = 'Write some notes before exporting.';
+                notesInput?.focus();
+                return;
+            }
+            const exportText = lesson.skill + ' — Study Notes\n' +
+                'Exported: ' + new Date().toLocaleString() + '\n\n' + notes + '\n';
+            const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const filename = lesson.skill.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'study';
+            link.href = url;
+            link.download = filename + '-study-notes.txt';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+            if (notesStatus) notesStatus.textContent = 'Notes exported ✓';
         });
 
         $('#previousLesson')?.addEventListener('click', () => {
