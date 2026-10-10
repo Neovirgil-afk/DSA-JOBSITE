@@ -187,6 +187,8 @@
         }).join('') : '<p class="learning-course-search-empty">No skills match “' + escapeHTML(courseQuery) + '”.</p>');
         select.innerHTML = items.map((item) => '<option value="' + escapeHTML(item.skill) + '">' + escapeHTML(item.skill) + '</option>').join('');
         if (state.activeSkill) select.value = state.activeSkill;
+        const indicator = list.querySelector('.learning-course-active-indicator');
+        if (indicator) indicator.style.opacity = filteredItems.some((item) => item.skill === state.activeSkill) ? '1' : '0';
         positionCourseHighlight(false);
     }
 
