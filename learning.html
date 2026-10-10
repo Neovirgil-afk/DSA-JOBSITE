@@ -229,6 +229,12 @@
 .learning-achievement small{margin-top:3px;color:var(--muted);font-size:9px;line-height:1.35}
 @media(max-width:700px){.learning-achievement-grid{grid-template-columns:1fr}.learning-achievement{padding:10px}}
 </style>
+<style>
+ .learning-planner-search-label{display:block;margin:14px 0 6px;color:var(--muted);font-size:10px;font-weight:700}
+.learning-planner-search{width:100%;min-height:38px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--navy);font:500 11px Inter,sans-serif;outline:none}
+.learning-planner-search:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(79,70,229,.09)}
+
+</style>
 </head>
 <body class="learning-page">
 <header class="site-header"><div class="wrap header-inner"><a class="logo" href="/" aria-label="JobSite home"><span class="logo-text">JOB<span class="logo-accent">SITE</span></span><svg class="logo-plane" width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21.5 2.5L2 10.2c-.8.3-.8 1.4 0 1.7l7.6 2.9 2.9 7.6c.3.8 1.4 0 1.7 0L21.9 3.9c.3-.9-.6-1.7-1.4-1.4z" fill="currentColor"/></svg><span class="logo-tagline">Find your path. Build your future.</span></a>
@@ -250,6 +256,8 @@
       <p id="learningPlannerMessage" class="learning-tool-message" role="status" aria-live="polite"></p>
     </form>
     <div id="learningPlannerSummary" class="learning-planner-summary" aria-live="polite"></div>
+    <label class="learning-planner-search-label" for="learningPlannerSearch">Search your goals</label>
+    <input id="learningPlannerSearch" class="learning-planner-search" type="search" maxlength="120" placeholder="Search title, category, or notes…" autocomplete="off">
     <div id="learningPlannerFilters" class="learning-planner-filters" aria-label="Filter learning goals">
       <button type="button" data-planner-filter="all" class="active" aria-pressed="true">All goals</button>
       <button type="button" data-planner-filter="not_started" aria-pressed="false">Not started</button>
