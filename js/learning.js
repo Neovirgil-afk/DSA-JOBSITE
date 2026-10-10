@@ -2,6 +2,7 @@
     'use strict';
 
     const state = { recommendations: [], catalog: [], careerPath: [], targetJob: '', progress: { completed: 0, total: 0, percent: 0 }, learningProgress: [], activeSkill: '', activeLesson: 0, phase: 'lesson', quiz: null, quizAnswers: [], resources: [] };
+    let courseQuery = '';
 
     const LAST_LEARNING_KEY = 'jobsite:last-learning';
     function getLastLearning() {
@@ -175,13 +176,18 @@
         const select = $('#courseSelect');
         if (!list || !select) return;
         const items = state.recommendations.length ? state.recommendations : state.catalog;
-        list.innerHTML = '<span class="learning-course-active-indicator" aria-hidden="true"></span>' + items.map((item, index) => {
+        const query = courseQuery.trim().toLowerCase();
+        const filteredItems = query ? items.filter((item) => String(item.skill || '').toLowerCase().includes(query)) : items;
+        list.innerHTML = '<span class="learning-course-active-indicator" aria-hidden="true"></span>' + (filteredItems.length ? filteredItems.map((item) => {
+            const index = items.indexOf(item);
             const progress = state.learningProgress.find((entry) => entry.skill?.toLowerCase() === item.skill?.toLowerCase());
-            const statusLabel = progress?.status === 'verified' ? '✓ Verified' : progress?.status === 'needs_review' ? 'Review quiz' : (item.reason || (item.hasLesson === false ? 'Resources only' : 'Beginner lesson')); const statusClass = progress?.status === 'verified' ? 'verified' : progress?.status === 'needs_review' ? 'review' : '';
+            const statusLabel = progress?.status === 'verified' ? '✓ Verified' : progress?.status === 'needs_review' ? 'Review quiz' : (item.reason || (item.hasLesson === false ? 'Resources only' : 'Beginner lesson'));
+            const statusClass = progress?.status === 'verified' ? 'verified' : progress?.status === 'needs_review' ? 'review' : '';
             return '<button type="button" class="learning-course-item ' + statusClass + ' ' + (item.skill === state.activeSkill ? 'active' : '') + '" data-skill="' + escapeHTML(item.skill) + '"><span class="learning-course-number">' + (index + 1) + '</span><span class="learning-course-copy"><strong>' + escapeHTML(item.skill) + '</strong><small>' + escapeHTML(statusLabel) + '</small></span></button>';
-        }).join('');
+        }).join('') : '<p class="learning-course-search-empty">No skills match “' + escapeHTML(courseQuery) + '”.</p>');
         select.innerHTML = items.map((item) => '<option value="' + escapeHTML(item.skill) + '">' + escapeHTML(item.skill) + '</option>').join('');
         if (state.activeSkill) select.value = state.activeSkill;
+        positionCourseHighlight(false);
     }
 
     const LESSON_LOADING_DELAY = 750;
@@ -422,6 +428,11 @@
         if (button) loadLesson(button.dataset.skill);
     });
     $('#courseSelect')?.addEventListener('change', (event) => loadLesson(event.target.value));
+
+    $('#learningCourseSearch')?.addEventListener('input', (event) => {
+        courseQuery = event.target.value || '';
+        renderCourseList();
+    });
 
     window.addEventListener('resize', () => {
         positionPathHighlight(false);
