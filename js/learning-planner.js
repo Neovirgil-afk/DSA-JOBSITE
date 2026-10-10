@@ -185,7 +185,7 @@
             }).filter(Boolean).join('');
             return '<article class="learning-discover-item"><div class="learning-discover-item-top"><div><h3>' + escapeHTML(item.skill) + '</h3>' +
                 '<p>' + escapeHTML(item.reason || 'A topic you can explore.') + '</p></div>' +
-                (item.hasLesson ? '<span class="learning-status-pill">Beginner lesson</span>' : '') + '</div>' +
+                (item.alreadyHave ? '<span class="learning-status-pill completed">In your skills</span>' : item.hasLesson ? '<span class="learning-status-pill">Beginner lesson</span>' : '') + '</div>' +
                 '<div class="learning-planner-controls"><button class="learning-mini-action" type="button" data-add-skill="' + escapeHTML(item.skill) + '">+ Add to planner</button>' +
                 (item.hasLesson ? '<a class="learning-mini-action" href="' + lessonUrl + '" style="text-decoration:none">Open lesson</a>' : '') + '</div>' +
                 (resourceLinks ? '<div class="learning-discover-links">' + resourceLinks + '</div>' : '') + '</article>';
