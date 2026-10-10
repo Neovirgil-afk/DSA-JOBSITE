@@ -270,10 +270,21 @@
 
         const notesInput = $('#learningLessonNotes');
         const notesStatus = $('#learningNotesStatus');
+        let notesSaveTimer = null;
         notesInput?.addEventListener('input', () => {
-            if (notesStatus) notesStatus.textContent = 'Unsaved changes';
+            if (notesStatus) notesStatus.textContent = 'Unsaved changes…';
+            if (notesSaveTimer) window.clearTimeout(notesSaveTimer);
+            notesSaveTimer = window.setTimeout(() => {
+                const saved = saveLessonNotes(lesson.skill, notesInput?.value || '');
+                if (notesStatus) {
+                    notesStatus.textContent = saved
+                        ? 'Saved automatically ✓'
+                        : 'Could not save. Check your browser storage settings.';
+                }
+            }, 650);
         });
         $('#saveLearningNotes')?.addEventListener('click', () => {
+            if (notesSaveTimer) window.clearTimeout(notesSaveTimer);
             const saved = saveLessonNotes(lesson.skill, notesInput?.value || '');
             if (notesStatus) notesStatus.textContent = saved ? 'Notes saved ✓' : 'Could not save. Check your browser storage settings.';
         });
