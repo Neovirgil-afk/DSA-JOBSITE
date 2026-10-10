@@ -50,7 +50,7 @@ function splitSkills(value) {
 function isValidDateOnly(value) {
     if (!value) return true;
 
-    const match = /^\\d{4}-\\d{2}-\\d{2}$/.exec(String(value));
+    const match = /^\d{4}-\d{2}-\d{2}$/.exec(String(value));
     if (!match) return false;
 
     const date = new Date(String(value) + 'T00:00:00Z');
@@ -591,7 +591,7 @@ router.patch('/jobs/:id/status', requireEmployer, (req, res) => {
 
     if (status === 'active' && existing.application_deadline) {
         const deadline = String(existing.application_deadline);
-        const validDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(deadline) &&
+        const validDate = /^\d{4}-\d{2}-\d{2}$/.test(deadline) &&
             !Number.isNaN(new Date(deadline + 'T00:00:00Z').getTime());
 
         if (!validDate) {
