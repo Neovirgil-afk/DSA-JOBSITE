@@ -234,6 +234,23 @@
             '</div>';
     }
 
+    function getLessonNotes(skill) {
+        try {
+            return localStorage.getItem('jobsite:lesson-notes:' + String(skill || '').toLowerCase()) || '';
+        } catch (_) {
+            return '';
+        }
+    }
+
+    function saveLessonNotes(skill, notes) {
+        try {
+            localStorage.setItem('jobsite:lesson-notes:' + String(skill || '').toLowerCase(), notes);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    }
+
     function renderLesson(lesson, resources) {
         const content = $('#learningContent');
         const total = lesson.lessons.length;
@@ -245,10 +262,21 @@
         content.innerHTML = '<div class="learning-content-top"><div><span class="learning-eyebrow">BEGINNER LESSON</span><h2>' + escapeHTML(lesson.skill) + '</h2><p>' + escapeHTML(lesson.description) + '</p>' + (state.recommendations.find((item) => item.skill === lesson.skill)?.reason ? '<div class="learning-why"><strong>Why this is recommended:</strong> ' + escapeHTML(state.recommendations.find((item) => item.skill === lesson.skill).reason) + '</div>' : '') + '</div><span class="learning-badge">Beginner</span></div>' +
             '<div class="learning-progress"><div class="learning-progress-track"><span style="width:' + percent + '%"></span></div><span class="learning-progress-label">' + (state.activeLesson + 1) + ' / ' + total + '</span></div>' +
             '<div class="learning-lesson-list"><article class="learning-lesson"><span class="learning-lesson-kicker">LESSON ' + current.step + '</span><h3>' + escapeHTML(current.title) + '</h3><p>' + escapeHTML(current.content) + '</p></article></div>' +
+            '<section class="learning-notes-panel"><div><span class="learning-eyebrow">YOUR STUDY NOTES</span><h3>Remember this for later</h3><p>Write down key ideas, questions, or examples for this skill. Notes are saved on this device.</p></div><textarea id="learningLessonNotes" rows="4" placeholder="Example: A variable stores a value that I can reuse…">' + escapeHTML(getLessonNotes(lesson.skill)) + '</textarea><div class="learning-notes-actions"><button type="button" class="learning-action-button primary" id="saveLearningNotes">Save notes</button><span id="learningNotesStatus" role="status">Notes are stored on this device.</span></div></section>' +
             '<section class="learning-resources-panel"><h3>Continue learning</h3><p class="learning-resource-intro">Want more detail? Use these curated resources after the foundation lesson.</p><div class="learning-resource-grid">' +
             resources.map((resource) => '<a class="learning-resource-card" href="' + escapeHTML(resource.url) + '" target="_blank" rel="noopener noreferrer"><span class="resource-icon">' + (resource.provider === 'YouTube' ? '▶' : '↗') + '</span><span><strong>' + escapeHTML(resource.title) + '</strong><small>' + escapeHTML(resource.provider) + ' · ' + escapeHTML(resource.description) + '</small></span></a>').join('') +
             '</div></section>' +
             '<div class="learning-actions"><button type="button" class="learning-action-button" id="previousLesson" ' + (state.activeLesson === 0 ? 'disabled' : '') + '>← Previous</button><span class="learning-action-copy">' + (state.activeLesson === total - 1 ? 'Finished the foundation? Take the quick knowledge check.' : 'Read the concept, then continue.') + '</span><button type="button" class="learning-action-button primary" id="nextLesson">' + (state.activeLesson === total - 1 ? 'Take Quick Quiz →' : 'Next Lesson →') + '</button></div>';
+
+        const notesInput = $('#learningLessonNotes');
+        const notesStatus = $('#learningNotesStatus');
+        notesInput?.addEventListener('input', () => {
+            if (notesStatus) notesStatus.textContent = 'Unsaved changes';
+        });
+        $('#saveLearningNotes')?.addEventListener('click', () => {
+            const saved = saveLessonNotes(lesson.skill, notesInput?.value || '');
+            if (notesStatus) notesStatus.textContent = saved ? 'Notes saved ✓' : 'Could not save. Check your browser storage settings.';
+        });
 
         $('#previousLesson')?.addEventListener('click', () => {
             if (state.activeLesson > 0) {
