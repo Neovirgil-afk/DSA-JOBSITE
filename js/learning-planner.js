@@ -8,6 +8,8 @@
     const discoverForm = $('#learningDiscoverForm');
     const discoverMessage = $('#learningDiscoverMessage');
     const discoverResults = $('#learningDiscoverResults');
+    let plannerFilter = 'all';
+    let plannerItems = [];
     const statusLabels = {
         not_started: 'Not Started',
         in_progress: 'In Progress',
@@ -56,7 +58,16 @@
     function renderPlanner(items) {
         if (!plannerList) return;
 
+        plannerItems = items;
         const summary = $('#learningPlannerSummary');
+        const filterBar = $('#learningPlannerFilters');
+        if (filterBar) {
+            filterBar.querySelectorAll('[data-planner-filter]').forEach((button) => {
+                const active = button.dataset.plannerFilter === plannerFilter;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+        }
         const total = items.length;
         const inProgress = items.filter((item) => item.status === 'in_progress').length;
         const completed = items.filter((item) => item.status === 'completed').length;
@@ -74,7 +85,14 @@
             return;
         }
 
-        plannerList.innerHTML = items.map((item) => {
+        const visibleItems = plannerFilter === 'all' ? items : items.filter((item) => item.status === plannerFilter);
+        if (!visibleItems.length) {
+            const label = plannerFilter === 'in_progress' ? 'in-progress' : plannerFilter.replace('_', ' ');
+            plannerList.innerHTML = '<p class="learning-tool-muted">No ' + escapeHTML(label) + ' goals yet. Update a goal’s status or choose another filter.</p>';
+            return;
+        }
+
+        plannerList.innerHTML = visibleItems.map((item) => {
             const status = statusLabels[item.status] ? item.status : 'not_started';
             return '<article class="learning-planner-item" data-planner-id="' + Number(item.id) + '">' +
                 '<div class="learning-planner-item-top"><div><h3>' + escapeHTML(item.title) + '</h3>' +
@@ -99,6 +117,13 @@
             plannerList.innerHTML = '<p class="learning-tool-muted">' + escapeHTML(error.message) + '</p>';
         }
     }
+
+    $('#learningPlannerFilters')?.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-planner-filter]');
+        if (!button) return;
+        plannerFilter = button.dataset.plannerFilter;
+        renderPlanner(plannerItems);
+    });
 
     if (plannerForm) {
         plannerForm.addEventListener('submit', async (event) => {
