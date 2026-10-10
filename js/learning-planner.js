@@ -81,7 +81,7 @@
                 '<p class="learning-planner-meta">' + escapeHTML(item.category || 'Personal interest') +
                 (item.notes ? ' · ' + escapeHTML(item.notes) : '') + '</p></div>' +
                 '<span class="learning-status-pill ' + (status === 'completed' ? 'completed' : '') + '">' + escapeHTML(statusLabels[status]) + '</span></div>' +
-                '<div class="learning-planner-controls"><label><span class="learning-tool-muted" style="display:none">Progress</span>' +
+                '<div class="learning-planner-controls"><a class="learning-mini-action" href="/learning.html?skill=' + encodeURIComponent(item.title) + '" style="text-decoration:none">Study this →</a><label><span class="learning-tool-muted" style="display:none">Progress</span>' +
                 '<select data-planner-status aria-label="Progress for ' + escapeHTML(item.title) + '">' +
                 Object.keys(statusLabels).map((key) => '<option value="' + key + '"' + (status === key ? ' selected' : '') + '>' + statusLabels[key] + '</option>').join('') +
                 '</select></label><button class="learning-mini-action" type="button" data-planner-delete>Remove</button>' +
