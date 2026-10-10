@@ -2,6 +2,40 @@
     'use strict';
 
     const state = { recommendations: [], catalog: [], careerPath: [], targetJob: '', progress: { completed: 0, total: 0, percent: 0 }, learningProgress: [], activeSkill: '', activeLesson: 0, phase: 'lesson', quiz: null, quizAnswers: [], resources: [] };
+
+    const LAST_LEARNING_KEY = 'jobsite:last-learning';
+    function getLastLearning() {
+        try {
+            const saved = JSON.parse(localStorage.getItem(LAST_LEARNING_KEY) || 'null');
+            return saved && typeof saved.skill === 'string' ? saved : null;
+        } catch (_) {
+            return null;
+        }
+    }
+    function saveLastLearning() {
+        if (!state.activeSkill) return;
+        try {
+            localStorage.setItem(LAST_LEARNING_KEY, JSON.stringify({
+                skill: state.activeSkill,
+                lessonIndex: state.activeLesson,
+                updatedAt: Date.now()
+            }));
+        } catch (_) {
+            // Learning still works when browser storage is unavailable.
+        }
+    }
+    function renderContinueLearning() {
+        const panel = $('#learningContinue');
+        if (!panel) return;
+        const saved = getLastLearning();
+        if (!saved) {
+            panel.innerHTML = '<div><span class="learning-eyebrow">PICK UP ANYTIME</span><strong>Start a lesson to build your learning history.</strong><p>Your latest skill and lesson will be remembered on this device.</p></div>';
+            return;
+        }
+        const lessonNumber = Math.max(1, Number(saved.lessonIndex || 0) + 1);
+        panel.innerHTML = '<div class="learning-continue-copy"><span class="learning-eyebrow">CONTINUE LEARNING</span><strong>' + escapeHTML(saved.skill) + '</strong><p>Pick up from lesson ' + lessonNumber + '. Your progress is saved on this device.</p></div><button type="button" class="learning-action-button primary" id="resumeLearning">Resume lesson →</button>';
+        $('#resumeLearning')?.addEventListener('click', () => loadLesson(saved.skill));
+    }
     const $ = (selector) => document.querySelector(selector);
 
     function escapeHTML(value) {
@@ -196,6 +230,8 @@
         const content = $('#learningContent');
         const total = lesson.lessons.length;
         const current = lesson.lessons[state.activeLesson];
+        saveLastLearning();
+        renderContinueLearning();
         const percent = Math.round(((state.activeLesson + 1) / total) * 100);
 
         content.innerHTML = '<div class="learning-content-top"><div><span class="learning-eyebrow">BEGINNER LESSON</span><h2>' + escapeHTML(lesson.skill) + '</h2><p>' + escapeHTML(lesson.description) + '</p>' + (state.recommendations.find((item) => item.skill === lesson.skill)?.reason ? '<div class="learning-why"><strong>Why this is recommended:</strong> ' + escapeHTML(state.recommendations.find((item) => item.skill === lesson.skill).reason) + '</div>' : '') + '</div><span class="learning-badge">Beginner</span></div>' +
@@ -209,6 +245,7 @@
         $('#previousLesson')?.addEventListener('click', () => {
             if (state.activeLesson > 0) {
                 state.activeLesson--;
+                saveLastLearning();
                 renderLesson(lesson, resources);
             }
         });
@@ -216,6 +253,7 @@
         $('#nextLesson')?.addEventListener('click', () => {
             if (state.activeLesson < total - 1) {
                 state.activeLesson++;
+                saveLastLearning();
                 renderLesson(lesson, resources);
             } else {
                 startQuiz(lesson);
@@ -306,7 +344,8 @@
     async function loadLesson(skill) {
         const requestId = ++lessonRequestId;
         state.activeSkill = skill;
-        state.activeLesson = 0;
+        const saved = getLastLearning();
+        state.activeLesson = saved && saved.skill.toLowerCase() === skill.toLowerCase() ? Math.max(0, Number(saved.lessonIndex) || 0) : 0;
         state.phase = 'lesson';
         setActivePathSkill(skill);
         showLessonSkeleton(skill);
@@ -350,6 +389,7 @@
             state.catalog = data.availableLessons || [];
 
             const requestedSkill = new URLSearchParams(window.location.search).get('skill')?.trim() || '';
+            const savedLearning = getLastLearning();
             const requestedLower = requestedSkill.toLowerCase();
             const requestedItem = [...state.recommendations, ...state.catalog].find(
                 (item) => item.skill?.toLowerCase() === requestedLower
@@ -358,8 +398,11 @@
             renderCareerOverview();
             renderCourseList();
 
+            renderContinueLearning();
             if (requestedSkill && requestedItem) {
                 loadLesson(requestedItem.skill);
+            } else if (savedLearning && [...state.recommendations, ...state.catalog].some((item) => item.skill?.toLowerCase() === savedLearning.skill.toLowerCase())) {
+                loadLesson(savedLearning.skill);
             } else if (state.recommendations.length) {
                 loadLesson(state.recommendations[0].skill);
             } else if (requestedSkill) {
