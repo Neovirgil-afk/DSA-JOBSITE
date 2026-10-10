@@ -308,7 +308,7 @@ async function loadJobs() {
         } else {
             list.innerHTML = state.jobs.map((job) => {
                 const deadlineText = String(job.application_deadline || '');
-                const deadlineDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(deadlineText)
+                const deadlineDate = /^\d{4}-\d{2}-\d{2}$/.test(deadlineText)
                     ? new Date(deadlineText + 'T23:59:59')
                     : null;
                 const deadlinePassed = job.status === 'active' &&
