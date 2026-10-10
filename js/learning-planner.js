@@ -22,6 +22,11 @@
         }[char]));
     }
 
+    function findExistingGoal(title) {
+        const normalized = String(title || '').trim().toLocaleLowerCase();
+        return plannerItems.find((item) => String(item.title || '').trim().toLocaleLowerCase() === normalized);
+    }
+
     function safeUrl(value) {
         try {
             const url = new URL(String(value || ''), window.location.origin);
@@ -135,6 +140,13 @@
             const title = titleInput.value.trim();
             if (!title) {
                 setMessage(plannerMessage, 'Enter a skill or learning goal first.', true);
+                titleInput.focus();
+                return;
+            }
+            const existingGoal = findExistingGoal(title);
+            if (existingGoal) {
+                const status = statusLabels[existingGoal.status] || 'Already added';
+                setMessage(plannerMessage, '"' + existingGoal.title + '" is already in your planner (' + status + '). Update that goal instead of adding a duplicate.', true);
                 titleInput.focus();
                 return;
             }
@@ -261,6 +273,14 @@
         discoverResults.addEventListener('click', async (event) => {
             const button = event.target.closest('[data-add-skill]');
             if (!button) return;
+            const existingGoal = findExistingGoal(button.dataset.addSkill);
+            if (existingGoal) {
+                const status = statusLabels[existingGoal.status] || 'Already added';
+                setMessage(discoverMessage, '"' + existingGoal.title + '" is already in your planner (' + status + ').', true);
+                button.textContent = 'Already added';
+                button.disabled = true;
+                return;
+            }
             button.disabled = true;
             try {
                 await api('/api/learning/planner', {
