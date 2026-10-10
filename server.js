@@ -11,6 +11,8 @@ const jobRoutes = require('./jobRoutes');
 const resumeRoutes = require('./resumeRoutes');
 const referenceRoutes = require('./referenceRoutes');
 const learningRoutes = require('./learningRoutes');
+const learningPlannerRoutes = require('./learningPlannerRoutes');
+const learningDiscoveryRoutes = require('./learningDiscoveryRoutes');
 const employerRoutes = require('./employerRoutes');
 const applicationRoutes = require('./applicationRoutes');
 
@@ -41,6 +43,8 @@ app.use('/api/jobs', jobRoutes);
 app.use('/api/resume', resumeRoutes);
 app.use('/api/reference', referenceRoutes);
 app.use('/api/learning', learningRoutes);
+app.use('/api/learning/planner', learningPlannerRoutes);
+app.use('/api/learning/discover', learningDiscoveryRoutes);
 app.use('/api/employer', employerRoutes);
 app.use('/api/applications', applicationRoutes);
 
