@@ -94,6 +94,7 @@
 .learning-notes-actions span{color:var(--muted);font-size:10px}
 @media(max-width:620px){.learning-notes-panel{padding:14px}.learning-notes-actions{align-items:stretch;flex-direction:column}.learning-notes-actions button{width:100%}}
 
+.learning-planner-export-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:10px 0;border-bottom:1px solid var(--line)}.learning-planner-export-row p{margin:0;color:var(--muted);font-size:10px;line-height:1.5}.learning-planner-export-row button:disabled{opacity:.45;cursor:not-allowed}@media(max-width:620px){.learning-planner-export-row{align-items:stretch;flex-direction:column}.learning-planner-export-row button{width:100%}}
 .learning-planner-filters{display:flex;gap:7px;flex-wrap:wrap;margin:13px 0 4px}
 .learning-planner-filters button{padding:7px 10px;border:1px solid #e1e0eb;border-radius:999px;background:#fff;color:var(--muted);font-size:10px;font-weight:800;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
 .learning-planner-filters button:hover{border-color:#c9c5ed;color:var(--indigo)}
@@ -256,6 +257,7 @@
       <p id="learningPlannerMessage" class="learning-tool-message" role="status" aria-live="polite"></p>
     </form>
     <div id="learningPlannerSummary" class="learning-planner-summary" aria-live="polite"></div>
+    <div class="learning-planner-export-row"><p>Keep an offline copy of your goals, progress, and notes.</p><button id="learningPlannerExport" class="learning-mini-action" type="button" disabled>Export planner .txt ↓</button></div>
     <label class="learning-planner-search-label" for="learningPlannerSearch">Search your goals</label>
     <input id="learningPlannerSearch" class="learning-planner-search" type="search" maxlength="120" placeholder="Search title, category, or notes…" autocomplete="off">
     <div id="learningPlannerFilters" class="learning-planner-filters" aria-label="Filter learning goals">
