@@ -9,6 +9,7 @@
     const discoverMessage = $('#learningDiscoverMessage');
     const discoverResults = $('#learningDiscoverResults');
     let plannerFilter = 'all';
+    let plannerQuery = '';
     let plannerItems = [];
     const statusLabels = {
         not_started: 'Not Started',
@@ -90,10 +91,19 @@
             return;
         }
 
-        const visibleItems = plannerFilter === 'all' ? items : items.filter((item) => item.status === plannerFilter);
+        const normalizedQuery = plannerQuery.trim().toLocaleLowerCase();
+        const visibleItems = items.filter((item) => {
+            const matchesStatus = plannerFilter === 'all' || item.status === plannerFilter;
+            const searchableText = [item.title, item.category, item.notes].filter(Boolean).join(' ').toLocaleLowerCase();
+            return matchesStatus && (!normalizedQuery || searchableText.includes(normalizedQuery));
+        });
         if (!visibleItems.length) {
-            const label = plannerFilter === 'in_progress' ? 'in-progress' : plannerFilter.replace('_', ' ');
-            plannerList.innerHTML = '<p class="learning-tool-muted">No ' + escapeHTML(label) + ' goals yet. Update a goal’s status or choose another filter.</p>';
+            if (normalizedQuery) {
+                plannerList.innerHTML = '<p class="learning-tool-muted">No goals match “' + escapeHTML(plannerQuery.trim()) + '”. Try another search or clear the search field.</p>';
+            } else {
+                const label = plannerFilter === 'in_progress' ? 'in-progress' : plannerFilter.replace('_', ' ');
+                plannerList.innerHTML = '<p class="learning-tool-muted">No ' + escapeHTML(label) + ' goals yet. Update a goal’s status or choose another filter.</p>';
+            }
             return;
         }
 
