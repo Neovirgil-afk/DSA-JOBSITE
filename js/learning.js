@@ -34,6 +34,14 @@
                 '<div><span class="summary-value">' + Math.max(total - completed, 0) + '</span><span class="summary-label">Skills to learn</span></div>' +
                 '<div><span class="summary-value">' + (next ? escapeHTML(next.skill) : 'Complete') + '</span><span class="summary-label">' + (next ? 'Recommended next' : 'Learning path') + '</span></div>' +
             '</div>' +
+            '<div class="learning-achievements">' +
+                '<div class="learning-section-title"><span>YOUR MILESTONES</span><small>Keep building momentum</small></div>' +
+                '<div class="learning-achievement-grid">' +
+                    (completed >= 1 ? '<div class="learning-achievement unlocked"><span class="learning-achievement-icon">✦</span><span><strong>First Step</strong><small>First career skill verified</small></span></div>' : '<div class="learning-achievement locked"><span class="learning-achievement-icon">✧</span><span><strong>First Step</strong><small>Verify your first career skill</small></span></div>') +
+                    (completed >= 3 ? '<div class="learning-achievement unlocked"><span class="learning-achievement-icon">◆</span><span><strong>Skill Builder</strong><small>Three skills verified</small></span></div>' : '<div class="learning-achievement locked"><span class="learning-achievement-icon">◇</span><span><strong>Skill Builder</strong><small>Verify 3 career skills</small></span></div>') +
+                    (percent >= 100 && total > 0 ? '<div class="learning-achievement unlocked"><span class="learning-achievement-icon">★</span><span><strong>Path Complete</strong><small>All target skills verified</small></span></div>' : '<div class="learning-achievement locked"><span class="learning-achievement-icon">☆</span><span><strong>Path Complete</strong><small>Complete your target skill path</small></span></div>') +
+                '</div>' +
+            '</div>' +
             '<div class="learning-skill-path">' +
                 '<div class="learning-section-title"><span>CAREER SKILL PATH</span><small>' + (next ? 'Your next gap is highlighted.' : 'You completed every skill in this path.') + '</small></div>' +
                 '<div class="learning-path-list">' +
