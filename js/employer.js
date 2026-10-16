@@ -381,19 +381,35 @@ async function loadJobs() {
     }
 }
 
+function setJobActionMessage(message, kind = '') {
+    const element = $('#jobActionMessage');
+    if (!element) return;
+    element.textContent = message || '';
+    element.className = 'employer-action-feedback' + (kind ? ' is-' + kind : '');
+    element.hidden = !message;
+}
+
 async function updateJobStatus(jobId, status) {
+    const select = $('#employerJobsList [data-job-status="' + CSS.escape(String(jobId)) + '"]');
+    if (select) select.disabled = true;
+    setJobActionMessage('Updating job posting status…');
+
     try {
         await api('/api/employer/jobs/' + jobId + '/status', {
             method: 'PATCH',
             body: JSON.stringify({ status })
         });
 
+        setJobActionMessage('Job posting status changed to ' + status + '.', 'success');
         await loadJobs();
         await loadDashboard();
     } catch (error) {
+        setJobActionMessage(error.message || 'Could not update this job posting. Please try again.', 'error');
         await loadJobs().catch(() => {});
         await loadDashboard().catch(() => {});
-        alert(error.message);
+    } finally {
+        const refreshedSelect = $('#employerJobsList [data-job-status="' + CSS.escape(String(jobId)) + '"]');
+        if (refreshedSelect) refreshedSelect.disabled = false;
     }
 }
 
