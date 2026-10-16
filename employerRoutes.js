@@ -827,7 +827,7 @@ router.patch('/applications/:id/status', requireEmployer, (req, res) => {
             'INSERT INTO application_history (application_id, status) VALUES (?, ?)'
         ).run(applicationId, status);
 
-        return { found: true, changed: true, candidateId: current.candidate_id, jobTitle: current.job_title };
+        return { found: true, changed: true, applicationId, candidateId: current.candidate_id, jobTitle: current.job_title };
     });
 
     const result = updateApplication();
@@ -842,7 +842,7 @@ router.patch('/applications/:id/status', requireEmployer, (req, res) => {
             type: 'application_status',
             title: 'Application status updated',
             body: 'The employer updated your application for ' + result.jobTitle + ' to ' + ({ new: 'New', reviewing: 'Under review', shortlisted: 'Shortlisted', interview: 'Interview stage', hired: 'Hired', rejected: 'Not selected' }[status] || status.replace(/_/g, ' ')) + '. Open My Applications to review the latest status.',
-            link: '/applications.html'
+            link: '/applications.html?applicationId=' + encodeURIComponent(result.applicationId)
         });
     }
 
