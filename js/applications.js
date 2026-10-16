@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const filterSummary = document.querySelector('#applicationFilterSummary');
     const clearFilters = document.querySelector('#clearApplicationFilters');
     const exportButton = document.querySelector('#exportApplications');
+    const statusOverview = document.querySelector('#applicationStatusOverview');
     let allApplications = [];
     let visibleApplications = [];
     const requestedApplicationId = Number(new URLSearchParams(window.location.search).get('applicationId')) || 0;
@@ -23,7 +24,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         return labels[status] || 'Applied';
     }
 
+    function renderStatusOverview() {
+        const totals = { new: 0, reviewing: 0, shortlisted: 0, interview: 0, hired: 0, rejected: 0 };
+        allApplications.forEach(app => {
+            const status = String(app.status || 'new');
+            if (Object.prototype.hasOwnProperty.call(totals, status)) totals[status] += 1;
+            else totals.new += 1;
+        });
+        Object.entries(totals).forEach(([status, total]) => {
+            const value = document.querySelector('#statusCount' + status.charAt(0).toUpperCase() + status.slice(1));
+            if (value) value.textContent = String(total);
+        });
+        if (statusOverview) {
+            statusOverview.querySelectorAll('[data-status-filter]').forEach(button => {
+                const active = statusFilter.value === button.dataset.statusFilter;
+                button.classList.toggle('is-active', active);
+                button.setAttribute('aria-pressed', String(active));
+            });
+        }
+    }
+
     function applyFilters() {
+        renderStatusOverview();
         const query = String(searchInput.value || '').trim().toLowerCase();
         const selectedStatus = statusFilter.value;
         let filtered = allApplications.filter(app => {
@@ -152,6 +174,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     sortSelect.addEventListener('change', applyFilters);
     clearFilters.addEventListener('click', resetFilters);
     exportButton?.addEventListener('click', exportVisibleApplications);
+    statusOverview?.querySelectorAll('[data-status-filter]').forEach(button => {
+        button.addEventListener('click', () => {
+            statusFilter.value = statusFilter.value === button.dataset.statusFilter ? 'all' : button.dataset.statusFilter;
+            applyFilters();
+        });
+    });
 
     try {
         const response = await fetch('/api/applications', { credentials: 'include' });
