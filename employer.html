@@ -208,6 +208,7 @@
             <select id="applicantJobSelect" class="employer-select"></select>
           </div>
           <div id="applicantSummary" class="employer-applicant-summary"></div>
+          <div id="applicantActionMessage" class="employer-action-feedback" role="status" aria-live="polite" hidden></div>
           <div class="employer-applicant-tools" aria-label="Applicant filters and sorting">
             <label class="employer-applicant-search">
               <span class="sr-only">Search applicants</span>
@@ -231,6 +232,7 @@
                 <option value="match-desc">Highest match</option><option value="match-asc">Lowest match</option><option value="newest">Newest application</option><option value="oldest">Oldest application</option><option value="name-asc">Name A–Z</option>
               </select>
             </label>
+            <button type="button" class="employer-secondary-button employer-clear-applicant-filters" id="clearApplicantFilters">Clear filters</button>
           </div>
           <div id="applicantsList" class="employer-applicants-list"></div>
         </div>
