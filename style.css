@@ -8098,3 +8098,46 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 /* Responsive career learning path panel */
 @media(max-width:760px){.cc-learning-path-body{grid-template-columns:1fr}.cc-learning-path .cc-panel-head{align-items:flex-start}}
 @media(prefers-reduced-motion:reduce){.cc-learning-path-track span{transition:none}}
+
+
+/* Job action feedback */
+.job-action-toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1200;
+  max-width: min(360px, calc(100vw - 32px));
+  padding: 13px 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 14px 36px rgba(16, 22, 46, 0.18);
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.job-action-toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.job-action-toast[data-type="success"] {
+  border-left: 4px solid var(--teal);
+}
+.job-action-toast[data-type="error"] {
+  border-left: 4px solid var(--pink);
+}
+@media (max-width: 600px) {
+  .job-action-toast {
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    max-width: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .job-action-toast { transition: none; }
+}
