@@ -5,6 +5,7 @@ const { computeSkillGap } = require('./SkillGapService');
 const { getUserSkillNames } = require('./JobMatchingService');
 const MaxHeap = require('./MaxHeap');
 const { createNotification } = require('./notificationService');
+const authRateLimit = require('./authRateLimit');
 
 const router = express.Router();
 
@@ -145,7 +146,7 @@ function getJobWithSkills(jobId) {
    EMPLOYER ACCOUNT
    ========================================================= */
 
-router.post('/register', (req, res) => {
+router.post('/register', authRateLimit, (req, res) => {
     try {
         const {
             fullName,
@@ -230,7 +231,7 @@ router.post('/register', (req, res) => {
     }
 });
 
-router.post('/login', (req, res) => {
+router.post('/login', authRateLimit, (req, res) => {
     try {
         const emailValue = req.body?.email;
         const passwordValue = req.body?.password;
