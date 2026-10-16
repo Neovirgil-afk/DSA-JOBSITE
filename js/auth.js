@@ -1674,6 +1674,9 @@ export function initAuth() {
             return;
         }
 
+        // After successful login, continue to the page the user requested.
+        sessionStorage.setItem('jobsite_redirect_after_login', link.href);
+
         openAuth('login');
         const authSubtitle = document.querySelector('#authSubtitle');
         if (authSubtitle) {
