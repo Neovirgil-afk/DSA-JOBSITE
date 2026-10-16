@@ -566,6 +566,11 @@ router.put('/profile', (req, res) => {
         const education = String(req.body?.education || '').trim();
         const degree = String(req.body?.degree || '').trim();
         const location = String(req.body?.location || '').trim();
+        const targetJob = String(req.body?.target_job || '').trim();
+
+        if (targetJob.length > 160) {
+            return res.status(400).json({ error: 'Target job must be 160 characters or fewer.' });
+        }
 
         if (!fullName) {
             return res.status(400).json({ error: 'Full name is required.' });
@@ -576,13 +581,15 @@ router.put('/profile', (req, res) => {
             SET full_name = ?,
                 education = ?,
                 degree = ?,
-                location = ?
+                location = ?,
+                target_job = ?
             WHERE id = ?
         `).run(
             fullName,
             education || null,
             degree || null,
             location || null,
+            targetJob || null,
             req.session.userId
         );
 
