@@ -8342,3 +8342,18 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   .cc-notification-head { align-items: flex-start; }
   .cc-notification-head .cc-btn { flex-shrink: 0; padding: 7px 9px; }
 }
+
+/* Direct links from application-status notifications */
+.application-card--highlight {
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, .14), var(--shadow-card);
+  animation: application-notification-highlight 1.8s ease-out 1;
+}
+.application-card--highlight:focus { outline: 3px solid var(--indigo); outline-offset: 4px; }
+@keyframes application-notification-highlight {
+  0%, 100% { border-color: var(--indigo); }
+  45% { border-color: var(--teal); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .application-card--highlight { animation: none; }
+}
