@@ -8249,3 +8249,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     grid-column: 1 / -1;
   }
 }
+
+
+/* Employer job posting status feedback */
+#jobActionMessage { margin: 12px 0 16px; }
+#employerJobsList [data-job-status]:disabled {
+  cursor: progress;
+  opacity: .65;
+}
+@media (max-width: 600px) {
+  #jobActionMessage { font-size: 12px; }
+}
