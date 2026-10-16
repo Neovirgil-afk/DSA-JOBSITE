@@ -4,6 +4,15 @@ const { db } = require('./database');
 
 const router = express.Router();
 
+function establishSession(req, userId, maxAge, callback) {
+    req.session.regenerate((regenerateError) => {
+        if (regenerateError) return callback(regenerateError);
+        req.session.userId = Number(userId);
+        req.session.cookie.maxAge = maxAge;
+        req.session.save(callback);
+    });
+}
+
 
 /* =========================================================
    REGISTER
@@ -22,7 +31,7 @@ router.post('/register', (req, res) => {
             degree,
             targetJob,
             location
-        } = req.body;
+        } = req.body || {};
 
 
         /* ---------- REQUIRED FIELDS ---------- */
@@ -69,25 +78,25 @@ router.post('/register', (req, res) => {
         }
 
 
-        /* ---------- CLEAN VALUES ---------- */
+        /* ---------- CLEAN AND VALIDATE VALUES ---------- */
 
-        const cleanFullName =
-            fullName.trim();
+        if ([fullName, email, education, degree, targetJob, location].some((value) => typeof value !== 'string')) {
+            return res.status(400).json({ error: 'All profile fields must be text.' });
+        }
 
-        const cleanEmail =
-            email.toLowerCase().trim();
+        const cleanFullName = fullName.trim().slice(0, 120);
+        const cleanEmail = email.toLowerCase().trim();
+        if (cleanEmail.length > 254 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(cleanEmail)) {
+            return res.status(400).json({ error: 'Enter a valid email address.' });
+        }
+        if (cleanFullName.length < 2 || cleanFullName.length > 120) {
+            return res.status(400).json({ error: 'Full name must be between 2 and 120 characters.' });
+        }
 
-        const cleanEducation =
-            education.trim();
-
-        const cleanDegree =
-            degree.trim();
-
-        const cleanTargetJob =
-            targetJob.trim();
-
-        const cleanLocation =
-            location.trim();
+        const cleanEducation = education.trim().slice(0, 160);
+        const cleanDegree = degree.trim().slice(0, 160);
+        const cleanTargetJob = targetJob.trim().slice(0, 160);
+        const cleanLocation = location.trim().slice(0, 160);
 
 
         /* ---------- CHECK DUPLICATE EMAIL ---------- */
@@ -142,27 +151,14 @@ router.post('/register', (req, res) => {
             );
 
 
-        /* ---------- CREATE SESSION ---------- */
+        /* Regenerate the session ID after registration to prevent fixation. */
+        establishSession(req, info.lastInsertRowid, 1000 * 60 * 60 * 24, (sessionError) => {
+            if (sessionError) {
+                console.error('[register] session error:', sessionError);
+                return res.status(500).json({ error: 'Account created, but sign-in failed. Please log in.' });
+            }
 
-        req.session.userId =
-            info.lastInsertRowid;
-
-
-        /* ---------- RESPONSE ---------- */
-
-        res.json({
-
-            success: true,
-
-            userId:
-                info.lastInsertRowid,
-
-            fullName:
-                cleanFullName,
-
-            role:
-                'candidate'
-
+            res.json({ success: true, userId: info.lastInsertRowid, fullName: cleanFullName, role: 'candidate' });
         });
 
 
@@ -196,7 +192,7 @@ router.post('/login', (req, res) => {
             email,
             password,
             rememberMe
-        } = req.body;
+        } = req.body || {};
 
 
         /* ---------- REQUIRED FIELDS ---------- */
@@ -211,14 +207,13 @@ router.post('/login', (req, res) => {
         }
 
 
+        if (typeof email !== 'string' || typeof password !== 'string' || email.length > 254 || password.length > 1024) {
+            return res.status(400).json({ error: 'Enter a valid email and password.' });
+        }
+
         /* ---------- FIND USER ---------- */
 
-        const user =
-            db.prepare(
-                'SELECT * FROM users WHERE email = ?'
-            ).get(
-                email.toLowerCase().trim()
-            );
+        const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase().trim());
 
 
         if (!user) {
@@ -259,31 +254,17 @@ router.post('/login', (req, res) => {
         }
 
 
-        /* ---------- CREATE SESSION ---------- */
-
-        req.session.userId =
-            user.id;
-
-        req.session.cookie.maxAge = rememberMe
+        const maxAge = rememberMe
             ? 1000 * 60 * 60 * 24 * 30
             : 1000 * 60 * 60 * 24;
 
+        establishSession(req, user.id, maxAge, (sessionError) => {
+            if (sessionError) {
+                console.error('[login] session error:', sessionError);
+                return res.status(500).json({ error: 'Login succeeded, but the session could not be saved. Please try again.' });
+            }
 
-        /* ---------- RESPONSE ---------- */
-
-        res.json({
-
-            success: true,
-
-            userId:
-                user.id,
-
-            fullName:
-                user.full_name,
-
-            role:
-                user.role || 'candidate'
-
+            res.json({ success: true, userId: user.id, fullName: user.full_name, role: user.role || 'candidate' });
         });
 
 
