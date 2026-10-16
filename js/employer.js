@@ -488,6 +488,21 @@ function exportFilteredApplicants() {
     setApplicantActionMessage('Exported ' + applicants.length + ' applicant' + (applicants.length === 1 ? '' : 's') + ' from the current filtered results.', 'success');
 }
 
+async function copyApplicantEmail(button) {
+    const email = String(button?.dataset.email || '').trim();
+    if (!email) {
+        setApplicantActionMessage('This applicant does not have an email address listed.', 'error');
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(email);
+        setApplicantActionMessage('Copied ' + email + ' to your clipboard.', 'success');
+    } catch (_) {
+        setApplicantActionMessage('Clipboard access is unavailable. Open View Profile to see the applicant email and copy it manually.', 'error');
+    }
+}
+
 function renderApplicants() {
     const applicants = getFilteredApplicants();
     const exportButton = $('#exportApplicants');
@@ -519,6 +534,7 @@ function renderApplicants() {
                 (applicant.matchingSkills || []).slice(0, 7).map((skill) => '<span class="match-have">' + escapeHtml(skill) + '</span>').join('') + '</div><div><small>Missing</small>' +
                 (applicant.missingSkills || []).slice(0, 5).map((skill) => '<span class="match-missing">' + escapeHtml(skill) + '</span>').join('') + '</div></div>' +
                 '<div class="employer-applicant-actions"><button type="button" class="employer-secondary-button" data-view-applicant="' + applicant.application_id + '">View Profile</button>' +
+                (applicant.email ? '<button type="button" class="employer-secondary-button employer-copy-email" data-copy-applicant-email="' + escapeHtml(applicant.application_id) + '" data-email="' + escapeHtml(applicant.email) + '">Copy email</button>' : '') +
                 '<select class="employer-inline-select" data-application-status="' + applicant.application_id + '">' +
                 ['new','reviewing','shortlisted','interview','hired','rejected'].map((status) => '<option value="' + status + '"' + (applicant.status === status ? ' selected' : '') + '>' + status.charAt(0).toUpperCase() + status.slice(1) + '</option>').join('') +
                 '</select></div></div></article>';
@@ -989,6 +1005,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     $('#applicantsList').addEventListener('click', (event) => {
+        const copyButton = event.target.closest('[data-copy-applicant-email]');
+        if (copyButton) {
+            copyApplicantEmail(copyButton);
+            return;
+        }
+
         const button = event.target.closest('[data-view-applicant]');
         if (button) viewApplicant(button.dataset.viewApplicant);
     });
