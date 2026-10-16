@@ -215,6 +215,15 @@
             <select id="applicantJobSelect" class="employer-select"></select>
           </div>
           <div id="applicantSummary" class="employer-applicant-summary"></div>
+          <div class="employer-applicant-pipeline" id="applicantPipelineCounts" aria-label="Applicant counts by status">
+            <button type="button" data-pipeline-status="all" aria-pressed="true"><span>All</span><strong data-pipeline-count="all">0</strong></button>
+            <button type="button" data-pipeline-status="new" aria-pressed="false"><span>New</span><strong data-pipeline-count="new">0</strong></button>
+            <button type="button" data-pipeline-status="reviewing" aria-pressed="false"><span>Reviewing</span><strong data-pipeline-count="reviewing">0</strong></button>
+            <button type="button" data-pipeline-status="shortlisted" aria-pressed="false"><span>Shortlisted</span><strong data-pipeline-count="shortlisted">0</strong></button>
+            <button type="button" data-pipeline-status="interview" aria-pressed="false"><span>Interview</span><strong data-pipeline-count="interview">0</strong></button>
+            <button type="button" data-pipeline-status="hired" aria-pressed="false"><span>Hired</span><strong data-pipeline-count="hired">0</strong></button>
+            <button type="button" data-pipeline-status="rejected" aria-pressed="false"><span>Rejected</span><strong data-pipeline-count="rejected">0</strong></button>
+          </div>
           <div id="applicantActionMessage" class="employer-action-feedback" role="status" aria-live="polite" hidden></div>
           <div class="employer-applicant-tools" aria-label="Applicant filters and sorting">
             <label class="employer-applicant-search">
