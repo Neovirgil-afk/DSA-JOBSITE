@@ -10,7 +10,7 @@ function getAllJobsWithSkills() {
         "SELECT * FROM jobs WHERE (status = 'active' OR status IS NULL) " +
         "AND (application_deadline IS NULL OR (" +
         "date(application_deadline) = application_deadline " +
-        "AND date(application_deadline) >= date('now')))"
+        "AND date(application_deadline) >= date('now', '+8 hours')))"
     ).all();
     const skillStmt = db.prepare(`
         SELECT s.name FROM job_skills js
