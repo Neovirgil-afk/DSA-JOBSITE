@@ -615,16 +615,14 @@ router.patch('/jobs/:id/status', requireEmployer, (req, res) => {
 
     if (status === 'active' && existing.application_deadline) {
         const deadline = String(existing.application_deadline);
-        const validDate = /^\d{4}-\d{2}-\d{2}$/.test(deadline) &&
-            !Number.isNaN(new Date(deadline + 'T00:00:00Z').getTime());
 
-        if (!validDate) {
+        if (!isValidDateOnly(deadline)) {
             return res.status(400).json({
                 error: 'An active job must have a valid application deadline.'
             });
         }
 
-        if (new Date(deadline + 'T23:59:59') < new Date()) {
+        if (isPastDeadline(deadline)) {
             return res.status(400).json({
                 error: 'An active job cannot have an application deadline in the past.'
             });
