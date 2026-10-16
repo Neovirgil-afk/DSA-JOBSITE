@@ -120,17 +120,29 @@
     }
 
     function input(label, key, value, placeholder) {
+        var maxLength = /year/i.test(key) ? 20 : (/email/i.test(key) ? 254 : (/phone/i.test(key) ? 40 : 160));
         return '<div class="builder-field"><label>' + label +
-            '</label><input data-key="' + key + '" value="' +
+            '</label><input data-key="' + key + '" maxlength="' + maxLength + '" value="' +
             escapeHtml(value) + '" placeholder="' +
             escapeHtml(placeholder || '') + '"></div>';
     }
 
     function textarea(label, key, value, placeholder) {
+        var maxLength = key === 'summary' ? 1200 : 2000;
         return '<div class="builder-field"><label>' + label +
-            '</label><textarea data-key="' + key + '" placeholder="' +
+            '</label><textarea data-key="' + key + '" maxlength="' + maxLength + '" placeholder="' +
             escapeHtml(placeholder || '') + '">' +
-            escapeHtml(value) + '</textarea></div>';
+            escapeHtml(value) + '</textarea><small class="builder-char-count" aria-live="polite"></small></div>';
+    }
+
+    function updateCharacterCount(field) {
+        if (!field || !field.parentElement) return;
+        var count = field.parentElement.querySelector('.builder-char-count');
+        if (count) count.textContent = field.value.length + ' / ' + field.maxLength;
+    }
+
+    function wireCharacterCounts(root) {
+        (root || document).querySelectorAll('.builder-field textarea[maxlength]').forEach(updateCharacterCount);
     }
 
     function renderEntries(type) {
@@ -185,8 +197,10 @@
             entry.querySelectorAll('[data-key]').forEach(function (field) {
                 field.addEventListener('input', function () {
                     state[type][index][field.getAttribute('data-key')] = field.value;
+                    updateCharacterCount(field);
                     renderPreview();
                 });
+                updateCharacterCount(field);
             });
 
             entry.querySelector('[data-remove]').addEventListener('click', function () {
@@ -302,6 +316,7 @@
             state.certifications = Array.isArray(resume.certifications) ? resume.certifications : [];
 
             ['education', 'experience', 'projects', 'certifications'].forEach(renderEntries);
+            wireCharacterCounts();
             renderPreview();
 
             var status = $('builderStatus');
