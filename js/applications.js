@@ -89,9 +89,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         filtered.sort((a, b) => {
-            if (sortSelect.value === 'oldest') return new Date(a.applied_at) - new Date(b.applied_at);
-            if (sortSelect.value === 'status') return statusLabel(a.status).localeCompare(statusLabel(b.status)) || new Date(b.applied_at) - new Date(a.applied_at);
-            return new Date(b.applied_at) - new Date(a.applied_at);
+            const dateA = new Date(a.applied_at).getTime();
+            const dateB = new Date(b.applied_at).getTime();
+            const safeDateA = Number.isFinite(dateA) ? dateA : 0;
+            const safeDateB = Number.isFinite(dateB) ? dateB : 0;
+            if (sortSelect.value === 'oldest') return safeDateA - safeDateB;
+            if (sortSelect.value === 'status') return statusLabel(a.status).localeCompare(statusLabel(b.status)) || safeDateB - safeDateA;
+            if (sortSelect.value === 'waiting') {
+                const pendingA = ['new', 'reviewing'].includes(String(a.status || 'new')) ? 1 : 0;
+                const pendingB = ['new', 'reviewing'].includes(String(b.status || 'new')) ? 1 : 0;
+                return pendingB - pendingA || safeDateA - safeDateB;
+            }
+            return safeDateB - safeDateA;
         });
         renderFiltered(filtered);
         if (requestedApplicationId > 0 && !initialDeepLinkHandled) {
