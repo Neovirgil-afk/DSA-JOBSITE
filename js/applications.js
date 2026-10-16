@@ -36,6 +36,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         return guidance[status] || guidance.new;
     }
 
+
+    function waitingAgeForApplication(app) {
+        const status = String(app.status || 'new');
+        if (status !== 'new' && status !== 'reviewing') return '';
+        const appliedAt = new Date(app.applied_at);
+        if (!app.applied_at || Number.isNaN(appliedAt.getTime())) return '';
+        const days = Math.max(0, Math.floor((Date.now() - appliedAt.getTime()) / 86400000));
+        if (days >= 14) return '<span class="application-waiting-age is-long">Waiting ' + days + ' days for an update</span>';
+        if (days >= 7) return '<span class="application-waiting-age is-medium">Waiting ' + days + ' days for an update</span>';
+        return '';
+    }
+
     function renderStatusOverview() {
         const totals = { new: 0, reviewing: 0, shortlisted: 0, interview: 0, hired: 0, rejected: 0 };
         allApplications.forEach(app => {
@@ -137,6 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="application-card-side">
                         <span class="application-status application-status--${escapeHtml(app.status)}">${statusLabel(app.status)}</span>
                         <small>Applied ${escapeHtml(new Date(app.applied_at).toLocaleDateString())}</small>
+                        ${waitingAgeForApplication(app)}
                         <p class="application-next-step"><b>Next step:</b> ${escapeHtml(nextStepForStatus(app.status))}</p>
                         <div class="application-timeline-mini" aria-label="Application status history">${history.map(item => `<span><b>${escapeHtml(statusLabel(item.status))}</b><em>${escapeHtml(new Date(item.changed_at).toLocaleDateString())}</em></span>`).join('')}</div>
                         <a href="/?job=${encodeURIComponent(app.job_id)}" class="application-view-link">View job details →</a>
