@@ -8,6 +8,15 @@ const { createNotification } = require('./notificationService');
 
 const router = express.Router();
 
+function establishSession(req, userId, callback) {
+    req.session.regenerate((regenerateError) => {
+        if (regenerateError) return callback(regenerateError);
+        req.session.userId = Number(userId);
+        req.session.cookie.maxAge = 1000 * 60 * 60 * 24;
+        req.session.save(callback);
+    });
+}
+
 function requireEmployer(req, res, next) {
     if (!req.session?.userId) {
         return res.status(401).json({ error: 'You must be logged in.' });
@@ -148,7 +157,11 @@ router.post('/register', (req, res) => {
             companyEmail,
             companyPhone,
             companyWebsite
-        } = req.body;
+        } = req.body || {};
+
+        if (typeof fullName !== 'string' || typeof email !== 'string' || typeof companyName !== 'string' || typeof password !== 'string') {
+            return res.status(400).json({ error: 'Enter valid text for the required account fields.' });
+        }
 
         if (!clean(fullName) || !clean(email) || !password || !clean(companyName)) {
             return res.status(400).json({
@@ -165,7 +178,13 @@ router.post('/register', (req, res) => {
         }
 
         const cleanEmail = clean(email).toLowerCase();
-        const cleanCompany = clean(companyName);
+        const cleanCompany = clean(companyName).slice(0, 160);
+        if (cleanEmail.length > 254 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(cleanEmail)) {
+            return res.status(400).json({ error: 'Enter a valid email address.' });
+        }
+        if (clean(fullName).length < 2 || clean(fullName).length > 120 || password.length > 1024) {
+            return res.status(400).json({ error: 'Check the name and password length.' });
+        }
 
         if (db.prepare('SELECT id FROM users WHERE email = ?').get(cleanEmail)) {
             return res.status(409).json({ error: 'An account with that email already exists.' });
@@ -197,14 +216,13 @@ router.post('/register', (req, res) => {
         });
 
         const userId = createEmployer();
-        req.session.userId = userId;
+        establishSession(req, userId, (sessionError) => {
+            if (sessionError) {
+                console.error('[POST /api/employer/register] session error:', sessionError);
+                return res.status(500).json({ error: 'Account created, but sign-in failed. Please log in.' });
+            }
 
-        res.json({
-            success: true,
-            userId,
-            fullName: clean(fullName),
-            role: 'employer',
-            companyName: cleanCompany
+            res.json({ success: true, userId, fullName: clean(fullName), role: 'employer', companyName: cleanCompany });
         });
     } catch (err) {
         console.error('[POST /api/employer/register] error:', err);
@@ -214,8 +232,13 @@ router.post('/register', (req, res) => {
 
 router.post('/login', (req, res) => {
     try {
-        const email = clean(req.body.email).toLowerCase();
-        const password = req.body.password || '';
+        const emailValue = req.body?.email;
+        const passwordValue = req.body?.password;
+        if (typeof emailValue !== 'string' || typeof passwordValue !== 'string' || emailValue.length > 254 || passwordValue.length > 1024) {
+            return res.status(400).json({ error: 'Enter a valid email and password.' });
+        }
+        const email = clean(emailValue).toLowerCase();
+        const password = passwordValue;
 
         const user = db.prepare(
             'SELECT id, full_name, email, password_hash, role FROM users WHERE email = ?'
@@ -227,18 +250,17 @@ router.post('/login', (req, res) => {
             });
         }
 
-        req.session.userId = user.id;
-
         const company = db.prepare(
             'SELECT company_name FROM company_profiles WHERE user_id = ?'
         ).get(user.id);
 
-        res.json({
-            success: true,
-            userId: user.id,
-            fullName: user.full_name,
-            role: 'employer',
-            companyName: company?.company_name || ''
+        establishSession(req, user.id, (sessionError) => {
+            if (sessionError) {
+                console.error('[POST /api/employer/login] session error:', sessionError);
+                return res.status(500).json({ error: 'Login succeeded, but the session could not be saved. Please try again.' });
+            }
+
+            res.json({ success: true, userId: user.id, fullName: user.full_name, role: 'employer', companyName: company?.company_name || '' });
         });
     } catch (err) {
         console.error('[POST /api/employer/login] error:', err);
