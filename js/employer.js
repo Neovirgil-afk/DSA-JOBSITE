@@ -503,6 +503,13 @@ async function copyApplicantEmail(button) {
     }
 }
 
+function formatApplicantDate(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
 function renderApplicants() {
     const applicants = getFilteredApplicants();
     const exportButton = $('#exportApplicants');
@@ -529,7 +536,9 @@ function renderApplicants() {
             '<div class="employer-applicant-main">' +
                 '<div class="employer-applicant-heading"><div><h3>' + escapeHtml(applicant.full_name) + '</h3><p>' + escapeHtml(applicant.email) + '</p></div>' +
                 '<span class="employer-status employer-status--' + escapeHtml(applicant.status) + '">' + escapeHtml(applicant.status) + '</span></div>' +
-                '<div class="employer-applicant-meta"><span>Application #' + Number(applicant.application_id) + '</span><span>' + escapeHtml(applicant.degree || 'Education not listed') + '</span><span>' + escapeHtml(applicant.location || 'Location not listed') + '</span></div>' +
+                '<div class="employer-applicant-meta"><span>Application #' + Number(applicant.application_id) + '</span>' +
+                (formatApplicantDate(applicant.applied_at || applicant.created_at) ? '<span>Applied ' + escapeHtml(formatApplicantDate(applicant.applied_at || applicant.created_at)) + '</span>' : '') +
+                '<span>' + escapeHtml(applicant.degree || 'Education not listed') + '</span><span>' + escapeHtml(applicant.location || 'Location not listed') + '</span></div>' +
                 '<div class="employer-match-skills"><div><small>Matched</small>' +
                 (applicant.matchingSkills || []).slice(0, 7).map((skill) => '<span class="match-have">' + escapeHtml(skill) + '</span>').join('') + '</div><div><small>Missing</small>' +
                 (applicant.missingSkills || []).slice(0, 5).map((skill) => '<span class="match-missing">' + escapeHtml(skill) + '</span>').join('') + '</div></div>' +
