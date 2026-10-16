@@ -7,13 +7,26 @@
     loader.className = 'jobsite-page-loader is-visible';
     loader.setAttribute('aria-hidden', 'false');
     loader.innerHTML = `
-        <div class="jobsite-page-loader__brand" aria-label="Loading JobSite">
-            <span class="jobsite-page-loader__logo">JOB<span>SITE</span></span>
-            <svg class="jobsite-page-loader__plane" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M21.5 2.5L2 10.2c-.8.3-.8 1.4 0 1.7l7.6 2.9 2.9 7.6c.3.8 1.4 1.4 1.7 0L21.9 3.9c.3-.9-.6-1.7-1.4-1.4z" fill="currentColor"/>
-            </svg>
+        <div class="jobsite-loader-skeleton" role="status" aria-label="Loading page">
+            <div class="jobsite-loader-column">
+                <span class="jobsite-skeleton-block jobsite-skeleton-brand"></span>
+                <span class="jobsite-skeleton-block jobsite-skeleton-heading"></span>
+                <span class="jobsite-skeleton-block jobsite-skeleton-heading short"></span>
+                <span class="jobsite-skeleton-block jobsite-skeleton-copy"></span>
+                <span class="jobsite-skeleton-block jobsite-skeleton-copy short"></span>
+                <span class="jobsite-skeleton-block jobsite-skeleton-search"></span>
+                <div class="jobsite-skeleton-chip-row">
+                    <span class="jobsite-skeleton-block jobsite-skeleton-chip"></span>
+                    <span class="jobsite-skeleton-block jobsite-skeleton-chip"></span>
+                    <span class="jobsite-skeleton-block jobsite-skeleton-chip"></span>
+                </div>
+            </div>
+            <div class="jobsite-loader-column">
+                <span class="jobsite-skeleton-block jobsite-skeleton-art"></span>
+                <span class="jobsite-skeleton-block jobsite-skeleton-card"></span>
+                <span class="jobsite-skeleton-block jobsite-skeleton-card tall"></span>
+            </div>
         </div>
-        <p class="jobsite-page-loader__text">Loading JobSite...</p>
     `;
 
     document.documentElement.appendChild(loader);
