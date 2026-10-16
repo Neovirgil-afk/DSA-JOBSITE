@@ -10,6 +10,7 @@ const {
 } = require('./JobMatchingService');
 const { getCareerPathForJob, getCategoryTree } = require('./CareerPathService')
 const { computeSkillGap } = require('./SkillGapService')
+const { createNotification } = require('./notificationService')
 
 const router = express.Router();
 
@@ -312,7 +313,7 @@ router.post('/:id/apply', requireAuth, requireCandidate, (req, res) => {
         }
 
         const job = db.prepare(
-            'SELECT id, title, status, application_deadline FROM jobs WHERE id = ?'
+            'SELECT id, title, status, application_deadline, employer_id, company FROM jobs WHERE id = ?'
         ).get(jobId);
 
         if (!job) {
@@ -369,6 +370,23 @@ router.post('/:id/apply', requireAuth, requireCandidate, (req, res) => {
         });
 
         const applicationId = createApplication();
+
+        createNotification({
+            userId: req.session.userId,
+            type: 'application',
+            title: 'Application submitted',
+            body: 'Your application for ' + job.title + ' was submitted successfully.',
+            link: '/applications.html'
+        });
+        if (job.employer_id) {
+            createNotification({
+                userId: job.employer_id,
+                type: 'application',
+                title: 'New job application',
+                body: 'A candidate applied for ' + job.title + '.',
+                link: '/employer.html'
+            });
+        }
 
         res.status(201).json({
             success: true,
