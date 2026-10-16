@@ -26,6 +26,10 @@ const adminRoutes = require('./adminRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
+    throw new Error('SESSION_SECRET must be configured in production.');
+}
+
 // Seed the database with skills/jobs/demo user if empty.
 seedIfNeeded(db);
 
@@ -36,16 +40,24 @@ if (configuredAdminEmail) {
     db.prepare('UPDATE users SET role = \'admin\' WHERE email = ?').run(configuredAdminEmail);
 }
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+if (process.env.NODE_ENV === 'production') {
+    // Render and other reverse-proxy deployments terminate HTTPS before Node.
+    app.set('trust proxy', 1);
+}
+
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 app.use(session({
+    name: 'jobpath.sid',
     secret: process.env.SESSION_SECRET || 'jobpath-dev-secret-change-me',
     resave: false,
     saveUninitialized: false,
     cookie: {
         maxAge: 1000 * 60 * 60 * 24, // 1 day
         httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
     },
 }));
 
