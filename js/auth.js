@@ -1642,19 +1642,43 @@ export function initAuth() {
 
     /* =====================================================
        REQUIRE LOGIN FOR PROFILE / LEARN
+       Use delegation so desktop navigation, mobile bottom
+       navigation, mobile shortcuts, and header links all work.
+       Wait for the session check before deciding whether to
+       show login, avoiding the initial-authentication race.
        ===================================================== */
-    document.querySelectorAll(
-        'nav.jobsite-global-rail a[data-rail="profile"], nav.jobsite-global-rail a[data-rail="learn"]'
-    ).forEach((link) => {
-        link.addEventListener('click', (event) => {
-            if (isAuthenticated) return;
-            event.preventDefault();
-            openAuth('login');
-            const subtitle = document.querySelector('#authSubtitle');
-            if (subtitle) {
-                subtitle.textContent = "You're not logged in yet. Log in to access your profile and learning dashboard.";
-            }
-        });
+    document.addEventListener('click', async (event) => {
+        const link = event.target.closest('a[href]');
+        if (!link) return;
+
+        let targetUrl;
+        try {
+            targetUrl = new URL(link.href, window.location.href);
+        } catch {
+            return;
+        }
+
+        if (targetUrl.origin !== window.location.origin) return;
+
+        const targetPath = targetUrl.pathname.replace(/\/$/, '') || '/';
+        if (targetPath !== '/profile.html' && targetPath !== '/learning.html') return;
+
+        event.preventDefault();
+
+        if (!isAuthenticated) {
+            await checkCurrentUser();
+        }
+
+        if (isAuthenticated) {
+            window.location.assign(link.href);
+            return;
+        }
+
+        openAuth('login');
+        const authSubtitle = document.querySelector('#authSubtitle');
+        if (authSubtitle) {
+            authSubtitle.textContent = "You're not logged in yet. Log in to access your profile and learning dashboard.";
+        }
     });
 
 
