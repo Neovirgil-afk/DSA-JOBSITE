@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const clearFilters = document.querySelector('#clearApplicationFilters');
     let allApplications = [];
     const requestedApplicationId = Number(new URLSearchParams(window.location.search).get('applicationId')) || 0;
+    let initialDeepLinkHandled = false;
 
     function escapeHtml(value) {
         return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
@@ -34,7 +35,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             return new Date(b.applied_at) - new Date(a.applied_at);
         });
         renderFiltered(filtered);
-        if (requestedApplicationId > 0) {
+        if (requestedApplicationId > 0 && !initialDeepLinkHandled) {
+            initialDeepLinkHandled = true;
             const target = document.getElementById('application-' + requestedApplicationId);
             if (target) {
                 target.setAttribute('tabindex', '-1');
