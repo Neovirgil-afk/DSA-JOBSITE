@@ -26,7 +26,7 @@
 <a href="/career-center.html#notifications" data-rail="notifications" data-label="Notifications" title="Notifications">Notifications</a>
 <a href="/about.html" data-rail="about" data-label="About Us" title="About Us">About Us</a>
 </nav>
-    <div class="header-actions"><button type="button" class="login-link">Log In</button><button type="button" class="btn btn-primary">Sign Up</button></div>
+    <div class="header-actions"><button type="button" class="login-link" data-auth-open="login">Log In</button><button type="button" class="btn btn-primary" data-auth-open="signup">Sign Up</button></div>
     <button class="menu-toggle" aria-label="Open menu" id="menuToggle"><span></span><span></span><span></span></button>
   </div>
 </header>
@@ -68,6 +68,6 @@ initAuth();
 })();
 </script>
 
-<script type="module" src="/js/auth-guard.js"></script>
+
 </body>
 </html>
