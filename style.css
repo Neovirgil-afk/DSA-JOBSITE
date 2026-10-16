@@ -7892,3 +7892,64 @@ input, select, textarea {
     transform: none !important;
   }
 }
+
+
+/* Sidebar icon centering: override inherited nav/link styles explicitly. */
+@media (min-width: 900px) {
+  body .site-header nav.main-nav {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    width: 60px !important;
+    min-width: 60px !important;
+    padding: 10px 8px !important;
+    gap: 7px !important;
+  }
+  body .site-header nav.main-nav > a,
+  body .site-header nav.main-nav > .nav-dropdown {
+    float: none !important;
+    position: relative;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    text-align: center !important;
+    flex: 0 0 44px !important;
+  }
+  body .site-header nav.main-nav > .nav-dropdown > .nav-dropdown-btn {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 44px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 0 0 44px !important;
+  }
+  body .site-header nav.main-nav > a::before,
+  body .site-header nav.main-nav > .nav-dropdown > .nav-dropdown-btn::before {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    display: grid !important;
+    place-items: center !important;
+    width: 24px !important;
+    height: 24px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    text-align: center !important;
+  }
+}
