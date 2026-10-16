@@ -8093,3 +8093,8 @@ button:not(:disabled):active,.btn:active,.cc-btn:active{transform:translateY(1px
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid rgba(79,70,229,.75);outline-offset:3px}
 @media(max-width:760px){.applications-controls{grid-template-columns:1fr 1fr;gap:10px;padding:12px}.applications-controls .applications-search-label{grid-column:1/-1}.applications-clear-filters{grid-column:1/-1}.application-card:hover,.result-card:not(.result-card--skeleton):hover{transform:none}}
 @media(prefers-reduced-motion:reduce){.cc-journey,.applications-controls,.application-card,.result-card,button,.btn,.cc-btn{transition:none!important}.application-card:hover,.result-card:not(.result-card--skeleton):hover{transform:none}}
+
+
+/* Responsive career learning path panel */
+@media(max-width:760px){.cc-learning-path-body{grid-template-columns:1fr}.cc-learning-path .cc-panel-head{align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){.cc-learning-path-track span{transition:none}}
