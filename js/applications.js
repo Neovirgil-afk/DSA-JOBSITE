@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ['Resume Attached', app => app.resume_id ? 'Yes' : 'No'],
             ['Resume Name', app => app.resume_name]
         ];
-        const csvCell = value => '"' + String(value ?? '').replace(/"/g, '""') + '"';
+        const csvCell = value => { const text = String(value ?? ''); const safe = (/^[\s\uFEFF]*[=+\-@]/.test(text) || /^[\t\r\n]/.test(text)) ? "'" + text : text; return '"' + safe.replace(/"/g, '""') + '"'; };
         const rows = [
             columns.map(column => csvCell(column[0])).join(','),
             ...visibleApplications.map(app => columns.map(column => csvCell(column[1](app))).join(','))
