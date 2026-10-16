@@ -1919,7 +1919,7 @@ if (skillSearchResults) skillSearchResults.addEventListener('click', (event) => 
         return;
     }
     if (custom) {
-        const name = String(custom.dataset.addCustomSkill || '').trim().replace(/\\s+/g, ' ');
+        const name = String(custom.dataset.addCustomSkill || '').trim().replace(/\s+/g, ' ');
         if (!name || name.length > 80) return;
         const existing = allSkills.find((skill) => String(skill.name || '').toLowerCase() === name.toLowerCase());
         if (existing) selectedSkillIds.add(Number(existing.id));
