@@ -322,9 +322,20 @@
         </section>
       </div>
 
-      <section class="employer-profile-section employer-profile-section--wide">
-        <span class="employer-kicker">Application Activity</span>
-        <div id="applicantProfileHistory" class="employer-activity-list"></div>
+      <section class="employer-profile-section employer-profile-section--wide employer-private-notes">
+        <div class="employer-private-notes-heading">
+          <div>
+            <span class="employer-kicker">Hiring notes</span>
+            <p>Private notes saved in this browser for your employer account. They are not shared with the applicant.</p>
+          </div>
+          <span id="applicantNotesCount" class="employer-notes-count">0 / 2000</span>
+        </div>
+        <label class="sr-only" for="applicantPrivateNotes">Private hiring notes</label>
+        <textarea id="applicantPrivateNotes" maxlength="2000" rows="4" placeholder="Record interview impressions, follow-up reminders, or hiring considerations…"></textarea>
+        <div class="employer-private-notes-footer">
+          <span id="applicantNotesMessage" role="status" aria-live="polite"></span>
+          <button type="button" class="employer-secondary-button" id="saveApplicantNotes">Save notes</button>
+        </div>
       </section>
 
       <div class="employer-profile-footer">
