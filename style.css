@@ -8487,3 +8487,29 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media(max-width:900px){.employer-applicant-pipeline{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:520px){.employer-applicant-pipeline{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.employer-applicant-pipeline button{padding:9px}}
 @media(prefers-reduced-motion:reduce){.employer-applicant-pipeline button{transition:none}}
+
+
+/* Batch 26: print-friendly application tracker */
+@media print{
+ @page{margin:12mm}
+ body{background:#fff!important;color:#171717!important;font-size:10pt}
+ .mobile-page-shell-header,.mobile-page-bottom-nav,.jobsite-global-rail,.applications-controls,.applications-heading>a{display:none!important}
+ .applications-main{margin:0!important;padding:0!important;background:#fff!important}
+ .applications-main .wrap{width:100%!important;max-width:none!important;padding:0!important}
+ .applications-heading{margin:0 0 12px!important;padding:0!important}
+ .applications-heading h1{font-size:22pt!important;color:#111!important}
+ .applications-heading p,.applications-heading .eyebrow{color:#444!important}
+ .application-summary,.application-status-overview{break-inside:avoid}
+ .application-status-tile,.application-summary,.application-card{box-shadow:none!important;background:#fff!important;color:#171717!important;border-color:#bbb!important}
+ .application-status-tile span,.application-status-tile strong,.application-summary span,.application-summary strong{color:#171717!important}
+ .applications-filter-summary{color:#333!important}
+ .applications-list{display:block!important}
+ .application-card{break-inside:avoid;page-break-inside:avoid;margin:0 0 10px!important;padding:12px!important}
+ .application-card h2,.application-card p,.application-card small,.application-card span,.application-card b,.application-card em,.application-company{color:#171717!important}
+ .application-status,.application-resume-badge,.application-job-state{border:1px solid #aaa!important;background:#fff!important;color:#111!important}
+ .application-card .application-view-link{display:none!important}
+ .application-interview-prep,.application-interview-notes{break-inside:avoid;background:#fff!important;border-color:#bbb!important}
+ .application-interview-notes textarea{background:#fff!important;color:#111!important;border-color:#aaa!important;min-height:65px}
+ .application-interview-prep-note,.application-interview-notes-footer{color:#444!important}
+ a{color:#111!important;text-decoration:none!important}
+}
