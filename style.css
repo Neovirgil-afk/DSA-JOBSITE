@@ -8468,3 +8468,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .application-interview-prep-tasks input:checked+span{text-decoration:line-through;color:#777b8d}
 .application-interview-prep-note{margin:9px 0 0;color:#777b8d;font-size:10px;line-height:1.4}
 @media(max-width:480px){.application-interview-prep{padding:11px}.application-interview-prep-heading{align-items:flex-start}}
+
+/* Batch 23: application-specific interview notes */
+.application-interview-notes{margin:10px 0;padding:12px;border:1px solid #e1e3ed;border-radius:10px;background:#fafaff;display:grid;gap:7px;min-width:0}
+.application-interview-notes>label{font-size:12px;font-weight:700;color:#34364a}
+.application-interview-notes textarea{display:block;width:100%;max-width:100%;min-height:74px;resize:vertical;padding:9px 10px;border:1px solid #d5d7e4;border-radius:7px;background:#fff;color:#25263a;font:inherit;font-size:12px;line-height:1.5;box-sizing:border-box}
+.application-interview-notes textarea:focus-visible{outline:2px solid #5753a5;outline-offset:2px}
+.application-interview-notes-footer{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#777b8d;font-size:10px;line-height:1.4}
+@media(max-width:480px){.application-interview-notes{padding:10px}.application-interview-notes-footer{flex-direction:column;gap:3px}}
