@@ -1683,68 +1683,6 @@ export function initAuth() {
 
 
     /* =====================================================
-       SIGNUP BUTTON
-       ===================================================== */
-
-    const signupButton =
-        document.querySelector(
-            '.header-actions .btn-primary'
-        );
-
-
-    if (signupButton) {
-
-        signupButton.addEventListener(
-            'click',
-            (event) => {
-
-                event.preventDefault();
-
-                openAuth(
-                    'signup'
-                );
-            }
-        );
-    }
-
-
-    /* =====================================================
-       CTA SIGNUP
-       ===================================================== */
-
-    const createAccountButton =
-        document.querySelector(
-            '.cta-inner .btn-amber'
-        );
-
-
-    if (createAccountButton) {
-
-        createAccountButton.addEventListener(
-            'click',
-            (event) => {
-
-                event.preventDefault();
-
-                openAuth(
-                    'signup'
-                );
-            }
-        );
-    }
-
-
-    window.addEventListener(
-        'jobpath:open-auth',
-        (event) => {
-            openAuth(
-                event.detail?.mode || 'login'
-            );
-        }
-    );
-
-
-    /* =====================================================
        SWITCH LOGIN / SIGNUP
        ===================================================== */
 
