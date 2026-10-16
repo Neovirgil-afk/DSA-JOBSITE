@@ -7670,3 +7670,57 @@ input, select, textarea {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
+
+
+/* Sidebar labels are individual tooltips, not an expanding menu. */
+@media (min-width: 900px) {
+  .main-nav, .main-nav:hover, .main-nav:focus-within {
+    width: 54px;
+  }
+  .main-nav > a,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn,
+  .main-nav:hover > a,
+  .main-nav:focus-within > a,
+  .main-nav:hover > .nav-dropdown > .nav-dropdown-btn,
+  .main-nav:focus-within > .nav-dropdown > .nav-dropdown-btn {
+    font-size: 0;
+  }
+  .main-nav > a::before,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn::before {
+    margin-inline: auto;
+  }
+  .main-nav > a::after,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn::after {
+    content: attr(data-label);
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 12px);
+    transform: translate(-5px,-50%);
+    width: max-content;
+    max-width: 210px;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--ink);
+    box-shadow: var(--bubble-shadow);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
+    z-index: 200;
+  }
+  .main-nav > a:hover::after,
+  .main-nav > a:focus-visible::after,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn:hover::after,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn:focus-visible::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(0,-50%);
+  }
+  .main-nav > .nav-dropdown > .nav-dropdown-btn svg { display: none; }
+}
