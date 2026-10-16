@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const response = await fetch('/api/applications', { credentials: 'include' });
         if (response.status === 401 || response.status === 403) {
-            sessionStorage.setItem('jobsite_redirect_after_login', '/applications.html');
+            sessionStorage.setItem('jobsite_redirect_after_login', window.location.pathname + window.location.search + window.location.hash);
             list.innerHTML = '<div class="applications-empty"><h2>Please log in</h2><p>Log in to view your applications.</p><a class="btn btn-primary" href="/">Go to JobSite</a></div>';
             filterSummary.textContent = 'Sign in to see your personal application tracker.';
             return;
