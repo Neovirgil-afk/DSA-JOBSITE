@@ -450,8 +450,48 @@ function getFilteredApplicants() {
     });
 }
 
+function exportFilteredApplicants() {
+    const applicants = getFilteredApplicants();
+    if (!applicants.length) {
+        setApplicantActionMessage('There are no applicants in the current results to export.', 'error');
+        return;
+    }
+
+    const activeJob = state.jobs.find((job) => Number(job.id) === Number(state.activeJobId));
+    const columns = [
+        ['Job Title', () => activeJob?.title || ''],
+        ['Applicant Name', (applicant) => applicant.full_name],
+        ['Email', (applicant) => applicant.email],
+        ['Application ID', (applicant) => applicant.application_id],
+        ['Status', (applicant) => applicant.status],
+        ['Match Score', (applicant) => Number(applicant.matchScore || 0) + '%'],
+        ['Applied Date', (applicant) => applicant.applied_at ? new Date(applicant.applied_at).toLocaleDateString() : ''],
+        ['Education', (applicant) => applicant.degree],
+        ['Location', (applicant) => applicant.location],
+        ['Matched Skills', (applicant) => (applicant.matchingSkills || []).join('; ')],
+        ['Missing Skills', (applicant) => (applicant.missingSkills || []).join('; ')]
+    ];
+    const csvCell = (value) => '"' + String(value ?? '').replace(/"/g, '""') + '"';
+    const rows = [
+        columns.map(([heading]) => csvCell(heading)).join(','),
+        ...applicants.map((applicant) => columns.map(([, value]) => csvCell(value(applicant))).join(','))
+    ];
+    const blob = new Blob(['\\uFEFF' + rows.join('\\r\\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'jobsite-applicants-' + (activeJob ? String(activeJob.title || 'job').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : 'job') + '-' + new Date().toISOString().slice(0, 10) + '.csv';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setApplicantActionMessage('Exported ' + applicants.length + ' applicant' + (applicants.length === 1 ? '' : 's') + ' from the current filtered results.', 'success');
+}
+
 function renderApplicants() {
     const applicants = getFilteredApplicants();
+    const exportButton = $('#exportApplicants');
+    if (exportButton) exportButton.disabled = applicants.length === 0;
     const total = state.applicants.length;
     const topApplicant = applicants[0];
 
@@ -905,6 +945,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         setApplicantActionMessage('');
         renderApplicants();
     });
+
+    $('#exportApplicants')?.addEventListener('click', exportFilteredApplicants);
 
     $('#applicantSearch').addEventListener('input', (event) => {
         state.applicantSearch = event.target.value;
