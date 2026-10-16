@@ -58,6 +58,14 @@ function showGateMessage(selector, message) {
     element.className = message ? 'employer-form-message show error' : 'employer-form-message';
 }
 
+function setApplicantActionMessage(message, kind = '') {
+    const element = $('#applicantActionMessage');
+    if (!element) return;
+    element.textContent = message || '';
+    element.className = 'employer-action-feedback' + (kind ? ' is-' + kind : '');
+    element.hidden = !message;
+}
+
 function updateEmployerHeaderAction(loggedIn) {
     document.body.classList.toggle('employer-logged-in', loggedIn);
     document.body.classList.toggle('employer-logged-out', !loggedIn);
@@ -577,6 +585,12 @@ function closeApplicantProfile() {
 }
 
 async function updateApplicationStatus(applicationId, status) {
+    const label = status.charAt(0).toUpperCase() + status.slice(1);
+    setApplicantActionMessage('Updating application status…');
+    document.querySelectorAll('[data-application-status="' + applicationId + '"], #applicantProfileStatusSelect').forEach((control) => {
+        control.disabled = true;
+    });
+
     try {
         await api('/api/employer/applications/' + applicationId + '/status', {
             method: 'PATCH',
@@ -590,14 +604,19 @@ async function updateApplicationStatus(applicationId, status) {
 
         await loadApplicants(state.activeJobId);
         await loadDashboard();
+        setApplicantActionMessage('Application status updated to ' + label + '.', 'success');
     } catch (error) {
-        alert(error.message);
-
+        await loadApplicants(state.activeJobId).catch(() => {});
         if (Number(state.activeApplicationId) === Number(applicationId)) {
             try {
                 await viewApplicant(applicationId);
             } catch (_) {}
         }
+        setApplicantActionMessage(error.message || 'Could not update application status. Please try again.', 'error');
+    } finally {
+        document.querySelectorAll('#applicantProfileStatusSelect').forEach((control) => {
+            control.disabled = false;
+        });
     }
 }
 
@@ -843,6 +862,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         $('#applicantMatchFilter').value = 'all';
         $('#applicantSort').value = 'match-desc';
         loadApplicants(state.activeJobId);
+    });
+
+    $('#clearApplicantFilters').addEventListener('click', () => {
+        state.applicantSearch = '';
+        state.applicantStatus = 'all';
+        state.applicantMatch = 'all';
+        state.applicantSort = 'match-desc';
+        $('#applicantSearch').value = '';
+        $('#applicantStatusFilter').value = 'all';
+        $('#applicantMatchFilter').value = 'all';
+        $('#applicantSort').value = 'match-desc';
+        setApplicantActionMessage('');
+        renderApplicants();
     });
 
     $('#applicantSearch').addEventListener('input', (event) => {
