@@ -20,7 +20,7 @@
 .builder-card h2{margin:0;font-family:var(--font-display);font-size:18px;color:var(--navy)}.builder-card h3{margin:25px 0 12px;font-size:13px;color:var(--navy)}
 .builder-section-note{margin:6px 0 18px;color:var(--muted);font-size:11.5px}
 .builder-form{display:grid;gap:11px}.builder-field.autocomplete-field{position:relative}.builder-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.builder-field{display:grid;gap:5px}.builder-field label{font-size:11px;font-weight:700;color:var(--muted)}.builder-field input,.builder-field textarea{width:100%;box-sizing:border-box;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font:12px Inter,sans-serif;outline:none}.builder-field input:focus,.builder-field textarea:focus{border-color:#bcb8ef;box-shadow:0 0 0 3px rgba(79,70,229,.06)}.builder-field textarea{min-height:72px;resize:vertical}
+.builder-field{display:grid;gap:5px;min-width:0}.builder-field input,.builder-field textarea{min-width:0;max-width:100%}.builder-char-count{font-size:10px;color:var(--muted);text-align:right;overflow-wrap:anywhere}.resume-paper,.resume-paper *{max-width:100%;box-sizing:border-box;overflow-wrap:anywhere;word-break:break-word}.resume-paper p{white-space:pre-wrap}.builder-field label{font-size:11px;font-weight:700;color:var(--muted)}.builder-field input,.builder-field textarea{width:100%;box-sizing:border-box;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font:12px Inter,sans-serif;outline:none}.builder-field input:focus,.builder-field textarea:focus{border-color:#bcb8ef;box-shadow:0 0 0 3px rgba(79,70,229,.06)}.builder-field textarea{min-height:72px;resize:vertical}
 .builder-entry{padding:14px;margin-top:10px;border:1px solid #e8e8ef;border-radius:12px;background:#fcfcfd}.builder-entry:first-of-type{margin-top:0}.builder-entry-actions{display:flex;justify-content:flex-end;margin-top:8px}.builder-remove{border:0;background:none;color:#a05b5b;font-size:11px;font-weight:700;cursor:pointer}
 .builder-add{margin-top:10px;padding:8px 12px;border:1px dashed #c8c5e9;border-radius:8px;background:#faf9ff;color:var(--indigo);font-size:11px;font-weight:700;cursor:pointer}.builder-autocomplete-results{position:absolute;top:100%;left:0;right:0;z-index:50;display:none;margin-top:4px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 25px rgba(35,25,90,.12);max-height:220px;overflow:auto}.builder-autocomplete-results.show{display:block}.builder-autocomplete-item{padding:9px 11px;border-bottom:1px solid #f1f0f5;font-size:11.5px;line-height:1.35;cursor:pointer}.builder-autocomplete-item:last-child{border-bottom:0}.builder-autocomplete-item:hover{background:var(--indigo-tint);color:var(--indigo-dark)}.builder-autocomplete-empty{padding:9px 11px;color:var(--muted);font-size:11px}
 .builder-actions{display:flex;align-items:center;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}.builder-save{padding:10px 16px;border:0;border-radius:9px;background:var(--indigo);color:#fff;font-size:12px;font-weight:700;cursor:pointer}.builder-print{padding:10px 16px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font-size:12px;font-weight:700;cursor:pointer}.builder-status{margin-left:auto;color:var(--muted);font-size:11px}
@@ -209,14 +209,14 @@
 <div class="builder-form" id="builderForm">
 <h3>Personal Information</h3>
 <div class="builder-two">
-<div class="builder-field"><label>FULL NAME</label><input id="fullName" placeholder="Your name"></div>
-<div class="builder-field"><label>EMAIL</label><input id="email" type="email" placeholder="you@email.com"></div>
+<div class="builder-field"><label>FULL NAME</label><input id="fullName" maxlength="160" placeholder="Your name"></div>
+<div class="builder-field"><label>EMAIL</label><input id="email" type="email" maxlength="254" placeholder="you@email.com"></div>
 </div>
 <div class="builder-two">
-<div class="builder-field"><label>PHONE</label><input id="phone" placeholder="+63 ..."></div>
-<div class="builder-field autocomplete-field"><label>LOCATION</label><input id="location" autocomplete="off" placeholder="City, Province"><div class="builder-autocomplete-results" id="locationResults"></div></div>
+<div class="builder-field"><label>PHONE</label><input id="phone" maxlength="40" placeholder="+63 ..."></div>
+<div class="builder-field autocomplete-field"><label>LOCATION</label><input id="location" maxlength="160" autocomplete="off" placeholder="City, Province"><div class="builder-autocomplete-results" id="locationResults"></div></div>
 </div>
-<div class="builder-field"><label>PROFESSIONAL SUMMARY</label><textarea id="summary" placeholder="A short introduction about your experience, strengths, and career direction."></textarea></div>
+<div class="builder-field"><label>PROFESSIONAL SUMMARY</label><textarea id="summary" maxlength="1200" placeholder="A short introduction about your experience, strengths, and career direction."></textarea><small class="builder-char-count" aria-live="polite"></small></div>
 
 <h3>Education</h3><div id="educationList"></div><button type="button" class="builder-add" id="addEducation" data-add="education">+ Add education</button>
 <h3>Experience</h3><div id="experienceList"></div><button type="button" class="builder-add" id="addExperience" data-add="experience">+ Add experience</button>
