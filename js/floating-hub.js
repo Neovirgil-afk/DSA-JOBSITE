@@ -113,6 +113,7 @@
             if (!silent) document.getElementById('jfhMessageInput')?.focus();
             const active = state.threads.find((item) => Number(item.application_id) === Number(applicationId));
             if (active) active.unread_count = 0;
+            setCount('jfhMessageCount', state.threads.reduce((sum, item) => sum + (Number(item.unread_count) || 0), 0));
         } catch (error) {
             const chat = document.getElementById('jfhChatMessages');
             if (chat) chat.innerHTML = '<p class="jfh-empty">' + esc(error.message || 'Could not load this conversation.') + '</p>';
