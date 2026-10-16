@@ -18,6 +18,30 @@ export function initJobs() {
     const savedJobIds =
         new Set();
 
+    let jobToastTimer = null;
+
+    function showJobToast(message, type = 'success') {
+        let toast = document.querySelector('#jobActionToast');
+
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'jobActionToast';
+            toast.className = 'job-action-toast';
+            toast.setAttribute('role', 'status');
+            toast.setAttribute('aria-live', 'polite');
+            document.body.appendChild(toast);
+        }
+
+        toast.textContent = message;
+        toast.dataset.type = type;
+        toast.classList.add('is-visible');
+
+        window.clearTimeout(jobToastTimer);
+        jobToastTimer = window.setTimeout(() => {
+            toast.classList.remove('is-visible');
+        }, 2800);
+    }
+
     const JOBS_PER_PAGE = 9;
     let currentJobs = [];
     let currentHeading = '';
@@ -439,7 +463,15 @@ export function initJobs() {
                 saved ? 'Remove saved job' : 'Save job'
             );
             button.textContent = saved ? 'Saved' : 'Save job';
+            showJobToast(
+                saved ? 'Job saved to your list.' : 'Job removed from saved jobs.',
+                'success'
+            );
         } catch (error) {
+            showJobToast(
+                error.message || 'Could not update saved jobs. Please try again.',
+                'error'
+            );
             console.error(
                 '[JobPath] Failed to update saved job:',
                 error
