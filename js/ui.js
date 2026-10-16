@@ -160,13 +160,19 @@ function syncJobsiteRail() {
                     opacity:1;visibility:visible;transform:translate(0,-50%);
                 }
                 .jobsite-global-rail .jobsite-resources-dropdown>.nav-dropdown-panel {
-                    display:none;position:absolute;top:0;left:calc(100% + 10px);z-index:700;
+                    display:none;position:absolute;top:0;left:calc(100% + 10px);z-index:9999;
                     min-width:170px;padding:8px;border:1px solid var(--line);border-radius:15px;
                     background:#fff;box-shadow:var(--bubble-shadow);
+                    opacity:0;visibility:hidden;pointer-events:none;
                 }
                 .jobsite-global-rail .jobsite-resources-dropdown:hover>.nav-dropdown-panel,
                 .jobsite-global-rail .jobsite-resources-dropdown:focus-within>.nav-dropdown-panel,
-                .jobsite-global-rail .jobsite-resources-dropdown.is-open>.nav-dropdown-panel {display:block}
+                .jobsite-global-rail .jobsite-resources-dropdown.is-open>.nav-dropdown-panel {
+                    display:block;opacity:1;visibility:visible;pointer-events:auto;
+                }
+                .jobsite-global-rail .jobsite-resources-dropdown>.nav-dropdown-panel a {
+                    position:relative;z-index:10000;pointer-events:auto;cursor:pointer;
+                }
                 .jobsite-global-rail .jobsite-resources-dropdown>.nav-dropdown-panel a {
                     display:block;padding:10px 12px;border-radius:10px;color:var(--ink);
                     font-size:12px;white-space:nowrap;
@@ -182,23 +188,6 @@ function syncJobsiteRail() {
         if (aboutLink) aboutLink.insertAdjacentElement('afterend', resources);
         else rail.appendChild(resources);
 
-        const button = resources.querySelector('.nav-dropdown-btn');
-        button.addEventListener('click', () => {
-            const open = resources.classList.toggle('is-open');
-            button.setAttribute('aria-expanded', String(open));
-        });
-        document.addEventListener('click', (event) => {
-            if (!resources.contains(event.target)) {
-                resources.classList.remove('is-open');
-                button.setAttribute('aria-expanded', 'false');
-            }
-        });
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                resources.classList.remove('is-open');
-                button.setAttribute('aria-expanded', 'false');
-            }
-        });
     }
     /* Bind the menu even when Resources already exists in page HTML. */
     const resourcesDropdown = rail.querySelector('.jobsite-resources-dropdown');
