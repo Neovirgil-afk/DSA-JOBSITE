@@ -8,7 +8,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const sortSelect = document.querySelector('#applicationSort');
     const filterSummary = document.querySelector('#applicationFilterSummary');
     const clearFilters = document.querySelector('#clearApplicationFilters');
+    const exportButton = document.querySelector('#exportApplications');
     let allApplications = [];
+    let visibleApplications = [];
     const requestedApplicationId = Number(new URLSearchParams(window.location.search).get('applicationId')) || 0;
     let initialDeepLinkHandled = false;
 
@@ -64,6 +66,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderFiltered(applications) {
+        visibleApplications = applications;
+        if (exportButton) exportButton.disabled = applications.length === 0;
         count.textContent = String(allApplications.length);
         filterSummary.textContent = applications.length === allApplications.length
             ? allApplications.length + (allApplications.length === 1 ? ' application' : ' applications')
@@ -107,6 +111,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         }).join('');
     }
 
+    function exportVisibleApplications() {
+        if (!visibleApplications.length) return;
+        const columns = [
+            ['Job Title', app => app.title],
+            ['Company', app => app.company],
+            ['Status', app => statusLabel(app.status)],
+            ['Applied Date', app => app.applied_at ? new Date(app.applied_at).toLocaleDateString() : ''],
+            ['Location', app => app.location],
+            ['Employment Type', app => app.employment_type],
+            ['Salary', app => app.salary],
+            ['Resume Attached', app => app.resume_id ? 'Yes' : 'No'],
+            ['Resume Name', app => app.resume_name]
+        ];
+        const csvCell = value => '"' + String(value ?? '').replace(/"/g, '""') + '"';
+        const rows = [
+            columns.map(column => csvCell(column[0])).join(','),
+            ...visibleApplications.map(app => columns.map(column => csvCell(column[1](app))).join(','))
+        ];
+        const blob = new Blob(['\uFEFF' + rows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'jobsite-applications-' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+    }
+
     function resetFilters() {
         searchInput.value = '';
         statusFilter.value = 'all';
@@ -118,6 +151,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     statusFilter.addEventListener('change', applyFilters);
     sortSelect.addEventListener('change', applyFilters);
     clearFilters.addEventListener('click', resetFilters);
+    exportButton?.addEventListener('click', exportVisibleApplications);
 
     try {
         const response = await fetch('/api/applications', { credentials: 'include' });
