@@ -23,7 +23,44 @@ document.addEventListener('DOMContentLoaded', async () => {
   title.textContent=next.title;copy.textContent=next.text;link.href=next.href;link.textContent=next.label+' →';panel.classList.remove('cc-hidden');
  }
  function renderCareerJourney(stats){const milestones=[{done:Number(stats.totalApplications)>0,title:'Send your first application',detail:Number(stats.totalApplications)>0?'Your job search is officially underway.':'Apply to a role that fits your current skills.',href:'/applications.html',action:Number(stats.totalApplications)>0?'Review applications':'Explore jobs',icon:'✓'},{done:Number(stats.savedJobs)>0,title:'Save a job for later',detail:Number(stats.savedJobs)>0?'You have opportunities saved for comparison.':'Keep promising roles in one place while you decide.',href:'/',action:Number(stats.savedJobs)>0?'Find more jobs':'Browse jobs',icon:'☆'},{done:Number(stats.learningCompleted)>0,title:'Complete a learning skill',detail:Number(stats.learningCompleted)>0?'You have completed at least one tracked learning skill.':'Build confidence by finishing a skill in your learning roadmap.',href:'/learning.html',action:Number(stats.learningCompleted)>0?'Keep learning':'Open learning',icon:'↗'}];const done=milestones.filter(m=>m.done).length;const percent=Math.round(done/milestones.length*100);$('#ccJourneyCount').textContent=done+' of '+milestones.length+' milestones complete';$('#ccJourneyPercent').textContent=percent+'%';$('#ccJourneyFill').style.width=percent+'%';$('#ccJourneyBar').setAttribute('aria-valuenow',String(done));$('#ccJourneyMilestones').innerHTML=milestones.map(m=>'<article class="cc-milestone '+(m.done?'done':'')+'"><span class="cc-milestone-icon" aria-hidden="true">'+(m.done?'✓':m.icon)+'</span><div><strong>'+esc(m.title)+'</strong><p>'+esc(m.detail)+'</p><a href="'+m.href+'">'+esc(m.action)+' →</a></div></article>').join('');$('#ccJourneyPanel').classList.remove('cc-hidden');}
- async function loadNotifications(){const d=await api('/api/notifications');$('#ccNotifications').innerHTML=d.notifications.length?d.notifications.map(n=>'<article class="cc-item '+(!n.read_at?'unread':'')+'"><div class="cc-recommendation"><strong>'+esc(n.title)+'</strong>'+(!n.read_at?'<button class="cc-btn" data-read="'+n.id+'">Mark read</button>':'')+'</div><p>'+esc(n.body)+'</p><small>'+esc(fmt(n.created_at))+'</small>'+(n.link?'<p><a href="'+esc(n.link)+'">Open related page →</a></p>':'')+'</article>').join(''):'<div class="cc-empty">You’re all caught up. New application, interview, and message updates will appear here.</div>';$('#ccNotifications').querySelectorAll('[data-read]').forEach(b=>b.addEventListener('click',async()=>{try{await api('/api/notifications/'+b.dataset.read+'/read',{method:'PATCH'});await loadNotifications();}catch(e){status($('#ccGlobalStatus'),e.message,'error');}}));const stat=$('#ccStats .cc-stat:nth-child(4) strong');if(stat)stat.textContent=d.unreadCount;}
+ function notificationKind(type){
+  const kinds={
+   application_status:{label:'Application update',linkLabel:'View my applications'},
+   application:{label:'Application',linkLabel:'View my applications'},
+   interview:{label:'Interview update',linkLabel:'View interview details'},
+   message:{label:'New message',linkLabel:'Open messages'},
+   job:{label:'Job update',linkLabel:'View jobs'}
+  };
+  return kinds[String(type||'').toLowerCase()]||{label:'Update',linkLabel:'Open related page'};
+ }
+ function notificationHref(value){
+  const link=String(value||'').trim();
+  return link.startsWith('/')&&!link.startsWith('//')&&!/[\\\\\\r\\n]/.test(link)?link:null;
+ }
+ async function loadNotifications(){
+  const d=await api('/api/notifications');
+  const notifications=Array.isArray(d.notifications)?d.notifications:[];
+  $('#ccNotifications').innerHTML=notifications.length?notifications.map(n=>{
+   const kind=notificationKind(n.type);
+   const href=notificationHref(n.link);
+   return '<article class="cc-item cc-notification '+(!n.read_at?'unread':'')+'" data-notification-type="'+esc(String(n.type||'general').toLowerCase())+'">'+
+    '<div class="cc-recommendation cc-notification-head"><div><span class="cc-notification-kind">'+esc(kind.label)+'</span><strong>'+esc(n.title||kind.label)+'</strong></div>'+
+    (!n.read_at?'<button class="cc-btn" type="button" data-read="'+esc(n.id)+'">Mark read</button>':'')+'</div>'+
+    '<p>'+esc(n.body||'You have a new update in JobSite.')+'</p>'+
+    '<small>'+esc(fmt(n.created_at))+'</small>'+
+    (href?'<p class="cc-notification-action"><a href="'+esc(href)+'">'+esc(kind.linkLabel)+' →</a></p>':'')+
+   '</article>';
+  }).join(''):'<div class="cc-empty">You’re all caught up. Application, interview, and message updates will appear here.</div>';
+  $('#ccNotifications').querySelectorAll('[data-read]').forEach(b=>b.addEventListener('click',async()=>{
+   b.disabled=true;
+   try{await api('/api/notifications/'+encodeURIComponent(b.dataset.read)+'/read',{method:'PATCH'});await loadNotifications();}
+   catch(e){b.disabled=false;status($('#ccGlobalStatus'),e.message,'error');}
+  }));
+  const stat=$('#ccStats .cc-stat:nth-child(4) strong');
+  if(stat)stat.textContent=Number(d.unreadCount)||0;
+  const readAll=$('#ccReadAll');
+  if(readAll)readAll.disabled=!(Number(d.unreadCount)>0);
+ }
  async function loadInterviews(){const d=await api('/api/interviews');$('#ccInterviewCount').textContent=d.interviews.length+' total';$('#ccInterviews').innerHTML=d.interviews.length?d.interviews.map(i=>'<article class="cc-item"><div class="cc-recommendation"><strong>'+esc(i.job_title||'Interview')+'</strong><small>'+esc(i.status)+'</small></div><p>'+esc(i.company||'Company')+(i.candidate_name?' · '+esc(i.candidate_name):'')+'</p><p>'+esc(fmt(i.scheduled_at))+' · '+esc(i.duration_minutes)+' min · '+esc(i.interview_type)+'</p>'+(i.location_or_link?'<p>'+esc(i.location_or_link)+'</p>':'')+(i.notes?'<p>'+esc(i.notes)+'</p>':'')+(me.role==='employer'&&i.status==='scheduled'?'<button class="cc-btn" data-cancel-interview="'+i.id+'">Cancel interview</button>':'')+'</article>').join(''):(me.role==='employer'?'<div class="cc-empty">No interviews scheduled yet. Schedule one from an application ID when you are ready.</div>':'<div class="cc-empty">No interviews scheduled yet. When an employer invites you, the details will appear here.</div>');$('#ccInterviews').querySelectorAll('[data-cancel-interview]').forEach(b=>b.addEventListener('click',async()=>{if(!confirm('Cancel this interview?'))return;try{await api('/api/interviews/'+b.dataset.cancelInterview,{method:'PATCH',body:JSON.stringify({status:'cancelled'})});await loadInterviews();await loadNotifications();}catch(e){status($('#ccInterviewStatus'),e.message,'error');}}));}
  async function loadThreads(){const d=await api('/api/messages');threads=d.threads||[];$('#ccThreads').innerHTML=threads.length?threads.map(t=>'<button type="button" class="cc-thread '+(Number(t.application_id)===Number(activeApplicationId)?'active':'')+'" data-thread="'+t.application_id+'"><strong>'+esc(t.other_party||'Conversation')+'</strong><small>'+esc(t.job_title)+' · '+(Number(t.unread_count)?esc(t.unread_count)+' unread':'open conversation')+'</small></button>').join(''):'<div class="cc-empty">Messages are linked to job applications. Once you or an employer starts a conversation, it will appear here.</div>';$('#ccThreads').querySelectorAll('[data-thread]').forEach(b=>b.addEventListener('click',()=>openThread(Number(b.dataset.thread))));}
  async function openThread(id){activeApplicationId=id;$('#ccMessageInput').disabled=false;$('#ccSendButton').disabled=false;await loadThreads();const box=$('#ccChatMessages');box.innerHTML='<div class="cc-empty">Loading messages…</div>';try{const d=await api('/api/messages/'+id);box.innerHTML=d.messages.length?d.messages.map(m=>'<div class="cc-bubble '+(Number(m.sender_id)===Number(me.id)?'mine':'')+'">'+esc(m.body)+'<small>'+esc(m.sender_name)+' · '+esc(fmt(m.created_at))+'</small></div>').join(''):'<div class="cc-empty">No messages in this conversation yet. Send a polite message to get started.</div>';box.scrollTop=box.scrollHeight;await loadNotifications();}catch(e){box.innerHTML='<div class="cc-empty">'+esc(e.message)+'</div>';}}
