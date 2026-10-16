@@ -19,7 +19,8 @@ router.get('/users',requireAuth,requireAdmin,(req,res)=>{
  catch(e){console.error('[admin] users:',e);res.status(500).json({error:'Failed to load users.'});}
 });
 router.patch('/jobs/:id/status',requireAuth,requireAdmin,(req,res)=>{
- const id=Number(req.params.id),status=String(req.body.status||'').trim();
+ const payload = req.body && typeof req.body === 'object' ? req.body : {};
+ const id = Number(req.params.id), status = String(payload.status || '').trim();
  if(!Number.isInteger(id)||id<=0)return res.status(400).json({error:'Invalid job id.'});
  if(!['active','paused','closed','draft'].includes(status))return res.status(400).json({error:'Invalid job status.'});
  try{const r=db.prepare('UPDATE jobs SET status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(status,id);if(!r.changes)return res.status(404).json({error:'Job not found.'});res.json({success:true,jobId:id,status});}
