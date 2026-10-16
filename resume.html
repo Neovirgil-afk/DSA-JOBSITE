@@ -333,16 +333,18 @@ input[type=file]{display:none}
 <header class="resume-header">
 <div class="wrap header-inner">
 <a class="logo" href="/" aria-label="JobSite home"><span class="logo-text">JOB<span class="logo-accent">SITE</span></span><svg class="logo-plane" width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21.5 2.5L2 10.2c-.8.3-.8 1.4 0 1.7l7.6 2.9 2.9 7.6c.3.8 1.4.8 1.7 0L21.9 3.9c.3-.9-.6-1.7-1.4-1.4z" fill="currentColor"/></svg></a>
-<nav class="resume-nav" aria-label="Resume navigation">
-  <a href="/">Find Jobs</a>
-  <div class="resume-nav-dropdown">
-    <button type="button" class="resume-nav-dropdown-btn">Resume <span aria-hidden="true">⌄</span></button>
-    <div class="resume-nav-dropdown-panel">
-      <a href="/resume-builder.html">Resume Builder</a>
-      <a href="/resume.html" class="active">Resume Analyzer</a>
-    </div>
-  </div>
-  <a href="/profile.html" data-mobile-route="/profile.html">My Profile</a>
+<nav class="main-nav jobsite-global-rail" aria-label="JOBSITE navigation">
+<a href="/" data-rail="jobs" data-label="Find Jobs" title="Find Jobs">Find Jobs</a>
+<a href="/career-center.html" data-rail="dashboard" data-label="Dashboard" title="Dashboard">Dashboard</a>
+<a href="/applications.html" data-rail="applications" data-label="My Applications" title="My Applications">My Applications</a>
+<a href="/learning.html" data-rail="learn" data-label="Learn" title="Learn">Learn</a>
+<a href="/profile.html" data-rail="profile" data-label="Profile" title="Profile">Profile</a>
+<a href="/resume.html" data-rail="resume" data-label="Resume Analyzer" title="Resume Analyzer">Resume Analyzer</a>
+<a href="/companies.html" data-rail="companies" data-label="Companies" title="Companies">Companies</a>
+<a href="/employer.html" data-rail="employer" data-label="For Employers" title="For Employers">For Employers</a>
+<a href="/career-center.html#messages" data-rail="messages" data-label="Messaging" title="Messaging">Messaging</a>
+<a href="/career-center.html#notifications" data-rail="notifications" data-label="Notifications" title="Notifications">Notifications</a>
+<a href="/about.html" data-rail="about" data-label="About Us" title="About Us">About Us</a>
 </nav>
 </div>
 </header>
@@ -387,5 +389,7 @@ input[type=file]{display:none}
 </main>
 <script type="module" src="/js/resume.js"></script>
 <script src="/js/page-transition.js" defer></script>
+
+<script>(()=>{const rail=document.querySelector('nav.jobsite-global-rail');if(!rail)return;const path=location.pathname.replace(/\\/$/,'')||'/';rail.querySelectorAll('a[data-rail]').forEach(link=>{const target=new URL(link.href,location.origin).pathname.replace(/\\/$/,'')||'/';const current=target===path||(link.dataset.rail==='resume'&&path==='/resume-builder.html');link.classList.toggle('is-current',current);if(current)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});})();</script>
 </body>
 </html>
