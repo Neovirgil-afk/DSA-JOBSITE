@@ -4,6 +4,7 @@ const { db } = require('./database');
 const { computeSkillGap } = require('./SkillGapService');
 const { getUserSkillNames } = require('./JobMatchingService');
 const MaxHeap = require('./MaxHeap');
+const { createNotification } = require('./notificationService');
 
 const router = express.Router();
 
@@ -781,7 +782,7 @@ router.patch('/applications/:id/status', requireEmployer, (req, res) => {
 
     const updateApplication = db.transaction(() => {
         const current = db.prepare(
-            'SELECT a.status FROM applications a JOIN jobs j ON j.id = a.job_id WHERE a.id = ? AND j.employer_id = ?'
+            'SELECT a.status, a.user_id AS candidate_id, j.title AS job_title FROM applications a JOIN jobs j ON j.id = a.job_id WHERE a.id = ? AND j.employer_id = ?'
         ).get(applicationId, req.employer.id);
 
         if (!current) {
@@ -804,13 +805,23 @@ router.patch('/applications/:id/status', requireEmployer, (req, res) => {
             'INSERT INTO application_history (application_id, status) VALUES (?, ?)'
         ).run(applicationId, status);
 
-        return { found: true, changed: true };
+        return { found: true, changed: true, candidateId: current.candidate_id, jobTitle: current.job_title };
     });
 
     const result = updateApplication();
 
     if (!result.found) {
         return res.status(404).json({ error: 'Application not found.' });
+    }
+
+    if (result.changed) {
+        createNotification({
+            userId: result.candidateId,
+            type: 'application_status',
+            title: 'Application status updated',
+            body: 'Your application for ' + result.jobTitle + ' is now ' + status.replace(/_/g, ' ') + '.',
+            link: '/applications.html'
+        });
     }
 
     res.json({ success: true, status, changed: result.changed });
