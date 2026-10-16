@@ -29,6 +29,28 @@
         </div>
     `;
 
+
+    // Give the icon rail accessible names and hover labels on every page.
+    const navLabels = new Map([
+        ['/', 'Find Jobs'],
+        ['/career-center.html', 'Career Center'],
+        ['/employer.html', 'For Employers'],
+        ['/companies.html', 'Browse Companies'],
+        ['/about.html', 'About Us']
+    ]);
+    document.querySelectorAll('.main-nav > a').forEach((link) => {
+        const label = (link.textContent || '').trim();
+        link.dataset.label = navLabels.get(link.pathname) || label;
+        link.setAttribute('aria-label', link.dataset.label);
+        link.title = link.dataset.label;
+    });
+    document.querySelectorAll('.main-nav > .nav-dropdown > .nav-dropdown-btn').forEach((button) => {
+        const label = (button.textContent || '').trim();
+        button.dataset.label = label;
+        button.setAttribute('aria-label', label);
+        button.title = label;
+    });
+
     document.documentElement.appendChild(loader);
 
     const hide = () => {
