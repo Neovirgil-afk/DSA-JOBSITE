@@ -24,11 +24,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     function applyFilters() {
         const query = String(searchInput.value || '').trim().toLowerCase();
         const selectedStatus = statusFilter.value;
-        const filtered = allApplications.filter(app => {
+        let filtered = allApplications.filter(app => {
             const matchesStatus = selectedStatus === 'all' || String(app.status || 'new') === selectedStatus;
             const haystack = [app.title, app.company, app.location, app.employment_type].join(' ').toLowerCase();
             return matchesStatus && (!query || haystack.includes(query));
         });
+
+        // Notification deep links should take priority over stale tracker filters.
+        const linkedApplicationExists = requestedApplicationId > 0 &&
+            allApplications.some(app => Number(app.id) === requestedApplicationId);
+        if (linkedApplicationExists && !initialDeepLinkHandled &&
+            !filtered.some(app => Number(app.id) === requestedApplicationId)) {
+            searchInput.value = '';
+            statusFilter.value = 'all';
+            filtered = allApplications.slice();
+        }
+
         filtered.sort((a, b) => {
             if (sortSelect.value === 'oldest') return new Date(a.applied_at) - new Date(b.applied_at);
             if (sortSelect.value === 'status') return statusLabel(a.status).localeCompare(statusLabel(b.status)) || new Date(b.applied_at) - new Date(a.applied_at);
