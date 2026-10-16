@@ -109,10 +109,10 @@ export function initUI() {
 function syncJobsiteRail() {
     const rail = document.querySelector('nav.jobsite-global-rail');
     if (!rail) return;
-    const path = window.location.pathname.replace(/\\/$/, '') || '/';
+    const path = window.location.pathname.replace(/\/$/, '') || '/';
     rail.querySelectorAll('a[data-rail]').forEach((link) => {
         const href = new URL(link.href, window.location.origin);
-        const target = href.pathname.replace(/\\/$/, '') || '/';
+        const target = href.pathname.replace(/\/$/, '') || '/';
         const isCurrent = target === path ||
             (link.dataset.rail === 'dashboard' && path === '/career-center.html') ||
             (link.dataset.rail === 'resume' && path === '/resume-builder.html');
