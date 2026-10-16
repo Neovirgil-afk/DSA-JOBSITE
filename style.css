@@ -8476,3 +8476,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .application-interview-notes textarea:focus-visible{outline:2px solid #5753a5;outline-offset:2px}
 .application-interview-notes-footer{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#777b8d;font-size:10px;line-height:1.4}
 @media(max-width:480px){.application-interview-notes{padding:10px}.application-interview-notes-footer{flex-direction:column;gap:3px}}
+
+/* Batch 25: clickable applicant pipeline counts */
+.employer-applicant-pipeline{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin:14px 0 16px}
+.employer-applicant-pipeline button{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:10px 11px;border:1px solid var(--border-color,#e2e5ef);border-radius:9px;background:var(--surface,#fff);color:var(--text-color,#33364a);text-align:left;cursor:pointer;transition:border-color .15s ease,background .15s ease}
+.employer-applicant-pipeline button span{font-size:11px;line-height:1.25}
+.employer-applicant-pipeline button strong{font-size:15px;font-variant-numeric:tabular-nums}
+.employer-applicant-pipeline button:hover,.employer-applicant-pipeline button.is-active{border-color:#5753a5;background:#f4f3ff}
+.employer-applicant-pipeline button:focus-visible{outline:2px solid #5753a5;outline-offset:2px}
+@media(max-width:900px){.employer-applicant-pipeline{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:520px){.employer-applicant-pipeline{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.employer-applicant-pipeline button{padding:9px}}
+@media(prefers-reduced-motion:reduce){.employer-applicant-pipeline button{transition:none}}
