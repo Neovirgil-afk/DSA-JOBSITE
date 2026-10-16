@@ -628,14 +628,13 @@ router.put('/profile/skills', (req, res) => {
         }
 
 
-        const {
-            skillIds
-        } = req.body;
+        const skillIds = req.body?.skillIds;
+        const rawSkillNames = req.body?.skillNames;
 
 
         /* ---------- VALIDATE INPUT ---------- */
 
-        if (!Array.isArray(skillIds)) {
+        if (!Array.isArray(skillIds) || (rawSkillNames !== undefined && !Array.isArray(rawSkillNames))) {
 
             return res.status(400).json({
                 error:
@@ -644,6 +643,13 @@ router.put('/profile/skills', (req, res) => {
 
         }
 
+
+        const cleanedSkillNames = [...new Map(
+            (Array.isArray(rawSkillNames) ? rawSkillNames : [])
+                .map((value) => String(value ?? '').trim().replace(/\\s+/g, ' ').slice(0, 80))
+                .filter((name) => name.length > 0)
+                .map((name) => [name.toLowerCase(), name])
+        ).values()].slice(0, 100);
 
         /* ---------- CLEAN SKILL IDS ---------- */
 
@@ -709,6 +715,18 @@ router.put('/profile/skills', (req, res) => {
                     req.session.userId
                 );
 
+
+                /* ---------- CREATE USER-ENTERED SKILLS ---------- */
+                const findSkill = db.prepare('SELECT id FROM skills WHERE name = ? COLLATE NOCASE LIMIT 1');
+                const createSkill = db.prepare('INSERT OR IGNORE INTO skills (name, category) VALUES (?, ?)');
+                for (const name of cleanedSkillNames) {
+                    let existing = findSkill.get(name);
+                    if (!existing) {
+                        createSkill.run(name, 'Custom');
+                        existing = findSkill.get(name);
+                    }
+                    if (existing) validSkillIds.add(Number(existing.id));
+                }
 
                 /* ---------- INSERT NEW SKILLS ---------- */
 
