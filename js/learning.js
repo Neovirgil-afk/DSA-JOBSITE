@@ -279,23 +279,28 @@
         };
         updateNotesCount();
         let notesSaveTimer = null;
+        const persistLessonNotes = (message = 'Saved automatically ✓') => {
+            if (notesSaveTimer) window.clearTimeout(notesSaveTimer);
+            notesSaveTimer = null;
+            const saved = saveLessonNotes(lesson.skill, notesInput?.value || '');
+            if (notesStatus) {
+                notesStatus.textContent = saved
+                    ? message
+                    : 'Could not save. Check your browser storage settings.';
+            }
+            return saved;
+        };
         notesInput?.addEventListener('input', () => {
             updateNotesCount();
             if (notesStatus) notesStatus.textContent = 'Unsaved changes…';
             if (notesSaveTimer) window.clearTimeout(notesSaveTimer);
-            notesSaveTimer = window.setTimeout(() => {
-                const saved = saveLessonNotes(lesson.skill, notesInput?.value || '');
-                if (notesStatus) {
-                    notesStatus.textContent = saved
-                        ? 'Saved automatically ✓'
-                        : 'Could not save. Check your browser storage settings.';
-                }
-            }, 650);
+            notesSaveTimer = window.setTimeout(() => persistLessonNotes(), 650);
+        });
+        notesInput?.addEventListener('blur', () => {
+            if (notesSaveTimer) persistLessonNotes();
         });
         $('#saveLearningNotes')?.addEventListener('click', () => {
-            if (notesSaveTimer) window.clearTimeout(notesSaveTimer);
-            const saved = saveLessonNotes(lesson.skill, notesInput?.value || '');
-            if (notesStatus) notesStatus.textContent = saved ? 'Notes saved ✓' : 'Could not save. Check your browser storage settings.';
+            persistLessonNotes('Notes saved ✓');
         });
 
         $('#copyLearningNotes')?.addEventListener('click', async () => {
@@ -351,6 +356,7 @@
 
         $('#previousLesson')?.addEventListener('click', () => {
             if (state.activeLesson > 0) {
+                if (notesSaveTimer) persistLessonNotes();
                 state.activeLesson--;
                 saveLastLearning();
                 renderLesson(lesson, resources);
@@ -358,6 +364,7 @@
         });
 
         $('#nextLesson')?.addEventListener('click', () => {
+            if (notesSaveTimer) persistLessonNotes();
             if (state.activeLesson < total - 1) {
                 state.activeLesson++;
                 saveLastLearning();
