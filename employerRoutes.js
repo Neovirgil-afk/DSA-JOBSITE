@@ -841,7 +841,7 @@ router.patch('/applications/:id/status', requireEmployer, (req, res) => {
             userId: result.candidateId,
             type: 'application_status',
             title: 'Application status updated',
-            body: 'Your application for ' + result.jobTitle + ' is now ' + status.replace(/_/g, ' ') + '.',
+            body: 'The employer updated your application for ' + result.jobTitle + ' to ' + ({ new: 'New', reviewing: 'Under review', shortlisted: 'Shortlisted', interview: 'Interview stage', hired: 'Hired', rejected: 'Not selected' }[status] || status.replace(/_/g, ' ')) + '. Open My Applications to review the latest status.',
             link: '/applications.html'
         });
     }
