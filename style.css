@@ -8185,3 +8185,27 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media (prefers-reduced-motion: reduce) {
   .job-match-learning-link { transition: none; }
 }
+
+
+/* Personalized Career Center next-step card */
+.cc-next-step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 14px;
+  padding: 20px;
+  border-color: #dcd9fb;
+  background: linear-gradient(115deg, #fff 0%, #f7f6ff 58%, #f3fbff 100%);
+}
+.cc-next-step-copy { min-width: 0; }
+.cc-next-step h2 { margin-top: 5px; font-size: 17px; color: var(--navy); }
+.cc-next-step p { max-width: 650px; margin-top: 7px; }
+.cc-next-step > a { flex: 0 0 auto; text-decoration: none; text-align: center; }
+@media (max-width: 600px) {
+  .cc-next-step { align-items: stretch; flex-direction: column; padding: 16px; }
+  .cc-next-step > a { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cc-next-step { transition: none; }
+}
