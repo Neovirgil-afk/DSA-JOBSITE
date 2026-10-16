@@ -8303,3 +8303,42 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   .employer-analytics-insights { grid-template-columns: 1fr; }
   .employer-analytics-insights > p { grid-column: auto; }
 }
+
+/* Clearer Career Center notification cards */
+.cc-notification-head { align-items: flex-start; }
+.cc-notification-head > div { display: grid; gap: 5px; min-width: 0; }
+.cc-notification-head strong { overflow-wrap: anywhere; }
+.cc-notification-kind {
+  display: inline-flex;
+  width: fit-content;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: var(--indigo-tint);
+  color: var(--indigo-dark);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+.cc-notification[data-notification-type="interview"] .cc-notification-kind {
+  background: #e8f7ed;
+  color: #176b3a;
+}
+.cc-notification[data-notification-type="message"] .cc-notification-kind {
+  background: #e8f5ff;
+  color: #175b91;
+}
+.cc-notification-action { margin: 8px 0 0; }
+.cc-notification-action a {
+  display: inline-flex;
+  align-items: center;
+  color: var(--indigo);
+  font-size: 10px;
+  font-weight: 800;
+  text-decoration: none;
+}
+.cc-notification-action a:hover { text-decoration: underline; }
+#ccReadAll:disabled { opacity: .5; cursor: not-allowed; }
+@media (max-width: 420px) {
+  .cc-notification-head { align-items: flex-start; }
+  .cc-notification-head .cc-btn { flex-shrink: 0; padding: 7px 9px; }
+}
