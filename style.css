@@ -8068,3 +8068,28 @@ input, select, textarea {
     color: var(--indigo);
   }
 }
+
+
+/* Career Journey, application tracker, and shared interaction polish */
+.cc-journey,.applications-controls,.application-card,.result-card,.employer-job-card{transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.applications-controls{display:grid;grid-template-columns:minmax(220px,1.6fr) minmax(140px,.8fr) minmax(140px,.8fr) auto;gap:12px;align-items:end;margin:18px 0 8px;padding:16px;border:1px solid var(--line);border-radius:15px;background:#fff;box-shadow:var(--shadow-card)}
+.applications-controls label{display:grid;gap:6px;font-size:10px;font-weight:800;color:var(--muted)}
+.applications-controls input,.applications-controls select{width:100%;min-width:0;min-height:40px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:#fff;color:var(--navy);font:500 12px Inter,sans-serif;outline:none}
+.applications-controls input:focus,.applications-controls select:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+.applications-clear-filters{min-height:40px;padding:0 13px;border:1px solid #dedbf8;border-radius:10px;background:var(--indigo-tint);color:var(--indigo-dark);font-size:11px;font-weight:800;cursor:pointer}
+.applications-filter-summary{margin:0 2px 12px;color:var(--muted);font-size:11px}
+.application-card{overflow:hidden}
+.application-card:hover{border-color:#d9d5fa;box-shadow:0 12px 30px rgba(20,24,55,.07);transform:translateY(-2px)}
+.application-timeline-mini{display:grid;gap:7px;margin:12px 0;padding-left:12px;border-left:2px solid #e7e5f5}
+.application-timeline-mini>span{position:relative;display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:10px}
+.application-timeline-mini>span:before{content:"";position:absolute;left:-17px;top:3px;width:7px;height:7px;border:2px solid #fff;border-radius:50%;background:var(--indigo);box-shadow:0 0 0 1px #d9d5fa}
+.application-timeline-mini b{font-weight:800;color:var(--navy)}
+.application-timeline-mini em{font-style:normal;color:var(--muted);white-space:nowrap}
+.result-card:not(.result-card--skeleton){transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.result-card:not(.result-card--skeleton):hover{transform:translateY(-3px);border-color:#d8d4fa;box-shadow:0 14px 32px rgba(20,24,55,.08)}
+.result-card:focus-within{outline:2px solid rgba(79,70,229,.55);outline-offset:2px}
+button,.btn,.cc-btn,.application-view-link{transition:filter .16s ease,transform .16s ease,box-shadow .16s ease}
+button:not(:disabled):active,.btn:active,.cc-btn:active{transform:translateY(1px)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid rgba(79,70,229,.75);outline-offset:3px}
+@media(max-width:760px){.applications-controls{grid-template-columns:1fr 1fr;gap:10px;padding:12px}.applications-controls .applications-search-label{grid-column:1/-1}.applications-clear-filters{grid-column:1/-1}.application-card:hover,.result-card:not(.result-card--skeleton):hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.cc-journey,.applications-controls,.application-card,.result-card,button,.btn,.cc-btn{transition:none!important}.application-card:hover,.result-card:not(.result-card--skeleton):hover{transform:none}}
