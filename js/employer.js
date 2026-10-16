@@ -568,6 +568,48 @@ function renderApplicantTags(selector, skills, emptyText) {
         : '<em>' + escapeHtml(emptyText) + '</em>';
 }
 
+function getApplicantNotesStorageKey(applicationId) {
+    const account = state.company?.id ?? state.user?.id ?? state.company?.email ?? state.user?.email ?? 'employer';
+    return 'jobsite:employer-notes:' + String(account) + ':' + String(applicationId);
+}
+
+function loadApplicantNotes(applicationId) {
+    const textarea = $('#applicantPrivateNotes');
+    const message = $('#applicantNotesMessage');
+    if (!textarea || !message) return;
+    try {
+        textarea.value = localStorage.getItem(getApplicantNotesStorageKey(applicationId)) || '';
+        message.textContent = 'Notes are stored in this browser only.';
+    } catch (_) {
+        textarea.value = '';
+        message.textContent = 'Browser storage is unavailable; notes cannot be loaded.';
+    }
+    updateApplicantNotesCount();
+}
+
+function updateApplicantNotesCount() {
+    const textarea = $('#applicantPrivateNotes');
+    const count = $('#applicantNotesCount');
+    if (textarea && count) count.textContent = textarea.value.length + ' / 2000';
+}
+
+function saveApplicantNotes() {
+    const textarea = $('#applicantPrivateNotes');
+    const message = $('#applicantNotesMessage');
+    if (!textarea || !message || !state.activeApplicationId) {
+        if (message) message.textContent = 'Open an applicant profile before saving notes.';
+        return;
+    }
+    try {
+        localStorage.setItem(getApplicantNotesStorageKey(state.activeApplicationId), textarea.value);
+        message.textContent = 'Private notes saved in this browser.';
+        message.classList.remove('is-error');
+    } catch (_) {
+        message.textContent = 'Could not save notes. Check browser storage settings.';
+        message.classList.add('is-error');
+    }
+}
+
 function renderApplicationHistory(history, appliedAt) {
     const element = $('#applicantProfileHistory');
     const entries = Array.isArray(history) && history.length
@@ -607,6 +649,7 @@ async function viewApplicant(applicationId) {
         state.activeApplicationId = numericApplicationId;
 
         state.activeApplicationId = Number(applicationId);
+        loadApplicantNotes(numericApplicationId);
 
         $('#applicantProfileTitle').textContent = applicant.full_name || 'Applicant';
         $('#applicantProfileSubtitle').textContent =
@@ -963,6 +1006,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     $('#exportApplicants')?.addEventListener('click', exportFilteredApplicants);
+    $('#applicantPrivateNotes')?.addEventListener('input', updateApplicantNotesCount);
+    $('#saveApplicantNotes')?.addEventListener('click', saveApplicantNotes);
 
     $('#applicantSearch').addEventListener('input', (event) => {
         state.applicantSearch = event.target.value;
