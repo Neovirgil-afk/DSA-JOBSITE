@@ -1641,6 +1641,24 @@ export function initAuth() {
 
 
     /* =====================================================
+       REQUIRE LOGIN FOR PROFILE / LEARN
+       ===================================================== */
+    document.querySelectorAll(
+        'nav.jobsite-global-rail a[data-rail="profile"], nav.jobsite-global-rail a[data-rail="learn"]'
+    ).forEach((link) => {
+        link.addEventListener('click', (event) => {
+            if (isAuthenticated) return;
+            event.preventDefault();
+            openAuth('login');
+            const subtitle = document.querySelector('#authSubtitle');
+            if (subtitle) {
+                subtitle.textContent = "You're not logged in yet. Log in to access your profile and learning dashboard.";
+            }
+        });
+    });
+
+
+    /* =====================================================
        SIGNUP BUTTON
        ===================================================== */
 
