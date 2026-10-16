@@ -16,7 +16,7 @@
 <a href="/career-center.html#notifications" data-rail="notifications" data-label="Notifications" title="Notifications">Notifications</a>
 <a href="/about.html" data-rail="about" data-label="About Us" title="About Us">About Us</a>
 </nav>
-<div class="header-actions"><button type="button" class="login-link">Log In</button><button type="button" class="btn btn-primary">Sign Up</button></div><button class="menu-toggle" aria-label="Open menu" id="menuToggle"><span></span><span></span><span></span></button></div></header>
+<div class="header-actions"><button type="button" class="login-link" data-auth-open="login">Log In</button><button type="button" class="btn btn-primary" data-auth-open="signup">Sign Up</button></div><button class="menu-toggle" aria-label="Open menu" id="menuToggle"><span></span><span></span><span></span></button></div></header>
 <main class="resource-content"><div class="wrap"><section class="resource-hero-inner" style="padding:64px 0 38px"><p class="resource-eyebrow">✦ ABOUT JOBSITE</p><h1>A career workspace built to help you move forward.</h1><p>JobSite connects job discovery, resume tools, skill matching, and learning so candidates and employers can work from one place.</p></section><div class="resource-grid"><article class="resource-card"><span class="resource-card-number">01</span><h2>For job seekers</h2><p>Search opportunities, compare skill requirements, build a resume, track applications, and discover learning resources.</p></article><article class="resource-card"><span class="resource-card-number">02</span><h2>For employers</h2><p>Post jobs, review applicants, compare skill matches, manage application stages, and monitor recruitment analytics.</p></article><article class="resource-card"><span class="resource-card-number">03</span><h2>Our technology</h2><p>JobSite connects resume analysis, skill-gap detection, job matching, career paths, and data-structure algorithms into one workflow.</p></article></div><section class="resource-section"><h2>How JobSite works</h2><p>Users build their profile and resume, then our system detects skills and compares them with job requirements. Matching results help candidates discover relevant jobs and identify skills they can learn next.</p></section><section class="resource-section" id="contact"><h2>Contact</h2><p>For project feedback, employer inquiries, or support, use the contact method provided by your JobSite project administrator.</p></section></div></main>
 <footer class="site-footer"><div class="wrap footer-inner"><span>© 2026 JobSite. Find your path. Build your future.</span><div class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html#contact">Contact</a></div></div></footer>
 <script type="module">import { initUI } from '/js/ui.js'; import { initAuth } from '/js/auth.js'; initUI(); initAuth();</script><script src="/js/page-transition.js" defer></script><script src="/js/mobile-nav.js" defer></script>
@@ -34,5 +34,5 @@
 })();
 </script>
 
-<script type="module" src="/js/auth-guard.js"></script>
+
 </body></html>
