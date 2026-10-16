@@ -217,6 +217,53 @@ function syncJobsiteRail() {
         }
     }
 
+    /* Always apply Resources menu fixes, including when its markup is already in HTML. */
+    if (!document.querySelector('#jobsite-resources-menu-click-fix')) {
+        const style = document.createElement('style');
+        style.id = 'jobsite-resources-menu-click-fix';
+        style.textContent = `
+            body .site-header nav.jobsite-global-rail > .jobsite-resources-dropdown {
+                position: relative !important;
+                z-index: 10000 !important;
+                overflow: visible !important;
+            }
+            body .site-header nav.jobsite-global-rail > .jobsite-resources-dropdown > .nav-dropdown-panel {
+                position: absolute !important;
+                top: 0 !important;
+                left: 100% !important;
+                transform: none !important;
+                z-index: 10001 !important;
+                display: none !important;
+                min-width: 180px !important;
+                margin: 0 !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                pointer-events: auto !important;
+                background: #fff !important;
+            }
+            body .site-header nav.jobsite-global-rail > .jobsite-resources-dropdown:hover > .nav-dropdown-panel,
+            body .site-header nav.jobsite-global-rail > .jobsite-resources-dropdown:focus-within > .nav-dropdown-panel,
+            body .site-header nav.jobsite-global-rail > .jobsite-resources-dropdown.is-open > .nav-dropdown-panel {
+                display: block !important;
+            }
+            body .site-header nav.jobsite-global-rail > .jobsite-resources-dropdown > .nav-dropdown-panel a {
+                position: relative !important;
+                z-index: 10002 !important;
+                display: block !important;
+                pointer-events: auto !important;
+                cursor: pointer !important;
+                color: #14162B !important;
+                padding: 10px 12px !important;
+                white-space: nowrap !important;
+            }
+            body .site-header nav.jobsite-global-rail > .jobsite-resources-dropdown > .nav-dropdown-panel a:hover {
+                background: #EEECFB !important;
+                color: #3730A3 !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
     const path = window.location.pathname.replace(/\/$/, '') || '/';
     rail.querySelectorAll('a[data-rail]').forEach((link) => {
         const href = new URL(link.href, window.location.origin);
