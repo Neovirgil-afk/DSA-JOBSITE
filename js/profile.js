@@ -617,6 +617,22 @@ function getSkillRelevance(skill) {
     if (target && (name.includes(target) || target.includes(name))) score += 8;
     const degree = String(profileData?.degree || profileData?.education || '').toLowerCase();
     if (degree && (name.includes(degree) || degree.includes(name))) score += 5;
+    const roleHints = [
+        { match: /front.?end|web developer|ui developer/, terms: ['javascript', 'html', 'css', 'react', 'typescript', 'git', 'responsive design'] },
+        { match: /back.?end|api developer|server.?side/, terms: ['node.js', 'sql', 'api', 'express', 'database', 'python', 'java'] },
+        { match: /full.?stack/, terms: ['javascript', 'html', 'css', 'react', 'node.js', 'sql', 'api', 'git'] },
+        { match: /data analyst|data scientist|data engineer/, terms: ['sql', 'python', 'excel', 'statistics', 'data visualization', 'power bi', 'machine learning'] },
+        { match: /cyber|security|penetration/, terms: ['networking', 'linux', 'security', 'siem', 'risk assessment', 'python'] },
+        { match: /designer|ui.?ux|graphic/, terms: ['figma', 'user research', 'prototyping', 'typography', 'adobe', 'visual design'] },
+        { match: /marketing|social media/, terms: ['seo', 'content writing', 'analytics', 'social media', 'copywriting', 'campaign'] },
+        { match: /it support|help desk|technical support/, terms: ['troubleshooting', 'networking', 'windows', 'linux', 'customer service', 'hardware'] }
+    ];
+    for (const hint of roleHints) {
+        if (hint.match.test(target) && hint.terms.some((term) => name.includes(term))) score += 10;
+    }
+    if (/computer|information technology|software|engineering|it /.test(degree) && /it|software|cyber|data/i.test(category)) score += 3;
+    if (/business|marketing|management/.test(degree) && /marketing|business|communication/i.test(category)) score += 3;
+    if (/design|multimedia|arts/.test(degree) && /design|creative|media/i.test(category)) score += 3;
     return score;
 }
 
@@ -1175,7 +1191,9 @@ async function saveProfileSkills() {
             Array.isArray(data.skills)
                 ? data.skills
                 : [];
-
+        allSkills = [...new Map([...allSkills, ...profileData.skills]
+            .filter((skill) => Number(skill.id) > 0)
+            .map((skill) => [Number(skill.id), skill])).values()];
 
         savedSkillIds =
             getSkillIds(
