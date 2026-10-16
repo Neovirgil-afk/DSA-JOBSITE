@@ -19,4 +19,18 @@ import { initUI } from '/js/ui.js';
 import { initAuth } from '/js/auth.js';
 initUI();
 initAuth();
-</script></body></html>
+</script>
+<script>
+(() => {
+ const rail = document.querySelector('nav.jobsite-global-rail');
+ if (!rail) return;
+ const path = location.pathname.replace(/\\/$/, '') || '/';
+ rail.querySelectorAll('a[data-rail]').forEach(link => {
+  const target = new URL(link.href, location.origin).pathname.replace(/\\/$/, '') || '/';
+  const current = target === path || (link.dataset.rail === 'resume' && path === '/resume-builder.html');
+  link.classList.toggle('is-current', current);
+  if (current) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
+ });
+})();
+</script>
+</body></html>
