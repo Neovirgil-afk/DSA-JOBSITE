@@ -592,6 +592,10 @@ async function loadApplicants(jobId) {
 }
 function renderApplicantTags(selector, skills, emptyText) {
     const element = $(selector);
+    if (!element) {
+        console.warn('[Employer] Applicant profile target not found:', selector);
+        return;
+    }
     const values = Array.isArray(skills) ? skills : [];
 
     element.innerHTML = values.length
@@ -643,6 +647,10 @@ function saveApplicantNotes() {
 
 function renderApplicationHistory(history, appliedAt) {
     const element = $('#applicantProfileHistory');
+    if (!element) {
+        console.warn('[Employer] Applicant profile history container not found.');
+        return;
+    }
     const entries = Array.isArray(history) && history.length
         ? history
         : [{ status: 'new', changed_at: appliedAt }];
@@ -675,7 +683,10 @@ async function viewApplicant(applicationId) {
 
     try {
         const data = await api('/api/employer/applicants/' + numericApplicationId);
-        const applicant = data.applicant;
+        const applicant = data && data.applicant;
+        if (!applicant || typeof applicant !== 'object') {
+            throw new Error('Applicant profile data was not returned. Refresh the applicant list and try again.');
+        }
 
         state.activeApplicationId = numericApplicationId;
 
@@ -731,15 +742,21 @@ async function viewApplicant(applicationId) {
 
         setApplicantProfileStatus(applicant.status || 'new');
 
-        $('#applicantProfileModal').hidden = false;
+        const modal = $('#applicantProfileModal');
+        if (!modal) throw new Error('Applicant profile window is missing from this page. Refresh and try again.');
+        modal.hidden = false;
         document.body.classList.add('employer-modal-open');
+        const dialog = modal.querySelector('[role="dialog"]');
+        if (dialog) dialog.scrollTop = 0;
     } catch (error) {
-        alert(error.message);
+        setApplicantActionMessage(error.message || 'Could not open applicant profile.', 'error');
+        console.error('[Employer] Could not open applicant profile:', error);
     }
 }
 
 function closeApplicantProfile() {
-    $('#applicantProfileModal').hidden = true;
+    const modal = $('#applicantProfileModal');
+    if (modal) modal.hidden = true;
     document.body.classList.remove('employer-modal-open');
 }
 
