@@ -1615,29 +1615,26 @@ export function initAuth() {
 
 
     /* =====================================================
-       LOGIN BUTTON
+       AUTH BUTTONS (LOGIN / SIGNUP)
+       Use delegated handling so buttons remain functional
+       even if the header is rebuilt or nested SVG/text is clicked.
        ===================================================== */
 
-    const loginLink =
-        document.querySelector(
-            '.login-link'
-        );
+    document.addEventListener('click', (event) => {
+        const trigger = event.target instanceof Element
+            ? event.target.closest('[data-auth-open]')
+            : null;
 
+        if (!trigger) return;
 
-    if (loginLink) {
+        event.preventDefault();
 
-        loginLink.addEventListener(
-            'click',
-            (event) => {
+        const requestedMode = trigger.dataset.authOpen === 'signup'
+            ? 'signup'
+            : 'login';
 
-                event.preventDefault();
-
-                openAuth(
-                    'login'
-                );
-            }
-        );
-    }
+        openAuth(requestedMode);
+    });
 
 
     /* =====================================================
