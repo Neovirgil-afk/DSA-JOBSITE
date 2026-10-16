@@ -1723,6 +1723,63 @@ function initHeader() {
 }
 
 
+const targetJobEditor = document.querySelector('#targetJobEditor');
+const editTargetJobButton = document.querySelector('#editTargetJob');
+const targetJobInput = document.querySelector('#targetJobInput');
+const targetJobMessage = document.querySelector('#targetJobMessage');
+const cancelTargetJobButton = document.querySelector('#cancelTargetJob');
+
+if (editTargetJobButton && targetJobEditor && targetJobInput) {
+    editTargetJobButton.addEventListener('click', () => {
+        targetJobInput.value = String(profileData?.target_job || '');
+        targetJobEditor.hidden = false;
+        targetJobInput.focus();
+        if (targetJobMessage) targetJobMessage.textContent = '';
+    });
+}
+if (cancelTargetJobButton && targetJobEditor) {
+    cancelTargetJobButton.addEventListener('click', () => { targetJobEditor.hidden = true; });
+}
+if (targetJobEditor) {
+    targetJobEditor.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const targetJob = String(targetJobInput?.value || '').trim();
+        if (!targetJob || targetJob.length > 160) {
+            if (targetJobMessage) targetJobMessage.textContent = 'Enter a target job up to 160 characters.';
+            return;
+        }
+        const submit = targetJobEditor.querySelector('[type="submit"]');
+        if (submit) submit.disabled = true;
+        if (targetJobMessage) targetJobMessage.textContent = 'Saving…';
+        try {
+            const response = await fetch('/api/auth/profile', {
+                method: 'PUT',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    full_name: profileData.full_name || '',
+                    education: profileData.education || '',
+                    degree: profileData.degree || '',
+                    location: profileData.location || '',
+                    target_job: targetJob
+                })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Could not save target job.');
+            profileData = { ...profileData, ...(data.profile || {}), target_job: targetJob };
+            renderProfileInformation();
+            if (targetJobMessage) targetJobMessage.textContent = 'Target job updated. Recommendations will use this role.';
+            window.dispatchEvent(new CustomEvent('jobpath:target-job-updated', { detail: { targetJob } }));
+            setTimeout(() => { targetJobEditor.hidden = true; }, 900);
+        } catch (error) {
+            if (targetJobMessage) targetJobMessage.textContent = error.message || 'Could not save target job.';
+        } finally {
+            if (submit) submit.disabled = false;
+        }
+    });
+}
+
+
 /* =========================================================
    EVENT LISTENERS
    ========================================================= */
