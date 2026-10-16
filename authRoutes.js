@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { db } = require('./database');
+const authRateLimit = require('./authRateLimit');
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ function establishSession(req, userId, maxAge, callback) {
    REGISTER
    ========================================================= */
 
-router.post('/register', (req, res) => {
+router.post('/register', authRateLimit, (req, res) => {
 
     try {
 
@@ -184,7 +185,7 @@ router.post('/register', (req, res) => {
    LOGIN
    ========================================================= */
 
-router.post('/login', (req, res) => {
+router.post('/login', authRateLimit, (req, res) => {
 
     try {
 
