@@ -32,13 +32,17 @@
             .replace(/'/g, '&#039;');
     }
 
+    function limitText(value, maxLength) {
+        return String(value == null ? '' : value).slice(0, maxLength);
+    }
+
     function collect() {
         return {
-            fullName: $('fullName').value,
-            email: $('email').value,
-            phone: $('phone').value,
-            location: $('location').value,
-            summary: $('summary').value,
+            fullName: limitText($('fullName').value, 160),
+            email: limitText($('email').value, 254),
+            phone: limitText($('phone').value, 40),
+            location: limitText($('location').value, 160),
+            summary: limitText($('summary').value, 1200),
             education: state.education,
             experience: state.experience,
             projects: state.projects,
@@ -121,6 +125,7 @@
 
     function input(label, key, value, placeholder) {
         var maxLength = /year/i.test(key) ? 20 : (/email/i.test(key) ? 254 : (/phone/i.test(key) ? 40 : 160));
+        value = limitText(value, maxLength);
         return '<div class="builder-field"><label>' + label +
             '</label><input data-key="' + key + '" maxlength="' + maxLength + '" value="' +
             escapeHtml(value) + '" placeholder="' +
@@ -129,6 +134,7 @@
 
     function textarea(label, key, value, placeholder) {
         var maxLength = key === 'summary' ? 1200 : 2000;
+        value = limitText(value, maxLength);
         return '<div class="builder-field"><label>' + label +
             '</label><textarea data-key="' + key + '" maxlength="' + maxLength + '" placeholder="' +
             escapeHtml(placeholder || '') + '">' +
@@ -156,6 +162,14 @@
             list.innerHTML = '';
             return;
         }
+
+        state[type].forEach(function (item) {
+            Object.keys(item).forEach(function (key) {
+                var maxLength = key === 'description' ? 2000 :
+                    (key === 'year' ? 20 : (key === 'email' ? 254 : (key === 'phone' ? 40 : 160)));
+                item[key] = limitText(item[key], maxLength);
+            });
+        });
 
         list.innerHTML = state[type].map(function (item, index) {
             var body = '';
@@ -307,7 +321,11 @@
 
             ['fullName', 'email', 'phone', 'location', 'summary'].forEach(function (key) {
                 var field = $(key);
-                if (field) field.value = resume[key] || '';
+                if (field) {
+                    var maxLength = key === 'summary' ? 1200 : (key === 'email' ? 254 : (key === 'phone' ? 40 : 160));
+                    field.value = limitText(resume[key] || '', maxLength);
+                    updateCharacterCount(field);
+                }
             });
 
             state.education = Array.isArray(resume.education) ? resume.education : [];
