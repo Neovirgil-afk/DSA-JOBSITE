@@ -8209,3 +8209,43 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media (prefers-reduced-motion: reduce) {
   .cc-next-step { transition: none; }
 }
+
+
+/* Employer applicant workflow feedback and filter reset */
+.employer-action-feedback {
+  margin: 10px 0 14px;
+  padding: 11px 14px;
+  border: 1px solid #d8def7;
+  border-radius: 11px;
+  background: #f7f8ff;
+  color: #343a72;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.employer-action-feedback.is-success {
+  border-color: #b9e7d0;
+  background: #f0fbf5;
+  color: #176b45;
+}
+.employer-action-feedback.is-error {
+  border-color: #f0c4c4;
+  background: #fff5f5;
+  color: #9f2828;
+}
+.employer-applicant-tools .employer-clear-applicant-filters {
+  align-self: end;
+  min-height: 40px;
+  white-space: nowrap;
+}
+.employer-applicants-list [data-application-status]:disabled,
+#applicantProfileStatusSelect:disabled {
+  cursor: progress;
+  opacity: .65;
+}
+@media (max-width: 680px) {
+  .employer-applicant-tools .employer-clear-applicant-filters {
+    width: 100%;
+    grid-column: 1 / -1;
+  }
+}
