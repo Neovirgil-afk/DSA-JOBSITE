@@ -15,6 +15,11 @@ const learningPlannerRoutes = require('./learningPlannerRoutes');
 const learningDiscoveryRoutes = require('./learningDiscoveryRoutes');
 const employerRoutes = require('./employerRoutes');
 const applicationRoutes = require('./applicationRoutes');
+const notificationRoutes = require('./notificationRoutes');
+const interviewRoutes = require('./interviewRoutes');
+const messageRoutes = require('./messageRoutes');
+const analyticsRoutes = require('./analyticsRoutes');
+const adminRoutes = require('./adminRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -47,6 +52,11 @@ app.use('/api/learning/planner', learningPlannerRoutes);
 app.use('/api/learning/discover', learningDiscoveryRoutes);
 app.use('/api/employer', employerRoutes);
 app.use('/api/applications', applicationRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/interviews', interviewRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin', adminRoutes);
 
 
 app.get('/api/health', (req, res) => {
