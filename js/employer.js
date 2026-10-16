@@ -471,7 +471,7 @@ function exportFilteredApplicants() {
         ['Matched Skills', (applicant) => (applicant.matchingSkills || []).join('; ')],
         ['Missing Skills', (applicant) => (applicant.missingSkills || []).join('; ')]
     ];
-    const csvCell = (value) => '"' + String(value ?? '').replace(/"/g, '""') + '"';
+    const csvCell = (value) => { const text = String(value ?? ''); const safe = (/^[\s\uFEFF]*[=+\-@]/.test(text) || /^[\t\r\n]/.test(text)) ? "'" + text : text; return '"' + safe.replace(/"/g, '""') + '"'; };
     const rows = [
         columns.map(([heading]) => csvCell(heading)).join(','),
         ...applicants.map((applicant) => columns.map(([, value]) => csvCell(value(applicant))).join(','))
