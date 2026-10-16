@@ -8141,3 +8141,47 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media (prefers-reduced-motion: reduce) {
   .job-action-toast { transition: none; }
 }
+
+
+/* Clearer job match explanation */
+.job-match-explanation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.job-match-explanation p {
+  flex: 1 1 220px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.job-match-learning-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: var(--indigo-tint);
+  color: var(--indigo-dark);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.job-match-learning-link:hover {
+  background: #dedbfa;
+  transform: translateY(-1px);
+}
+@media (max-width: 560px) {
+  .job-match-explanation { align-items: stretch; }
+  .job-match-learning-link { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .job-match-learning-link { transition: none; }
+}
