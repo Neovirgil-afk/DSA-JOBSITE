@@ -46,3 +46,13 @@ For Render, set `ADMIN_EMAIL` in the service's Environment settings, then redepl
 7. Test on desktop and mobile, and check the server console for errors.
 
 This document describes the intended endpoints and test plan. The implementation has been committed to the repository, but browser-level and end-to-end tests still need to be run locally.
+
+
+## Security and production configuration
+
+- Set a strong, private `SESSION_SECRET` environment variable in production. The server intentionally refuses to start in production if it is missing.
+- On Render, set `NODE_ENV=production` and `SESSION_SECRET` in the service's Environment settings. HTTPS cookies are enabled automatically when `NODE_ENV=production`; the server trusts one reverse proxy for Render's HTTPS termination.
+- Keep the local development fallback secret only for local use. Never commit `.env` or real secrets.
+- Login and registration endpoints for candidates and employers are limited to 20 attempts per IP and endpoint per 15-minute window. The current limiter is in-memory and resets on restart; deployments with multiple server instances should use a shared rate-limit store.
+- Session IDs are regenerated when candidate or employer accounts register or log in. JSON and form request bodies are capped at 1 MB.
+- After pulling, test candidate and employer registration/login, logout, the Remember Me option, and all existing Career Center/admin flows. These changes have passed JavaScript syntax checks; full browser and deployment tests still need to be run.
