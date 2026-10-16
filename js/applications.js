@@ -24,6 +24,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         return labels[status] || 'Applied';
     }
 
+    function nextStepForStatus(status) {
+        const guidance = {
+            new: 'Your application has been submitted. Keep an eye out for an update from the employer.',
+            reviewing: 'The employer is reviewing your application. Prepare to explain how your skills fit the role.',
+            shortlisted: 'You have been shortlisted. Check your messages and get ready for the next hiring step.',
+            interview: 'An interview is in progress or being arranged. Review the job requirements and prepare questions.',
+            hired: 'Congratulations! Review any offer details and confirm the next steps with the employer.',
+            rejected: 'This application has closed without a match. Keep applying to roles that fit your skills.'
+        };
+        return guidance[status] || guidance.new;
+    }
+
     function renderStatusOverview() {
         const totals = { new: 0, reviewing: 0, shortlisted: 0, interview: 0, hired: 0, rejected: 0 };
         allApplications.forEach(app => {
@@ -125,6 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="application-card-side">
                         <span class="application-status application-status--${escapeHtml(app.status)}">${statusLabel(app.status)}</span>
                         <small>Applied ${escapeHtml(new Date(app.applied_at).toLocaleDateString())}</small>
+                        <p class="application-next-step"><b>Next step:</b> ${escapeHtml(nextStepForStatus(app.status))}</p>
                         <div class="application-timeline-mini" aria-label="Application status history">${history.map(item => `<span><b>${escapeHtml(statusLabel(item.status))}</b><em>${escapeHtml(new Date(item.changed_at).toLocaleDateString())}</em></span>`).join('')}</div>
                         <a href="/?job=${encodeURIComponent(app.job_id)}" class="application-view-link">View job details →</a>
                     </div>
