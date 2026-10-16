@@ -51,6 +51,7 @@ let profileData = null;
 let allSkills = [];
 
 let selectedSkillIds = new Set();
+let selectedSkillNames = new Set();
 let savedSkillIds = new Set();
 
 let editorOpen = false;
@@ -123,7 +124,7 @@ function groupSkills(skillList) {
 function updateSelectedCount() {
     if (selectedSkillCount) {
         selectedSkillCount.textContent =
-            `${selectedSkillIds.size} selected`;
+            `${selectedSkillIds.size + selectedSkillNames.size} selected`;
     }
 }
 
@@ -545,7 +546,7 @@ function renderSavedSkills(editing = false) {
     const visibleSkills = editing
         ? savedSkills.filter((skill) =>
             selectedSkillIds.has(Number(skill.id))
-        )
+        ).concat([...selectedSkillNames].map((name) => ({ name, id: 0 })))
         : savedSkills;
 
 
@@ -585,6 +586,7 @@ function renderSavedSkills(editing = false) {
                                 type="button"
                                 class="profile-remove-saved-skill"
                                 data-skill-id="${Number(skill.id)}"
+                                data-skill-name="${escapeHTML(skill.name)}"
                                 aria-label="Remove ${escapeHTML(skill.name)}"
                             >
                                 ×
@@ -601,102 +603,72 @@ function renderSavedSkills(editing = false) {
    EDITOR
    ========================================================= */
 
-function renderSkillEditor() {
-    if (!skillsContainer) {
-        return;
+function getSkillRelevance(skill) {
+    const context = [profileData?.degree, profileData?.education, profileData?.target_job].join(' ').toLowerCase();
+    const words = context.split(/[^a-z0-9+#.]+/).filter((word) => word.length > 2);
+    const name = String(skill.name || '').toLowerCase();
+    const category = String(skill.category || '').toLowerCase();
+    let score = 0;
+    for (const word of new Set(words)) {
+        if (name.includes(word)) score += 4;
+        if (category.includes(word)) score += 2;
     }
-
-
-    if (!allSkills.length) {
-        skillsContainer.innerHTML = `
-            <div class="profile-empty-state">
-                <div class="profile-empty-icon">
-                    🛠️
-                </div>
-
-                <h3>No skills available</h3>
-
-                <p>
-                    We could not load the available
-                    skills right now.
-                </p>
-            </div>
-        `;
-
-        updateSelectedCount();
-
-        return;
-    }
-
-
-    const groups =
-        groupSkills(allSkills);
-
-
-    skillsContainer.innerHTML =
-        Object.entries(groups)
-            .map(
-                ([category, categorySkills]) => `
-                    <section class="profile-skill-group">
-
-                        <h3 class="profile-skill-category">
-                            ${escapeHTML(category)}
-                        </h3>
-
-                        <div class="profile-skill-list">
-
-                            ${categorySkills
-                                .map((skill) => {
-                                    const id =
-                                        Number(skill.id);
-
-                                    const selected =
-                                        selectedSkillIds.has(
-                                            id
-                                        );
-
-                                    return `
-                                        <button
-                                            type="button"
-                                            class="profile-skill-button${
-                                                selected
-                                                    ? ' selected'
-                                                    : ''
-                                            }"
-                                            data-skill-id="${id}"
-                                            aria-pressed="${selected}"
-                                        >
-
-                                            <span class="profile-skill-check">
-                                                ${
-                                                    selected
-                                                        ? '✓'
-                                                        : ''
-                                                }
-                                            </span>
-
-                                            <span>
-                                                ${escapeHTML(
-                                                    skill.name
-                                                )}
-                                            </span>
-
-                                        </button>
-                                    `;
-                                })
-                                .join('')}
-
-                        </div>
-
-                    </section>
-                `
-            )
-            .join('');
-
-
-    updateSelectedCount();
+    const target = String(profileData?.target_job || '').toLowerCase();
+    if (target && (name.includes(target) || target.includes(name))) score += 8;
+    const degree = String(profileData?.degree || profileData?.education || '').toLowerCase();
+    if (degree && (name.includes(degree) || degree.includes(name))) score += 5;
+    return score;
 }
 
+function renderSkillEditor() {
+    if (!skillsContainer) return;
+    const search = document.querySelector('#skillSearchInput');
+    const query = String(search?.value || '').trim().toLowerCase();
+    const results = document.querySelector('#skillSearchResults');
+    const matches = allSkills
+        .map((skill) => ({ skill, relevance: getSkillRelevance(skill) }))
+        .filter(({ skill }) => !query ||
+            String(skill.name || '').toLowerCase().includes(query) ||
+            String(skill.category || '').toLowerCase().includes(query))
+        .sort((a, b) => {
+            if (query) {
+                const aStarts = String(a.skill.name || '').toLowerCase().startsWith(query) ? 1 : 0;
+                const bStarts = String(b.skill.name || '').toLowerCase().startsWith(query) ? 1 : 0;
+                if (aStarts !== bStarts) return bStarts - aStarts;
+            }
+            return b.relevance - a.relevance || String(a.skill.name || '').localeCompare(String(b.skill.name || ''));
+        }).slice(0, query ? 8 : 12);
+
+    skillsContainer.innerHTML = matches.length
+        ? '<section class="profile-skill-group"><h3 class="profile-skill-category">' +
+            (query ? 'Matching skills' : 'Recommended for your career direction') +
+            '</h3><div class="profile-skill-list">' + matches.map(({ skill }) => {
+                const id = Number(skill.id);
+                const selected = selectedSkillIds.has(id);
+                return '<button type="button" class="profile-skill-button' + (selected ? ' selected' : '') +
+                    '" data-skill-id="' + id + '" aria-pressed="' + selected + '"><span class="profile-skill-check">' +
+                    (selected ? '✓' : '') + '</span><span>' + escapeHTML(skill.name) + '</span></button>';
+            }).join('') + '</div></section>'
+        : '<div class="profile-empty-state"><h3>No matching skills found</h3><p>You can add this skill manually below.</p></div>';
+
+    if (results) {
+        const exact = allSkills.some((skill) => String(skill.name || '').toLowerCase() === query);
+        const alreadySelected = [...selectedSkillNames].some((name) => name.toLowerCase() === query) ||
+            allSkills.some((skill) => String(skill.name || '').toLowerCase() === query && selectedSkillIds.has(Number(skill.id)));
+        const suggestions = query ? matches.slice(0, 6).map(({ skill }) =>
+            '<button type="button" role="option" class="profile-skill-suggestion" data-suggest-skill="' +
+            Number(skill.id) + '">' + escapeHTML(skill.name) + '<small>' + escapeHTML(skill.category || 'Skill') + '</small></button>'
+        ).join('') : '';
+        const addCustom = query && !exact && !alreadySelected
+            ? '<button type="button" role="option" class="profile-skill-suggestion profile-skill-suggestion--custom" data-add-custom-skill="' +
+              escapeHTML(search.value.trim()) + '">+ Add “' + escapeHTML(search.value.trim()) + '” as a custom skill</button>'
+            : '';
+        results.innerHTML = query
+            ? (suggestions + addCustom || '<span class="profile-skill-search-empty">No suggestions. You can still add this skill manually.</span>')
+            : '<span class="profile-skill-search-empty">Start typing to search the skill list.</span>';
+    }
+    updateSelectedCount();
+}
 
 /* =========================================================
    CARD CASCADE ANIMATION
@@ -1004,6 +976,7 @@ function openSkillEditor() {
     */
     selectedSkillIds =
         new Set(savedSkillIds);
+    selectedSkillNames = new Set();
 
     renderSavedSkills(true);
 
@@ -1038,6 +1011,7 @@ function cancelSkillEditor() {
     */
     selectedSkillIds =
         new Set(savedSkillIds);
+    selectedSkillNames = new Set();
 
 
     renderSavedSkills();
@@ -1177,9 +1151,8 @@ async function saveProfileSkills() {
                     credentials: 'include',
 
                     body: JSON.stringify({
-                        skillIds: [
-                            ...selectedSkillIds
-                        ]
+                        skillIds: [...selectedSkillIds],
+                        skillNames: [...selectedSkillNames]
                     })
                 }
             );
@@ -1212,6 +1185,7 @@ async function saveProfileSkills() {
 
         selectedSkillIds =
             new Set(savedSkillIds);
+        selectedSkillNames = new Set();
 
 
         renderSavedSkills();
@@ -1857,24 +1831,48 @@ if (skillsContainer) {
 
 
 if (savedSkillsContainer) {
-    savedSkillsContainer.addEventListener(
-        'click',
-        (event) => {
-            const removeButton =
-                event.target.closest(
-                    '.profile-remove-saved-skill'
-                );
-
-            if (!removeButton) {
-                return;
-            }
-
-            removeSavedSkillWhileEditing(
-                Number(removeButton.dataset.skillId)
-            );
+    savedSkillsContainer.addEventListener('click', (event) => {
+        const removeButton = event.target.closest('.profile-remove-saved-skill');
+        if (!removeButton) return;
+        if (removeButton.dataset.skillId === '0') {
+            selectedSkillNames.delete(removeButton.dataset.skillName || '');
+            renderSavedSkills(true);
+            renderSkillEditor();
+            updateSelectedCount();
+            return;
         }
-    );
+        removeSavedSkillWhileEditing(Number(removeButton.dataset.skillId));
+    });
 }
+
+const skillSearchInput = document.querySelector('#skillSearchInput');
+if (skillSearchInput) skillSearchInput.addEventListener('input', renderSkillEditor);
+
+const skillSearchResults = document.querySelector('#skillSearchResults');
+if (skillSearchResults) skillSearchResults.addEventListener('click', (event) => {
+    const suggestion = event.target.closest('[data-suggest-skill]');
+    const custom = event.target.closest('[data-add-custom-skill]');
+    if (suggestion) {
+        const id = Number(suggestion.dataset.suggestSkill);
+        const button = skillsContainer?.querySelector('[data-skill-id="' + id + '"]');
+        if (button && !selectedSkillIds.has(id)) toggleSkill(button);
+        if (skillSearchInput) skillSearchInput.value = '';
+        renderSkillEditor();
+        renderSavedSkills(true);
+        return;
+    }
+    if (custom) {
+        const name = String(custom.dataset.addCustomSkill || '').trim().replace(/\\s+/g, ' ');
+        if (!name || name.length > 80) return;
+        const existing = allSkills.find((skill) => String(skill.name || '').toLowerCase() === name.toLowerCase());
+        if (existing) selectedSkillIds.add(Number(existing.id));
+        else if (![...selectedSkillNames].some((item) => item.toLowerCase() === name.toLowerCase())) selectedSkillNames.add(name);
+        if (skillSearchInput) skillSearchInput.value = '';
+        renderSavedSkills(true);
+        renderSkillEditor();
+        updateSelectedCount();
+    }
+});
 
 
 /* =========================================================
