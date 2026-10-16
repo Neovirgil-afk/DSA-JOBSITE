@@ -8260,3 +8260,46 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media (max-width: 600px) {
   #jobActionMessage { font-size: 12px; }
 }
+
+
+/* Employer analytics: concise hiring pipeline insights */
+.employer-analytics-insights {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0 22px;
+}
+.employer-analytics-insights > article {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+}
+.employer-analytics-insights > article > span,
+.employer-analytics-insights > article > small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.employer-analytics-insights > article > span { font-weight: 700; }
+.employer-analytics-insights > article > strong {
+  color: var(--navy);
+  font-size: 25px;
+  line-height: 1.2;
+}
+.employer-analytics-insights > p {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 13px 15px;
+  border: 1px solid #dcd9fb;
+  border-radius: 12px;
+  background: #f7f6ff;
+  color: var(--navy);
+  font-size: 12px;
+  line-height: 1.6;
+}
+@media (max-width: 560px) {
+  .employer-analytics-insights { grid-template-columns: 1fr; }
+  .employer-analytics-insights > p { grid-column: auto; }
+}
