@@ -7495,3 +7495,178 @@ textarea {
   .jobsite-skeleton-art { display: none; }
   .jobsite-skeleton-card { height: 56px; }
 }
+
+
+/* =========================================================
+   JOBSITE BUBBLE REDESIGN — global navigation + rounded surfaces
+   Original logo, tagline and brand palette remain untouched.
+   ========================================================= */
+:root {
+  --bubble-radius: 22px;
+  --bubble-shadow: 0 16px 42px -25px rgba(28, 30, 68, .28);
+}
+body {
+  background:
+    radial-gradient(ellipse at 88% 9%, rgba(79,70,229,.045), transparent 30%),
+    var(--cream);
+}
+.site-header {
+  padding: 20px 0;
+  z-index: 100;
+}
+.header-inner {
+  gap: 18px;
+}
+.logo {
+  flex: 0 0 auto;
+  z-index: 120;
+}
+.logo-tagline {
+  display: block;
+}
+.header-actions {
+  margin-left: auto;
+  gap: 10px;
+}
+.header-actions .login-link,
+.header-actions .btn {
+  border-radius: 999px;
+}
+.btn, .chip, .category-card, .result-card, .trust-item,
+.floating-card, .mobile-panel, .cc-card, .profile-card,
+.admin-card, .search-bar, .cta-banner, .section-head + .category-grid > *,
+input, select, textarea {
+  border-radius: var(--bubble-radius);
+}
+.search-bar {
+  padding: 8px;
+  box-shadow: 0 18px 40px -27px rgba(27,29,63,.35);
+  border: 1px solid rgba(255,255,255,.95);
+}
+.search-btn { border-radius: 999px; }
+.chip {
+  border: 1px solid rgba(79,70,229,.07);
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.chip:hover, .category-card:hover, .floating-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--bubble-shadow);
+}
+
+/* Desktop navigation becomes a compact, floating icon rail.
+   Labels are added as hover/focus tooltips by the shared script. */
+@media (min-width: 900px) {
+  .site-header { padding-left: 78px; }
+  .main-nav {
+    position: fixed;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 150;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 8px;
+    width: 54px;
+    max-height: calc(100vh - 40px);
+    overflow: visible;
+    padding: 10px;
+    border: 1px solid rgba(255,255,255,.9);
+    border-radius: 28px;
+    background: rgba(255,255,255,.88);
+    box-shadow: 0 18px 48px -25px rgba(23,25,60,.35);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    transition: width .22s ease, border-radius .22s ease;
+  }
+  .main-nav:hover,
+  .main-nav:focus-within {
+    width: 220px;
+    border-radius: 25px;
+  }
+  .main-nav > a,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: 15px;
+    color: var(--ink);
+    font-size: 0;
+    white-space: nowrap;
+    overflow: visible;
+  }
+  .main-nav > a::before,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn::before {
+    display: grid;
+    place-items: center;
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+    font-size: 17px;
+    line-height: 1;
+  }
+  .main-nav > a::after { display: none; }
+  .main-nav > a:nth-of-type(1)::before { content: "⌕"; }
+  .main-nav > a:nth-of-type(2)::before { content: "◈"; }
+  .main-nav > a:nth-of-type(3)::before { content: "▣"; }
+  .main-nav > a:nth-of-type(4)::before { content: "▤"; }
+  .main-nav > .nav-dropdown:nth-of-type(5) > .nav-dropdown-btn::before { content: "▧"; }
+  .main-nav > .nav-dropdown:nth-of-type(6) > .nav-dropdown-btn::before { content: "☷"; }
+  .main-nav > a:nth-of-type(5)::before { content: "ⓘ"; }
+  .main-nav > a:hover,
+  .main-nav > a.active,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn:hover {
+    color: var(--indigo);
+    background: var(--indigo-tint);
+  }
+  .main-nav:hover > a,
+  .main-nav:focus-within > a,
+  .main-nav:hover > .nav-dropdown > .nav-dropdown-btn,
+  .main-nav:focus-within > .nav-dropdown > .nav-dropdown-btn {
+    font-size: 13px;
+  }
+  .main-nav > .nav-dropdown > .nav-dropdown-btn svg {
+    margin-left: auto;
+    flex: 0 0 auto;
+  }
+  .nav-dropdown { width: 100%; }
+  .nav-dropdown-panel {
+    top: 0;
+    left: calc(100% + 10px);
+    transform: translateX(-5px);
+    border-radius: 17px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+  }
+  .nav-dropdown:hover .nav-dropdown-panel,
+  .nav-dropdown:focus-within .nav-dropdown-panel,
+  .main-nav:hover .nav-dropdown-panel,
+  .main-nav:focus-within .nav-dropdown-panel {
+    transform: translateX(0);
+  }
+  .main-nav:not(:hover):not(:focus-within) .nav-dropdown-panel {
+    display: none;
+  }
+  .main-nav:not(:hover):not(:focus-within) > a::before,
+  .main-nav:not(:hover):not(:focus-within) > .nav-dropdown > .nav-dropdown-btn::before {
+    margin-inline: auto;
+  }
+  .hero { padding-top: 28px; }
+}
+@media (max-width: 899px) {
+  .logo-tagline { display: none; }
+  .header-inner { gap: 10px; }
+  .site-header { padding: 14px 0; }
+  .hero { padding-top: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
