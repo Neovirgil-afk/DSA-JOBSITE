@@ -24,8 +24,15 @@ const adminRoutes = require('./adminRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Seed the database with skills/jobs/demo user if empty
+// Seed the database with skills/jobs/demo user if empty.
 seedIfNeeded(db);
+
+// Optional administrator bootstrap: set ADMIN_EMAIL in the environment,
+// create/sign up that account, then restart the server to grant admin access.
+const configuredAdminEmail = String(process.env.ADMIN_EMAIL || '').trim().toLowerCase();
+if (configuredAdminEmail) {
+    db.prepare('UPDATE users SET role = \'admin\' WHERE email = ?').run(configuredAdminEmail);
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
