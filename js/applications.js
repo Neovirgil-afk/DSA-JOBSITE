@@ -335,20 +335,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    try {
-        const response = await fetch('/api/applications', { credentials: 'include' });
-        if (response.status === 401 || response.status === 403) {
-            sessionStorage.setItem('jobsite_redirect_after_login', window.location.pathname + window.location.search + window.location.hash);
-            list.innerHTML = '<div class="applications-empty"><h2>Please log in</h2><p>Log in to view your applications.</p><a class="btn btn-primary" href="/">Go to JobSite</a></div>';
-            filterSummary.textContent = 'Sign in to see your personal application tracker.';
-            return;
+    let loadingApplications = false;
+
+    async function loadApplications() {
+        if (loadingApplications) return;
+        loadingApplications = true;
+        list.innerHTML = '<div class="applications-loading">Loading your applications...</div>';
+        filterSummary.textContent = 'Loading your application history…';
+        if (exportButton) exportButton.disabled = true;
+        if (printButton) printButton.disabled = true;
+
+        try {
+            const response = await fetch('/api/applications', { credentials: 'include' });
+            if (response.status === 401 || response.status === 403) {
+                sessionStorage.setItem('jobsite_redirect_after_login', window.location.pathname + window.location.search + window.location.hash);
+                list.innerHTML = '<div class="applications-empty"><h2>Please log in</h2><p>Log in to view your applications.</p><a class="btn btn-primary" href="/">Go to JobSite</a></div>';
+                filterSummary.textContent = 'Sign in to see your personal application tracker.';
+                return;
+            }
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Failed to load applications.');
+            allApplications = Array.isArray(data.applications) ? data.applications : [];
+            applyFilters();
+        } catch (error) {
+            const message = error && error.message ? error.message : 'An unexpected error occurred.';
+            list.innerHTML = '<div class="applications-empty"><h2>Could not load applications</h2><p>' + escapeHtml(message) + '</p><button class="btn btn-primary" type="button" id="retryApplications">Try Again</button></div>';
+            filterSummary.textContent = 'Your application history could not be loaded.';
+        } finally {
+            loadingApplications = false;
         }
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Failed to load applications.');
-        allApplications = Array.isArray(data.applications) ? data.applications : [];
-        applyFilters();
-    } catch (error) {
-        list.innerHTML = '<div class="applications-empty"><h2>Could not load applications</h2><p>' + escapeHtml(error.message) + '</p><button class="btn btn-primary" type="button" id="retryApplications">Try Again</button></div>';
-        document.querySelector('#retryApplications')?.addEventListener('click', () => window.location.reload());
     }
+
+    list.addEventListener('click', event => {
+        if (event.target.closest('#retryApplications')) loadApplications();
+    });
+
+    await loadApplications();
 });
