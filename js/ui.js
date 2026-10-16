@@ -160,7 +160,7 @@ function syncJobsiteRail() {
                     opacity:1;visibility:visible;transform:translate(0,-50%);
                 }
                 .jobsite-global-rail .jobsite-resources-dropdown>.nav-dropdown-panel {
-                    display:none;position:absolute;top:0;left:calc(100% + 10px);z-index:9999;
+                    display:none;position:absolute;top:0;left:100%;z-index:9999;
                     min-width:170px;padding:8px;border:1px solid var(--line);border-radius:15px;
                     background:#fff;box-shadow:var(--bubble-shadow);
                     opacity:0;visibility:hidden;pointer-events:none;
@@ -168,7 +168,7 @@ function syncJobsiteRail() {
                 .jobsite-global-rail .jobsite-resources-dropdown:hover>.nav-dropdown-panel,
                 .jobsite-global-rail .jobsite-resources-dropdown:focus-within>.nav-dropdown-panel,
                 .jobsite-global-rail .jobsite-resources-dropdown.is-open>.nav-dropdown-panel {
-                    display:block;opacity:1;visibility:visible;pointer-events:auto;
+                    display:block!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;
                 }
                 .jobsite-global-rail .jobsite-resources-dropdown>.nav-dropdown-panel a {
                     position:relative;z-index:10000;pointer-events:auto;cursor:pointer;
