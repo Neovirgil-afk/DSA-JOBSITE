@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const filterSummary = document.querySelector('#applicationFilterSummary');
     const clearFilters = document.querySelector('#clearApplicationFilters');
     let allApplications = [];
+    const requestedApplicationId = Number(new URLSearchParams(window.location.search).get('applicationId')) || 0;
 
     function escapeHtml(value) {
         return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
@@ -33,6 +34,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             return new Date(b.applied_at) - new Date(a.applied_at);
         });
         renderFiltered(filtered);
+        if (requestedApplicationId > 0) {
+            const target = document.getElementById('application-' + requestedApplicationId);
+            if (target) {
+                target.setAttribute('tabindex', '-1');
+                window.setTimeout(() => {
+                    target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+                    target.focus({ preventScroll: true });
+                }, 80);
+            } else if (allApplications.some(app => Number(app.id) === requestedApplicationId)) {
+                filterSummary.textContent = 'The linked application is hidden by your current filters. Clear filters to view it.';
+            } else {
+                filterSummary.textContent = 'The linked application could not be found in your application list.';
+            }
+        }
     }
 
     function renderFiltered(applications) {
@@ -53,7 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         list.innerHTML = applications.map(app => {
             const history = Array.isArray(app.history) && app.history.length ? app.history : [{ status: app.status, changed_at: app.applied_at }];
             return `
-                <article class="application-card">
+                <article class="application-card ${Number(app.id) === requestedApplicationId ? 'application-card--highlight' : ''}" id="application-${escapeHtml(app.id)}">
                     <div class="application-card-main">
                         <span class="application-company">${escapeHtml(app.company || 'Company')}</span>
                         <h2>${escapeHtml(app.title || 'Job')}</h2>
