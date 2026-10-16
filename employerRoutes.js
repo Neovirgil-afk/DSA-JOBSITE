@@ -71,7 +71,8 @@ function isValidDateOnly(value) {
 
 function isPastDeadline(value) {
     if (!value) return false;
-    return new Date(String(value) + 'T23:59:59') < new Date();
+    // Application deadlines are date-only values in the JobSite Philippines timezone.
+    return new Date(String(value) + 'T23:59:59+08:00') < new Date();
 }
 
 function parseJobPayload(body) {
@@ -291,7 +292,7 @@ router.get('/dashboard', requireEmployer, (req, res) => {
 
         const stats = {
             activeJobs: db.prepare(
-                "SELECT COUNT(*) AS count FROM jobs WHERE employer_id = ? AND status = 'active' AND (application_deadline IS NULL OR (date(application_deadline) = application_deadline AND date(application_deadline) >= date('now')))"
+                "SELECT COUNT(*) AS count FROM jobs WHERE employer_id = ? AND status = 'active' AND (application_deadline IS NULL OR (date(application_deadline) = application_deadline AND date(application_deadline) >= date('now', '+8 hours')))"
             ).get(employerId).count,
 
             totalApplicants: db.prepare(
@@ -303,7 +304,7 @@ router.get('/dashboard', requireEmployer, (req, res) => {
             ).get(employerId).count,
 
             expiringSoon: db.prepare(
-                "SELECT COUNT(*) AS count FROM jobs WHERE employer_id = ? AND status = 'active' AND application_deadline IS NOT NULL AND date(application_deadline) BETWEEN date('now') AND date('now', '+7 day')"
+                "SELECT COUNT(*) AS count FROM jobs WHERE employer_id = ? AND status = 'active' AND application_deadline IS NOT NULL AND date(application_deadline) BETWEEN date('now', '+8 hours') AND date('now', '+8 hours', '+7 day')"
             ).get(employerId).count
         };
 
