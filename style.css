@@ -7854,3 +7854,41 @@ input, select, textarea {
     min-height: 44px;
   }
 }
+
+
+/* Final sidebar alignment correction: keep every icon centered in its own button. */
+@media (min-width: 900px) {
+  .site-header .main-nav {
+    box-sizing: border-box;
+    width: 60px !important;
+    min-width: 60px;
+    padding: 10px 8px !important;
+    gap: 7px !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .site-header .main-nav > a,
+  .site-header .main-nav > .nav-dropdown {
+    box-sizing: border-box;
+    width: 42px !important;
+    min-width: 42px;
+    max-width: 42px;
+    margin: 0 auto !important;
+  }
+  .site-header .main-nav > a,
+  .site-header .main-nav > .nav-dropdown > .nav-dropdown-btn {
+    box-sizing: border-box;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center;
+    padding: 0 !important;
+    margin-inline: auto !important;
+  }
+  .site-header .main-nav > a::before,
+  .site-header .main-nav > .nav-dropdown > .nav-dropdown-btn::before {
+    position: static;
+    margin: 0 auto !important;
+    transform: none !important;
+  }
+}
