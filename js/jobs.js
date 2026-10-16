@@ -784,6 +784,35 @@ export function initJobs() {
                         `<span class="job-missing-skill">${escapeHtml(skill)} <a href="/learning.html?skill=${encodeURIComponent(skill)}" class="job-missing-skill-learn">Learn</a></span>`
                     ).join('')
                     : '<span class="job-details-empty">You meet the listed skill requirements.</span>';
+
+            const matchExplanation = document.createElement('div');
+            matchExplanation.className = 'job-match-explanation';
+
+            const explanationText = document.createElement('p');
+            if (have.length && missing.length) {
+                explanationText.textContent =
+                    `You match ${have.length} listed skill${have.length === 1 ? '' : 's'} and have ${missing.length} skill${missing.length === 1 ? '' : 's'} to work on.`;
+            } else if (have.length) {
+                explanationText.textContent =
+                    `Your profile matches ${have.length} listed skill${have.length === 1 ? '' : 's'} for this role.`;
+            } else if (missing.length) {
+                explanationText.textContent =
+                    `We found ${missing.length} skill${missing.length === 1 ? '' : 's'} to build toward this role. A low match does not automatically mean you should not apply.`;
+            } else {
+                explanationText.textContent =
+                    'Skill details are not available for this job yet. Review the job requirements before applying.';
+            }
+            matchExplanation.appendChild(explanationText);
+
+            if (missing.length) {
+                const learningLink = document.createElement('a');
+                learningLink.className = 'job-match-learning-link';
+                learningLink.href = '/learning.html';
+                learningLink.textContent = 'Explore learning resources';
+                matchExplanation.appendChild(learningLink);
+            }
+
+            document.querySelector('#jobDetailsMatch').appendChild(matchExplanation);
             async function refreshJobResume() {
                 const resumeResponse = await fetch(
                     '/api/resume/current',
