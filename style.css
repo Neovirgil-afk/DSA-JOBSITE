@@ -7349,3 +7349,149 @@ body.employer-modal-open {
 .application-job-state.is-open{background:var(--indigo-tint);color:var(--indigo)}
 .application-job-state.is-closed{background:#f1f1f4;color:#737887}
 @media(max-width:700px){.application-assets{align-items:flex-start}.application-resume-name{max-width:100%}}
+
+
+/* =========================================================
+   GLOBAL JOBSITE UI POLISH — shared by pages using style.css
+   Keeps the original indigo / amber brand and existing page layouts.
+   ========================================================= */
+:root {
+  --surface: #ffffff;
+  --surface-soft: #f7f7fc;
+  --line: #e8e8f2;
+  --shadow-soft: 0 12px 32px -20px rgba(20, 22, 43, .24);
+}
+body {
+  background-color: var(--cream);
+  color: var(--ink);
+}
+.site-header {
+  padding-block: 18px;
+}
+.header-inner {
+  min-height: 42px;
+}
+.btn, button, input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+.btn {
+  transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+.btn:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(79, 70, 229, .28);
+  outline-offset: 3px;
+}
+.result-card,
+.mobile-panel,
+.mobile-stat-card,
+.mobile-quick-card,
+.cc-card,
+.admin-card,
+.profile-card,
+.dashboard-card,
+.learning-card,
+.resume-card,
+.application-card {
+  box-shadow: var(--shadow-soft);
+}
+.result-card,
+.mobile-panel,
+.mobile-stat-card,
+.mobile-quick-card {
+  border-color: var(--line);
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+select,
+textarea {
+  accent-color: var(--indigo);
+}
+::selection {
+  background: var(--indigo-tint);
+  color: var(--indigo-dark);
+}
+@media (max-width: 700px) {
+  .wrap {
+    width: min(100% - 32px, var(--wrap));
+  }
+  .site-header {
+    padding-block: 14px;
+  }
+  .hero {
+    padding-top: 12px;
+  }
+  .search-bar {
+    border-radius: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jobsite-skeleton-block::after {
+    animation: none !important;
+  }
+}
+
+/* Startup and page-transition loader: skeleton only, no animated logo. */
+.jobsite-page-loader {
+  background: var(--cream);
+  padding: 24px;
+}
+.jobsite-loader-skeleton {
+  width: min(100%, 760px);
+  display: grid;
+  grid-template-columns: 1fr .72fr;
+  gap: 18px;
+  padding: clamp(18px, 4vw, 32px);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 24px 70px -42px rgba(20,22,43,.28);
+}
+.jobsite-loader-column {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  min-width: 0;
+}
+.jobsite-skeleton-block {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #eeedf6;
+}
+.jobsite-skeleton-block::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.82), transparent);
+  animation: jobsiteSkeletonShimmer 1.25s ease-in-out infinite;
+}
+.jobsite-skeleton-brand { width: 138px; height: 24px; margin-bottom: 15px; }
+.jobsite-skeleton-heading { width: 88%; height: 25px; }
+.jobsite-skeleton-heading.short { width: 64%; }
+.jobsite-skeleton-copy { width: 96%; height: 11px; }
+.jobsite-skeleton-copy.short { width: 68%; margin-bottom: 12px; }
+.jobsite-skeleton-search { height: 52px; border-radius: 999px; margin: 5px 0 8px; }
+.jobsite-skeleton-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.jobsite-skeleton-chip { width: 82px; height: 28px; border-radius: 999px; }
+.jobsite-skeleton-art { min-height: 210px; border-radius: 22px; background: #eeecfb; }
+.jobsite-skeleton-card { height: 74px; border-radius: 15px; }
+.jobsite-skeleton-card.tall { height: 110px; }
+@keyframes jobsiteSkeletonShimmer {
+  100% { transform: translateX(100%); }
+}
+@media (max-width: 560px) {
+  .jobsite-loader-skeleton {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    border-radius: 18px;
+    padding: 18px;
+  }
+  .jobsite-skeleton-art { display: none; }
+  .jobsite-skeleton-card { height: 56px; }
+}
