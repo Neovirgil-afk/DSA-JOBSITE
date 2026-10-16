@@ -653,7 +653,7 @@ router.put('/profile/skills', (req, res) => {
 
         const cleanedSkillNames = [...new Map(
             (Array.isArray(rawSkillNames) ? rawSkillNames : [])
-                .map((value) => String(value ?? '').trim().replace(/\\s+/g, ' ').slice(0, 80))
+                .map((value) => String(value ?? '').trim().replace(/\s+/g, ' ').slice(0, 80))
                 .filter((name) => name.length > 0)
                 .map((name) => [name.toLowerCase(), name])
         ).values()].slice(0, 100);
