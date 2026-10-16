@@ -264,6 +264,19 @@ function renderAnalytics(data) {
     };
     const statusCounts = data?.statusCounts || {};
     const total = Number(stats.totalApplicants || 0);
+    const hired = Number(statusCounts.hired ?? stats.hired ?? 0);
+    const waitingReview = Number(statusCounts.new || 0);
+    const hiringRate = total ? Math.round((hired / total) * 100) : 0;
+
+    $('#analyticsHiringRate').textContent = hiringRate + '%';
+    $('#analyticsReviewQueue').textContent = waitingReview;
+    $('#analyticsPipelineInsight').textContent = !total
+        ? 'No applications yet. Publish a job and review incoming candidates to start building your hiring pipeline.'
+        : waitingReview
+            ? waitingReview + ' new application' + (waitingReview === 1 ? ' is' : 's are') + ' waiting for review. Start with these candidates, then update their status as they progress.'
+            : hired
+                ? 'You have hired ' + hired + ' of ' + total + ' applicant' + (total === 1 ? '' : 's') + '. Keep application statuses up to date to track your pipeline.'
+                : 'No new applications are waiting for review. Check shortlisted candidates and interviews for your next hiring step.';
 
     $('#analyticsStatusList').innerHTML = statusOrder.map((status) => {
         const count = Number(statusCounts[status] || 0);
