@@ -49,6 +49,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         return 'jobsite:interview-prep:' + String(applicationId);
     }
 
+    function getInterviewNotesKey(applicationId) {
+        return 'jobsite:interview-notes:' + String(applicationId);
+    }
+
+    function readInterviewNotes(applicationId) {
+        try {
+            return localStorage.getItem(getInterviewNotesKey(applicationId)) || '';
+        } catch (_) {
+            return '';
+        }
+    }
+
+    function renderInterviewNotes(app) {
+        if (!['shortlisted', 'interview'].includes(String(app.status || ''))) return '';
+        return `
+            <div class="application-interview-notes">
+                <label for="interview-notes-${escapeHtml(app.id)}">My interview notes</label>
+                <textarea id="interview-notes-${escapeHtml(app.id)}" data-interview-notes-app="${escapeHtml(app.id)}" maxlength="1500" rows="3" placeholder="Add talking points, examples, or questions for this role...">${escapeHtml(readInterviewNotes(app.id))}</textarea>
+                <div class="application-interview-notes-footer">
+                    <span data-interview-notes-count="${escapeHtml(app.id)}">${readInterviewNotes(app.id).length}/1500 characters</span>
+                    <span data-interview-notes-status="${escapeHtml(app.id)}" aria-live="polite">Saved on this device</span>
+                </div>
+            </div>
+        `;
+    }
+
     function readInterviewPrep(applicationId) {
         try {
             const parsed = JSON.parse(localStorage.getItem(getInterviewPrepKey(applicationId)) || '[]');
@@ -204,6 +230,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         ${waitingAgeForApplication(app)}
                         <p class="application-next-step"><b>Next step:</b> ${escapeHtml(nextStepForStatus(app.status))}</p>
                         ${renderInterviewPrep(app)}
+                        ${renderInterviewNotes(app)}
                         <div class="application-timeline-mini" aria-label="Application status history">${history.map(item => `<span><b>${escapeHtml(statusLabel(item.status))}</b><em>${escapeHtml(new Date(item.changed_at).toLocaleDateString())}</em></span>`).join('')}</div>
                         <a href="/?job=${encodeURIComponent(app.job_id)}" class="application-view-link">View job details →</a>
                     </div>
@@ -253,6 +280,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     sortSelect.addEventListener('change', applyFilters);
     clearFilters.addEventListener('click', resetFilters);
     exportButton?.addEventListener('click', exportVisibleApplications);
+
+    list.addEventListener('input', event => {
+        const textarea = event.target.closest('textarea[data-interview-notes-app]');
+        if (!textarea) return;
+        const applicationId = textarea.dataset.interviewNotesApp;
+        const count = list.querySelector('[data-interview-notes-count="' + CSS.escape(applicationId) + '"]');
+        const status = list.querySelector('[data-interview-notes-status="' + CSS.escape(applicationId) + '"]');
+        if (count) count.textContent = textarea.value.length + '/1500 characters';
+        try {
+            localStorage.setItem(getInterviewNotesKey(applicationId), textarea.value);
+            if (status) status.textContent = 'Saved on this device';
+        } catch (_) {
+            if (status) status.textContent = 'Could not save — check browser storage';
+        }
+    });
 
     list.addEventListener('change', event => {
         const checkbox = event.target.closest('input[data-prep-app][data-prep-task]');
