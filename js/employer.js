@@ -440,10 +440,15 @@ function getFilteredApplicants() {
             (state.applicantStatus === 'all' || applicant.status === state.applicantStatus) &&
             Number(applicant.matchScore || 0) >= minimumMatch;
     }).sort((a, b) => {
+        const timestamp = (value) => {
+            if (!value) return 0;
+            const parsed = new Date(value).getTime();
+            return Number.isFinite(parsed) ? parsed : 0;
+        };
         switch (state.applicantSort) {
             case 'match-asc': return Number(a.matchScore || 0) - Number(b.matchScore || 0);
-            case 'newest': return new Date(b.applied_at || 0) - new Date(a.applied_at || 0);
-            case 'oldest': return new Date(a.applied_at || 0) - new Date(b.applied_at || 0);
+            case 'newest': return timestamp(b.applied_at || b.created_at) - timestamp(a.applied_at || a.created_at);
+            case 'oldest': return timestamp(a.applied_at || a.created_at) - timestamp(b.applied_at || b.created_at);
             case 'name-asc': return String(a.full_name || '').localeCompare(String(b.full_name || ''));
             default: return Number(b.matchScore || 0) - Number(a.matchScore || 0);
         }
@@ -465,7 +470,7 @@ function exportFilteredApplicants() {
         ['Application ID', (applicant) => applicant.application_id],
         ['Status', (applicant) => applicant.status],
         ['Match Score', (applicant) => Number(applicant.matchScore || 0) + '%'],
-        ['Applied Date', (applicant) => applicant.applied_at ? new Date(applicant.applied_at).toLocaleDateString() : ''],
+        ['Applied Date', (applicant) => formatApplicantDate(applicant.applied_at || applicant.created_at)],
         ['Education', (applicant) => applicant.degree],
         ['Location', (applicant) => applicant.location],
         ['Matched Skills', (applicant) => (applicant.matchingSkills || []).join('; ')],
@@ -680,7 +685,7 @@ async function viewApplicant(applicationId) {
         $('#applicantProfileTitle').textContent = applicant.full_name || 'Applicant';
         $('#applicantProfileSubtitle').textContent =
             (applicant.job_title || 'Job application') + ' · Applied ' +
-            (applicant.applied_at ? new Date(applicant.applied_at).toLocaleDateString() : 'date unavailable');
+            (formatApplicantDate(applicant.applied_at || applicant.created_at) || 'date unavailable');
 
         $('#applicantProfileName').textContent = applicant.full_name || 'Applicant';
         $('#applicantProfileEmail').textContent = applicant.email || 'Email not listed';
