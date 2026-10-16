@@ -8433,3 +8433,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   background: #fff2ef;
   color: #963c2c;
 }
+
+
+/* Employer applicant email quick action */
+.employer-applicant-actions .employer-copy-email {
+  white-space: nowrap;
+}
+@media (max-width: 560px) {
+  .employer-applicant-actions .employer-copy-email {
+    flex: 1 1 auto;
+  }
+}
