@@ -8457,3 +8457,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 #applicantNotesMessage { color: var(--muted); font-size: 10px; line-height: 1.5; }
 #applicantNotesMessage.is-error { color: #9f2828; }
 @media (max-width: 480px) { .employer-private-notes-heading, .employer-private-notes-footer { align-items: flex-start; flex-direction: column; } .employer-private-notes-footer .employer-secondary-button { width: 100%; } }
+/* Interview preparation checklist on shortlisted and interview-stage applications */
+.application-interview-prep{width:100%;margin:10px 0 2px;padding:13px;border:1px solid #e3e5f4;border-radius:12px;background:#fafaff;box-sizing:border-box}
+.application-interview-prep-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px;color:#252b58;font-size:13px}
+.application-interview-prep-heading span{font-size:11px;font-weight:700;color:#5753a5;white-space:nowrap}
+.application-interview-prep-tasks{display:grid;gap:8px}
+.application-interview-prep-tasks label{display:flex;align-items:flex-start;gap:8px;color:#44495c;font-size:12px;line-height:1.45;cursor:pointer}
+.application-interview-prep-tasks input{flex:0 0 auto;margin:2px 0 0;accent-color:#5753a5}
+.application-interview-prep-tasks input:focus-visible{outline:2px solid #5753a5;outline-offset:3px}
+.application-interview-prep-tasks input:checked+span{text-decoration:line-through;color:#777b8d}
+.application-interview-prep-note{margin:9px 0 0;color:#777b8d;font-size:10px;line-height:1.4}
+@media(max-width:480px){.application-interview-prep{padding:11px}.application-interview-prep-heading{align-items:flex-start}}
