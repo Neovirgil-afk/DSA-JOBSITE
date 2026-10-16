@@ -7724,3 +7724,133 @@ input, select, textarea {
   }
   .main-nav > .nav-dropdown > .nav-dropdown-btn svg { display: none; }
 }
+
+
+/* Sidebar repair: stable icon mapping, consistent spacing, and real hover labels. */
+@media (min-width: 900px) {
+  .main-nav {
+    width: 60px;
+    padding: 10px 8px;
+    gap: 7px;
+    align-items: stretch;
+    justify-content: center;
+    overflow: visible;
+  }
+  .main-nav > a,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn {
+    box-sizing: border-box;
+    width: 42px;
+    min-width: 42px;
+    height: 44px;
+    min-height: 44px;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 14px;
+    position: relative;
+    background: transparent;
+    color: var(--ink);
+    font-size: 0 !important;
+    line-height: 1;
+    box-shadow: none;
+  }
+  .main-nav > .nav-dropdown { width: 100%; }
+  .main-nav > a::before,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn::before {
+    content: "";
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    margin: 0;
+    font-family: "Segoe UI Symbol", "Apple Symbols", sans-serif;
+    font-size: 21px;
+    font-weight: 600;
+    line-height: 1;
+    color: currentColor;
+  }
+  .main-nav > a[href="/"]::before { content: "⌕"; }
+  .main-nav > a[href*="career-center"]::before { content: "✦"; }
+  .main-nav > a[href*="employer"]::before { content: "▦"; }
+  .main-nav > a[href*="companies"]::before { content: "◫"; }
+  .main-nav > a[href*="about"]::before { content: "ⓘ"; }
+  .main-nav > a[href*="applications"]::before { content: "▣"; }
+  .main-nav > a[href*="learning"]::before { content: "↗"; }
+  .main-nav > a[href*="profile"]::before { content: "♙"; }
+  .main-nav > a[href*="messages"]::before { content: "✉"; }
+  .main-nav > a[href*="notifications"]::before { content: "♧"; }
+  .main-nav > a[href*="resume"],
+  .main-nav > a[href*="resume"]::before { }
+  .main-nav > .nav-dropdown > .nav-dropdown-btn::before { content: "▤"; }
+  .main-nav > .nav-dropdown:nth-of-type(2) > .nav-dropdown-btn::before { content: "☷"; }
+  .main-nav > a:hover,
+  .main-nav > a:focus-visible,
+  .main-nav > a.active,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn:hover,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn:focus-visible {
+    background: var(--indigo-tint);
+    color: var(--indigo-dark);
+  }
+  .main-nav > a::after,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn::after {
+    content: attr(data-label);
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 12px);
+    transform: translate(-4px, -50%);
+    width: max-content;
+    max-width: 220px;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--ink);
+    box-shadow: var(--bubble-shadow);
+    font: 700 12px/1.2 var(--font-body);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 250;
+    transition: opacity .15s ease, transform .15s ease, visibility .15s ease;
+  }
+  .main-nav > a:hover::after,
+  .main-nav > a:focus-visible::after,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn:hover::after,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn:focus-visible::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(0, -50%);
+  }
+  .main-nav > .nav-dropdown > .nav-dropdown-btn svg { display: none; }
+  .main-nav .nav-dropdown-panel {
+    top: 0;
+    left: calc(100% + 9px);
+    transform: translateX(-4px);
+    z-index: 260;
+    min-width: 180px;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    background: #fff;
+    box-shadow: var(--bubble-shadow);
+  }
+  .main-nav .nav-dropdown-panel a {
+    display: block;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+  .main-nav .nav-dropdown-panel a:hover { background: var(--indigo-tint); }
+}
+@media (max-width: 899px) {
+  .main-nav > a,
+  .main-nav > .nav-dropdown > .nav-dropdown-btn {
+    min-height: 44px;
+  }
+}
