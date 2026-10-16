@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const filterSummary = document.querySelector('#applicationFilterSummary');
     const clearFilters = document.querySelector('#clearApplicationFilters');
     const exportButton = document.querySelector('#exportApplications');
+    const printButton = document.querySelector('#printApplications');
     const statusOverview = document.querySelector('#applicationStatusOverview');
     let allApplications = [];
     let visibleApplications = [];
@@ -192,6 +193,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function renderFiltered(applications) {
         visibleApplications = applications;
         if (exportButton) exportButton.disabled = applications.length === 0;
+        if (printButton) printButton.disabled = applications.length === 0;
         count.textContent = String(allApplications.length);
         filterSummary.textContent = applications.length === allApplications.length
             ? allApplications.length + (allApplications.length === 1 ? ' application' : ' applications')
@@ -280,6 +282,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     sortSelect.addEventListener('change', applyFilters);
     clearFilters.addEventListener('click', resetFilters);
     exportButton?.addEventListener('click', exportVisibleApplications);
+    printButton?.addEventListener('click', () => {
+        if (visibleApplications.length) window.print();
+    });
 
     list.addEventListener('input', event => {
         const textarea = event.target.closest('textarea[data-interview-notes-app]');
