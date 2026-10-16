@@ -510,7 +510,24 @@ function formatApplicantDate(value) {
     return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
+function renderApplicantPipelineCounts() {
+    const statuses = ['all', 'new', 'reviewing', 'shortlisted', 'interview', 'hired', 'rejected'];
+    statuses.forEach((status) => {
+        const count = status === 'all'
+            ? state.applicants.length
+            : state.applicants.filter((applicant) => String(applicant.status || 'new') === status).length;
+        const value = $('#applicantPipelineCounts [data-pipeline-count="' + status + '"]');
+        if (value) value.textContent = String(count);
+    });
+    $('#applicantPipelineCounts')?.querySelectorAll('[data-pipeline-status]').forEach((button) => {
+        const active = state.applicantStatus === button.dataset.pipelineStatus;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', String(active));
+    });
+}
+
 function renderApplicants() {
+    renderApplicantPipelineCounts();
     const applicants = getFilteredApplicants();
     const exportButton = $('#exportApplicants');
     if (exportButton) exportButton.disabled = applicants.length === 0;
@@ -1017,6 +1034,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('#exportApplicants')?.addEventListener('click', exportFilteredApplicants);
     $('#applicantPrivateNotes')?.addEventListener('input', updateApplicantNotesCount);
     $('#saveApplicantNotes')?.addEventListener('click', saveApplicantNotes);
+
+    $('#applicantPipelineCounts')?.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-pipeline-status]');
+        if (!button) return;
+        state.applicantStatus = button.dataset.pipelineStatus || 'all';
+        $('#applicantStatusFilter').value = state.applicantStatus;
+        renderApplicants();
+    });
 
     $('#applicantSearch').addEventListener('input', (event) => {
         state.applicantSearch = event.target.value;
