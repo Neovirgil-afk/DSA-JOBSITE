@@ -200,6 +200,34 @@ function syncJobsiteRail() {
             }
         });
     }
+    /* Bind the menu even when Resources already exists in page HTML. */
+    const resourcesDropdown = rail.querySelector('.jobsite-resources-dropdown');
+    if (resourcesDropdown && !resourcesDropdown.dataset.clickBound) {
+        const resourcesButton = resourcesDropdown.querySelector('.nav-dropdown-btn');
+        if (resourcesButton) {
+            resourcesDropdown.dataset.clickBound = 'true';
+            resourcesButton.setAttribute('aria-expanded', 'false');
+            resourcesButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                const open = resourcesDropdown.classList.toggle('is-open');
+                resourcesButton.setAttribute('aria-expanded', String(open));
+            });
+            document.addEventListener('click', (event) => {
+                if (!resourcesDropdown.contains(event.target)) {
+                    resourcesDropdown.classList.remove('is-open');
+                    resourcesButton.setAttribute('aria-expanded', 'false');
+                }
+            });
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    resourcesDropdown.classList.remove('is-open');
+                    resourcesButton.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+    }
+
     const path = window.location.pathname.replace(/\/$/, '') || '/';
     rail.querySelectorAll('a[data-rail]').forEach((link) => {
         const href = new URL(link.href, window.location.origin);
