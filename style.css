@@ -8357,3 +8357,38 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media (prefers-reduced-motion: reduce) {
   .application-card--highlight { animation: none; }
 }
+
+
+/* Application tracker status overview */
+.application-status-overview {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 0 18px;
+}
+.application-status-tile {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 13px 14px;
+  border: 1px solid #e8e5f4;
+  border-radius: 14px;
+  background: #fff;
+  color: #667085;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+.application-status-tile span { font-size: 11px; font-weight: 700; line-height: 1.35; }
+.application-status-tile strong { color: #25284b; font-size: 24px; line-height: 1; }
+.application-status-tile:hover { border-color: #a5a0f5; transform: translateY(-1px); }
+.application-status-tile:focus-visible { outline: 3px solid #818cf8; outline-offset: 2px; }
+.application-status-tile.is-active { border-color: #6366f1; background: #f5f5ff; box-shadow: 0 0 0 2px rgba(99, 102, 241, .12); }
+@media (max-width: 900px) { .application-status-overview { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 480px) {
+  .application-status-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .application-status-tile { padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .application-status-tile { transition: none; } }
