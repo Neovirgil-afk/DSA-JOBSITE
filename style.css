@@ -8444,3 +8444,16 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     flex: 1 1 auto;
   }
 }
+
+
+/* Hiring notes panel */
+.employer-private-notes { display: grid; gap: 10px; }
+.employer-private-notes-heading, .employer-private-notes-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.employer-private-notes-heading > div { min-width: 0; }
+.employer-private-notes-heading p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.employer-notes-count { flex: 0 0 auto; color: var(--muted); font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; }
+#applicantPrivateNotes { box-sizing: border-box; width: 100%; min-height: 100px; resize: vertical; padding: 12px; border: 1px solid var(--line); border-radius: 11px; background: #fff; color: var(--navy); font: 500 12px/1.6 Inter, sans-serif; }
+#applicantPrivateNotes:focus { border-color: var(--indigo); outline: 2px solid rgba(79,70,229,.12); }
+#applicantNotesMessage { color: var(--muted); font-size: 10px; line-height: 1.5; }
+#applicantNotesMessage.is-error { color: #9f2828; }
+@media (max-width: 480px) { .employer-private-notes-heading, .employer-private-notes-footer { align-items: flex-start; flex-direction: column; } .employer-private-notes-footer .employer-secondary-button { width: 100%; } }
