@@ -437,7 +437,7 @@ function renderApplicants() {
             '<div class="employer-applicant-main">' +
                 '<div class="employer-applicant-heading"><div><h3>' + escapeHtml(applicant.full_name) + '</h3><p>' + escapeHtml(applicant.email) + '</p></div>' +
                 '<span class="employer-status employer-status--' + escapeHtml(applicant.status) + '">' + escapeHtml(applicant.status) + '</span></div>' +
-                '<div class="employer-applicant-meta"><span>' + escapeHtml(applicant.degree || 'Education not listed') + '</span><span>' + escapeHtml(applicant.location || 'Location not listed') + '</span></div>' +
+                '<div class="employer-applicant-meta"><span>Application #' + Number(applicant.application_id) + '</span><span>' + escapeHtml(applicant.degree || 'Education not listed') + '</span><span>' + escapeHtml(applicant.location || 'Location not listed') + '</span></div>' +
                 '<div class="employer-match-skills"><div><small>Matched</small>' +
                 (applicant.matchingSkills || []).slice(0, 7).map((skill) => '<span class="match-have">' + escapeHtml(skill) + '</span>').join('') + '</div><div><small>Missing</small>' +
                 (applicant.missingSkills || []).slice(0, 5).map((skill) => '<span class="match-missing">' + escapeHtml(skill) + '</span>').join('') + '</div></div>' +
