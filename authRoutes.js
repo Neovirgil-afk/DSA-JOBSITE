@@ -55,16 +55,19 @@ router.post('/register', authRateLimit, (req, res) => {
         }
 
 
+        if (typeof fullName !== 'string' || typeof email !== 'string' ||
+            typeof password !== 'string' || typeof confirmPassword !== 'string' ||
+            typeof education !== 'string' || typeof degree !== 'string' ||
+            typeof targetJob !== 'string' || typeof location !== 'string') {
+            return res.status(400).json({ error: 'All fields must contain text values.' });
+        }
+
         /* ---------- PASSWORD LENGTH ---------- */
 
-        if (password.length < 6) {
-
-            return res.status(400).json({
-                error:
-                    'Password must be at least 6 characters.'
-            });
-
+        if (password.length < 6 || password.length > 1024) {
+            return res.status(400).json({ error: 'Password must be between 6 and 1024 characters.' });
         }
+
 
 
         /* ---------- PASSWORD MATCH ---------- */
