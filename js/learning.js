@@ -299,6 +299,12 @@
         notesInput?.addEventListener('blur', () => {
             if (notesSaveTimer) persistLessonNotes();
         });
+        notesInput?.addEventListener('keydown', (event) => {
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+                event.preventDefault();
+                persistLessonNotes('Notes saved ✓');
+            }
+        });
         $('#saveLearningNotes')?.addEventListener('click', () => {
             persistLessonNotes('Notes saved ✓');
         });
