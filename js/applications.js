@@ -25,6 +25,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         return labels[status] || 'Applied';
     }
 
+    function formatApplicationDate(value, fallback = 'Date unavailable') {
+        if (!value) return fallback;
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? fallback : date.toLocaleDateString();
+    }
+
     function nextStepForStatus(status) {
         const guidance = {
             new: 'Your application has been submitted. Keep an eye out for an update from the employer.',
@@ -228,12 +234,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                     <div class="application-card-side">
                         <span class="application-status application-status--${escapeHtml(app.status)}">${statusLabel(app.status)}</span>
-                        <small>Applied ${escapeHtml(new Date(app.applied_at).toLocaleDateString())}</small>
+                        <small>Applied ${escapeHtml(formatApplicationDate(app.applied_at))}</small>
                         ${waitingAgeForApplication(app)}
                         <p class="application-next-step"><b>Next step:</b> ${escapeHtml(nextStepForStatus(app.status))}</p>
                         ${renderInterviewPrep(app)}
                         ${renderInterviewNotes(app)}
-                        <div class="application-timeline-mini" aria-label="Application status history">${history.map(item => `<span><b>${escapeHtml(statusLabel(item.status))}</b><em>${escapeHtml(new Date(item.changed_at).toLocaleDateString())}</em></span>`).join('')}</div>
+                        <div class="application-timeline-mini" aria-label="Application status history">${history.map(item => `<span><b>${escapeHtml(statusLabel(item.status))}</b><em>${escapeHtml(formatApplicationDate(item.changed_at))}</em></span>`).join('')}</div>
                         <a href="/?job=${encodeURIComponent(app.job_id)}" class="application-view-link">View job details →</a>
                     </div>
                 </article>
@@ -247,7 +253,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ['Job Title', app => app.title],
             ['Company', app => app.company],
             ['Status', app => statusLabel(app.status)],
-            ['Applied Date', app => app.applied_at ? new Date(app.applied_at).toLocaleDateString() : ''],
+            ['Applied Date', app => formatApplicationDate(app.applied_at, '')],
             ['Location', app => app.location],
             ['Employment Type', app => app.employment_type],
             ['Salary', app => app.salary],
