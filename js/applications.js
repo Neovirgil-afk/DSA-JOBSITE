@@ -37,6 +37,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
+    const interviewPrepTasks = [
+        'Review the job description and required skills',
+        'Prepare examples of relevant projects or experience',
+        'Practice a short introduction about yourself',
+        'Write down questions to ask the employer',
+        'Check the interview time, link, or location'
+    ];
+
+    function getInterviewPrepKey(applicationId) {
+        return 'jobsite:interview-prep:' + String(applicationId);
+    }
+
+    function readInterviewPrep(applicationId) {
+        try {
+            const parsed = JSON.parse(localStorage.getItem(getInterviewPrepKey(applicationId)) || '[]');
+            return Array.isArray(parsed) ? parsed.filter(index => Number.isInteger(index) && index >= 0 && index < interviewPrepTasks.length) : [];
+        } catch (_) {
+            return [];
+        }
+    }
+
+    function renderInterviewPrep(app) {
+        if (!['shortlisted', 'interview'].includes(String(app.status || ''))) return '';
+        const completed = readInterviewPrep(app.id);
+        return `
+            <section class="application-interview-prep" aria-label="Interview preparation checklist">
+                <div class="application-interview-prep-heading">
+                    <strong>Interview prep</strong>
+                    <span data-prep-progress="${escapeHtml(app.id)}">${completed.length}/${interviewPrepTasks.length} ready</span>
+                </div>
+                <div class="application-interview-prep-tasks">
+                    ${interviewPrepTasks.map((task, index) => `
+                        <label>
+                            <input type="checkbox" data-prep-app="${escapeHtml(app.id)}" data-prep-task="${index}" ${completed.includes(index) ? 'checked' : ''}>
+                            <span>${escapeHtml(task)}</span>
+                        </label>
+                    `).join('')}
+                </div>
+                <p class="application-interview-prep-note">Checklist is saved in this browser on this device.</p>
+            </section>
+        `;
+    }
+
     function waitingAgeForApplication(app) {
         const status = String(app.status || 'new');
         if (status !== 'new' && status !== 'reviewing') return '';
@@ -160,6 +203,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <small>Applied ${escapeHtml(new Date(app.applied_at).toLocaleDateString())}</small>
                         ${waitingAgeForApplication(app)}
                         <p class="application-next-step"><b>Next step:</b> ${escapeHtml(nextStepForStatus(app.status))}</p>
+                        ${renderInterviewPrep(app)}
                         <div class="application-timeline-mini" aria-label="Application status history">${history.map(item => `<span><b>${escapeHtml(statusLabel(item.status))}</b><em>${escapeHtml(new Date(item.changed_at).toLocaleDateString())}</em></span>`).join('')}</div>
                         <a href="/?job=${encodeURIComponent(app.job_id)}" class="application-view-link">View job details →</a>
                     </div>
@@ -209,6 +253,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     sortSelect.addEventListener('change', applyFilters);
     clearFilters.addEventListener('click', resetFilters);
     exportButton?.addEventListener('click', exportVisibleApplications);
+
+    list.addEventListener('change', event => {
+        const checkbox = event.target.closest('input[data-prep-app][data-prep-task]');
+        if (!checkbox) return;
+        const applicationId = checkbox.dataset.prepApp;
+        const taskIndex = Number(checkbox.dataset.prepTask);
+        if (!applicationId || !Number.isInteger(taskIndex) || taskIndex < 0 || taskIndex >= interviewPrepTasks.length) return;
+        const completed = new Set(readInterviewPrep(applicationId));
+        if (checkbox.checked) completed.add(taskIndex);
+        else completed.delete(taskIndex);
+        try {
+            localStorage.setItem(getInterviewPrepKey(applicationId), JSON.stringify([...completed].sort((a, b) => a - b)));
+            const progress = Array.from(list.querySelectorAll('[data-prep-progress]')).find(el => el.dataset.prepProgress === applicationId);
+            if (progress) progress.textContent = completed.size + '/' + interviewPrepTasks.length + ' ready';
+        } catch (_) {
+            const card = checkbox.closest('.application-interview-prep');
+            if (card) {
+                const note = card.querySelector('.application-interview-prep-note');
+                if (note) note.textContent = 'Could not save progress in this browser. Check browser storage settings.';
+            }
+        }
+    });
     statusOverview?.querySelectorAll('[data-status-filter]').forEach(button => {
         button.addEventListener('click', () => {
             statusFilter.value = statusFilter.value === button.dataset.statusFilter ? 'all' : button.dataset.statusFilter;
