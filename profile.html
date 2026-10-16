@@ -716,6 +716,7 @@
         @media(max-width:700px){.profile-learning-body{align-items:stretch;flex-direction:column}.profile-learning-button{width:100%}}
 
     .profile-skill-search{display:grid;gap:7px;margin:0 0 16px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fbfbff}.profile-skill-search label{font-size:11px;font-weight:800;color:var(--navy)}.profile-skill-search input{width:100%;box-sizing:border-box;min-width:0;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font:12px Inter,sans-serif}.profile-skill-search p{font-size:10px;line-height:1.5;color:var(--muted);margin:0}.profile-skill-search-results{display:grid;gap:5px;max-height:220px;overflow:auto}.profile-skill-suggestion{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font:600 11px Inter,sans-serif;cursor:pointer}.profile-skill-suggestion small{color:var(--muted);font-size:9px}.profile-skill-suggestion:hover,.profile-skill-suggestion:focus-visible{border-color:var(--indigo);background:var(--indigo-tint)}.profile-skill-suggestion--custom{color:var(--indigo-dark);font-weight:800}.profile-skill-search-empty{padding:8px;font-size:10px;color:var(--muted)}
+.profile-target-edit{display:block;margin-top:7px;padding:0;border:0;background:none;color:var(--indigo);font-size:10px;font-weight:800;cursor:pointer}.profile-target-editor{display:grid;gap:7px;margin-top:10px}.profile-target-editor label{font-size:10px;font-weight:800;color:var(--muted)}.profile-target-editor input{width:100%;box-sizing:border-box;min-width:0;padding:9px;border:1px solid var(--line);border-radius:8px;font:11px Inter,sans-serif}.profile-target-editor>div{display:flex;gap:8px;flex-wrap:wrap}.profile-target-editor button{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:10px;font-weight:800;cursor:pointer}.profile-target-editor button.btn-primary{background:var(--indigo);color:#fff;border-color:var(--indigo)}.profile-target-editor p{margin:0;font-size:10px;color:var(--muted)}
 </style>
 
 
@@ -1125,6 +1126,13 @@
                                 <strong id="profileTargetJob">
                                     Loading...
                                 </strong>
+                                <button type="button" class="profile-target-edit" id="editTargetJob">Change target job</button>
+                                <form id="targetJobEditor" class="profile-target-editor" hidden>
+                                    <label for="targetJobInput">Your target job</label>
+                                    <input id="targetJobInput" maxlength="160" placeholder="e.g. Frontend Developer" required>
+                                    <div><button type="submit" class="btn btn-primary">Save target</button><button type="button" id="cancelTargetJob">Cancel</button></div>
+                                    <p id="targetJobMessage" role="status" aria-live="polite"></p>
+                                </form>
 
                             </div>
 
