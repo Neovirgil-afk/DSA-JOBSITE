@@ -123,8 +123,8 @@ if (routeImports.length === 0) {
 }
 
 // Guard important production session-cookie and secret settings against accidental removal.
-if (!/process\.env\.NODE_ENV\s*===\s*['"]production['"]\s*&&\s*!process\.env\.SESSION_SECRET/.test(server)) {
-    fail('server.js must require SESSION_SECRET in production.');
+if (!/process\\.env\\.NODE_ENV\\s*===\\s*['"]production['"]\\s*&&\\s*!String\\(process\\.env\\.SESSION_SECRET\\s*\\|\\|\\s*['"]['"]\\)\\.trim\\(\\)/.test(server)) {
+    fail('server.js must reject missing, empty, or whitespace-only SESSION_SECRET values in production.');
 }
 if (!/httpOnly:\s*true/.test(server)) {
     fail('Session cookies must remain HttpOnly.');
