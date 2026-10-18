@@ -477,12 +477,14 @@ async function main() {
             body: JSON.stringify({ status: 'reviewing' })
         });
         if (invalidApplicationId.status !== 400) throw new Error('Invalid application ID should return 400.');
+        sessionCookie = candidateCookie;
         const candidateCannotChangeApplicationStatus = await request('/api/employer/applications/' + employerApplicationId + '/status', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: 'hired' })
         });
         if (candidateCannotChangeApplicationStatus.status !== 403) throw new Error('Candidates must not change employer application statuses.');
+        sessionCookie = employerCookie;
 
         const scheduledAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
         const interviewResponse = await request('/api/interviews', {
