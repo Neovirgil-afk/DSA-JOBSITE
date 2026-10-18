@@ -188,6 +188,12 @@ router.post('/register', authRateLimit, (req, res) => {
             return res.status(400).json({ error: 'Passwords do not match.' });
         }
 
+        for (const [field, value] of Object.entries({ companyDescription, companyEmail, companyPhone, companyWebsite })) {
+            if (value !== undefined && value !== null && typeof value !== 'string') {
+                return res.status(400).json({ error: 'Company profile fields must contain text values.' });
+            }
+        }
+
         const cleanEmail = clean(email).toLowerCase();
         const cleanCompany = clean(companyName).slice(0, 160);
         if (cleanEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
