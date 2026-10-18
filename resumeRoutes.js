@@ -107,14 +107,20 @@ router.put('/builder', requireAuth, requireCandidate, (req, res) => {
             location: String(data.location || '').trim(),
             summary: String(data.summary || '').trim(),
             education: Array.isArray(data.education)
-                ? data.education.slice(0, 8).map((item) => ({
+                ? data.education
+                    .filter((item) => item && typeof item === 'object' && !Array.isArray(item))
+                    .slice(0, 8)
+                    .map((item) => ({
                     school: String(item.school || '').trim(),
                     degree: String(item.degree || '').trim(),
                     year: String(item.year || '').trim()
                 }))
                 : [],
             experience: Array.isArray(data.experience)
-                ? data.experience.slice(0, 8).map((item) => ({
+                ? data.experience
+                    .filter((item) => item && typeof item === 'object' && !Array.isArray(item))
+                    .slice(0, 8)
+                    .map((item) => ({
                     title: String(item.title || '').trim(),
                     company: String(item.company || '').trim(),
                     duration: String(item.duration || '').trim(),
@@ -122,13 +128,19 @@ router.put('/builder', requireAuth, requireCandidate, (req, res) => {
                 }))
                 : [],
             projects: Array.isArray(data.projects)
-                ? data.projects.slice(0, 8).map((item) => ({
+                ? data.projects
+                    .filter((item) => item && typeof item === 'object' && !Array.isArray(item))
+                    .slice(0, 8)
+                    .map((item) => ({
                     name: String(item.name || '').trim(),
                     description: String(item.description || '').trim()
                 }))
                 : [],
             certifications: Array.isArray(data.certifications)
-                ? data.certifications.slice(0, 8).map((item) => ({
+                ? data.certifications
+                    .filter((item) => item && typeof item === 'object' && !Array.isArray(item))
+                    .slice(0, 8)
+                    .map((item) => ({
                     name: String(item.name || '').trim(),
                     issuer: String(item.issuer || '').trim(),
                     year: String(item.year || '').trim()
