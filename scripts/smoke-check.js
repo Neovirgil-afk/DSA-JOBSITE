@@ -278,9 +278,12 @@ if (!/app\.use\(\s*['"]\/uploads['"]\s*,\s*\(req,\s*res\)\s*=>\s*\{\s*res\.sendS
 
 // SQLite databases and sidecar files must be blocked before static serving.
 const databaseFileBlockIndex = server.indexOf('Never expose SQLite database files');
+const databaseFileGuard = server.slice(databaseFileBlockIndex, staticFilesIndex);
 if (databaseFileBlockIndex < 0 || staticFilesIndex < 0 || databaseFileBlockIndex > staticFilesIndex ||
-    !/path\\.basename\\(req\\.path\\)\\.toLowerCase\\(\\)/.test(server) ||
-    !server.includes(String.raw`/\\.(?:db|sqlite|sqlite3)(?:-(?:wal|shm))?$/.test(requestedFile)`)) {
+    !databaseFileGuard.includes('path.basename(req.path).toLowerCase()') ||
+    !databaseFileGuard.includes('db|sqlite|sqlite3') ||
+    !databaseFileGuard.includes('wal|shm') ||
+    !databaseFileGuard.includes('res.sendStatus(404)')) {
     fail('SQLite database files and sidecar files must be blocked before public static-file serving.');
 }
 
