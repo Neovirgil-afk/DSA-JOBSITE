@@ -179,6 +179,15 @@ if (!resumeSignatureSource.includes('function hasValidResumeSignature(filePath, 
     fail('Resume uploads must validate PDF/DOCX file signatures and reject mismatched files before scanning.');
 }
 
+// The authentication limiter must fail closed at capacity rather than clearing active limits.
+const authLimiterSource = read('authRateLimit.js');
+if (!authLimiterSource.includes('const MAX_TRACKED_KEYS = 10000') ||
+    !authLimiterSource.includes('if (windows.size >= MAX_TRACKED_KEYS)') ||
+    !authLimiterSource.includes('Authentication is temporarily unavailable') ||
+    authLimiterSource.includes('windows.clear()')) {
+    fail('Authentication rate limiter must bound memory without clearing active client limits.');
+}
+
 const authRoutesSource = read('authRoutes.js');
 const logoutStart = authRoutesSource.indexOf("router.post('/logout'");
 const logoutEnd = authRoutesSource.indexOf("router.get('/me'", logoutStart);
