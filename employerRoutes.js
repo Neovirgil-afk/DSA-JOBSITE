@@ -830,6 +830,9 @@ router.get('/applicants/:id/resume', requireEmployer, (req, res) => {
                     .replace(/["\\\r\n]/g, '_') +
                 '"'
         );
+        res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('X-Content-Type-Options', 'nosniff');
 
         res.sendFile(filePath);
     } catch (err) {
