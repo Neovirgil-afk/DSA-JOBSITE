@@ -34,18 +34,19 @@ const adminRoutes = require('./adminRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Seed the database if it is genuinely new, then remove legacy listings that
-// are not attached to an employer account. This cleanup also runs in production.
+// Seed the database if it is genuinely new. Do not delete listings before the
+// demo employer accounts have been synchronized: that can orphan/remove their jobs.
 seedIfNeeded(db);
-cleanupOrphanedJobs();
 
 // Keep the fictional demo employers, candidates, jobs, applications, and conversations
 // available automatically for local development. Production stays opt-in because
-// these accounts share a known demo password.
+// these accounts share a known demo password. Cleanup runs only after demo seeding,
+// and never runs in production while demo seeding is disabled.
 if (process.env.NODE_ENV !== 'production' || process.env.DEMO_SEED_ALLOW_PRODUCTION === '1') {
     seedDemoData();
+    cleanupOrphanedJobs();
 } else {
-    console.log('[demo-seed] Skipped in production. Set DEMO_SEED_ALLOW_PRODUCTION=1 to enable demo accounts.');
+    console.log('[demo-seed] Skipped in production. Set DEMO_SEED_ALLOW_PRODUCTION=1 to enable demo accounts and their job listings.');
 }
 
 // Optional administrator bootstrap: set ADMIN_EMAIL in the environment,
