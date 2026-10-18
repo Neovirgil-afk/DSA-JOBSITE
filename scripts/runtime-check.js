@@ -684,6 +684,55 @@ async function main() {
         const employerJobsBody = await employerJobs.json();
         if (!employerJobsBody.jobs?.some((item) => Number(item.id) === postedJobId)) throw new Error('Newly posted job was not returned in the employer job list.');
 
+        const draftJobCreateResponse = await request('/api/employer/jobs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: 'Runtime Draft Visibility Check',
+                description: 'Draft job visibility and publication transition integration test.',
+                skills: ['Python'],
+                employmentType: 'Full-time',
+                location: 'Remote',
+                howToApply: 'Apply through JobPath.',
+                status: 'draft'
+            })
+        });
+        if (draftJobCreateResponse.status !== 201) {
+            throw new Error('Employer should be able to save a valid draft job; received ' + draftJobCreateResponse.status + ': ' + await draftJobCreateResponse.text());
+        }
+        const draftJobCreateBody = await draftJobCreateResponse.json();
+        const draftJobId = Number(draftJobCreateBody.job?.id);
+        if (draftJobCreateBody.job?.status !== 'draft' || !Number.isInteger(draftJobId) || draftJobId <= 0) {
+            throw new Error('A job created as draft must retain its draft status and return a valid ID.');
+        }
+        const employerJobsWithDraft = await request('/api/employer/jobs');
+        const employerJobsWithDraftBody = await employerJobsWithDraft.json();
+        if (!employerJobsWithDraftBody.jobs?.some((item) => Number(item.id) === draftJobId && item.status === 'draft')) {
+            throw new Error('Employer job list should include the employer’s saved draft.');
+        }
+        sessionCookie = candidateCookie;
+        const publicJobsWithDraft = await request('/api/jobs');
+        const publicJobsWithDraftBody = await publicJobsWithDraft.json();
+        if (publicJobsWithDraftBody.jobs?.some((item) => Number(item.id) === draftJobId)) {
+            throw new Error('Draft postings must not appear in public candidate job search.');
+        }
+        sessionCookie = employerCookie;
+        const publishDraftResponse = await request('/api/employer/jobs/' + draftJobId + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'active' })
+        });
+        if (publishDraftResponse.status !== 200) {
+            throw new Error('Employer should be able to publish a valid draft; received ' + publishDraftResponse.status + '.');
+        }
+        sessionCookie = candidateCookie;
+        const publicJobsAfterDraftPublished = await request('/api/jobs');
+        const publicJobsAfterDraftPublishedBody = await publicJobsAfterDraftPublished.json();
+        if (!publicJobsAfterDraftPublishedBody.jobs?.some((item) => Number(item.id) === draftJobId)) {
+            throw new Error('Publishing a draft should make the job available in public candidate search.');
+        }
+        sessionCookie = employerCookie;
+
         for (const invalidStatusValue of ['published-and-secret', 42, null, {}]) {
             const invalidStatusUpdate = await request('/api/employer/jobs/' + postedJobId + '/status', {
                 method: 'PATCH',
