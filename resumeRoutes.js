@@ -304,7 +304,9 @@ router.post('/scan', requireAuth, requireCandidate, (req, res) => {
                     VALUES (?, ?, ?)
                 `).run(
                     req.session.userId,
-                    req.file.originalname,
+                    path.basename(String(req.file.originalname || 'resume.pdf'))
+                        .replace(/[\r\n"]/g, '')
+                        .slice(0, 180) || 'resume.pdf',
                     path.basename(req.file.path)
                 );
 
