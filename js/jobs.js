@@ -1471,6 +1471,45 @@ export function initJobs() {
        CATEGORY SEARCH
        ===================================================== */
 
+    // Display live counts from available database listings, not hard-coded marketing numbers.
+    async function updateCategoryCounts() {
+        const countElements = document.querySelectorAll('.category-card');
+        if (!countElements.length) return;
+
+        const countGroups = {
+            'IT & Software': ['IT & Software'],
+            'Marketing': ['Marketing'],
+            'Design': ['Design', 'Engineering & Design'],
+            'Business': ['Business', 'Business & Finance', 'Business Development', 'Human Resources', 'Project Management'],
+            'Healthcare': ['Healthcare', 'Healthcare Administration'],
+            'Education': ['Education', 'Education & Technology'],
+        };
+
+        try {
+            const response = await fetch('/api/jobs/categories', { cache: 'no-store' });
+            if (!response.ok) throw new Error('Could not load category counts.');
+            const data = await response.json();
+            const counts = new Map((data.counts || []).map((item) => [
+                String(item.category || '').trim().toLowerCase(),
+                Number(item.count) || 0
+            ]));
+
+            countElements.forEach((card) => {
+                const label = card.dataset.category;
+                const matchingCategories = countGroups[label] || [label];
+                const total = matchingCategories.reduce((sum, name) =>
+                    sum + (counts.get(name.toLowerCase()) || 0), 0);
+                const count = card.querySelector('.cat-count');
+                if (count) count.textContent = total + (total === 1 ? ' Job' : ' Jobs');
+                card.setAttribute('aria-label', label + ', ' + total + (total === 1 ? ' available job' : ' available jobs'));
+            });
+        } catch (error) {
+            console.warn('[JobPath] Could not update category counts:', error);
+        }
+    }
+
+    updateCategoryCounts();
+
     document
         .querySelectorAll('.category-card')
         .forEach((card) => {
