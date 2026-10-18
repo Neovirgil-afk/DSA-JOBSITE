@@ -9,6 +9,13 @@ const authRateLimit = require('./authRateLimit');
 
 const router = express.Router();
 
+// Employer dashboards, applicant details, and company data must not be cached.
+router.use((req, res, next) => {
+    res.set('Cache-Control', 'private, no-store, max-age=0');
+    res.set('Pragma', 'no-cache');
+    next();
+});
+
 function establishSession(req, userId, callback) {
     req.session.regenerate((regenerateError) => {
         if (regenerateError) return callback(regenerateError);
