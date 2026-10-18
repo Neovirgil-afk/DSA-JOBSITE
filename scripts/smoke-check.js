@@ -225,6 +225,13 @@ const applicantResumeRoute = employerRoutesSource.slice(
 if (!applicantResumeRoute.includes('WHERE a.id = ? AND j.employer_id = ?')) {
     fail('Applicant resume access must be restricted to applications for the current employer\'s jobs.');
 }
+if (!applicantResumeRoute.includes('path.basename(application.stored_name)') ||
+    !applicantResumeRoute.includes('fs.existsSync(filePath)') ||
+    !applicantResumeRoute.includes("replace(/["\\\\\\r\\n]/g, '_')") ||
+    !applicantResumeRoute.includes("res.setHeader(") ||
+    !applicantResumeRoute.includes("res.sendFile(filePath)")) {
+    fail('Applicant resume downloads must constrain stored filenames to the upload directory, check file existence, and sanitize the download filename.');
+}
 if (!employerRoutesSource.includes(String.raw`/^[^\s@]+@[^\s@]+\.[^\s@]+$/`)) {
     fail('Employer registration must use a valid email pattern that rejects whitespace and requires an @ and domain separator.');
 }
