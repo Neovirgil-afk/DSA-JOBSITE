@@ -309,6 +309,17 @@ async function main() {
         const applyBody = await apply.json();
         if (!applyBody.success || !applyBody.applicationId) throw new Error('Application response did not include an application ID.');
 
+        const applicationStatus = await request('/api/jobs/' + job.id + '/application');
+        if (applicationStatus.status !== 200) throw new Error('Candidate should be able to check their own application status.');
+        const applicationStatusBody = await applicationStatus.json();
+        if (applicationStatusBody.applied !== true || Number(applicationStatusBody.application?.id) !== Number(applyBody.applicationId)) {
+            throw new Error('Application status endpoint should return the current candidate\'s own application.');
+        }
+        for (const invalidId of ['0', 'not-a-number']) {
+            const invalidApplicationStatus = await request('/api/jobs/' + invalidId + '/application');
+            if (invalidApplicationStatus.status !== 400) throw new Error('Invalid job ID for application-status lookup should return 400: ' + invalidId);
+        }
+
         const applications = await request('/api/applications');
         if (applications.status !== 200) throw new Error('Candidate should be able to view their applications; received ' + applications.status + '.');
         const applicationsBody = await applications.json();
@@ -343,6 +354,35 @@ async function main() {
         const secondCandidateCookie = (secondCandidateRegistration.headers.get('set-cookie') || '').split(';')[0];
         if (!secondCandidateCookie.includes('=')) throw new Error('Second candidate registration did not establish a session cookie.');
         sessionCookie = secondCandidateCookie;
+
+        const malformedSkills = await request('/api/auth/profile/skills', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ skillIds: 'not-an-array', skillNames: [] })
+        });
+        if (malformedSkills.status !== 400) throw new Error('Malformed candidate skill payload should return 400.');
+        const secondCandidateSkillUpdate = await request('/api/auth/profile/skills', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ skillIds: [], skillNames: ['Runtime Custom Skill', 'runtime custom skill', '  Runtime   Custom Skill  '] })
+        });
+        if (secondCandidateSkillUpdate.status !== 200) throw new Error('Candidate should be able to save custom profile skills; received ' + secondCandidateSkillUpdate.status + '.');
+        const secondCandidateSkillBody = await secondCandidateSkillUpdate.json();
+        const customSkillEntries = (secondCandidateSkillBody.skills || []).filter((skill) => String(skill.name).toLowerCase() === 'runtime custom skill');
+        if (customSkillEntries.length !== 1 || customSkillEntries[0].source !== 'manual') {
+            throw new Error('Custom skills should be normalized, deduplicated, and marked as manually added.');
+        }
+        const secondCandidateProfileWithSkill = await request('/api/auth/profile');
+        const secondCandidateProfileWithSkillBody = await secondCandidateProfileWithSkill.json();
+        if (!(secondCandidateProfileWithSkillBody.profile?.skills || []).some((skill) => skill.name === 'Runtime Custom Skill' && skill.source === 'manual')) {
+            throw new Error('Saved custom skill should appear in the current candidate profile.');
+        }
+        const secondCandidateApplicationStatus = await request('/api/jobs/' + job.id + '/application');
+        if (secondCandidateApplicationStatus.status !== 200) throw new Error('Second candidate should be able to check their own application status.');
+        const secondCandidateApplicationStatusBody = await secondCandidateApplicationStatus.json();
+        if (secondCandidateApplicationStatusBody.applied !== false || secondCandidateApplicationStatusBody.application !== null) {
+            throw new Error('Application-status endpoint exposed another candidate\'s application.');
+        }
         const secondCandidateSavedJobsResponse = await request('/api/jobs/saved');
         if (secondCandidateSavedJobsResponse.status !== 200) throw new Error('Second candidate should be able to retrieve saved jobs.');
         const secondCandidateSavedJobs = await secondCandidateSavedJobsResponse.json();
@@ -352,6 +392,11 @@ async function main() {
         const crossCandidateUnsave = await request('/api/jobs/saved/' + job.id, { method: 'DELETE' });
         if (crossCandidateUnsave.status !== 200) throw new Error('Second candidate unsave request should complete safely.');
         sessionCookie = firstCandidateCookie;
+        const firstCandidateProfileAfterSkillUpdate = await request('/api/auth/profile');
+        const firstCandidateProfileAfterSkillUpdateBody = await firstCandidateProfileAfterSkillUpdate.json();
+        if ((firstCandidateProfileAfterSkillUpdateBody.profile?.skills || []).some((skill) => String(skill.name).toLowerCase() === 'runtime custom skill')) {
+            throw new Error('Editing one candidate\'s skills changed another candidate\'s profile.');
+        }
         const firstCandidateSavedJobsAfterUnsave = await request('/api/jobs/saved');
         const firstCandidateSavedJobsAfterUnsaveBody = await firstCandidateSavedJobsAfterUnsave.json();
         if (!Array.isArray(firstCandidateSavedJobsAfterUnsaveBody.jobs) || !firstCandidateSavedJobsAfterUnsaveBody.jobs.some((item) => Number(item.id) === Number(job.id))) {
