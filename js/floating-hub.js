@@ -5,60 +5,58 @@
     if (document.getElementById('jobpathFloatingHub')) return;
 
     function initEmployeeSidebar() {
+        // Keep the exact same six destination links for guests and signed-in users.
+        // Navigation is presentation-only; access to protected pages remains enforced by the server.
         const allowed = new Set(['jobs', 'dashboard', 'applications', 'learn', 'profile', 'resume']);
-        let isCandidateUser = false;
-        let roleResolved = false;
+        const aliases = {
+            jobs: new Set(['/']),
+            dashboard: new Set(['/career-center.html', '/dashboard.html']),
+            applications: new Set(['/applications.html', '/my-applications.html']),
+            learn: new Set(['/learning.html', '/learn.html']),
+            profile: new Set(['/profile.html']),
+            resume: new Set(['/resume.html', '/resume-builder.html', '/resume-analyzer.html'])
+        };
+
+        function normalizePath(pathname) {
+            if (!pathname) return '/';
+            const path = pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+            return path.toLowerCase();
+        }
 
         function normalizeNavigation() {
             const navs = Array.from(document.querySelectorAll('nav.jobsite-global-rail, .mobile-nav-clone.jobsite-global-rail'));
             navs.forEach((nav) => {
-                // This link must never appear in the persistent employee sidebar,
-                // even if the auth lookup fails or a page creates its nav later.
-                nav.querySelectorAll('a[data-rail="employer"], a[href="/employer.html"][data-label="For Employers"]').forEach((link) => link.remove());
+                // Never show the employer portal shortcut in the shared job-seeker navigation.
+                nav.querySelectorAll('a[data-rail="employer"], a[href="/employer.html"]').forEach((link) => link.remove());
 
-                if (!roleResolved) {
-                    nav.style.visibility = 'hidden';
-                    return;
-                }
-                if (!isCandidateUser) {
-                    nav.style.visibility = '';
-                    return;
-                }
-
+                // Retain the same six destinations regardless of authentication state.
                 Array.from(nav.children).forEach((item) => {
                     if (!(item.matches('a[data-rail]') && allowed.has(item.dataset.rail))) item.remove();
                 });
 
-                const rawPath = window.location.pathname;
-                const path = (rawPath.length > 1 && rawPath.endsWith('/')) ? rawPath.slice(0, -1) : rawPath;
+                const currentPath = normalizePath(window.location.pathname);
                 nav.querySelectorAll('a[data-rail]').forEach((link) => {
-                    const rawTarget = new URL(link.href, window.location.origin).pathname;
-                    const target = (rawTarget.length > 1 && rawTarget.endsWith('/')) ? rawTarget.slice(0, -1) : rawTarget;
-                    const current = target === path || (link.dataset.rail === 'resume' && path === '/resume-builder.html');
-                    link.classList.toggle('is-current', current);
-                    if (current) link.setAttribute('aria-current', 'page');
-                    else link.removeAttribute('aria-current');
+                    const rail = link.dataset.rail;
+                    const targetPath = normalizePath(new URL(link.href, window.location.origin).pathname);
+                    const isCurrent = targetPath === currentPath ||
+                        (aliases[rail] && aliases[rail].has(currentPath));
+                    link.classList.toggle('is-current', Boolean(isCurrent));
+                    if (isCurrent) {
+                        link.setAttribute('aria-current', 'page');
+                    } else {
+                        link.removeAttribute('aria-current');
+                    }
                 });
+
+                // Do not hide the navigation while authentication is loading or when signed out.
                 nav.style.visibility = '';
             });
         }
 
-        // Observe from the start because some pages add/clone navigation later.
+        // Pages may inject or clone their navigation after initial load.
         const sidebarObserver = new MutationObserver(() => normalizeNavigation());
         sidebarObserver.observe(document.documentElement, { childList: true, subtree: true });
         normalizeNavigation();
-
-        fetch('/api/auth/me', { credentials: 'include' })
-            .then((response) => response.ok ? response.json() : null)
-            .then((data) => {
-                isCandidateUser = Boolean(data && data.user && ['candidate', 'employee'].includes(data.user.role));
-                roleResolved = true;
-                normalizeNavigation();
-            })
-            .catch(() => {
-                roleResolved = true;
-                normalizeNavigation();
-            });
     }
     const esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     const fmt = (value) => { const date = new Date(value); return Number.isNaN(date.getTime()) ? '' : date.toLocaleString(); };
