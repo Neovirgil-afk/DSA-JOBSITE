@@ -3,6 +3,13 @@ const { db } = require('./database');
 const { requireAuth } = require('./auth');
 
 const router = express.Router();
+
+// Planner entries contain candidate-specific notes and progress; never cache them.
+router.use((req, res, next) => {
+    res.set('Cache-Control', 'private, no-store, max-age=0');
+    res.set('Pragma', 'no-cache');
+    next();
+});
 const VALID_STATUSES = new Set(['not_started', 'in_progress', 'completed']);
 
 function requireCandidate(req, res, next) {
