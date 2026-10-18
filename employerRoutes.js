@@ -876,6 +876,28 @@ router.patch('/applications/:id/status', requireEmployer, (req, res) => {
 
 router.put('/company', requireEmployer, (req, res) => {
     try {
+        if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+            return res.status(400).json({ error: 'Enter a valid company profile.' });
+        }
+
+        const companyProfileFields = {
+            companyName: req.body.companyName,
+            description: req.body.description,
+            email: req.body.email,
+            phone: req.body.phone,
+            website: req.body.website,
+            industry: req.body.industry,
+            companySize: req.body.companySize,
+            location: req.body.location,
+            foundedYear: req.body.foundedYear,
+            benefits: req.body.benefits
+        };
+        for (const [field, value] of Object.entries(companyProfileFields)) {
+            if (value !== undefined && value !== null && typeof value !== 'string') {
+                return res.status(400).json({ error: 'Company profile fields must contain text values.' });
+            }
+        }
+
         const current = db.prepare(
             'SELECT * FROM company_profiles WHERE user_id = ?'
         ).get(req.employer.id);
@@ -897,16 +919,16 @@ router.put('/company', requireEmployer, (req, res) => {
         db.prepare(
             'UPDATE company_profiles SET company_name = ?, description = ?, email = ?, phone = ?, website = ?, industry = ?, company_size = ?, location = ?, founded_year = ?, benefits = ? WHERE user_id = ?'
         ).run(
-            companyName,
-            clean(req.body.description),
-            clean(req.body.email),
-            clean(req.body.phone),
-            clean(req.body.website),
-            clean(req.body.industry),
-            clean(req.body.companySize),
-            clean(req.body.location),
-            clean(req.body.foundedYear),
-            clean(req.body.benefits),
+            companyName.slice(0, 160),
+            clean(req.body.description).slice(0, 2000),
+            clean(req.body.email).slice(0, 254),
+            clean(req.body.phone).slice(0, 40),
+            clean(req.body.website).slice(0, 2048),
+            clean(req.body.industry).slice(0, 100),
+            clean(req.body.companySize).slice(0, 100),
+            clean(req.body.location).slice(0, 160),
+            clean(req.body.foundedYear).slice(0, 20),
+            clean(req.body.benefits).slice(0, 2000),
             req.employer.id
         );
 
