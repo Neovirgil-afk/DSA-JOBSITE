@@ -29,6 +29,34 @@ router.get('/:applicationId',requireAuth,(req,res)=>{
   res.json({success:true,application:app,messages});
  }catch(e){console.error('[messages] conversation:',e);res.status(500).json({error:'Failed to load conversation.'});}
 });
+
+// Send one employer-authored message to every applicant for a job owned by this employer.
+router.post('/job/:jobId/broadcast',requireAuth,(req,res)=>{
+ try{
+  const u=getUser(Number(req.session.userId));
+  if(!u||u.role!=='employer')return res.status(403).json({error:'Only employers can message all applicants for a job.'});
+  const jobId=Number(req.params.jobId);
+  if(!Number.isInteger(jobId)||jobId<=0)return res.status(400).json({error:'Invalid job id.'});
+  const payload=req.body&&typeof req.body==='object'&&!Array.isArray(req.body)?req.body:{};
+  if(typeof payload.body!=='string')return res.status(400).json({error:'Message must be text.'});
+  const body=payload.body.trim();
+  if(!body)return res.status(400).json({error:'Message cannot be empty.'});
+  if(body.length>2000)return res.status(400).json({error:'Messages must be 2,000 characters or fewer.'});
+  const job=db.prepare('SELECT id,title FROM jobs WHERE id=? AND employer_id=?').get(jobId,u.id);
+  if(!job)return res.status(404).json({error:'Job listing not found for your company.'});
+  const applicants=db.prepare('SELECT id AS application_id,user_id AS candidate_id FROM applications WHERE job_id=? ORDER BY id').all(jobId);
+  if(!applicants.length)return res.status(400).json({error:'This job listing has no applicants to message.'});
+  const insert=db.prepare('INSERT INTO messages(application_id,sender_id,recipient_id,body) VALUES(?,?,?,?)');
+  db.transaction(()=>{
+   for(const applicant of applicants)insert.run(applicant.application_id,u.id,applicant.candidate_id,body);
+  })();
+  for(const applicant of applicants){
+   createNotification({userId:applicant.candidate_id,type:'message',title:'New message about '+job.title,body:u.full_name+' sent a message to applicants for '+job.title+'.',link:'/career-center.html#messages'});
+  }
+  res.status(201).json({success:true,sent:applicants.length,jobTitle:job.title});
+ }catch(e){console.error('[messages] broadcast:',e);res.status(500).json({error:'Failed to send message to applicants.'});}
+});
+
 router.post('/:applicationId',requireAuth,(req,res)=>{
  try{
   const u=getUser(Number(req.session.userId));if(!u||!['candidate','employer'].includes(u.role))return res.status(403).json({error:'Messaging is available to candidates and employers.'});
