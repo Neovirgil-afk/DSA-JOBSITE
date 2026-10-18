@@ -427,6 +427,11 @@ if (!applicationSubmissionSource.includes("job.application_deadline && !isValidD
     !applicationSubmissionSource.includes("The application deadline has passed.")) {
     fail('Job applications must reject malformed deadlines and deadlines that have already passed.');
 }
+if (!applicationSubmissionSource.includes('const createApplication = db.transaction(() => {') ||
+    !applicationSubmissionSource.includes('INSERT INTO application_history (application_id, status) VALUES (?, \'new\')') ||
+    !applicationSubmissionSource.includes('ORDER BY uploaded_at DESC, id DESC LIMIT 1')) {
+    fail('Submitting an application must atomically record its initial history and attach the latest resume when available.');
+}
 const jobRoutesPrivacySource = read('jobRoutes.js');
 if ((jobRoutesPrivacySource.match(/Cache-Control', 'private, no-store, max-age=0'/g) || []).length < 3 ||
     (jobRoutesPrivacySource.match(/Pragma', 'no-cache'/g) || []).length < 3) {
