@@ -582,8 +582,11 @@ function renderApplicants() {
 async function loadApplicants(jobId) {
     if (!jobId) {
         state.applicants = [];
-        $('#applicantSummary').textContent = '';
-        $('#applicantsList').innerHTML = '<div class="employer-empty">Select a job to view applicants.</div>';
+        const summary = $('#applicantSummary');
+        const list = $('#applicantsList');
+        if (summary) summary.textContent = '';
+        if (list) list.innerHTML = '<div class="employer-empty">Select a job to view applicants.</div>';
+        renderApplicantPipelineCounts();
         return;
     }
 
@@ -594,7 +597,11 @@ async function loadApplicants(jobId) {
         renderApplicants();
     } catch (error) {
         state.applicants = [];
-        $('#applicantsList').innerHTML = '<div class="employer-empty">Unable to load applicants.</div>';
+        const list = $('#applicantsList');
+        if (list) list.innerHTML = '<div class="employer-empty">Unable to load applicants.</div>';
+        const summary = $('#applicantSummary');
+        if (summary) summary.textContent = 'Unable to load applicants.';
+        renderApplicantPipelineCounts();
     }
 }
 function renderApplicantTags(selector, skills, emptyText) {
