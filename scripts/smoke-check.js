@@ -808,6 +808,25 @@ if (!assessmentRoute.includes("status: 'needs_review'") && !assessmentRoute.incl
     fail('Failed learning assessments must be saved as needing review rather than verified.');
 }
 
+// Analytics and administrator endpoints must enforce role boundaries and limit exposed records.
+const analyticsSource = read('analyticsRoutes.js');
+const analyticsRoute = analyticsSource.slice(analyticsSource.indexOf("router.get('/me'"), analyticsSource.indexOf('module.exports = router'));
+if (!analyticsRoute.includes('requireAuth') ||
+    !analyticsRoute.includes("u.role!=='candidate'") ||
+    !analyticsRoute.includes('WHERE user_id=?') ||
+    !analyticsRoute.includes('LIMIT 5')) {
+    fail('Career analytics must require authentication, reject non-candidates, scope personal data to the user, and bound recommendations.');
+}
+const adminSource = read('adminRoutes.js');
+if (!adminSource.includes("u.role!=='admin'") ||
+    !adminSource.includes("router.get('/overview',requireAuth,requireAdmin") ||
+    !adminSource.includes("router.get('/users',requireAuth,requireAdmin") ||
+    !adminSource.includes("router.patch('/jobs/:id/status',requireAuth,requireAdmin") ||
+    !adminSource.includes("['active','paused','closed','draft']") ||
+    !adminSource.includes('LIMIT 200')) {
+    fail('Admin endpoints must require administrator authorization, validate job status changes, and bound user listings.');
+}
+
 // Application history must be limited to the signed-in candidate and their own records.
 const applicationListRoute = applicationRoutesSource.slice(
     applicationRoutesSource.indexOf("router.get('/'"),
