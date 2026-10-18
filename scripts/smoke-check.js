@@ -260,6 +260,17 @@ try {
     fail('Authentication rate limiter behavior check failed: ' + error.message);
 }
 
+const applicationRoutesSource = read('applicationRoutes.js');
+if (!applicationRoutesSource.includes("Cache-Control', 'private, no-store, max-age=0'") ||
+    !applicationRoutesSource.includes("Pragma', 'no-cache'")) {
+    fail('Private application history responses must disable caching.');
+}
+const jobRoutesPrivacySource = read('jobRoutes.js');
+if ((jobRoutesPrivacySource.match(/Cache-Control', 'private, no-store, max-age=0'/g) || []).length < 3 ||
+    (jobRoutesPrivacySource.match(/Pragma', 'no-cache'/g) || []).length < 3) {
+    fail('Saved jobs, recommendations, and application status must disable caching.');
+}
+
 const interviewRoutesSource = read('interviewRoutes.js');
 if (!interviewRoutesSource.includes("Cache-Control', 'private, no-store, max-age=0'") ||
     !interviewRoutesSource.includes("Pragma', 'no-cache'") ||
