@@ -17,6 +17,8 @@ class SQLiteSessionStore extends session.Store {
             'expires_at = excluded.expires_at'
         );
         this.deleteStatement = db.prepare('DELETE FROM sessions WHERE sid = ?');
+        this.deleteExpiredStatement = db.prepare('DELETE FROM sessions WHERE expires_at <= ?');
+        this.deleteExpiredStatement.run(Date.now());
         this.touchStatement = db.prepare('UPDATE sessions SET expires_at = ? WHERE sid = ?');
     }
 
@@ -53,6 +55,8 @@ class SQLiteSessionStore extends session.Store {
 
     set(sid, sessionData, callback) {
         try {
+            // Opportunistically remove expired rows so the persistent session table stays bounded.
+            this.deleteExpiredStatement.run(Date.now());
             const expiresAt = this.expirationFor(sessionData);
             if (expiresAt <= Date.now()) {
                 this.deleteStatement.run(sid);
