@@ -183,6 +183,14 @@ if (!/router\.post\(\s*['"]\/scan['"],\s*requireAuth,\s*requireCandidate/.test(r
     fail('Resume scanning must remain authenticated and use the expected resume upload field.');
 }
 
+// Resume uploads live under the project root, so deny direct public requests before static serving.
+const uploadsBlockIndex = server.indexOf("app.use('/uploads'");
+const staticFilesIndex = server.indexOf('app.use(express.static(__dirname))');
+if (!/app\.use\(\s*['"]\/uploads['"]\s*,\s*\(req,\s*res\)\s*=>\s*\{\s*res\.sendStatus\(404\);?\s*\}\s*\)/.test(server) ||
+    uploadsBlockIndex < 0 || staticFilesIndex < 0 || uploadsBlockIndex > staticFilesIndex) {
+    fail('Direct requests to /uploads must be blocked before public static-file serving.');
+}
+
 // Ensure the lightweight health endpoint remains available for deployment probes.
 if (!/app\.get\(\s*['"]\/api\/health['"]/.test(server)) {
     fail('server.js is missing the /api/health endpoint.');
