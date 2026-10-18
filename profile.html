@@ -1398,6 +1398,21 @@
 
                         <div class="profile-resume-actions">
 
+                            <input
+                                type="file"
+                                id="profileResumeUploadInput"
+                                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                hidden
+                            />
+
+                            <button
+                                type="button"
+                                class="profile-resume-button"
+                                id="profileResumeUploadButton"
+                            >
+                                Upload Resume
+                            </button>
+
                             <button
                                 type="button"
                                 class="profile-resume-button"
@@ -1417,6 +1432,8 @@
                         </div>
 
                     </div>
+
+                    <p id="profileResumeUploadMessage" role="status" aria-live="polite" style="margin:10px 2px 0;color:#697386;font-size:12px;line-height:1.5"></p>
 
                 </section>
 
