@@ -138,7 +138,7 @@ router.get('/saved', requireAuth, requireCandidate, (req, res) => {
             FROM saved_jobs sj
             JOIN jobs j ON j.id = sj.job_id
             LEFT JOIN applications a ON a.job_id = j.id AND a.user_id = ?
-            WHERE sj.user_id = ?
+            WHERE sj.user_id = ? AND j.status <> 'draft'
             ORDER BY sj.saved_at DESC, j.title ASC
         `).all(req.session.userId, req.session.userId);
 
@@ -157,9 +157,9 @@ router.post('/saved/:id', requireAuth, requireCandidate, (req, res) => {
         if (!Number.isInteger(jobId) || jobId <= 0) {
             return res.status(400).json({ error: 'Invalid job id.' });
         }
-        const job = db.prepare('SELECT id FROM jobs WHERE id = ?').get(jobId);
+        const job = db.prepare('SELECT id, status FROM jobs WHERE id = ?').get(jobId);
 
-        if (!job) {
+        if (!job || job.status === 'draft') {
             return res.status(404).json({ error: 'Job not found.' });
         }
 
