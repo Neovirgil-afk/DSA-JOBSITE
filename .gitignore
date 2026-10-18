@@ -3,3 +3,8 @@ database/jobpath.db
 uploads/*
 !uploads/.gitkeep
 .env
+
+# Local SQLite database and SQLite journal files
+/jobpath.db
+/jobpath.db-shm
+/jobpath.db-wal
