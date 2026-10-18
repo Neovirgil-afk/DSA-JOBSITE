@@ -1066,6 +1066,67 @@ h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.15; }
   transform: none;
 }
 
+/* Employer login shortcut inside the main login modal */
+.auth-employer-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #FAFAFF;
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+.auth-employer-link:hover {
+  border-color: var(--indigo);
+  background: var(--indigo-tint);
+  transform: translateY(-1px);
+}
+
+.auth-employer-link-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--indigo-tint);
+  color: var(--indigo);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.auth-employer-link > span:nth-child(2) {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.auth-employer-link strong {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.auth-employer-link small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.auth-employer-link-arrow {
+  margin-left: auto;
+  color: var(--indigo);
+  font-size: 18px;
+  font-weight: 600;
+}
+
 /* Error / success message */
 
 .auth-message {
