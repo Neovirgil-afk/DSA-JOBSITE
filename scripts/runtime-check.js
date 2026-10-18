@@ -19,7 +19,7 @@ function listenOnAvailablePort() {
 
 function makeTextPdf(lines) {
     const stream = 'BT /F1 12 Tf 50 760 Td ' + lines.map((line, index) =>
-        (index ? '0 -18 Td ' : '') + '(' + line.replace(/\\\\/g, '\\\\\\\\').replace(/\\(/g, '\\\\(').replace(/\\)/g, '\\\\)') + ') Tj'
+        (index ? '0 -18 Td ' : '') + '(' + line + ') Tj'
     ).join(' ') + ' ET';
     const objects = [
         '<< /Type /Catalog /Pages 2 0 R >>',
