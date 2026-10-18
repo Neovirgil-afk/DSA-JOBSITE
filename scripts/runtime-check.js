@@ -248,6 +248,30 @@ async function main() {
         const job = jobsBody.jobs.find((item) => Number.isInteger(Number(item.id)) && Number(item.id) > 0);
         if (!job) throw new Error('Job search returned no job with a valid ID.');
 
+        // Validate search filters and saved-job behavior.
+        for (const path of ['/api/jobs?minMatch=101', '/api/jobs?minMatch=abc', '/api/jobs?q=' + 'x'.repeat(121)]) {
+            const response = await request(path);
+            if (response.status !== 400) throw new Error('Invalid job search filter should return 400: ' + path);
+        }
+        const saved = await request('/api/jobs/saved/' + job.id, { method: 'POST' });
+        if (saved.status !== 200) throw new Error('Candidate could not save an existing job.');
+        const savedAgain = await request('/api/jobs/saved/' + job.id, { method: 'POST' });
+        if (savedAgain.status !== 200) throw new Error('Duplicate save should be safe.');
+        const savedListResponse = await request('/api/jobs/saved');
+        if (savedListResponse.status !== 200) throw new Error('Candidate could not retrieve saved jobs.');
+        const savedList = await savedListResponse.json();
+        if (!Array.isArray(savedList.jobs) || savedList.jobs.filter((item) => Number(item.id) === Number(job.id)).length !== 1) {
+            throw new Error('Duplicate saves must not create duplicate saved-job entries.');
+        }
+        const savedCache = savedListResponse.headers.get('cache-control') || '';
+        if (!/private/i.test(savedCache) || !/no-store/i.test(savedCache)) throw new Error('Saved jobs must not be cached.');
+        for (const id of ['0', 'not-a-number']) {
+            const invalid = await request('/api/jobs/saved/' + id, { method: 'POST' });
+            if (invalid.status !== 400) throw new Error('Invalid saved-job ID should return 400: ' + id);
+        }
+        const nonexistent = await request('/api/jobs/saved/99999999', { method: 'POST' });
+        if (nonexistent.status !== 404) throw new Error('Nonexistent saved job should return 404.');
+
         const apply = await request('/api/jobs/' + job.id + '/apply', { method: 'POST' });
         if (apply.status !== 201) throw new Error('Candidate should be able to apply to an available job; received ' + apply.status + ': ' + await apply.text());
         const applyBody = await apply.json();
