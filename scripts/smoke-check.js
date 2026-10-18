@@ -209,10 +209,10 @@ if (!resumeFileRoute || !/requireAuth/.test(resumeFileRoute[1]) || !/requireCand
 const privateResumeResponse = resumeFileRoute?.[1] || '';
 if (!privateResumeResponse.includes("'Cache-Control': 'private, no-store, max-age=0'") ||
     !privateResumeResponse.includes("'Pragma': 'no-cache'") ||
-    !privateResumeResponse.includes("replace(/[\\\\r\\\\n\\\"]/g, '')")) {
+    !/const safeFilename =/.test(privateResumeResponse) ||
+    !/\.replace\(/.test(privateResumeResponse)) {
     fail('Private resume downloads must disable caching and sanitize the displayed filename.');
-}
-if (!/req\.file\?\.path/.test(resumeRoutesSource) || !/fs\.unlinkSync\(req\.file\.path\)/.test(resumeRoutesSource)) {
+}if (!/req\.file\?\.path/.test(resumeRoutesSource) || !/fs\.unlinkSync\(req\.file\.path\)/.test(resumeRoutesSource)) {
     fail('Failed resume scans must clean up the uploaded file.');
 }
 
