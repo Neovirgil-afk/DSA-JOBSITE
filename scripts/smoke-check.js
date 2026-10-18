@@ -260,6 +260,14 @@ try {
     fail('Authentication rate limiter behavior check failed: ' + error.message);
 }
 
+const interviewRoutesOwnershipSource = read('interviewRoutes.js');
+if (!/j\.employer_id\s*!==\s*Number\(user\.id\)/.test(interviewRoutesOwnershipSource) || !/user\.role==='employer'/.test(interviewRoutesOwnershipSource)) {
+    fail('Employer interview updates must verify ownership through the associated job.');
+}
+if (!/router\.use\(\(req,res,next\)=>\{\s*res\.set\(['"]Cache-Control['"],['"]private, no-store, max-age=0['"]\);\s*res\.set\(['"]Pragma['"],['"]no-cache['"]\);\s*next\(\);\s*\}\)/.test(interviewRoutesOwnershipSource)) {
+    fail('All interview API responses must disable caching of private scheduling and status data.');
+}
+
 const messageRoutesPrivacySource = read('messageRoutes.js');
 if (!/router\.use\(\(req,res,next\)=>\{\s*res\.set\(['"]Cache-Control['"],['"]private, no-store, max-age=0['"]\);\s*res\.set\(['"]Pragma['"],['"]no-cache['"]\);\s*next\(\);\s*\}\)/.test(messageRoutesPrivacySource)) {
     fail('Private conversation and message API responses must disable caching.');
