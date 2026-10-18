@@ -422,6 +422,11 @@ if (!applicationSubmissionSource.includes("router.post('/:id/apply'") ||
     !applicationSubmissionSource.includes("You already applied to this job.")) {
     fail('Job applications must handle duplicate submissions safely, including database uniqueness conflicts.');
 }
+if (!applicationSubmissionSource.includes("job.application_deadline && !isValidDateOnly(job.application_deadline)") ||
+    !applicationSubmissionSource.includes("isPastDeadline(job.application_deadline)") ||
+    !applicationSubmissionSource.includes("The application deadline has passed.")) {
+    fail('Job applications must reject malformed deadlines and deadlines that have already passed.');
+}
 const jobRoutesPrivacySource = read('jobRoutes.js');
 if ((jobRoutesPrivacySource.match(/Cache-Control', 'private, no-store, max-age=0'/g) || []).length < 3 ||
     (jobRoutesPrivacySource.match(/Pragma', 'no-cache'/g) || []).length < 3) {
