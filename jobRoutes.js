@@ -186,6 +186,8 @@ router.get('/recommended', requireAuth, requireCandidate, (req, res) => {
 
         const ranked = getRankedJobsForUser(userId);
 
+        res.set('Cache-Control', 'private, no-store, max-age=0');
+        res.set('Pragma', 'no-cache');
         res.json({
             jobs: ranked
         });
