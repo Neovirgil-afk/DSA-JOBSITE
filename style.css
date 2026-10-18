@@ -9296,3 +9296,87 @@ body.applications-page .applications-controls {
     padding: 10px !important;
   }
 }
+
+
+/* Compact inner spacing on My Applications — override inherited/global card styles. */
+html body.applications-page .application-card {
+  padding: 12px !important;
+  gap: 12px !important;
+  grid-template-columns: minmax(0, 1fr) minmax(210px, 260px) !important;
+}
+html body.applications-page .application-card > * {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+html body.applications-page .application-card .application-card-side {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 7px !important;
+  padding: 0 !important;
+}
+html body.applications-page .application-card .application-card-side > .application-status {
+  align-self: flex-start !important;
+  width: auto !important;
+  padding: 5px 9px !important;
+  margin: 0 0 2px !important;
+}
+html body.applications-page .application-card .application-next-step,
+html body.applications-page .application-card .application-interview-prep,
+html body.applications-page .application-card .application-interview-notes,
+html body.applications-page .application-card .application-timeline-mini {
+  padding: 9px !important;
+  margin: 3px 0 !important;
+  box-sizing: border-box !important;
+}
+html body.applications-page .application-card .application-card-main h2 {
+  margin: 4px 0 7px !important;
+}
+html body.applications-page .application-card .application-meta,
+html body.applications-page .application-card .application-assets {
+  gap: 6px !important;
+  margin: 6px 0 0 !important;
+}
+html body.applications-page .application-card .application-interview-prep-tasks label {
+  padding: 4px 0 !important;
+  margin: 0 !important;
+}
+html body.applications-page .application-card .application-interview-notes textarea {
+  margin-top: 6px !important;
+  padding: 8px !important;
+}
+html body.applications-page .application-card .application-timeline-mini span {
+  padding: 4px 0 !important;
+  margin: 0 !important;
+}
+html body.applications-page .application-status-tile {
+  padding: 10px 12px !important;
+}
+html body.applications-page .application-summary {
+  padding: 9px 12px !important;
+}
+html body.applications-page .applications-controls {
+  padding: 10px !important;
+  gap: 8px !important;
+}
+@media (max-width: 899px) {
+  html body.applications-page .application-card {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 12px !important;
+    gap: 10px !important;
+  }
+}
+@media (max-width: 480px) {
+  html body.applications-page .application-card {
+    padding: 10px !important;
+    gap: 8px !important;
+  }
+  html body.applications-page .application-card .application-next-step,
+  html body.applications-page .application-card .application-interview-prep,
+  html body.applications-page .application-card .application-interview-notes,
+  html body.applications-page .application-card .application-timeline-mini {
+    padding: 8px !important;
+  }
+}
