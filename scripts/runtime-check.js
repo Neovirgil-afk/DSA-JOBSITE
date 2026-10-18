@@ -973,6 +973,12 @@ async function main() {
             !shortlistedApplication.history?.some((entry) => entry.status === 'shortlisted')) {
             throw new Error('Candidate application history must reflect employer status changes in order.');
         }
+        const initialHistoryIndex = shortlistedApplication.history.findIndex((entry) => entry.status === 'new');
+        const shortlistedHistoryIndex = shortlistedApplication.history.findIndex((entry) => entry.status === 'shortlisted');
+        if (initialHistoryIndex < 0 || shortlistedHistoryIndex <= initialHistoryIndex) {
+            throw new Error('Application history must preserve the order of initial submission and later shortlisting.');
+        }
+        const historyCountBeforeRepeat = shortlistedApplication.history.length;
         sessionCookie = employerCookie;
         const repeatedStatusResponse = await request('/api/employer/applications/' + employerApplicationId + '/status', {
             method: 'PATCH',
@@ -982,6 +988,14 @@ async function main() {
         if (repeatedStatusResponse.status !== 200) throw new Error('Repeating the same application status should be safe.');
         const repeatedStatusBody = await repeatedStatusResponse.json();
         if (repeatedStatusBody.changed !== false) throw new Error('Repeating an unchanged application status should not create a new status change.');
+        sessionCookie = candidateCookie;
+        const historyAfterRepeatedStatus = await request('/api/applications');
+        const historyAfterRepeatedStatusBody = await historyAfterRepeatedStatus.json();
+        const applicationAfterRepeatedStatus = historyAfterRepeatedStatusBody.applications?.find((item) => Number(item.id) === employerApplicationId);
+        if (!applicationAfterRepeatedStatus || applicationAfterRepeatedStatus.history?.length !== historyCountBeforeRepeat) {
+            throw new Error('Repeating the same application status must not add a duplicate history entry.');
+        }
+        sessionCookie = employerCookie;
         for (const invalidStatus of ['unknown-status', 42]) {
             const invalidStatusResponse = await request('/api/employer/applications/' + employerApplicationId + '/status', {
                 method: 'PATCH',
