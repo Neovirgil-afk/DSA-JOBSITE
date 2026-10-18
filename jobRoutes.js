@@ -255,7 +255,9 @@ router.get('/:id', (req, res) => {
         }
 
         const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(jobId);
-        if (!job) return res.status(404).json({ error: 'Job not found.' });
+        if (!job || job.status === 'draft') {
+            return res.status(404).json({ error: 'Job not found.' });
+        }
 
         const requiredSkills = db.prepare(`
             SELECT s.name FROM job_skills js
