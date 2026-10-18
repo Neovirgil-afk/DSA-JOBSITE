@@ -260,6 +260,14 @@ try {
     fail('Authentication rate limiter behavior check failed: ' + error.message);
 }
 
+const interviewRoutesSource = read('interviewRoutes.js');
+if (!interviewRoutesSource.includes("Cache-Control', 'private, no-store, max-age=0'") ||
+    !interviewRoutesSource.includes("Pragma', 'no-cache'") ||
+    !interviewRoutesSource.includes("typeof payload[field] !== 'string'") ||
+    !interviewRoutesSource.includes("typeof payload.status !== 'string'")) {
+    fail('Interview endpoints must prevent caching of private schedules and validate text inputs.');
+}
+
 const notificationRoutesSource = read('notificationRoutes.js');
 if ((notificationRoutesSource.match(/Cache-Control', 'private, no-store, max-age=0'/g) || []).length < 3 ||
     (notificationRoutesSource.match(/Pragma', 'no-cache'/g) || []).length < 3) {
