@@ -189,6 +189,9 @@ if (!authLimiterSource.includes('const MAX_TRACKED_KEYS = 10000') ||
 }
 
 const authRoutesSource = read('authRoutes.js');
+if (!authRoutesSource.includes(String.raw`/^[^\s@]+@[^\s@]+\.[^\s@]+$/`)) {
+    fail('Registration must use a valid email pattern that rejects whitespace and requires an @ and domain separator.');
+}
 const logoutStart = authRoutesSource.indexOf("router.post('/logout'");
 const logoutEnd = authRoutesSource.indexOf("router.get('/me'", logoutStart);
 const logoutSource = logoutStart >= 0 && logoutEnd > logoutStart
