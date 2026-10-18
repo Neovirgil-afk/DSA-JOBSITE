@@ -339,8 +339,6 @@ async function main() {
         sessionCookie = firstCandidateCookie;
         const duplicateApply = await request('/api/jobs/' + job.id + '/apply', { method: 'POST' });
         if (duplicateApply.status !== 409) throw new Error('Duplicate applications should be rejected with 409; received ' + duplicateApply.status + '.');
-        const employerSavedJobsAccess = await request('/api/jobs/saved');
-        if (employerSavedJobsAccess.status !== 403) throw new Error('Employer accounts must not access candidate saved-job features; received ' + employerSavedJobsAccess.status + '.');
 
         // Exercise the employer side and verify candidate/employer data is linked correctly.
         const candidateCookie = sessionCookie;
@@ -367,6 +365,8 @@ async function main() {
         if (!employerCookie.includes('=')) throw new Error('Employer registration did not establish a session cookie.');
 
         sessionCookie = employerCookie;
+        const employerSavedJobsAccess = await request('/api/jobs/saved');
+        if (employerSavedJobsAccess.status !== 403) throw new Error('Employer accounts must not access candidate saved-job features; received ' + employerSavedJobsAccess.status + '.');
         const employerMe = await request('/api/employer/me');
         if (employerMe.status !== 200) throw new Error('Employer session should be authorized; received ' + employerMe.status + '.');
 
