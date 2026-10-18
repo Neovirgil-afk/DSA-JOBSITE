@@ -222,6 +222,12 @@ router.post('/login', authRateLimit, (req, res) => {
             return res.status(400).json({ error: 'Enter a valid email and password.' });
         }
 
+        // Only accept an actual boolean so values like the string "false" cannot
+        // accidentally create a long-lived session.
+        if (rememberMe !== undefined && typeof rememberMe !== 'boolean') {
+            return res.status(400).json({ error: 'Remember me must be true or false.' });
+        }
+
         /* ---------- FIND USER ---------- */
 
         const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase().trim());
