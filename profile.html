@@ -897,23 +897,49 @@
 @media(min-width:701px){.mobile-page-shell-header,.mobile-page-bottom-nav{display:none}}
 </style>
 <style>
-/* Personal information editor */
+/* Clean, login-style personal information modal */
 .profile-edit-prompt{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:22px;padding:17px;border:1px solid #e5e4f3;border-radius:14px;background:linear-gradient(135deg,#faf9ff,#fff)}
 .profile-edit-prompt strong{display:block;color:#17203a;font-size:13px}
-.profile-edit-prompt p,.profile-personal-editor-heading p{margin:5px 0 0;color:#697386;font-size:12px;line-height:1.5}
-.profile-personal-editor{margin-top:14px;padding:18px;border:1px solid #e5e4f3;border-radius:14px;background:#fff}
-.profile-personal-editor[hidden]{display:none}
-.profile-personal-editor-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:17px}
-.profile-personal-editor-heading>div>strong{color:#17203a;font-size:14px}
-.profile-personal-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.profile-personal-form-grid label{display:grid;gap:7px;color:#4b5563;font-size:12px;font-weight:700}
-.profile-personal-form-grid input{width:100%;min-width:0;box-sizing:border-box;padding:11px 12px;border:1px solid #dfe1ee;border-radius:9px;background:#fff;color:#17203a;font:500 13px Inter,sans-serif;outline:none}
-.profile-personal-form-grid input:focus{border-color:#8179ed;box-shadow:0 0 0 3px rgba(79,70,229,.1)}
-.profile-personal-editor-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:17px;padding-top:14px;border-top:1px solid #eeeef4}
-.profile-personal-editor-footer p{margin:0;color:#697386;font-size:12px}
-.profile-personal-editor-footer p.success{color:#16834b}
-.profile-personal-editor-footer p.error{color:#c0392b}
-@media(max-width:700px){.profile-edit-prompt{align-items:flex-start;flex-direction:column}.profile-personal-form-grid{grid-template-columns:1fr}.profile-personal-editor-footer{align-items:stretch;flex-direction:column}.profile-personal-editor-footer button{width:100%}}
+.profile-edit-prompt p{margin:5px 0 0;color:#697386;font-size:12px;line-height:1.5}
+.profile-personal-modal{position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:20px;overflow-y:auto}
+.profile-personal-modal[hidden]{display:none}
+.profile-personal-modal-backdrop{position:fixed;inset:0;width:100%;height:100%;border:0;background:rgba(15,19,38,.62);backdrop-filter:blur(7px);cursor:default;animation:profileModalFade .18s ease both}
+.profile-personal-modal-dialog{position:relative;z-index:1;width:min(590px,100%);max-height:min(760px,calc(100dvh - 40px));overflow-y:auto;padding:27px;border:1px solid rgba(255,255,255,.75);border-radius:22px;background:#fff;box-shadow:0 28px 90px rgba(9,13,34,.28);animation:profileModalEnter .22s cubic-bezier(.2,.8,.2,1) both}
+.profile-personal-modal-topline{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.profile-personal-modal-topline>span{font-size:10px;font-weight:800;letter-spacing:.16em;color:#7169db}
+.profile-personal-modal-close{display:grid;place-items:center;width:35px;height:35px;border:1px solid #ececf4;border-radius:11px;background:#f8f8fc;color:#596174;font-size:24px;line-height:1;cursor:pointer;transition:background .15s,transform .15s}
+.profile-personal-modal-close:hover{background:#eeeefe;transform:rotate(90deg)}
+.profile-personal-modal-heading{display:flex;align-items:flex-start;gap:14px;margin-bottom:22px}
+.profile-personal-modal-icon{display:grid;place-items:center;flex:0 0 46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#eeecff,#f7f5ff);color:#5b50d6;font-size:23px}
+.profile-personal-modal-heading h2{margin:0;color:#17203a;font:700 22px/1.25 Poppins,sans-serif;letter-spacing:-.035em}
+.profile-personal-modal-heading p{margin:7px 0 0;color:#747b8c;font-size:12px;line-height:1.6}
+.profile-personal-readonly{display:flex;align-items:center;gap:11px;margin-bottom:21px;padding:13px 14px;border:1px solid #e9e8f5;border-radius:13px;background:#faf9ff}
+.profile-personal-readonly-icon{display:grid;place-items:center;flex:0 0 30px;height:30px;border-radius:10px;background:#e9f8ef;color:#17844b;font-size:14px;font-weight:800}
+.profile-personal-readonly>div{min-width:0;flex:1}
+.profile-personal-readonly strong{display:block;color:#283047;font-size:12px}
+.profile-personal-readonly p{margin:3px 0 0;color:#72798a;font-size:11px;line-height:1.4;overflow-wrap:anywhere}
+.profile-personal-locked{padding:5px 7px;border-radius:6px;background:#eeecfb;color:#6359ce;font-size:9px;font-weight:800;letter-spacing:.08em}
+.profile-personal-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.profile-personal-form-grid label{display:grid;gap:8px;min-width:0;color:#343b50;font-size:12px;font-weight:700}
+.profile-personal-form-grid label>span{display:block}
+.profile-personal-form-grid input{width:100%;min-width:0;box-sizing:border-box;padding:12px 13px;border:1px solid #e0e2ec;border-radius:11px;background:#fbfbfe;color:#17203a;font:500 13px Inter,sans-serif;outline:none;transition:border-color .15s,box-shadow .15s,background .15s}
+.profile-personal-form-grid input::placeholder{color:#a0a5b3}
+.profile-personal-form-grid input:focus{border-color:#8179ed;background:#fff;box-shadow:0 0 0 4px rgba(79,70,229,.10)}
+.profile-personal-editor-footer{display:flex;flex-direction:column;gap:12px;margin-top:23px;padding-top:17px;border-top:1px solid #eeeef4}
+.profile-personal-editor-footer>p{min-height:16px;margin:0;color:#697386;font-size:12px}
+.profile-personal-editor-footer>p.success{color:#16834b}
+.profile-personal-editor-footer>p.error{color:#c0392b}
+.profile-personal-modal-actions{display:flex;justify-content:flex-end;gap:10px}
+.profile-personal-modal-actions button{min-height:42px;padding:10px 16px;border-radius:11px;font:700 12px Inter,sans-serif;cursor:pointer}
+.profile-personal-cancel{border:1px solid #e2e4ed;background:#fff;color:#535b70}
+.profile-personal-cancel:hover{background:#f7f7fb}
+#savePersonalInfoButton{display:flex;align-items:center;justify-content:center;gap:9px;border:1px solid #5148d7;background:linear-gradient(135deg,#6258e7,#4f46c9);color:#fff;box-shadow:0 6px 16px rgba(79,70,229,.2)}
+#savePersonalInfoButton:hover{filter:brightness(1.04);transform:translateY(-1px)}
+#savePersonalInfoButton:disabled{opacity:.65;cursor:wait;transform:none}
+@keyframes profileModalFade{from{opacity:0}to{opacity:1}}
+@keyframes profileModalEnter{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:600px){.profile-personal-modal{padding:12px}.profile-personal-modal-dialog{padding:21px 17px;border-radius:18px;max-height:calc(100dvh - 24px)}.profile-personal-modal-heading h2{font-size:19px}.profile-personal-form-grid{grid-template-columns:1fr;gap:13px}.profile-personal-modal-actions{flex-direction:column-reverse}.profile-personal-modal-actions button{width:100%}}
+@media(prefers-reduced-motion:reduce){.profile-personal-modal-backdrop,.profile-personal-modal-dialog{animation:none!important}}
 </style>
 
 </head>
@@ -1307,25 +1333,29 @@
                         <button type="button" class="profile-resume-button" id="editPersonalInfoButton">✎ Edit Information</button>
                     </div>
 
-                    <form id="personalInfoEditor" class="profile-personal-editor" hidden>
-                        <div class="profile-personal-editor-heading">
-                            <div>
-                                <strong>Edit Personal Information</strong>
-                                <p>Your account name cannot be changed here.</p>
+                    <div class="profile-personal-modal" id="personalInfoModal" hidden>
+                        <button type="button" class="profile-personal-modal-backdrop" id="personalInfoBackdrop" aria-label="Close edit information dialog"></button>
+                        <section class="profile-personal-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="personalInfoModalTitle">
+                            <div class="profile-personal-modal-topline"><span>ACCOUNT SETTINGS</span><button type="button" id="closePersonalInfoButton" class="profile-personal-modal-close" aria-label="Close dialog">×</button></div>
+                            <div class="profile-personal-modal-heading">
+                                <div class="profile-personal-modal-icon">✦</div>
+                                <div><h2 id="personalInfoModalTitle">Edit your information</h2><p>Keep your profile accurate so we can help you find better opportunities.</p></div>
                             </div>
-                            <button type="button" id="cancelPersonalInfoButton" class="profile-resume-secondary-button">Cancel</button>
-                        </div>
-                        <div class="profile-personal-form-grid">
-                            <label>Education<input id="editProfileEducation" name="education" maxlength="160" placeholder="e.g. Batangas State University"></label>
-                            <label>Degree / Course<input id="editProfileDegree" name="degree" maxlength="160" placeholder="e.g. BS Information Technology"></label>
-                            <label>Target Job<input id="editProfileTargetJob" name="target_job" maxlength="160" placeholder="e.g. Frontend Developer"></label>
-                            <label>Location<input id="editProfileLocation" name="location" maxlength="160" placeholder="e.g. Batangas, Philippines"></label>
-                        </div>
-                        <div class="profile-personal-editor-footer">
-                            <p id="personalInfoMessage" role="status" aria-live="polite"></p>
-                            <button type="submit" class="profile-resume-button" id="savePersonalInfoButton">Save Changes</button>
-                        </div>
-                    </form>
+                            <form id="personalInfoEditor" class="profile-personal-editor">
+                                <div class="profile-personal-readonly"><span class="profile-personal-readonly-icon">✓</span><div><strong>Account name</strong><p id="personalInfoReadonlyName">Your name is protected and cannot be edited here.</p></div><span class="profile-personal-locked">LOCKED</span></div>
+                                <div class="profile-personal-form-grid">
+                                    <label><span>Education</span><input id="editProfileEducation" name="education" maxlength="160" placeholder="e.g. Batangas State University"></label>
+                                    <label><span>Degree / Course</span><input id="editProfileDegree" name="degree" maxlength="160" placeholder="e.g. BS Information Technology"></label>
+                                    <label><span>Target Job</span><input id="editProfileTargetJob" name="target_job" maxlength="160" placeholder="e.g. Frontend Developer"></label>
+                                    <label><span>Location</span><input id="editProfileLocation" name="location" maxlength="160" placeholder="e.g. Batangas, Philippines"></label>
+                                </div>
+                                <div class="profile-personal-editor-footer">
+                                    <p id="personalInfoMessage" role="status" aria-live="polite"></p>
+                                    <div class="profile-personal-modal-actions"><button type="button" id="cancelPersonalInfoButton" class="profile-personal-cancel">Cancel</button><button type="submit" class="profile-resume-button" id="savePersonalInfoButton">Save Changes <span aria-hidden="true">→</span></button></div>
+                                </div>
+                            </form>
+                        </section>
+                    </div>
 
                 </section>
 
