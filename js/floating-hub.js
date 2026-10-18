@@ -17,18 +17,17 @@
     }
     async function init() {
         try {
-            const candidate = await fetch('/api/auth/profile', { credentials: 'include' });
-            if (candidate.ok) {
-                const data = await candidate.json();
-                if (!data.profile) return;
-                state.role = 'candidate'; state.userId = Number(data.profile.id);
-            } else if (candidate.status === 403) {
-                const response = await fetch('/api/employer/me', { credentials: 'include' });
-                if (!response.ok) return;
-                const data = await response.json();
-                state.role = 'employer'; state.userId = Number(data.user?.id);
-            } else return;
-            if (!state.role || !state.userId) return;
+            // Resolve the signed-in role from the shared auth endpoint first.
+            // /api/auth/profile is candidate-only, so probing it for employers
+            // produced an expected but noisy 403 in the browser console.
+            const response = await fetch('/api/auth/me', { credentials: 'include' });
+            if (!response.ok) return;
+            const data = await response.json();
+            const user = data.user;
+            if (!user || !['candidate', 'employer'].includes(user.role)) return;
+            state.role = user.role;
+            state.userId = Number(user.id);
+            if (!state.userId) return;
             mount();
             await refreshAll();
             state.poll = window.setInterval(refreshAll, 10000);
