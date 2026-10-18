@@ -272,6 +272,19 @@ async function main() {
         const nonexistent = await request('/api/jobs/saved/99999999', { method: 'POST' });
         if (nonexistent.status !== 404) throw new Error('Nonexistent saved job should return 404.');
 
+        for (const id of ['0', 'not-a-number']) {
+            const invalidDelete = await request('/api/jobs/saved/' + id, { method: 'DELETE' });
+            if (invalidDelete.status !== 400) throw new Error('Invalid unsave ID should return 400: ' + id);
+        }
+        const removeSaved = await request('/api/jobs/saved/' + job.id, { method: 'DELETE' });
+        if (removeSaved.status !== 200) throw new Error('Candidate should be able to remove their own saved job.');
+        const savedAfterRemove = await request('/api/jobs/saved');
+        const savedAfterRemoveBody = await savedAfterRemove.json();
+        if (!Array.isArray(savedAfterRemoveBody.jobs) || savedAfterRemoveBody.jobs.some((item) => Number(item.id) === Number(job.id))) {
+            throw new Error('Removed saved job still appears in the candidate saved-job list.');
+        }
+        const restoreSaved = await request('/api/jobs/saved/' + job.id, { method: 'POST' });
+        if (restoreSaved.status !== 200) throw new Error('Candidate should be able to save a job again after removing it.');
         const apply = await request('/api/jobs/' + job.id + '/apply', { method: 'POST' });
         if (apply.status !== 201) throw new Error('Candidate should be able to apply to an available job; received ' + apply.status + ': ' + await apply.text());
         const applyBody = await apply.json();
