@@ -14,6 +14,13 @@ const { createNotification } = require('./notificationService')
 
 const router = express.Router();
 
+// Job responses may include user-specific match scores and skill-gap data.
+router.use((req, res, next) => {
+    res.set('Cache-Control', 'private, no-store, max-age=0');
+    res.set('Pragma', 'no-cache');
+    next();
+});
+
 function requireCandidate(req, res, next) {
     const user = db.prepare('SELECT role FROM users WHERE id = ?').get(req.session.userId);
 
