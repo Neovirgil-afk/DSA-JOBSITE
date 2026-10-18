@@ -166,6 +166,9 @@ try {
     fail('Authentication rate limiter behavior check failed: ' + error.message);
 }
 
+// Protect resume uploads against unexpectedly large or unsupported files.
+const resumeRoutesSource = read('resumeRoutes.js');
+
 // Resume builder list fields may contain malformed values from manual/API clients.
 const resumeBuilderSaveRoute = resumeRoutesSource.match(/router\.put\(\s*['"]\/builder['"]([\s\S]*?)(?=\nrouter\.(?:get|post|put|delete)\()/);
 if (!resumeBuilderSaveRoute ||
@@ -173,8 +176,6 @@ if (!resumeBuilderSaveRoute ||
     fail('Resume builder must ignore malformed entries in education, experience, projects, and certifications.');
 }
 
-// Protect resume uploads against unexpectedly large or unsupported files.
-const resumeRoutesSource = read('resumeRoutes.js');
 if (!/limits:\s*\{\s*fileSize:\s*5\s*\*\s*1024\s*\*\s*1024\s*\}/.test(resumeRoutesSource)) {
     fail('Resume uploads must retain the 5MB file-size limit.');
 }
