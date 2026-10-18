@@ -166,6 +166,23 @@ try {
     fail('Authentication rate limiter behavior check failed: ' + error.message);
 }
 
+// Protect resume uploads against unexpectedly large or unsupported files.
+const resumeRoutesSource = read('resumeRoutes.js');
+if (!/limits:\s*\{\s*fileSize:\s*5\s*\*\s*1024\s*\*\s*1024\s*\}/.test(resumeRoutesSource)) {
+    fail('Resume uploads must retain the 5MB file-size limit.');
+}
+if (!/const allowed = \[['"]\.pdf['"],\s*['"]\.docx['"]\]/.test(resumeRoutesSource)) {
+    fail('Resume uploads must only accept PDF and DOCX extensions.');
+}
+if (!/err\.code === ['"]LIMIT_FILE_SIZE['"]/.test(resumeRoutesSource) ||
+    !/Maximum size is 5MB/.test(resumeRoutesSource)) {
+    fail('Oversized resume uploads must receive a clear size-limit error.');
+}
+if (!/router\.post\(\s*['"]\/scan['"],\s*requireAuth,\s*requireCandidate/.test(resumeRoutesSource) ||
+    !/upload\.single\(['"]resume['"]\)/.test(resumeRoutesSource)) {
+    fail('Resume scanning must remain authenticated and use the expected resume upload field.');
+}
+
 // Ensure the lightweight health endpoint remains available for deployment probes.
 if (!/app\.get\(\s*['"]\/api\/health['"]/.test(server)) {
     fail('server.js is missing the /api/health endpoint.');
