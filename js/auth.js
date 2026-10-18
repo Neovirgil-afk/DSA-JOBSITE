@@ -336,6 +336,12 @@ export function initAuth() {
                             <span>Keep me logged in for 30 days</span>
                         </label>
 
+                        <a class="auth-employer-link" href="/employer.html">
+                            <span class="auth-employer-link-icon" aria-hidden="true">↗</span>
+                            <span><strong>Employer login</strong><small>Sign in or create a hiring account</small></span>
+                            <span class="auth-employer-link-arrow" aria-hidden="true">→</span>
+                        </a>
+
                     </div>
 
 
