@@ -97,6 +97,13 @@ document.addEventListener('DOMContentLoaded', async () => {
    });
    const actions=document.querySelector('.header-actions');
    if(actions)actions.innerHTML='<a class="btn btn-primary" href="/employer.html">Employer Dashboard</a>';
+   const currentPath=window.location.pathname.replace(/\/$/,'')||'/';
+   rail.querySelectorAll('a[data-rail]').forEach(link=>{
+    const target=new URL(link.href,window.location.origin).pathname.replace(/\/$/,'')||'/';
+    const current=target===currentPath||(link.dataset.rail==='messages'&&window.location.hash==='#messages')||(link.dataset.rail==='messages'&&window.location.hash==='#notifications');
+    link.classList.toggle('is-current',current);
+    if(current)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
+   });
    rail.setAttribute('aria-label','Employer navigation');
   }
   function showLoadError(id,error,label){
