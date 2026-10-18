@@ -19,7 +19,7 @@ router.patch('/:id/read',requireAuth,(req,res)=>{
  catch(e){console.error('[notifications] mark read:',e);res.status(500).json({error:'Failed to update notification.'});}
 });
 router.post('/read-all',requireAuth,(req,res)=>{
- try{const r=db.prepare('UPDATE notifications SET read_at=CURRENT_TIMESTAMP WHERE user_id=? AND read_at IS NULL').run(Number(req.session.userId));res.json({success:true,updated:r.changes});}
+ try{const r=db.prepare('UPDATE notifications SET read_at=CURRENT_TIMESTAMP WHERE user_id=? AND read_at IS NULL').run(Number(req.session.userId));res.set('Cache-Control', 'private, no-store, max-age=0');res.set('Pragma', 'no-cache');res.json({success:true,updated:r.changes});}
  catch(e){console.error('[notifications] read all:',e);res.status(500).json({error:'Failed to update notifications.'});}
 });
 module.exports=router;
