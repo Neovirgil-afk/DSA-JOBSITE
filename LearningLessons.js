@@ -1,6 +1,6 @@
-// Beginner lesson catalog for JobSite Learning.
-// Lessons are intentionally short and stored locally so the learning area
-// does not require a large lesson database or external API.
+// JobSite Learning curriculum.
+// Each topic includes a detailed explanation and an applied challenge so
+// completion depends on working through concepts, not just opening a lesson.
 'use strict';
 
 const LESSONS = {
@@ -201,6 +201,40 @@ const QUIZZES = {
   ]
 };
 
+const PRACTICE_TASKS = {
+  HTML: 'Build a semantic page section using the correct elements. Explain why each element is appropriate, add accessible labels or alternative text where needed, and check the result with keyboard navigation.',
+  CSS: 'Style the same content for narrow and wide screens. Explain your layout choice, identify one likely overflow problem, and show how your rules prevent it without relying on fixed page widths.',
+  JavaScript: 'Write a small function that accepts input, validates edge cases, and returns a predictable result. Explain the control flow and test at least one normal input and two invalid or boundary inputs.',
+  Git: 'Describe a safe branch-based workflow for a feature and a conflicting change. Identify which commands inspect state, which commands change history, and how you would recover without losing another person’s work.',
+  SQL: 'Write a query for a realistic reporting question. Explain the selected columns, filters, ordering, and how NULL values or duplicate rows could change the result.',
+  Python: 'Solve a small data-processing task with a function, clear control flow, and meaningful edge-case handling. Explain the data structure you chose and test empty and unexpected input.',
+  Java: 'Design a small class with appropriate fields and methods. Explain the type choices, object responsibilities, and how you would prevent invalid state from being stored.',
+  React: 'Design a component with props and changing state. Explain what belongs in state, how user interaction updates it, and how you would avoid duplicated or stale state.',
+  'Node.js': 'Plan an API endpoint from request to response. Explain input validation, error handling, status codes, and what should happen if a dependency fails.',
+  'Network Security': 'Analyze a fictional network access scenario. Identify the asset, threat, likely control, and residual risk; explain why one security layer alone is insufficient.',
+  'Penetration Testing': 'Write a mini test plan for an explicitly authorized lab: scope, allowed methods, evidence to collect, stop conditions, risk controls, and a remediation-focused finding.',
+  AWS: 'Choose a cloud design for a small application. Explain access boundaries, availability, cost trade-offs, logging, and which security responsibilities remain with the customer.',
+  'Digital Marketing': 'Create a campaign brief with a defined audience, objective, message, channel rationale, budget assumption, and measurable success criteria. Explain what result would make you change the plan.',
+  'Market Research': 'Turn a business question into a research plan. Separate assumptions from evidence, choose suitable primary or secondary sources, note sampling bias, and state what conclusion the data cannot support.',
+  'Content Marketing': 'Create a content brief for one audience and journey stage. State the reader problem, evidence needed, format choice, call to action, and metric that would indicate useful outcomes.',
+  'Social Media Marketing': 'Plan a short campaign for a defined audience. Justify platform and format, define a publishing test, choose metrics aligned with the objective, and explain how you would respond to weak engagement.',
+  SEO: 'Audit a sample page for search intent, title and heading clarity, content usefulness, internal links, and technical accessibility. Prioritize fixes by likely user impact rather than keyword repetition.',
+  'Email Marketing': 'Design a permission-based email sequence for two audience segments. Explain the segmentation rule, message difference, success metric, unsubscribe handling, and how you would avoid misleading conclusions.',
+  'Data Analytics': 'Interpret a small campaign report. Define the denominator for each rate, compare results against a baseline, distinguish correlation from causation, and recommend one next experiment.'
+};
+
+function expandCurriculum() {
+  for (const [skill, topics] of Object.entries(LESSONS)) {
+    const task = PRACTICE_TASKS[skill] || ('Apply ' + skill + ' to a realistic work scenario. Define the problem, explain your choices, test edge cases, and describe how you would verify that the result is correct.');
+    LESSONS[skill] = topics.flatMap(([title, content], index) => [
+      [title, content + '\\n\\nDeeper understanding: connect this idea to the other concepts in ' + skill + ' rather than memorizing a definition. Identify what the concept changes, when it is useful, and what can go wrong when it is applied without checking assumptions.'],
+      ['Applied challenge ' + (index + 1) + ': ' + title, 'Work through this challenge before moving on. ' + task + '\\n\\nDeliverable: write your own solution or reasoning in your study notes. Include the decision you made, one alternative you considered, a limitation or edge case, and how you would verify the result. A familiar term or copied definition is not enough; demonstrate how you would use it.']
+    ]);
+  }
+}
+
+expandCurriculum();
+
 function findLessonKey(skill) {
   const requested = String(skill || '').trim().toLowerCase();
   if (!requested) return null;
@@ -218,7 +252,7 @@ function getLesson(skill) {
   return {
     skill: name,
     level: 'Beginner',
-    description: 'Short, foundation-level lessons for learners who are new to this skill.',
+    description: 'A structured learning path with deeper explanations and applied challenges. Work through each topic and record your reasoning before taking the mastery assessment.',
     lessons: lessons.map((item, index) => ({ step: index + 1, title: item[0], content: item[1] })),
     quiz: (QUIZZES[name] || []).map((item, index) => ({ question: index + 1, prompt: item[0], options: item[1] }))
   };
@@ -227,8 +261,8 @@ function getLesson(skill) {
 function getAvailableLessons() {
   return Object.keys(LESSONS).map((skill) => ({
     skill,
-    level: 'Beginner',
-    description: 'Short foundation lesson'
+    level: 'Foundation + Practice',
+    description: 'Detailed topics, applied challenges, and a mastery assessment'
   }));
 }
 
@@ -243,7 +277,7 @@ function gradeQuiz(skill, answers) {
   if (normalized.some((answer) => !Number.isInteger(answer) || answer < 0 || answer > 3)) return null;
 
   const score = quiz.reduce((total, item, index) => total + (normalized[index] === item[2] ? 1 : 0), 0);
-  const passed = score >= Math.ceil(quiz.length * 0.67);
+  const passed = score >= Math.ceil(quiz.length * 0.8);
 
   return {
     skill: name,
