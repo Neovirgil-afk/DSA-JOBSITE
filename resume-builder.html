@@ -27,7 +27,22 @@
 .resume-preview-wrap{position:sticky;top:20px}.resume-paper{min-height:760px;padding:46px 48px;background:#fff;color:#20242e;box-shadow:0 12px 35px rgba(25,25,50,.10);font-family:Arial,sans-serif}.resume-paper h1{margin:0;color:#17233b;font-size:30px;line-height:1.1;letter-spacing:-.02em}.resume-contact{margin:9px 0 25px;color:#687080;font-size:10.5px;line-height:1.5}.resume-paper h4{margin:22px 0 9px;padding-bottom:6px;border-bottom:1px solid #d9dce3;color:#27324a;font-size:10.5px;text-transform:uppercase;letter-spacing:.13em}.resume-paper p{margin:5px 0;font-size:10.5px;line-height:1.55}.resume-paper .resume-item{margin-bottom:13px}.resume-paper .resume-item strong{display:block;color:#1d2a43;font-size:11.5px;line-height:1.35}.resume-muted{margin-top:2px;color:#687080;font-size:10px;line-height:1.4}.resume-paper .resume-item:last-child{margin-bottom:0}.resume-paper h1 + .resume-contact:empty{display:none}
 @media(max-width:900px){.builder-grid{grid-template-columns:1fr}.resume-preview-wrap{position:static}.resume-paper{min-height:500px}.builder-nav{gap:12px}}
 @media(max-width:600px){.builder-two{grid-template-columns:1fr}.builder-card{padding:18px}.resume-paper{padding:30px 26px;min-height:500px}.builder-heading h1{font-size:30px}}
-@media print{.builder-header,.builder-heading,.builder-form-card,.builder-actions{display:none!important}.builder-main{padding:0}.builder-grid{display:block}.resume-preview-wrap{position:static}.resume-preview-wrap>.builder-card{border:0;padding:0;box-shadow:none}.resume-preview-wrap>.builder-card>h2,.resume-preview-wrap>.builder-card>.builder-section-note{display:none}.resume-paper{box-shadow:none;padding:42px 48px;min-height:0}.builder-page{background:#fff}}
+@media print{
+  @page{size:letter;margin:0.65in}
+  html,body,.builder-page{width:auto!important;min-height:0!important;margin:0!important;padding:0!important;background:#fff!important;color:#111!important}
+  .builder-header,.mobile-page-shell-header,.mobile-page-bottom-nav,.jobsite-global-rail,.builder-heading,.builder-form-card,.builder-actions,#jobpathFloatingHub{display:none!important}
+  .builder-main{display:block!important;width:auto!important;max-width:none!important;margin:0!important;padding:0!important}
+  .builder-main>.wrap{width:auto!important;max-width:none!important;margin:0!important;padding:0!important}
+  .builder-grid{display:block!important;width:auto!important;margin:0!important;padding:0!important}
+  .resume-preview-wrap{position:static!important;display:block!important;width:auto!important;margin:0!important;padding:0!important}
+  .resume-preview-wrap>.builder-card{display:block!important;width:auto!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:#fff!important}
+  .resume-preview-wrap>.builder-card>h2,.resume-preview-wrap>.builder-card>.builder-section-note{display:none!important}
+  .resume-paper{display:block!important;width:auto!important;max-width:none!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;outline:0!important;box-shadow:none!important;background:#fff!important;color:#111!important;overflow:visible!important;font-family:Arial,Helvetica,sans-serif!important;break-inside:auto}
+  .resume-paper h1{color:#111!important}
+  .resume-paper h4{color:#222!important;border-bottom:1px solid #999!important}
+  .resume-contact,.resume-muted{color:#444!important}
+  .resume-paper .resume-item{break-inside:avoid;page-break-inside:avoid}
+}
 
 /* Resume Builder final spacing polish */
 .builder-main{padding:38px 0 64px}
