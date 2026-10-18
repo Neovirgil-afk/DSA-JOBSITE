@@ -351,7 +351,7 @@ router.post('/scan', requireAuth, requireCandidate, (req, res) => {
             }
 
             console.error('[resume/scan] error:', error);
-            res.status(500).json({ error: 'Failed to scan resume. ' + error.message });
+            res.status(500).json({ error: 'Failed to scan resume. Please check the file and try again.' });
         }
     });
 });
