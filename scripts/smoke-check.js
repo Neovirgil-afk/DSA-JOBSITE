@@ -828,27 +828,27 @@ if (!adminSource.includes("u.role!=='admin'") ||
 }
 
 // Authentication must rate-limit login/registration, hash passwords, and regenerate session IDs.
-const authRoutesSource = read('authRoutes.js');
-const authRateLimitSource = read('authRateLimit.js');
-const loginStart = authRoutesSource.indexOf("router.post('/login'");
-const registerStart = authRoutesSource.indexOf("router.post('/register'");
-const currentUserRoute = authRoutesSource.includes("router.get('/me'");
+const authRoutesSecuritySource = read('authRoutes.js');
+const authRateLimitSecuritySource = read('authRateLimit.js');
+const loginStart = authRoutesSecuritySource.indexOf("router.post('/login'");
+const registerStart = authRoutesSecuritySource.indexOf("router.post('/register'");
+const currentUserRoute = authRoutesSecuritySource.includes("router.get('/me'");
 if (registerStart < 0 || loginStart < 0 ||
-    !authRoutesSource.slice(registerStart, loginStart).includes('authRateLimit') ||
-    !authRoutesSource.slice(loginStart).includes('authRateLimit') ||
-    !authRoutesSource.includes('bcrypt.hashSync(') ||
-    !authRoutesSource.includes('bcrypt.compareSync(') ||
-    !authRoutesSource.includes('req.session.regenerate(') ||
-    !authRoutesSource.includes('req.session.save(callback)') ||
-    !authRoutesSource.includes("res.set('Cache-Control', 'private, no-store, max-age=0')") ||
+    !authRoutesSecuritySource.slice(registerStart, loginStart).includes('authRateLimit') ||
+    !authRoutesSecuritySource.slice(loginStart).includes('authRateLimit') ||
+    !authRoutesSecuritySource.includes('bcrypt.hashSync(') ||
+    !authRoutesSecuritySource.includes('bcrypt.compare(') ||
+    !authRoutesSecuritySource.includes('req.session.regenerate(') ||
+    !authRoutesSecuritySource.includes('req.session.save(callback)') ||
+    !authRoutesSecuritySource.includes("res.set('Cache-Control', 'private, no-store, max-age=0')") ||
     !currentUserRoute) {
     fail('Authentication must rate-limit registration/login, hash and verify passwords, regenerate sessions, and protect private account responses.');
 }
-if (!authRateLimitSource.includes('MAX_ATTEMPTS = 20') ||
-    !authRateLimitSource.includes('WINDOW_MS = 15 * 60 * 1000') ||
-    !authRateLimitSource.includes('MAX_TRACKED_KEYS = 10000') ||
-    !authRateLimitSource.includes("res.set('Retry-After'") ||
-    !authRateLimitSource.includes('windows.delete(storedKey)')) {
+if (!authRateLimitSecuritySource.includes('MAX_ATTEMPTS = 20') ||
+    !authRateLimitSecuritySource.includes('WINDOW_MS = 15 * 60 * 1000') ||
+    !authRateLimitSecuritySource.includes('MAX_TRACKED_KEYS = 10000') ||
+    !authRateLimitSecuritySource.includes("res.set('Retry-After'") ||
+    !authRateLimitSecuritySource.includes('windows.delete(storedKey)')) {
     fail('Authentication rate limiting must cap attempts, expire stale keys, bound memory usage, and return Retry-After when throttled.');
 }
 
