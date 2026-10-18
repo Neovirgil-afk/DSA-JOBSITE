@@ -1757,6 +1757,98 @@ function initHeader() {
 }
 
 
+
+/* =========================================================
+   EDIT PERSONAL INFORMATION (NAME IS READ-ONLY)
+   ========================================================= */
+const personalInfoEditor = document.querySelector('#personalInfoEditor');
+const editPersonalInfoButton = document.querySelector('#editPersonalInfoButton');
+const cancelPersonalInfoButton = document.querySelector('#cancelPersonalInfoButton');
+const personalInfoMessage = document.querySelector('#personalInfoMessage');
+const savePersonalInfoButton = document.querySelector('#savePersonalInfoButton');
+
+function closePersonalInfoEditor() {
+    if (personalInfoEditor) personalInfoEditor.hidden = true;
+    if (editPersonalInfoButton) editPersonalInfoButton.hidden = false;
+    if (personalInfoMessage) {
+        personalInfoMessage.textContent = '';
+        personalInfoMessage.className = '';
+    }
+}
+
+if (editPersonalInfoButton && personalInfoEditor) {
+    editPersonalInfoButton.addEventListener('click', () => {
+        document.querySelector('#editProfileEducation').value = profileData?.education || '';
+        document.querySelector('#editProfileDegree').value = profileData?.degree || '';
+        document.querySelector('#editProfileTargetJob').value = profileData?.target_job || '';
+        document.querySelector('#editProfileLocation').value = profileData?.location || '';
+        personalInfoEditor.hidden = false;
+        editPersonalInfoButton.hidden = true;
+        document.querySelector('#editProfileEducation')?.focus();
+        if (personalInfoMessage) {
+            personalInfoMessage.textContent = '';
+            personalInfoMessage.className = '';
+        }
+    });
+}
+if (cancelPersonalInfoButton) {
+    cancelPersonalInfoButton.addEventListener('click', closePersonalInfoEditor);
+}
+if (personalInfoEditor) {
+    personalInfoEditor.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = {
+            education: String(document.querySelector('#editProfileEducation')?.value || '').trim(),
+            degree: String(document.querySelector('#editProfileDegree')?.value || '').trim(),
+            target_job: String(document.querySelector('#editProfileTargetJob')?.value || '').trim(),
+            location: String(document.querySelector('#editProfileLocation')?.value || '').trim()
+        };
+        const submitLabel = savePersonalInfoButton?.textContent || 'Save Changes';
+        if (Object.values(formData).some(value => value.length > 160)) {
+            if (personalInfoMessage) {
+                personalInfoMessage.textContent = 'Each field must be 160 characters or fewer.';
+                personalInfoMessage.className = 'error';
+            }
+            return;
+        }
+        if (savePersonalInfoButton) {
+            savePersonalInfoButton.disabled = true;
+            savePersonalInfoButton.textContent = 'Saving…';
+        }
+        if (personalInfoMessage) {
+            personalInfoMessage.textContent = 'Saving your changes…';
+            personalInfoMessage.className = '';
+        }
+        try {
+            const response = await fetch('/api/auth/profile/personal-info', {
+                method: 'PUT',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Could not update your information.');
+            profileData = { ...profileData, ...(data.profile || {}) };
+            renderProfileInformation();
+            if (personalInfoMessage) {
+                personalInfoMessage.textContent = 'Your information has been saved.';
+                personalInfoMessage.className = 'success';
+            }
+            window.setTimeout(closePersonalInfoEditor, 900);
+        } catch (error) {
+            if (personalInfoMessage) {
+                personalInfoMessage.textContent = error.message || 'Could not save your information.';
+                personalInfoMessage.className = 'error';
+            }
+        } finally {
+            if (savePersonalInfoButton) {
+                savePersonalInfoButton.disabled = false;
+                savePersonalInfoButton.textContent = submitLabel;
+            }
+        }
+    });
+}
+
 const targetJobEditor = document.querySelector('#targetJobEditor');
 const editTargetJobButton = document.querySelector('#editTargetJob');
 const targetJobInput = document.querySelector('#targetJobInput');
