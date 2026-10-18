@@ -200,7 +200,7 @@ function extractDegree(text) {
     return null;
 }
 
-async function scanResume(filePath, originalName) {
+async function scanResume(filePath, originalName, options = {}) {
     const ext = path.extname(originalName).toLowerCase();
     let text = await extractTextFromFile(filePath, originalName);
     let ocrUsed = false;
@@ -237,10 +237,10 @@ async function scanResume(filePath, originalName) {
         };
     }
 
-    const detectedSkills = detectSkills(text);
+    const detectedSkills = options.detectSkills === false ? [] : detectSkills(text);
     let warning = null;
 
-    if (detectedSkills.length === 0) {
+    if (options.detectSkills !== false && detectedSkills.length === 0) {
         warning = 'No known skills were detected. Try adding them manually in your profile.';
     } else if (ocrUsed && ocrTotalPages > ocrPagesScanned) {
         warning = `OCR scanned the first ${ocrPagesScanned} of ${ocrTotalPages} pages.`;
@@ -248,6 +248,7 @@ async function scanResume(filePath, originalName) {
 
     return {
         rawTextLength: text.length,
+        resumeText: text,
         name: extractName(text),
         email: extractEmail(text),
         degree: extractDegree(text),
