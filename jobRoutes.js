@@ -237,6 +237,7 @@ router.get('/companies', (req, res) => {
             FROM company_profiles cp
             LEFT JOIN jobs j ON j.company = cp.company_name
             GROUP BY cp.id
+            HAVING COUNT(DISTINCT j.id) > 0
             ORDER BY cp.company_name COLLATE NOCASE ASC
         `).all();
 
