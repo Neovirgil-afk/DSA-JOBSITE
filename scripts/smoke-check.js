@@ -837,7 +837,7 @@ if (registerStart < 0 || loginStart < 0 ||
     !authRoutesSecuritySource.slice(registerStart, loginStart).includes('authRateLimit') ||
     !authRoutesSecuritySource.slice(loginStart).includes('authRateLimit') ||
     !authRoutesSecuritySource.includes('bcrypt.hashSync(') ||
-    !authRoutesSecuritySource.includes('bcrypt.compare(') ||
+    !authRoutesSecuritySource.includes('bcrypt.compareSync(') ||
     !authRoutesSecuritySource.includes('req.session.regenerate(') ||
     !authRoutesSecuritySource.includes('req.session.save(callback)') ||
     !authRoutesSecuritySource.includes("res.set('Cache-Control', 'private, no-store, max-age=0')") ||
