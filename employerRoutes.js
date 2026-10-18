@@ -1,4 +1,6 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const bcrypt = require('bcryptjs');
 const { db } = require('./database');
 const { computeSkillGap } = require('./SkillGapService');
@@ -768,9 +770,10 @@ router.get('/applicants/:id/resume', requireEmployer, (req, res) => {
             return res.status(404).json({ error: 'No resume is attached to this application.' });
         }
 
-        const fs = require('fs');
-        const path = require('path');
-        const uploadDir = path.join(__dirname, 'uploads');
+        // Use the same persistent upload directory as resumeRoutes.js.
+        const uploadDir = process.env.JOBPATH_UPLOAD_DIR
+            ? path.resolve(process.env.JOBPATH_UPLOAD_DIR)
+            : path.join(__dirname, 'uploads');
         const filePath = path.join(uploadDir, path.basename(application.stored_name));
 
         if (!fs.existsSync(filePath)) {
