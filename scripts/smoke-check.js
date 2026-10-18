@@ -129,7 +129,7 @@ if (!server.includes("!String(process.env.SESSION_SECRET || '').trim()")) {
 }
 // Session data must persist in SQLite rather than Express' default in-memory store.
 const sessionStoreSource = read('sessionStore.js');
-if (!sessionStoreSource.includes('deleteExpiredStatement = db.prepare') ||
+if (!sessionStoreSource.includes('deleteExpiredStatement = sessionDatabase.prepare') ||
     !sessionStoreSource.includes('this.deleteExpiredStatement.run(Date.now())')) {
     fail('SQLite session store must remove expired session rows during startup and session saves.');
 }
