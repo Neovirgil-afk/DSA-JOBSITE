@@ -1236,6 +1236,40 @@ async function main() {
         if (matchingCustomSkills.length !== 1 || matchingCustomSkills[0].source !== 'manual') throw new Error('Custom skills should be trimmed, deduplicated case-insensitively, and saved as manual skills.');
         if (!(savedManualSkillsBody.skills || []).some((skill) => skill.source === 'resume' && /javascript/i.test(skill.name))) throw new Error('Saving manual skills must preserve resume-derived skills.');
 
+        // Replacing a resume should replace old resume-derived skills but keep manual skills.
+        const replacementDocxLines = [
+            'Runtime Resume Replacement Candidate',
+            'replacement.candidate@example.com',
+            'Data Analyst',
+            'Python SQL Docker Linux',
+            'Data processing, database queries, and containerized application deployment.',
+            'Education: Test University, Information Systems.'
+        ];
+        const replacementDocxForm = new FormData();
+        replacementDocxForm.append('resume', new Blob([makeTextDocx(replacementDocxLines)], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }), 'runtime-resume-replacement.docx');
+        const replacementDocxResponse = await request('/api/resume/scan', { method: 'POST', body: replacementDocxForm });
+        if (replacementDocxResponse.status !== 200) throw new Error('A replacement DOCX should scan successfully; received ' + replacementDocxResponse.status + ': ' + await replacementDocxResponse.text());
+        const replacementDocxBody = await replacementDocxResponse.json();
+        if (!replacementDocxBody.success || !replacementDocxBody.detectedSkills?.some((skill) => /python/i.test(skill))) {
+            throw new Error('Replacement resume should detect its new Python skill.');
+        }
+        if (replacementDocxBody.detectedSkills.some((skill) => /javascript/i.test(skill))) {
+            throw new Error('Replacing a resume should not retain JavaScript from the previous resume when it is absent from the new scan.');
+        }
+
+        const profileAfterResumeReplacement = await request('/api/auth/profile');
+        const profileAfterResumeReplacementBody = await profileAfterResumeReplacement.json();
+        const replacementProfileSkills = profileAfterResumeReplacementBody.profile?.skills || [];
+        if (!replacementProfileSkills.some((skill) => skill.source === 'resume' && /python/i.test(skill.name))) {
+            throw new Error('New resume-derived skills were not synchronized to the candidate profile.');
+        }
+        if (replacementProfileSkills.some((skill) => skill.source === 'resume' && /javascript/i.test(skill.name))) {
+            throw new Error('Old resume-derived JavaScript skill remained after resume replacement.');
+        }
+        if (!replacementProfileSkills.some((skill) => skill.source === 'manual' && skill.name.toLowerCase() === customSkillName.toLowerCase())) {
+            throw new Error('Replacing a resume must preserve manually added candidate skills.');
+        }
+
         sessionCookie = secondCandidateCookie;
         const otherCandidateProfileAfterSkillEdit = await request('/api/auth/profile');
         if (otherCandidateProfileAfterSkillEdit.status !== 200) throw new Error('Second candidate should still be able to load their own profile after another candidate edits skills.');
@@ -1246,7 +1280,7 @@ async function main() {
         sessionCookie = candidateCookie;
         const currentAfterDocx = await request('/api/resume/current');
         const currentAfterDocxBody = await currentAfterDocx.json();
-        if (currentAfterDocxBody.resume?.original_name !== 'runtime-resume.docx') throw new Error('DOCX upload metadata was not saved as the latest resume.');
+        if (currentAfterDocxBody.resume?.original_name !== 'runtime-resume-replacement.docx') throw new Error('Replacement DOCX metadata was not saved as the latest resume.');
         if (currentAfterDocx.headers.get('cache-control') && !/private/i.test(currentAfterDocx.headers.get('cache-control'))) {
             throw new Error('Resume metadata responses must not be publicly cached.');
         }
