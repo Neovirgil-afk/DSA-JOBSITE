@@ -5,7 +5,6 @@ const dropzone = document.querySelector('#dropzone');
 const fileName = document.querySelector('#fileName');
 const scanButton = document.querySelector('#scanButton');
 const statusBox = document.querySelector('#status');
-const resumeOverviewBox = document.querySelector('#resumeOverview');
 const careerRecommendationsBox = document.querySelector('#careerRecommendations');
 const jobsBox = document.querySelector('#jobs');
 const careerPathBox = document.querySelector('#careerPath');
@@ -259,7 +258,6 @@ async function scanResume() {
             throw new Error(data.error || 'Failed to scan resume.');
         }
 
-        resumeOverviewBox.textContent = data.resumeOverview || 'The resume was read, but an overview could not be created.';
         renderCareerRecommendations(Array.isArray(data.recommendedCareers) ? data.recommendedCareers : []);
         const warning = data.warning ? ` ${data.warning}` : '';
         setStatus('Resume analyzed successfully. Suggestions use resume text; your profile skills were not changed.' + warning, 'success');
