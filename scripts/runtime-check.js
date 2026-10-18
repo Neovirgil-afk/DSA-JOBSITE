@@ -266,6 +266,7 @@ async function main() {
         }
 
         // A second candidate must see only their own application history.
+        const firstCandidateCookie = sessionCookie;
         sessionCookie = '';
         const secondCandidateEmail = 'runtime-second-candidate-' + process.pid + '-' + Date.now() + '@example.com';
         const secondCandidateRegistration = await request('/api/auth/register', {
@@ -296,7 +297,7 @@ async function main() {
         if (!/private/i.test(secondCandidateCacheControl) || !/no-store/i.test(secondCandidateCacheControl)) {
             throw new Error('Second candidate application history must also be non-cacheable.');
         }
-        sessionCookie = candidateCookie;
+        sessionCookie = firstCandidateCookie;
         const duplicateApply = await request('/api/jobs/' + job.id + '/apply', { method: 'POST' });
         if (duplicateApply.status !== 409) throw new Error('Duplicate applications should be rejected with 409; received ' + duplicateApply.status + '.');
 
