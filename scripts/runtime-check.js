@@ -272,12 +272,15 @@ async function main() {
         const reloadAfterInvalid = await reloadAfterInvalidResponse.json();
         if (reloadAfterInvalid.resume?.fullName !== 'Email Optional Test') throw new Error('Resume builder failed to preserve the last valid draft after validation.');
 
+        const invalidResumeForm = new FormData();
+        invalidResumeForm.append('resume', new Blob(['this is not a real PDF or DOCX file'], { type: 'application/pdf' }), 'fake-resume.pdf');
         const badResumeUpload = await request('/api/resume/scan', {
             method: 'POST',
-            headers: { 'Content-Type': 'multipart/form-data' },
-            body: 'this is not a real PDF or DOCX file'
+            body: invalidResumeForm
         });
-        if (badResumeUpload.status !== 400) throw new Error('Resume scanner should reject requests without a valid uploaded file; received ' + badResumeUpload.status + '.');
+        if (badResumeUpload.status !== 400) throw new Error('Resume scanner should reject a fake PDF whose content does not match its extension; received ' + badResumeUpload.status + '.');
+        const badResumeBody = await badResumeUpload.json();
+        if (!String(badResumeBody.error || '').includes('does not match')) throw new Error('Fake PDF rejection should explain the file-content mismatch.');
 
         console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, applications and duplicate prevention, employer job posting/applicant management, interview scheduling, resume draft persistence and validation, and resume scanner missing-file handling.');
     } finally {
