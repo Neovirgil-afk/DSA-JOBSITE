@@ -93,6 +93,9 @@ if (!/process\.env\.JOBPATH_DB_PATH\s*\?\s*path\.resolve\(process\.env\.JOBPATH_
 }
 
 const server = read('server.js');
+if (!server.includes("String(process.env.SESSION_SECRET || '').trim()")) {
+    fail('Production startup must reject an empty or whitespace-only session secret.');
+}
 if (!/httpServer\.close\(\s*\(error\)\s*=>/.test(server) ||
     !/db\.close\(\)/.test(server) ||
     !/process\.on\(['"]SIGTERM['"]/.test(server) ||
