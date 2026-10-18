@@ -277,7 +277,7 @@ if (!/app\.use\(\s*['"]\/uploads['"]\s*,\s*\(req,\s*res\)\s*=>\s*\{\s*res\.sendS
 }
 
 // Enable SQLite WAL mode for improved read/write concurrency.
-if (!/db\\.pragma\\(['"]journal_mode = WAL['"]\\)/.test(databaseSource)) {
+if (!databaseSource.includes("db.pragma('journal_mode = WAL')")) {
     fail('SQLite should enable WAL journal mode for improved concurrent access.');
 }
 
