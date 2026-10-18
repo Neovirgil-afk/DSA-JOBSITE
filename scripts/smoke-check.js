@@ -84,7 +84,7 @@ try {
 }
 
 const server = read('server.js');
-const routeImports = [...server.matchAll(/const\\s+(\\w+Routes)\\s*=\\s*require\\(['"]\\.\\/([^'"]+)['"]\\)/g)];
+const routeImports = [...server.matchAll(/const\s+(\w+Routes)\s*=\s*require\(['"]\.\/([^'"]+)['"]\)/g)];
 if (routeImports.length === 0) {
     fail('server.js does not declare any route modules.');
 } else {
@@ -94,7 +94,7 @@ if (routeImports.length === 0) {
         if (!fs.existsSync(path.join(root, routePath + '.js'))) {
             fail('server.js imports missing route module: ' + routePath + '.js');
         }
-        const mountPattern = new RegExp('app\\\\.use\\\\([^\\\\n]*\\\\b' + routeName + '\\\\s*\\\\)');
+        const mountPattern = new RegExp('app\\.use\\([^\\n]*\\b' + routeName + '\\s*\\)');
         if (!mountPattern.test(server)) fail('server.js imports but does not mount route module ' + routeName + '.');
     }
 }
