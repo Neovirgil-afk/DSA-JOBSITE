@@ -46,6 +46,27 @@ const upload = multer({
     },
 });
 
+function hasValidResumeSignature(filePath, originalName) {
+    const extension = path.extname(String(originalName || '')).toLowerCase();
+    const descriptor = fs.openSync(filePath, 'r');
+    try {
+        const header = Buffer.alloc(8);
+        const bytesRead = fs.readSync(descriptor, header, 0, header.length, 0);
+        if (extension === '.pdf') {
+            return bytesRead >= 5 && header.subarray(0, 5).toString('ascii') === '%PDF-';
+        }
+        if (extension === '.docx') {
+            // DOCX is a ZIP-based Office Open XML package.
+            return bytesRead >= 4 &&
+                header[0] === 0x50 && header[1] === 0x4b &&
+                header[2] === 0x03 && header[3] === 0x04;
+        }
+        return false;
+    } finally {
+        fs.closeSync(descriptor);
+    }
+}
+
 function handleUploadErrors(err, req, res, next) {
     if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
@@ -260,6 +281,13 @@ router.post('/scan', requireAuth, requireCandidate, (req, res) => {
 
         try {
             if (!req.file) return res.status(400).json({ error: 'No file was uploaded.' });
+
+            if (!hasValidResumeSignature(req.file.path, req.file.originalname)) {
+                fs.unlinkSync(req.file.path);
+                return res.status(400).json({
+                    error: 'The file content does not match a valid PDF or DOCX resume.'
+                });
+            }
 
             const result = await scanResume(req.file.path, req.file.originalname);
 
