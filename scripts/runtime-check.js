@@ -486,6 +486,23 @@ async function main() {
         if (!/private/i.test(secondNotificationsCache) || !/no-store/i.test(secondNotificationsCache)) {
             throw new Error('Candidate notifications must be private and non-cacheable.');
         }
+        const secondCandidateReadAll = await request('/api/notifications/read-all', { method: 'POST' });
+        if (secondCandidateReadAll.status !== 200) throw new Error('Candidate should be able to mark all of their own notifications as read.');
+        const secondCandidateReadAllBody = await secondCandidateReadAll.json();
+        if (!secondCandidateReadAllBody.success || !Number.isInteger(secondCandidateReadAllBody.updated) || secondCandidateReadAllBody.updated < 0) {
+            throw new Error('Mark-all-read should report a non-negative count of updated notifications.');
+        }
+        const secondCandidateNotificationsAfterReadAll = await request('/api/notifications');
+        const secondCandidateNotificationsAfterReadAllBody = await secondCandidateNotificationsAfterReadAll.json();
+        if (secondCandidateNotificationsAfterReadAllBody.unreadCount !== 0 ||
+            secondCandidateNotificationsAfterReadAllBody.notifications?.some((item) => !item.read_at)) {
+            throw new Error('Mark-all-read should clear unread notifications for the current candidate.');
+        }
+        const repeatedSecondCandidateReadAll = await request('/api/notifications/read-all', { method: 'POST' });
+        const repeatedSecondCandidateReadAllBody = await repeatedSecondCandidateReadAll.json();
+        if (repeatedSecondCandidateReadAll.status !== 200 || repeatedSecondCandidateReadAllBody.updated !== 0) {
+            throw new Error('Repeating mark-all-read should succeed without updating already-read notifications.');
+        }
         const invalidNotificationRead = await request('/api/notifications/not-a-number/read', { method: 'PATCH' });
         if (invalidNotificationRead.status !== 400) throw new Error('Invalid notification IDs must return 400; received ' + invalidNotificationRead.status + '.');
 
