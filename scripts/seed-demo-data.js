@@ -149,36 +149,42 @@ const runSeed = db.transaction(() => {
    }
   }
  }
- // Reattach legacy listings to a real employer account when the matching company
- // profile is already owned by an employer; remove only listings still orphaned.
- db.prepare(`
-  UPDATE jobs
-  SET employer_id = (
-   SELECT cp.user_id
-   FROM company_profiles cp
-   JOIN users u ON u.id = cp.user_id AND u.role = 'employer'
-   WHERE cp.company_name = jobs.company COLLATE NOCASE
-   LIMIT 1
-  )
-  WHERE (employer_id IS NULL OR NOT EXISTS (
-   SELECT 1 FROM users u WHERE u.id = jobs.employer_id AND u.role = 'employer'
-  ))
-  AND EXISTS (
-   SELECT 1
-   FROM company_profiles cp
-   JOIN users u ON u.id = cp.user_id AND u.role = 'employer'
-   WHERE cp.company_name = jobs.company COLLATE NOCASE
-  )
- `).run();
- db.prepare(`
-  DELETE FROM jobs
-  WHERE employer_id IS NULL
-     OR NOT EXISTS (SELECT 1 FROM users u WHERE u.id = jobs.employer_id AND u.role = 'employer')
- `).run();
 });
+
+function cleanupOrphanedJobs() {
+ const clean = db.transaction(() => {
+  // Reattach legacy listings when a matching company profile belongs to an employer.
+  db.prepare(`
+   UPDATE jobs
+   SET employer_id = (
+    SELECT cp.user_id
+    FROM company_profiles cp
+    JOIN users u ON u.id = cp.user_id AND u.role = 'employer'
+    WHERE cp.company_name = jobs.company COLLATE NOCASE
+    LIMIT 1
+   )
+   WHERE (employer_id IS NULL OR NOT EXISTS (
+    SELECT 1 FROM users u WHERE u.id = jobs.employer_id AND u.role = 'employer'
+   ))
+   AND EXISTS (
+    SELECT 1
+    FROM company_profiles cp
+    JOIN users u ON u.id = cp.user_id AND u.role = 'employer'
+    WHERE cp.company_name = jobs.company COLLATE NOCASE
+   )
+  `).run();
+  db.prepare(`
+   DELETE FROM jobs
+   WHERE employer_id IS NULL
+      OR NOT EXISTS (SELECT 1 FROM users u WHERE u.id = jobs.employer_id AND u.role = 'employer')
+  `).run();
+ });
+ clean();
+}
 
 function seedDemoData() {
  runSeed();
+ cleanupOrphanedJobs();
  console.log('[demo-seed] Complete: 10 employers, 10 applicants, 30 detailed jobs, 20 applications, and sample conversations.');
  console.log('[demo-seed] Shared password: '+PASSWORD);
  console.log('[demo-seed] Employer emails: '+employers.map(e=>e.email).join(', '));
@@ -196,4 +202,4 @@ if (require.main === module) {
  }
 }
 
-module.exports = { seedDemoData };
+module.exports = { seedDemoData, cleanupOrphanedJobs };
