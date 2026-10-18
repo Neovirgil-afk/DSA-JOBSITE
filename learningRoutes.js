@@ -62,13 +62,18 @@ router.get('/recommended', requireAuth, requireCandidate, (req, res) => {
             }
         }
 
-        if (!recommendations.length) {
+        // Only show generic starter lessons when there is no usable target-role path.
+        // If the learner has completed every step for their target role, do not replace
+        // that achievement with unrelated skills from the catalog.
+        if (!recommendations.length && (!user?.target_job || !careerPath?.steps?.length)) {
             recommendations = getAvailableLessons()
                 .filter((item) => !owned.has(item.skill.toLowerCase()))
                 .slice(0, 6)
                 .map((item) => ({
                     ...item,
-                    reason: 'A beginner-friendly skill you can learn on JobSite.',
+                    reason: user?.target_job
+                        ? 'Starter lessons while a dedicated path for ' + user.target_job + ' is unavailable.'
+                        : 'A beginner-friendly skill you can learn on JobSite.',
                     resources: getLearningResources(item.skill),
                     hasLesson: true
                 }));
