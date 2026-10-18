@@ -64,8 +64,8 @@ router.post('/register', authRateLimit, (req, res) => {
 
         /* ---------- PASSWORD LENGTH ---------- */
 
-        if (password.length < 6 || password.length > 1024) {
-            return res.status(400).json({ error: 'Password must be between 6 and 1024 characters.' });
+        if (password.length < 6 || Buffer.byteLength(password, 'utf8') > 72) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters and no more than 72 UTF-8 bytes.' });
         }
 
 
