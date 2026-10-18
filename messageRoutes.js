@@ -19,7 +19,7 @@ router.get('/:applicationId',requireAuth,(req,res)=>{
   const appId=Number(req.params.applicationId);if(!Number.isInteger(appId)||appId<=0)return res.status(400).json({error:'Invalid application id.'});
   const app=access(appId,u);if(!app)return res.status(404).json({error:'Conversation not found.'});
   db.prepare('UPDATE messages SET read_at=CURRENT_TIMESTAMP WHERE application_id=? AND recipient_id=? AND read_at IS NULL').run(appId,u.id);
-  const messages=db.prepare('SELECT m.id,m.application_id,m.sender_id,m.recipient_id,m.body,m.read_at,m.created_at,u.full_name AS sender_name FROM messages m JOIN users u ON u.id=m.sender_id WHERE m.application_id=? ORDER BY m.id ASC LIMIT 500').all(appId);
+  const messages=db.prepare('SELECT m.id,m.application_id,m.sender_id,m.recipient_id,m.body,m.read_at,m.created_at,u.full_name AS sender_name FROM messages m JOIN users u ON u.id=m.sender_id WHERE m.application_id=? ORDER BY m.id DESC LIMIT 500').all(appId).reverse();
   res.json({success:true,application:app,messages});
  }catch(e){console.error('[messages] conversation:',e);res.status(500).json({error:'Failed to load conversation.'});}
 });
