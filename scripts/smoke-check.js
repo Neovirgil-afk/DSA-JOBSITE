@@ -276,6 +276,11 @@ if (!/app\.use\(\s*['"]\/uploads['"]\s*,\s*\(req,\s*res\)\s*=>\s*\{\s*res\.sendS
     fail('Direct requests to /uploads must be blocked before public static-file serving.');
 }
 
+// Enable SQLite WAL mode for improved read/write concurrency.
+if (!/db\\.pragma\\(['"]journal_mode = WAL['"]\\)/.test(databaseSource)) {
+    fail('SQLite should enable WAL journal mode for improved concurrent access.');
+}
+
 // SQLite databases and sidecar files must be blocked before static serving.
 const databaseFileBlockIndex = server.indexOf('Never expose SQLite database files');
 const databaseFileGuard = server.slice(databaseFileBlockIndex, staticFilesIndex);
