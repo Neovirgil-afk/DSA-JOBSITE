@@ -12,6 +12,7 @@ const session = require('express-session');
 const path = require('path');
 
 const { db } = require('./database');
+const SQLiteSessionStore = require('./sessionStore');
 const { seedIfNeeded } = require('./seed');
 
 const authRoutes = require('./authRoutes');
@@ -60,6 +61,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 app.use(session({
+    store: new SQLiteSessionStore(),
     name: 'jobpath.sid',
     secret: process.env.SESSION_SECRET || 'jobpath-dev-secret-change-me',
     resave: false,
