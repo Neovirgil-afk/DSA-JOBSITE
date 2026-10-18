@@ -95,7 +95,13 @@ app.use('/api/admin', adminRoutes);
 
 
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok' });
+    try {
+        db.prepare('SELECT 1').get();
+        res.json({ status: 'ok' });
+    } catch (error) {
+        console.error('[health] database check failed:', error);
+        res.status(503).json({ status: 'error', error: 'Database unavailable.' });
+    }
 });
 
 app.listen(PORT, () => {
