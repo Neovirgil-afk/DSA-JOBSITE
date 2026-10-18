@@ -260,6 +260,13 @@ try {
     fail('Authentication rate limiter behavior check failed: ' + error.message);
 }
 
+const messageRoutesSource = read('messageRoutes.js');
+if (!messageRoutesSource.includes("typeof payload.body !== 'string'") ||
+    !messageRoutesSource.includes('ORDER BY m.id DESC LIMIT 500') ||
+    !messageRoutesSource.includes('.all(appId).reverse()')) {
+    fail('Messages must validate text payloads and load the newest conversation messages.');
+}
+
 // Protect resume uploads against unexpectedly large or unsupported files.
 const resumeRoutesSource = read('resumeRoutes.js');
 if (!/process\.env\.JOBPATH_UPLOAD_DIR\s*\?\s*path\.resolve\(process\.env\.JOBPATH_UPLOAD_DIR\)/.test(resumeRoutesSource) ||
