@@ -514,6 +514,9 @@ async function main() {
             item.type === 'application' && String(item.body || '').includes(job.title)
         );
         if (!firstApplicationNotification) throw new Error('Application submission should create a notification for the candidate.');
+        if (firstApplicationNotification.read_at) {
+            throw new Error('Marking all notifications as read for another candidate must not change this candidate’s notification.');
+        }
         sessionCookie = secondCandidateCookie;
         const foreignNotificationRead = await request('/api/notifications/' + firstApplicationNotification.id + '/read', { method: 'PATCH' });
         if (foreignNotificationRead.status !== 404) throw new Error('A candidate must not mark another candidate’s notification as read; received ' + foreignNotificationRead.status + '.');
