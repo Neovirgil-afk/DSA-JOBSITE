@@ -192,6 +192,11 @@ const authRoutesSource = read('authRoutes.js');
 if (!authRoutesSource.includes(String.raw`/^[^\s@]+@[^\s@]+\.[^\s@]+$/`)) {
     fail('Registration must use a valid email pattern that rejects whitespace and requires an @ and domain separator.');
 }
+const employerRoutesSource = read('employerRoutes.js');
+if (!employerRoutesSource.includes(String.raw`/^[^\s@]+@[^\s@]+\.[^\s@]+$/`)) {
+    fail('Employer registration must use a valid email pattern that rejects whitespace and requires an @ and domain separator.');
+}
+
 const profileUpdateStart = authRoutesSource.indexOf("router.put('/profile'");
 const profileSkillsStart = authRoutesSource.indexOf("router.put('/profile/skills'", profileUpdateStart);
 const profileUpdateSource = profileUpdateStart >= 0 && profileSkillsStart > profileUpdateStart
