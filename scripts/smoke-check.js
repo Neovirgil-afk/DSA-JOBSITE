@@ -184,6 +184,14 @@ if (!resumeSignatureSource.includes("limits: { fileSize: 5 * 1024 * 1024 }") ||
     fail('Resume uploads must keep the 5MB size cap and restrict extensions to PDF and DOCX.');
 }
 
+// Admin responses contain sensitive operational and account information.
+const adminRoutesPrivacySource = read('adminRoutes.js');
+if (!adminRoutesPrivacySource.includes("res.set('Cache-Control','private, no-store, max-age=0')") ||
+    !adminRoutesPrivacySource.includes("res.set('Pragma','no-cache')") ||
+    adminRoutesPrivacySource.indexOf('router.use(') > adminRoutesPrivacySource.indexOf("router.get('/overview'")) {
+    fail('Administrative endpoints must apply private no-cache headers before serving protected data.');
+}
+
 // The authentication limiter must fail closed at capacity rather than clearing active limits.
 const authLimiterSource = read('authRateLimit.js');
 if (!authLimiterSource.includes('const MAX_TRACKED_KEYS = 10000') ||
