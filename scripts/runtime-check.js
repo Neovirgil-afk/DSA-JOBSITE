@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const net = require('node:net');
+const zlib = require('node:zlib');
 
 function listenOnAvailablePort() {
     return new Promise((resolve, reject) => {
@@ -39,6 +40,72 @@ function makeTextPdf(lines) {
     for (const offset of offsets.slice(1)) pdf += String(offset).padStart(10, '0') + ' 00000 n \n';
     pdf += 'trailer\n<< /Size ' + (objects.length + 1) + ' /Root 1 0 R >>\nstartxref\n' + xrefOffset + '\n%%EOF';
     return Buffer.from(pdf, 'ascii');
+}
+
+function crc32(buffer) {
+    let crc = 0xffffffff;
+    for (const byte of buffer) {
+        crc ^= byte;
+        for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ ((crc & 1) ? 0xedb88320 : 0);
+    }
+    return (crc ^ 0xffffffff) >>> 0;
+}
+
+function makeDocx(entries) {
+    const localParts = [];
+    const centralParts = [];
+    let offset = 0;
+    for (const [name, content] of entries) {
+        const nameBytes = Buffer.from(name, 'utf8');
+        const data = Buffer.from(content, 'utf8');
+        const crc = crc32(data);
+        const local = Buffer.alloc(30);
+        local.writeUInt32LE(0x04034b50, 0);
+        local.writeUInt16LE(20, 4);
+        local.writeUInt16LE(0x0800, 6);
+        local.writeUInt16LE(0, 8);
+        local.writeUInt32LE(crc, 14);
+        local.writeUInt32LE(data.length, 18);
+        local.writeUInt32LE(data.length, 22);
+        local.writeUInt16LE(nameBytes.length, 26);
+        local.writeUInt16LE(0, 28);
+        localParts.push(local, nameBytes, data);
+
+        const central = Buffer.alloc(46);
+        central.writeUInt32LE(0x02014b50, 0);
+        central.writeUInt16LE(20, 4);
+        central.writeUInt16LE(20, 6);
+        central.writeUInt16LE(0x0800, 8);
+        central.writeUInt16LE(0, 10);
+        central.writeUInt32LE(crc, 16);
+        central.writeUInt32LE(data.length, 20);
+        central.writeUInt32LE(data.length, 24);
+        central.writeUInt16LE(nameBytes.length, 28);
+        central.writeUInt16LE(0, 30);
+        central.writeUInt16LE(0, 32);
+        central.writeUInt32LE(0, 38);
+        central.writeUInt32LE(offset, 42);
+        centralParts.push(central, nameBytes);
+        offset += local.length + nameBytes.length + data.length;
+    }
+    const centralDirectory = Buffer.concat(centralParts);
+    const end = Buffer.alloc(22);
+    end.writeUInt32LE(0x06054b50, 0);
+    end.writeUInt16LE(entries.length, 8);
+    end.writeUInt16LE(entries.length, 10);
+    end.writeUInt32LE(centralDirectory.length, 12);
+    end.writeUInt32LE(offset, 16);
+    return Buffer.concat([...localParts, centralDirectory, end]);
+}
+
+function makeTextDocx(lines) {
+    const escapeXml = (value) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const paragraphs = lines.map((line) => '<w:p><w:r><w:t xml:space="preserve">' + escapeXml(line) + '</w:t></w:r></w:p>').join('');
+    return makeDocx([
+        ['[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>'],
+        ['_rels/.rels', '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>'],
+        ['word/document.xml', '<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>' + paragraphs + '<w:sectPr/></w:body></w:document>']
+    ]);
 }
 
 async function main() {
@@ -325,6 +392,32 @@ async function main() {
         const returnedPdf = Buffer.from(await resumeFileResponse.arrayBuffer());
         if (returnedPdf.subarray(0, 5).toString('ascii') !== '%PDF-') throw new Error('The private resume endpoint did not return the uploaded PDF bytes.');
 
+        // Exercise real DOCX parsing and confirm detected skills reach the candidate profile.
+        const docxLines = [
+            'DOCX Integration Candidate',
+            'docx.candidate@example.com',
+            'Frontend Developer',
+            'JavaScript React HTML CSS Node.js Git',
+            'Built accessible web applications and REST API integrations.',
+            'Education: Test University, Bachelor of Information Technology.'
+        ];
+        const docxForm = new FormData();
+        docxForm.append('resume', new Blob([makeTextDocx(docxLines)], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }), 'runtime-resume.docx');
+        const docxScanResponse = await request('/api/resume/scan', { method: 'POST', body: docxForm });
+        if (docxScanResponse.status !== 200) throw new Error('A valid DOCX resume should scan successfully; received ' + docxScanResponse.status + ': ' + await docxScanResponse.text());
+        const docxScanBody = await docxScanResponse.json();
+        if (!docxScanBody.success || docxScanBody.extracted?.email !== 'docx.candidate@example.com') throw new Error('DOCX text extraction did not return the expected email.');
+        if (!Array.isArray(docxScanBody.detectedSkills) || docxScanBody.detectedSkills.length === 0) throw new Error('DOCX scanning did not detect skills.');
+        const profileAfterDocx = await request('/api/auth/profile');
+        if (profileAfterDocx.status !== 200) throw new Error('Candidate profile could not be loaded after DOCX scan.');
+        const profileAfterDocxBody = await profileAfterDocx.json();
+        const profileSkills = profileAfterDocxBody.profile?.skills || [];
+        if (!profileSkills.some((skill) => skill.source === 'resume')) throw new Error('Resume-detected skills were not persisted to the candidate profile.');
+        if (!profileSkills.some((skill) => /javascript/i.test(skill.name))) throw new Error('Expected JavaScript skill was not present in the saved candidate profile.');
+        const currentAfterDocx = await request('/api/resume/current');
+        const currentAfterDocxBody = await currentAfterDocx.json();
+        if (currentAfterDocxBody.resume?.original_name !== 'runtime-resume.docx') throw new Error('DOCX upload metadata was not saved as the latest resume.');
+
         // Resume access is candidate-only, even when an employer is authenticated.
         sessionCookie = employerCookie;
         const employerResumeFile = await request('/api/resume/file');
@@ -351,7 +444,7 @@ async function main() {
         const badResumeBody = await badResumeUpload.json();
         if (!String(badResumeBody.error || '').includes('does not match')) throw new Error('Fake PDF rejection should explain the file-content mismatch.');
 
-        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, applications and duplicate prevention, employer job posting/applicant management, interview scheduling, resume draft persistence and validation, real PDF text extraction and skill detection, authenticated resume file retrieval, role-based resume access, 5MB upload limits, and forged upload rejection.');
+        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, applications and duplicate prevention, employer job posting/applicant management, interview scheduling, resume draft persistence and validation, real PDF and DOCX extraction, profile skill persistence, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection.');
     } finally {
         if (child.exitCode === null) {
             child.kill('SIGTERM');
