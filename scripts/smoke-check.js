@@ -219,6 +219,29 @@ if (!employerRegistrationSource.includes('typeof value !== \'string\'') ||
     !employerRegistrationSource.includes('Company profile fields must contain text values.')) {
     fail('Optional employer company profile fields must reject non-text values.');
 }
+
+const companyProfileRoute = employerRoutesSource.slice(
+    employerRoutesSource.indexOf("router.put('/company'"),
+    employerRoutesSource.indexOf("module.exports = router")
+);
+for (const required of [
+    'Array.isArray(req.body)',
+    'typeof value !== \'string\'',
+    'companyName.slice(0, 160)',
+    'clean(req.body.description).slice(0, 2000)',
+    'clean(req.body.email).slice(0, 254)',
+    'clean(req.body.phone).slice(0, 40)',
+    'clean(req.body.website).slice(0, 2048)',
+    'clean(req.body.industry).slice(0, 100)',
+    'clean(req.body.companySize).slice(0, 100)',
+    'clean(req.body.location).slice(0, 160)',
+    'clean(req.body.foundedYear).slice(0, 20)',
+    'clean(req.body.benefits).slice(0, 2000)'
+]) {
+    if (!companyProfileRoute.includes(required)) {
+        fail('Company profile updates must validate payload types and bound field lengths: ' + required);
+    }
+}
 // Employer resume downloads must resolve files from the same configurable directory as uploads.
 if (!employerRoutesSource.includes('process.env.JOBPATH_UPLOAD_DIR') ||
     !employerRoutesSource.includes('path.resolve(process.env.JOBPATH_UPLOAD_DIR)') ||
