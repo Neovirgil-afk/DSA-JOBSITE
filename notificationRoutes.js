@@ -8,6 +8,8 @@ router.get('/', requireAuth, (req,res) => {
   const id=Number(req.session.userId);
   const notifications=db.prepare('SELECT id,type,title,body,link,read_at,created_at FROM notifications WHERE user_id=? ORDER BY datetime(created_at) DESC,id DESC LIMIT 100').all(id);
   const unreadCount=db.prepare('SELECT COUNT(*) AS count FROM notifications WHERE user_id=? AND read_at IS NULL').get(id).count;
+  res.set('Cache-Control', 'private, no-store, max-age=0');
+  res.set('Pragma', 'no-cache');
   res.json({success:true,notifications,unreadCount});
  } catch(e){console.error('[notifications] list:',e);res.status(500).json({error:'Failed to load notifications.'});}
 });
