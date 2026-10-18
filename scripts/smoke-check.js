@@ -44,7 +44,9 @@ function checkHtml(relativePath, requiredIds, requiredScripts) {
     if (duplicates.size) fail(relativePath + ' contains duplicate IDs: ' + [...duplicates].join(', '));
     for (const id of requiredIds) if (!seen.has(id)) fail(relativePath + ' is missing required element #' + id);
     for (const scriptPath of requiredScripts) {
-        if (!source.includes('src="/' + scriptPath + '"') && !source.includes('src="' + scriptPath + '"')) fail(relativePath + ' does not load required script ' + scriptPath);
+        const scriptName = scriptPath.split('/').pop();
+        const hasScript = [...source.matchAll(/\bsrc=["']([^"']+)["']/gi)].some((match) => match[1].split(/[?#]/)[0].replace(/^\//, '') === scriptPath);
+        if (!hasScript) fail(relativePath + ' does not load required script ' + scriptPath);
         if (!fs.existsSync(path.join(root, scriptPath))) fail('Missing script referenced by ' + relativePath + ': ' + scriptPath);
     }
 }
