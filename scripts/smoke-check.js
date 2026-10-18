@@ -117,6 +117,22 @@ if (!/sameSite:\s*['"]lax['"]/.test(server)) {
 if (!/secure:\s*process\.env\.NODE_ENV\s*===\s*['"]production['"]/.test(server)) {
     fail('Session cookies must use the secure flag in production.');
 }
+if (!/app\.set\(\s*['"]trust proxy['"]\s*,\s*1\s*\)/.test(server)) {
+    fail('Production deployments must trust the configured reverse proxy for secure cookies.');
+}
+if (!/express\.json\(\s*\{\s*limit:\s*['"]1mb['"]\s*\}\s*\)/.test(server)) {
+    fail('JSON request bodies must retain the 1mb size limit.');
+}
+if (!/express\.urlencoded\(\s*\{\s*extended:\s*true\s*,\s*limit:\s*['"]1mb['"]\s*\}\s*\)/.test(server)) {
+    fail('URL-encoded request bodies must retain the 1mb size limit.');
+}
+const authRoutesSource = read('authRoutes.js');
+for (const endpoint of ['register', 'login']) {
+    const protectedRoute = new RegExp("router\\.post\\(\\s*['\"]/" + endpoint + "['\"]\\s*,\\s*authRateLimit\\s*,");
+    if (!protectedRoute.test(authRoutesSource)) {
+        fail('The /' + endpoint + ' endpoint must use authRateLimit.');
+    }
+}
 
 // Ensure the lightweight health endpoint remains available for deployment probes.
 if (!/app\.get\(\s*['"]\/api\/health['"]/.test(server)) {
