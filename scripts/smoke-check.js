@@ -426,17 +426,6 @@ if (staticGuardStart < 0 || staticGuardEnd < 0 || staticGuardStart > staticGuard
     fail('Static serving must block SQLite files and private backend/configuration paths.');
 }
 
-// SQLite databases and sidecar files must be blocked before static serving.
-const databaseFileBlockIndex = server.indexOf('Never expose SQLite database files');
-const databaseFileGuard = server.slice(databaseFileBlockIndex, staticFilesIndex);
-if (databaseFileBlockIndex < 0 || staticFilesIndex < 0 || databaseFileBlockIndex > staticFilesIndex ||
-    !databaseFileGuard.includes('path.basename(req.path).toLowerCase()') ||
-    !databaseFileGuard.includes('db|sqlite|sqlite3') ||
-    !databaseFileGuard.includes('wal|shm') ||
-    !databaseFileGuard.includes('res.sendStatus(404)')) {
-    fail('SQLite database files and sidecar files must be blocked before public static-file serving.');
-}
-
 // Verify baseline browser security headers are applied by the server.
 if (!/res\.setHeader\(['"]X-Content-Type-Options['"],\s*['"]nosniff['"]\)/.test(server) ||
     !/res\.setHeader\(['"]X-Frame-Options['"],\s*['"]DENY['"]\)/.test(server) ||
