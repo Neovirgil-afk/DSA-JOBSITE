@@ -61,6 +61,11 @@ app.use(session({
     },
 }));
 
+// Resume files contain private personal information. Block direct public
+// access before mounting the general static-file server.
+app.use('/uploads', (req, res) => {
+    res.sendStatus(404);
+});
 
 app.use(express.static(__dirname));
 
