@@ -519,6 +519,44 @@ async function main() {
         const employerJobsBody = await employerJobs.json();
         if (!employerJobsBody.jobs?.some((item) => Number(item.id) === postedJobId)) throw new Error('Newly posted job was not returned in the employer job list.');
 
+        const invalidJobEdit = await request('/api/employer/jobs/' + postedJobId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: '   ',
+                description: 'Invalid update test',
+                skills: ['JavaScript'],
+                employmentType: 'Full-time',
+                location: 'Remote',
+                howToApply: 'Apply through JobPath.',
+                status: 'active'
+            })
+        });
+        if (invalidJobEdit.status !== 400) throw new Error('Job updates must reject a blank title; received ' + invalidJobEdit.status + '.');
+
+        const invalidDeadlineEdit = await request('/api/employer/jobs/' + postedJobId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: 'Runtime Integration Developer',
+                description: 'A temporary job posting used only by the automated integration check.',
+                skills: ['JavaScript', 'Node.js'],
+                employmentType: 'Full-time',
+                location: 'Remote',
+                howToApply: 'Apply through JobPath.',
+                applicationDeadline: '2020-01-01',
+                status: 'active'
+            })
+        });
+        if (invalidDeadlineEdit.status !== 400) throw new Error('Job updates must reject past deadlines on active postings; received ' + invalidDeadlineEdit.status + '.');
+
+        const jobAfterRejectedEdits = await request('/api/employer/jobs');
+        const jobAfterRejectedEditsBody = await jobAfterRejectedEdits.json();
+        const unchangedJob = jobAfterRejectedEditsBody.jobs?.find((item) => Number(item.id) === postedJobId);
+        if (!unchangedJob || unchangedJob.title !== 'Runtime Integration Developer') {
+            throw new Error('Rejected job edits must not modify the existing posting.');
+        }
+
         sessionCookie = candidateCookie;
         const applyToEmployerJob = await request('/api/jobs/' + postedJobId + '/apply', { method: 'POST' });
         if (applyToEmployerJob.status !== 201) throw new Error('Candidate should be able to apply to the employer-created job; received ' + applyToEmployerJob.status + ': ' + await applyToEmployerJob.text());
