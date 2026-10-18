@@ -196,6 +196,14 @@ if (!authRoutesSource.includes("Buffer.byteLength(password, 'utf8') > 72") ||
     !authRoutesSource.includes('no more than 72 UTF-8 bytes')) {
     fail('Registration must enforce bcrypt’s 72-byte password limit to prevent silent password truncation.');
 }
+const loginRouteSource = authRoutesSource.slice(
+    authRoutesSource.indexOf("router.post('/login'"),
+    authRoutesSource.indexOf("router.post('/logout'", authRoutesSource.indexOf("router.post('/login'"))
+);
+if (!loginRouteSource.includes("rememberMe !== undefined && typeof rememberMe !== 'boolean'") ||
+    !loginRouteSource.includes('Remember me must be true or false.')) {
+    fail('Login must reject non-boolean rememberMe values so string values cannot unexpectedly extend session duration.');
+}
 const employerRoutesSource = read('employerRoutes.js');
 if (!employerRoutesSource.includes("Buffer.byteLength(password, 'utf8') > 72") ||
     !employerRoutesSource.includes('no more than 72 UTF-8 bytes')) {
