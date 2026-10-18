@@ -14,7 +14,7 @@ const path = require('path');
 const { db } = require('./database');
 const SQLiteSessionStore = require('./sessionStore');
 const { seedIfNeeded } = require('./seed');
-const { seedDemoData } = require('./scripts/seed-demo-data');
+const { seedDemoData, cleanupOrphanedJobs } = require('./scripts/seed-demo-data');
 
 const authRoutes = require('./authRoutes');
 const jobRoutes = require('./jobRoutes');
@@ -34,8 +34,10 @@ const adminRoutes = require('./adminRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Seed the database with skills/jobs/demo user if empty.
+// Seed the database if it is genuinely new, then remove legacy listings that
+// are not attached to an employer account. This cleanup also runs in production.
 seedIfNeeded(db);
+cleanupOrphanedJobs();
 
 // Keep the fictional demo employers, candidates, jobs, applications, and conversations
 // available automatically for local development. Production stays opt-in because
