@@ -473,6 +473,32 @@ if ((notificationRoutesSource.match(/Cache-Control', 'private, no-store, max-age
     fail('All private notification responses, including errors, must disable browser and intermediary caching at router level.');
 }
 
+const notificationListRoute = notificationRoutesSource.slice(
+    notificationRoutesSource.indexOf("router.get('/'"),
+    notificationRoutesSource.indexOf("router.patch('/:id/read'")
+);
+const notificationReadRoute = notificationRoutesSource.slice(
+    notificationRoutesSource.indexOf("router.patch('/:id/read'"),
+    notificationRoutesSource.indexOf("router.post('/read-all'")
+);
+const notificationReadAllRoute = notificationRoutesSource.slice(
+    notificationRoutesSource.indexOf("router.post('/read-all'")
+);
+if (!notificationListRoute.includes('WHERE user_id=?') ||
+    !notificationListRoute.includes('ORDER BY datetime(created_at) DESC,id DESC LIMIT 100') ||
+    !notificationListRoute.includes('WHERE user_id=? AND read_at IS NULL')) {
+    fail('Notification listing must be bounded and show only the authenticated user\'s notifications and unread count.');
+}
+if (!notificationReadRoute.includes('!Number.isInteger(id)||id<=0') ||
+    !notificationReadRoute.includes('WHERE id=? AND user_id=?') ||
+    !notificationReadRoute.includes('if(!r.changes)return res.status(404)')) {
+    fail('Marking a notification read must validate the ID and prevent users from changing another user\'s notification.');
+}
+if (!notificationReadAllRoute.includes('WHERE user_id=? AND read_at IS NULL') ||
+    !notificationReadAllRoute.includes('updated:r.changes')) {
+    fail('Mark-all-read must affect only the authenticated user\'s unread notifications and report the update count.');
+}
+
 const messageRoutesSource = read('messageRoutes.js');
 if (!messageRoutesSource.includes("typeof payload.body !== 'string'") ||
     !messageRoutesSource.includes('Array.isArray(req.body)') ||
