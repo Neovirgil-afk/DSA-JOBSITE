@@ -99,6 +99,14 @@ if (routeImports.length === 0) {
     }
 }
 
+// Ensure the lightweight health endpoint remains available for deployment probes.
+if (!/app\.get\(\s*['"]\/api\/health['"]/.test(server)) {
+    fail('server.js is missing the /api/health endpoint.');
+}
+if (!/res\.json\(\s*\{\s*status:\s*['"]ok['"]\s*\}\s*\)/.test(server)) {
+    fail('/api/health must return a JSON status of ok.');
+}
+
 if (failures.length) {
     console.error('JobPath smoke check FAILED');
     for (const failure of failures) console.error(' - ' + failure);
