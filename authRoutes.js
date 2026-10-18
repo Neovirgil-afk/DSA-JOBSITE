@@ -90,7 +90,7 @@ router.post('/register', authRateLimit, (req, res) => {
 
         const cleanFullName = fullName.trim().slice(0, 120);
         const cleanEmail = email.toLowerCase().trim();
-        if (cleanEmail.length > 254 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(cleanEmail)) {
+        if (cleanEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
             return res.status(400).json({ error: 'Enter a valid email address.' });
         }
         if (cleanFullName.length < 2 || cleanFullName.length > 120) {
