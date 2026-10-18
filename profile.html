@@ -896,6 +896,26 @@
 }
 @media(min-width:701px){.mobile-page-shell-header,.mobile-page-bottom-nav{display:none}}
 </style>
+<style>
+/* Personal information editor */
+.profile-edit-prompt{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:22px;padding:17px;border:1px solid #e5e4f3;border-radius:14px;background:linear-gradient(135deg,#faf9ff,#fff)}
+.profile-edit-prompt strong{display:block;color:#17203a;font-size:13px}
+.profile-edit-prompt p,.profile-personal-editor-heading p{margin:5px 0 0;color:#697386;font-size:12px;line-height:1.5}
+.profile-personal-editor{margin-top:14px;padding:18px;border:1px solid #e5e4f3;border-radius:14px;background:#fff}
+.profile-personal-editor[hidden]{display:none}
+.profile-personal-editor-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:17px}
+.profile-personal-editor-heading>div>strong{color:#17203a;font-size:14px}
+.profile-personal-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.profile-personal-form-grid label{display:grid;gap:7px;color:#4b5563;font-size:12px;font-weight:700}
+.profile-personal-form-grid input{width:100%;min-width:0;box-sizing:border-box;padding:11px 12px;border:1px solid #dfe1ee;border-radius:9px;background:#fff;color:#17203a;font:500 13px Inter,sans-serif;outline:none}
+.profile-personal-form-grid input:focus{border-color:#8179ed;box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+.profile-personal-editor-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:17px;padding-top:14px;border-top:1px solid #eeeef4}
+.profile-personal-editor-footer p{margin:0;color:#697386;font-size:12px}
+.profile-personal-editor-footer p.success{color:#16834b}
+.profile-personal-editor-footer p.error{color:#c0392b}
+@media(max-width:700px){.profile-edit-prompt{align-items:flex-start;flex-direction:column}.profile-personal-form-grid{grid-template-columns:1fr}.profile-personal-editor-footer{align-items:stretch;flex-direction:column}.profile-personal-editor-footer button{width:100%}}
+</style>
+
 </head>
 
 
@@ -1279,20 +1299,33 @@
                     </div>
 
 
-                    <!-- FUTURE FEATURES -->
-
-                    <div class="profile-coming-soon">
-
-                        <strong>
-                            More profile options coming soon
-                        </strong>
-
-                        <p>
-                            Experience, resume, and additional
-                            career information can be added here later.
-                        </p>
-
+                    <div class="profile-edit-prompt">
+                        <div>
+                            <strong>Keep your information up to date</strong>
+                            <p>Update your education, degree, target job, and location anytime.</p>
+                        </div>
+                        <button type="button" class="profile-resume-button" id="editPersonalInfoButton">✎ Edit Information</button>
                     </div>
+
+                    <form id="personalInfoEditor" class="profile-personal-editor" hidden>
+                        <div class="profile-personal-editor-heading">
+                            <div>
+                                <strong>Edit Personal Information</strong>
+                                <p>Your account name cannot be changed here.</p>
+                            </div>
+                            <button type="button" id="cancelPersonalInfoButton" class="profile-resume-secondary-button">Cancel</button>
+                        </div>
+                        <div class="profile-personal-form-grid">
+                            <label>Education<input id="editProfileEducation" name="education" maxlength="160" placeholder="e.g. Batangas State University"></label>
+                            <label>Degree / Course<input id="editProfileDegree" name="degree" maxlength="160" placeholder="e.g. BS Information Technology"></label>
+                            <label>Target Job<input id="editProfileTargetJob" name="target_job" maxlength="160" placeholder="e.g. Frontend Developer"></label>
+                            <label>Location<input id="editProfileLocation" name="location" maxlength="160" placeholder="e.g. Batangas, Philippines"></label>
+                        </div>
+                        <div class="profile-personal-editor-footer">
+                            <p id="personalInfoMessage" role="status" aria-live="polite"></p>
+                            <button type="submit" class="profile-resume-button" id="savePersonalInfoButton">Save Changes</button>
+                        </div>
+                    </form>
 
                 </section>
 
