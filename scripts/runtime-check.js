@@ -658,11 +658,13 @@ async function main() {
         });
         if (invalidJobIdUpdate.status !== 400) throw new Error('Employer job updates must reject malformed job IDs; received ' + invalidJobIdUpdate.status + '.');
 
+        sessionCookie = employerCookie;
         const ownerCompanyBefore = await request('/api/employer/me');
         const ownerCompanyBeforeBody = await ownerCompanyBefore.json();
         if (ownerCompanyBeforeBody.company?.company_name !== employerBody.companyName) {
             throw new Error('A rejected cross-company profile update changed the owner’s company profile.');
         }
+        sessionCookie = secondEmployerCookie;
 
         const foreignApplicantsResponse = await request('/api/employer/jobs/' + postedJobId + '/applicants');
         if (foreignApplicantsResponse.status !== 404) throw new Error('Another employer must not access applicants for a job it does not own; received ' + foreignApplicantsResponse.status + '.');
