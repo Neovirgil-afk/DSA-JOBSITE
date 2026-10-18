@@ -999,7 +999,7 @@ async function main() {
             throw new Error('Repeating the same application status must not add a duplicate history entry.');
         }
         sessionCookie = employerCookie;
-        for (const invalidStatus of ['unknown-status', 42]) {
+        for (const invalidStatus of ['unknown-status', 42, null, {}, '']) {
             const invalidStatusResponse = await request('/api/employer/applications/' + employerApplicationId + '/status', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -1007,6 +1007,21 @@ async function main() {
             });
             if (invalidStatusResponse.status !== 400) throw new Error('Invalid application status should return 400.');
         }
+        const missingApplicationStatus = await request('/api/employer/applications/' + employerApplicationId + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+        });
+        if (missingApplicationStatus.status !== 400) throw new Error('Missing application status must be rejected with 400.');
+        sessionCookie = candidateCookie;
+        const historyAfterInvalidStatuses = await request('/api/applications');
+        const historyAfterInvalidStatusesBody = await historyAfterInvalidStatuses.json();
+        const applicationAfterInvalidStatuses = historyAfterInvalidStatusesBody.applications?.find((item) => Number(item.id) === employerApplicationId);
+        if (!applicationAfterInvalidStatuses || applicationAfterInvalidStatuses.status !== 'shortlisted' ||
+            applicationAfterInvalidStatuses.history?.length !== historyCountBeforeRepeat) {
+            throw new Error('Rejected application status values must not alter the current status or history.');
+        }
+        sessionCookie = employerCookie;
         const invalidApplicationId = await request('/api/employer/applications/not-a-number/status', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
