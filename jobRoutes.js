@@ -124,6 +124,8 @@ router.get('/saved', requireAuth, requireCandidate, (req, res) => {
             ORDER BY sj.saved_at DESC, j.title ASC
         `).all(req.session.userId, req.session.userId);
 
+        res.set('Cache-Control', 'private, no-store, max-age=0');
+        res.set('Pragma', 'no-cache');
         res.json({ jobs });
     } catch (err) {
         console.error('[GET /api/jobs/saved] error:', err);
