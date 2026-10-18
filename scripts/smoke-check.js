@@ -504,6 +504,19 @@ if (!learningPlannerRoutesSource.includes("title.length > 120") ||
     fail('Learning Planner must bound goal fields and associate saved goals with the authenticated candidate.');
 }
 
+const learningDiscoveryRoutesSource = read('learningDiscoveryRoutes.js');
+if (!learningDiscoveryRoutesSource.includes("user.role !== 'candidate'") ||
+    !learningDiscoveryRoutesSource.includes("req.query.q || '').trim().slice(0, 100") ||
+    !learningDiscoveryRoutesSource.includes('query.length < 2') ||
+    !learningDiscoveryRoutesSource.includes('getUserSkillNames(req.session.userId)')) {
+    fail('Learning discovery must require a candidate account, bound search input, reject too-short queries, and use the signed-in candidate skills.');
+}
+if (!learningDiscoveryRoutesSource.includes("alreadyHave: owned.has(item.skill.toLowerCase())") ||
+    !learningDiscoveryRoutesSource.includes(".slice(0, 8)") ||
+    !learningDiscoveryRoutesSource.includes('getLearningResources(item.skill)')) {
+    fail('Learning discovery must deduplicate and limit suggestions, mark existing skills, and attach learning resources.');
+}
+
 const notificationRoutesSource = read('notificationRoutes.js');
 if ((notificationRoutesSource.match(/Cache-Control', 'private, no-store, max-age=0'/g) || []).length < 3 ||
     (notificationRoutesSource.match(/Pragma', 'no-cache'/g) || []).length < 3 ||
