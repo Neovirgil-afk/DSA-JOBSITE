@@ -126,8 +126,10 @@ app.use((req, res, next) => {
         segment === 'backup script'
     );
     const isDatabaseFile = /\.(?:db|sqlite|sqlite3)(?:-(?:wal|shm))?$/.test(requestedFile);
-    const isPrivateFile = privateStaticFiles.has(requestedFile) ||
-        /routes\.js$/.test(requestedFile);
+    const isPrivateFile = requestedPath === '/' + requestedFile && (
+        privateStaticFiles.has(requestedFile) ||
+        /routes\.js$/.test(requestedFile)
+    );
 
     if (hasPrivatePathSegment || isDatabaseFile || isPrivateFile) {
         return res.sendStatus(404);
