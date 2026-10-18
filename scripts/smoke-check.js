@@ -411,6 +411,12 @@ if (!jobRoutesValidationSource.includes("typeof value !== 'string' || value.leng
     !jobRoutesValidationSource.includes('Number(minMatch) > 100')) {
     fail('Job search filters must reject non-text/oversized values and out-of-range minimum match scores.');
 }
+const applicationSubmissionSource = jobRoutesValidationSource;
+if (!applicationSubmissionSource.includes("router.post('/:id/apply'") ||
+    !applicationSubmissionSource.includes("err.code === 'SQLITE_CONSTRAINT_UNIQUE'") ||
+    !applicationSubmissionSource.includes("You already applied to this job.")) {
+    fail('Job applications must handle duplicate submissions safely, including database uniqueness conflicts.');
+}
 const jobRoutesPrivacySource = read('jobRoutes.js');
 if ((jobRoutesPrivacySource.match(/Cache-Control', 'private, no-store, max-age=0'/g) || []).length < 3 ||
     (jobRoutesPrivacySource.match(/Pragma', 'no-cache'/g) || []).length < 3) {
