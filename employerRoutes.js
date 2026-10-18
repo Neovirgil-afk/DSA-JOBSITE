@@ -102,11 +102,15 @@ function parseJobPayload(body) {
         howToApply: clean(body.howToApply),
         contactInformation: clean(body.contactInformation),
         category: clean(body.category) || 'Other',
-        status: ['draft', 'active', 'closed'].includes(body.status) ? body.status : 'active'
+        status: body.status === undefined || body.status === null || clean(body.status) === '' ? 'active' : clean(body.status)
     };
 }
 
 function validateJobPayload(payload) {
+    if (!['draft', 'active', 'closed'].includes(payload.status)) {
+        return 'Job status must be draft, active, or closed.';
+    }
+
     const limits = [
         ['title', 120, 'Job title'],
         ['description', 10000, 'Description'],
