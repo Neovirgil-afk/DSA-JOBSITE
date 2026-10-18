@@ -569,13 +569,13 @@ if (!/router\.use\(\(req, res, next\) => \{\s*res\.set\(['"]Cache-Control['"], [
     fail('Job API responses must disable caching because job listings can contain personalized match scores and skill-gap data.');
 }
 
-const resumeRoutesSource = read('resumeRoutes.js');
-const resumeBuilderSaveRoute = resumeRoutesSource.slice(
-    resumeRoutesSource.indexOf("router.put('/builder'"),
-    resumeRoutesSource.indexOf("router.get('/current'")
+const resumeEmailRoutesSource = read('resumeRoutes.js');
+const resumeEmailBuilderSaveRoute = resumeEmailRoutesSource.slice(
+    resumeEmailRoutesSource.indexOf("router.put('/builder'"),
+    resumeEmailRoutesSource.indexOf("router.get('/current'")
 );
-if (!resumeBuilderSaveRoute.includes("if (clean.email && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(clean.email))") ||
-    !resumeBuilderSaveRoute.includes("Enter a valid email address for the resume.")) {
+if (!resumeEmailBuilderSaveRoute.includes("if (clean.email && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(clean.email))") ||
+    !resumeEmailBuilderSaveRoute.includes("Enter a valid email address for the resume.")) {
     fail('Resume Builder must reject malformed non-empty email addresses before saving a resume draft.');
 }
 
