@@ -934,8 +934,9 @@ async function main() {
         if (companiesWithClosedJob.status !== 200) throw new Error('Public company listing should remain available when a job is closed.');
         const companiesWithClosedJobBody = await companiesWithClosedJob.json();
         const closedJobCompany = companiesWithClosedJobBody.companies?.find((item) => item.company_name === employerBody.companyName);
-        if (closedJobCompany && Number(closedJobCompany.open_jobs) !== 0) {
-            throw new Error('Public company open-job counts must exclude closed postings.');
+        const closedCompanyOpenJobs = closedJobCompany ? Number(closedJobCompany.open_jobs) : null;
+        if (!Number.isInteger(closedCompanyOpenJobs) || closedCompanyOpenJobs < 0) {
+            throw new Error('Public company listing should expose a valid open-job count for the employer.');
         }
 
         sessionCookie = secondCandidateCookie;
@@ -979,8 +980,8 @@ async function main() {
         const companiesWithReopenedJob = await request('/api/jobs/companies');
         const companiesWithReopenedJobBody = await companiesWithReopenedJob.json();
         const reopenedJobCompany = companiesWithReopenedJobBody.companies?.find((item) => item.company_name === employerBody.companyName);
-        if (!reopenedJobCompany || Number(reopenedJobCompany.open_jobs) < 1) {
-            throw new Error('Public company open-job counts should include a reopened active posting without an expired deadline.');
+        if (!reopenedJobCompany || Number(reopenedJobCompany.open_jobs) !== closedCompanyOpenJobs + 1) {
+            throw new Error('Public company open-job counts should increase by one when this job is reopened.');
         }
         sessionCookie = candidateCookie;
 
