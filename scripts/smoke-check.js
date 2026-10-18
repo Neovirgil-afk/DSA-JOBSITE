@@ -206,9 +206,10 @@ const resumeFileRoute = resumeRoutesSource.match(/router\.get\(\s*['"]\/file['"]
 if (!resumeFileRoute || !/requireAuth/.test(resumeFileRoute[1]) || !/requireCandidate/.test(resumeFileRoute[1]) || !/res\.sendFile\(/.test(resumeFileRoute[1])) {
     fail('Resume file delivery must remain authenticated, candidate-only, and use the private file endpoint.');
 }
-if (!/Cache-Control['"],\\s*['"]private, no-store, max-age=0['"]/.test(resumeFileRoute?.[1] || '') ||
-    !/Pragma['"],\\s*['"]no-cache['"]/.test(resumeFileRoute?.[1] || '') ||
-    !/replace\(\/\[\\\\r\\\\n"\]\/g, ''\)/.test(resumeFileRoute?.[1] || '')) {
+const privateResumeResponse = resumeFileRoute?.[1] || '';
+if (!privateResumeResponse.includes("'Cache-Control': 'private, no-store, max-age=0'") ||
+    !privateResumeResponse.includes("'Pragma': 'no-cache'") ||
+    !privateResumeResponse.includes("replace(/[\\\\r\\\\n\\\"]/g, '')")) {
     fail('Private resume downloads must disable caching and sanitize the displayed filename.');
 }
 if (!/req\.file\?\.path/.test(resumeRoutesSource) || !/fs\.unlinkSync\(req\.file\.path\)/.test(resumeRoutesSource)) {
