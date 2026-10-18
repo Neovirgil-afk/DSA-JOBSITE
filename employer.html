@@ -8,6 +8,24 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<style>
+.job-salary-range{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-top:8px}
+.job-money-input{position:relative;display:flex;align-items:center;flex:1 1 190px;min-width:0}
+.job-money-input>span:first-child{position:absolute;left:0;top:-23px;font-size:12px;color:#697386}
+.job-money-input .job-peso-prefix{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-weight:700;color:#4f46e5;pointer-events:none}
+.job-money-input input{width:100%;min-width:0;padding-left:32px!important;font-variant-numeric:tabular-nums}
+.job-salary-separator{padding-bottom:12px;color:#697386;font-size:13px}
+.job-field-hint{display:block;margin-top:8px;color:#697386;font-size:11px;line-height:1.5}
+.job-schedule-field{min-width:0}
+.job-choice-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
+.job-choice{appearance:none;border:1px solid #dfe3ee;border-radius:10px;background:#fff;color:#374151;padding:9px 13px;font:600 12px Inter,sans-serif;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.job-choice:hover{border-color:#a5a0f4;background:#f7f6ff}
+.job-choice.is-selected,.job-choice[aria-pressed="true"]{border-color:#6257d9;background:#eeecff;color:#4338ca;box-shadow:inset 0 0 0 1px #6257d9}
+.job-day-choices{padding-bottom:4px}
+.job-schedule-subheading{display:block;margin-top:18px;font-size:13px;font-weight:700;color:#374151}
+.job-schedule-preview{margin:10px 0 0;padding:10px 12px;border-radius:9px;background:#f7f7fc;color:#5b6475;font-size:12px;line-height:1.5}
+@media(max-width:520px){.job-salary-range{gap:16px}.job-money-input{flex-basis:100%}.job-salary-separator{display:none}.job-choice{padding:9px 11px}}
+</style>
 </head>
 <body class="employer-page">
 
@@ -383,9 +401,45 @@
         <label class="employer-field"><span>Job Title *</span><input id="jobTitle" required placeholder="Junior Web Developer"></label>
         <label class="employer-field"><span>Category</span><input id="jobCategory" placeholder="IT & Software"></label>
         <label class="employer-field"><span>Employment Type *</span><select id="jobEmploymentType" required><option value="">Select type</option><option>Full-time</option><option>Part-time</option><option>Contract</option><option>Internship</option><option>Temporary</option></select></label>
-        <label class="employer-field"><span>Salary / Pay Range</span><input id="jobSalary" placeholder="₱20,000–₱25,000/month"></label>
+        <div class="employer-field employer-field--full">
+          <span>Salary / Pay Range</span>
+          <div class="job-salary-range">
+            <label class="job-money-input"><span>Minimum monthly pay</span><span class="job-peso-prefix">₱</span><input id="jobSalaryMin" type="number" min="0" step="500" inputmode="numeric" placeholder="10,000" aria-label="Minimum monthly salary"></label>
+            <span class="job-salary-separator" aria-hidden="true">to</span>
+            <label class="job-money-input"><span>Maximum monthly pay</span><span class="job-peso-prefix">₱</span><input id="jobSalaryMax" type="number" min="0" step="500" inputmode="numeric" placeholder="30,000" aria-label="Maximum monthly salary"></label>
+          </div>
+          <small class="job-field-hint">Enter the amounts only. The peso sign and range are added automatically.</small>
+        </div>
         <label class="employer-field"><span>Work Location *</span><input id="jobLocation" required placeholder="Dasmariñas, Cavite / Remote"></label>
-        <label class="employer-field"><span>Work Schedule</span><input id="jobSchedule" placeholder="Monday–Friday, 9 AM–6 PM"></label>
+        <div class="employer-field employer-field--full job-schedule-field">
+          <span>Work Days</span>
+          <div class="job-choice-group" id="jobScheduleDays" role="group" aria-label="Choose work days">
+            <button type="button" class="job-choice" data-schedule-preset="mwf" aria-pressed="false">MWF</button>
+            <button type="button" class="job-choice" data-schedule-preset="weekdays" aria-pressed="false">Mon–Fri</button>
+            <button type="button" class="job-choice" data-schedule-preset="weekends" aria-pressed="false">Sat–Sun</button>
+            <button type="button" class="job-choice" data-schedule-preset="everyday" aria-pressed="false">Every day</button>
+          </div>
+          <div class="job-choice-group job-day-choices" role="group" aria-label="Choose individual work days">
+            <button type="button" class="job-choice" data-schedule-day="Mon" aria-pressed="false">Mon</button>
+            <button type="button" class="job-choice" data-schedule-day="Tue" aria-pressed="false">Tue</button>
+            <button type="button" class="job-choice" data-schedule-day="Wed" aria-pressed="false">Wed</button>
+            <button type="button" class="job-choice" data-schedule-day="Thu" aria-pressed="false">Thu</button>
+            <button type="button" class="job-choice" data-schedule-day="Fri" aria-pressed="false">Fri</button>
+            <button type="button" class="job-choice" data-schedule-day="Sat" aria-pressed="false">Sat</button>
+            <button type="button" class="job-choice" data-schedule-day="Sun" aria-pressed="false">Sun</button>
+          </div>
+          <span class="job-schedule-subheading">Working Hours</span>
+          <div class="job-choice-group" id="jobScheduleTimes" role="group" aria-label="Choose working hours">
+            <button type="button" class="job-choice" data-time-preset="8 AM–5 PM" aria-pressed="false">8 AM–5 PM</button>
+            <button type="button" class="job-choice" data-time-preset="9 AM–5 PM" aria-pressed="false">9 AM–5 PM</button>
+            <button type="button" class="job-choice" data-time-preset="9 AM–6 PM" aria-pressed="false">9 AM–6 PM</button>
+            <button type="button" class="job-choice" data-time-preset="10 AM–7 PM" aria-pressed="false">10 AM–7 PM</button>
+            <button type="button" class="job-choice" data-time-preset="24 hours" aria-pressed="false">24 hours</button>
+            <button type="button" class="job-choice" data-time-preset="Flexible hours" aria-pressed="false">Flexible</button>
+          </div>
+          <p class="job-schedule-preview" id="jobSchedulePreview" aria-live="polite">Choose work days and hours. You can leave this blank if the schedule is flexible.</p>
+          <input type="hidden" id="jobSchedule" value="">
+        </div>
         <label class="employer-field"><span>Application Deadline</span><input id="jobDeadline" type="date"></label>
         <label class="employer-field"><span>Posting Status</span><select id="jobStatus"><option value="active">Active</option><option value="draft">Draft</option><option value="closed">Closed</option></select></label>
       </div>
