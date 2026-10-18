@@ -88,6 +88,11 @@ const routeImports = [...server.matchAll(/const\s+(\w+Routes)\s*=\s*require\(['"
 if (routeImports.length === 0) {
     fail('server.js does not declare any route modules.');
 } else {
+    // Syntax-check every route module discovered from server.js, not only a hand-maintained list.
+    for (const match of routeImports) {
+        const routeFile = match[2] + '.js';
+        if (fs.existsSync(path.join(root, routeFile))) checkJavaScript(routeFile);
+    }
     for (const match of routeImports) {
         const routeName = match[1];
         const routePath = match[2];
