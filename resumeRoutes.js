@@ -186,7 +186,7 @@ router.put('/builder', requireAuth, requireCandidate, (req, res) => {
                 : []
         };
 
-        if (clean.email && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(clean.email)) {
+        if (clean.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean.email)) {
             return res.status(400).json({ error: 'Enter a valid email address for the resume.' });
         }
 
