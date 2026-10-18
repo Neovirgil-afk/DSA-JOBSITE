@@ -3,6 +3,14 @@ const express=require('express');
 const {db}=require('./database');
 const {requireAuth}=require('./auth');
 const router=express.Router();
+
+// Administrative summaries and account listings contain private data; prevent
+// browsers and intermediary caches from retaining these responses.
+router.use((req,res,next)=>{
+ res.set('Cache-Control','private, no-store, max-age=0');
+ res.set('Pragma','no-cache');
+ next();
+});
 function requireAdmin(req,res,next){const u=db.prepare('SELECT id,role FROM users WHERE id=?').get(Number(req.session.userId));if(!u||u.role!=='admin')return res.status(403).json({error:'Administrator access is required.'});req.admin=u;next();}
 router.get('/overview',requireAuth,requireAdmin,(req,res)=>{
  try{
