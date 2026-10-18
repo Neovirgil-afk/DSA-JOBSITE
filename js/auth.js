@@ -1498,7 +1498,10 @@ export function initAuth() {
             'Account';
 
 
+        const isEmployerCareerCenter = window.location.pathname.replace(/\/$/, '') === '/employer-career-center.html';
+
         actions.innerHTML = `
+            ${isEmployerCareerCenter ? '<a href="/employer.html" class="btn btn-primary" style="margin-right:10px;text-decoration:none;">← Back to Employer Dashboard</a>' : ''}
 
             <a
                 href="/profile.html"
