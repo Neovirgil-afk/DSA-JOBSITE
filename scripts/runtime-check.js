@@ -416,6 +416,27 @@ async function main() {
         });
         if (malformedCompanyProfile.status !== 400) throw new Error('Company profile updates must reject non-text fields; received ' + malformedCompanyProfile.status + '.');
 
+        const validCompanyProfileUpdate = await request('/api/employer/company', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                companyName: employerBody.companyName,
+                description: 'Runtime integration test company profile description.',
+                industry: 'Software',
+                location: 'Philippines'
+            })
+        });
+        if (validCompanyProfileUpdate.status !== 200) throw new Error('A valid company profile update should succeed; received ' + validCompanyProfileUpdate.status + ': ' + await validCompanyProfileUpdate.text());
+        const validCompanyProfileBody = await validCompanyProfileUpdate.json();
+        if (validCompanyProfileBody.company?.description !== 'Runtime integration test company profile description.') {
+            throw new Error('Successful company profile update did not return the saved description.');
+        }
+        const companyProfileReload = await request('/api/employer/me');
+        const companyProfileReloadBody = await companyProfileReload.json();
+        if (companyProfileReload.status !== 200 || companyProfileReloadBody.company?.industry !== 'Software' || companyProfileReloadBody.company?.location !== 'Philippines') {
+            throw new Error('Company profile fields did not persist after reloading the employer profile.');
+        }
+
         const invalidJobTitle = await request('/api/employer/jobs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -444,6 +465,22 @@ async function main() {
             })
         });
         if (invalidJobDeadline.status !== 400) throw new Error('Job postings must reject impossible calendar deadlines; received ' + invalidJobDeadline.status + '.');
+
+        const pastJobDeadline = await request('/api/employer/jobs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: 'Past Deadline Test',
+                description: 'Active jobs must not use a deadline in the past.',
+                skills: ['JavaScript'],
+                employmentType: 'Full-time',
+                location: 'Remote',
+                howToApply: 'Apply through JobPath.',
+                applicationDeadline: '2020-01-01',
+                status: 'active'
+            })
+        });
+        if (pastJobDeadline.status !== 400) throw new Error('Active job postings must reject deadlines in the past; received ' + pastJobDeadline.status + '.');
 
         const oversizedJobTitle = await request('/api/employer/jobs', {
             method: 'POST',
