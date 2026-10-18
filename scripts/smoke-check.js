@@ -297,6 +297,79 @@ if (!/app\.use\(\s*['"]\/uploads['"]\s*,\s*\(req,\s*res\)\s*=>\s*\{\s*res\.sendS
     fail('Direct requests to /uploads must be blocked before public static-file serving.');
 }
 
+// Exercise persistent session CRUD and expiry against an isolated SQLite database.
+try {
+    const Database = require('better-sqlite3');
+    const SQLiteSessionStore = require('../sessionStore');
+    const sessionDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'jobpath-session-smoke-'));
+    const sessionDb = new Database(path.join(sessionDirectory, 'sessions.db'));
+    try {
+        sessionDb.exec(`
+            CREATE TABLE sessions (
+                sid TEXT PRIMARY KEY,
+                session_data TEXT NOT NULL,
+                expires_at INTEGER NOT NULL
+            );
+            CREATE INDEX idx_sessions_expires_at ON sessions(expires_at);
+        `);
+        sessionDb.prepare(
+            'INSERT INTO sessions (sid, session_data, expires_at) VALUES (?, ?, ?)'
+        ).run('expired-at-startup', '{}', Date.now() - 1000);
+
+        const store = new SQLiteSessionStore(sessionDb);
+        if (sessionDb.prepare('SELECT sid FROM sessions WHERE sid = ?').get('expired-at-startup')) {
+            fail('Session store must remove expired rows when initialized.');
+        }
+
+        let retrievedSession = null;
+        store.set('smoke-session', { cookie: { originalMaxAge: 60000 }, userId: 7 }, (error) => {
+            if (error) fail('Session store save failed: ' + error.message);
+        });
+        store.get('smoke-session', (error, value) => {
+            if (error) fail('Session store retrieval failed: ' + error.message);
+            retrievedSession = value;
+        });
+        if (!retrievedSession || retrievedSession.userId !== 7) {
+            fail('Session store must round-trip session data through SQLite.');
+        }
+
+        store.touch('smoke-session', { cookie: { originalMaxAge: 120000 } }, (error) => {
+            if (error) fail('Session store touch failed: ' + error.message);
+        });
+        const touchedSession = sessionDb.prepare(
+            'SELECT expires_at FROM sessions WHERE sid = ?'
+        ).get('smoke-session');
+        if (!touchedSession || touchedSession.expires_at < Date.now() + 60000) {
+            fail('Session store touch must update the session expiry.');
+        }
+
+        store.destroy('smoke-session', (error) => {
+            if (error) fail('Session store destroy failed: ' + error.message);
+        });
+        if (sessionDb.prepare('SELECT sid FROM sessions WHERE sid = ?').get('smoke-session')) {
+            fail('Session store destroy must remove the stored session.');
+        }
+
+        sessionDb.prepare(
+            'INSERT INTO sessions (sid, session_data, expires_at) VALUES (?, ?, ?)'
+        ).run('expired-on-read', '{}', Date.now() - 1000);
+        let expiredValue = 'not-checked';
+        store.get('expired-on-read', (error, value) => {
+            if (error) fail('Expired session lookup failed: ' + error.message);
+            expiredValue = value;
+        });
+        if (expiredValue !== null) fail('Session store must not return expired sessions.');
+        if (sessionDb.prepare('SELECT sid FROM sessions WHERE sid = ?').get('expired-on-read')) {
+            fail('Session store must delete expired rows when accessed.');
+        }
+    } finally {
+        sessionDb.close();
+        fs.rmSync(sessionDirectory, { recursive: true, force: true });
+    }
+} catch (error) {
+    fail('SQLite session store behavior check failed: ' + error.message);
+}
+
 // Verify SQLite WAL mode both in source and against a real temporary database.
 if (!databaseSource.includes("db.pragma('journal_mode = WAL')")) {
     fail('SQLite should enable WAL journal mode for improved concurrent access.');
