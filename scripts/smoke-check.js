@@ -2,6 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const os = require('node:os');
 const vm = require('node:vm');
 
 const root = path.resolve(__dirname, '..');
@@ -276,9 +277,38 @@ if (!/app\.use\(\s*['"]\/uploads['"]\s*,\s*\(req,\s*res\)\s*=>\s*\{\s*res\.sendS
     fail('Direct requests to /uploads must be blocked before public static-file serving.');
 }
 
-// Enable SQLite WAL mode for improved read/write concurrency.
+// Verify SQLite WAL mode both in source and against a real temporary database.
 if (!databaseSource.includes("db.pragma('journal_mode = WAL')")) {
     fail('SQLite should enable WAL journal mode for improved concurrent access.');
+}
+let temporaryDatabase;
+let temporaryDirectory;
+try {
+    const Database = require('better-sqlite3');
+    temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'jobpath-smoke-'));
+    temporaryDatabase = new Database(path.join(temporaryDirectory, 'wal-test.db'));
+    const journalMode = temporaryDatabase.pragma('journal_mode = WAL', { simple: true });
+    if (String(journalMode).toLowerCase() !== 'wal') {
+        fail('SQLite runtime did not activate WAL journal mode.');
+    }
+    temporaryDatabase.pragma('busy_timeout = 5000');
+    const timeout = temporaryDatabase.pragma('busy_timeout', { simple: true });
+    if (Number(timeout) !== 5000) {
+        fail('SQLite runtime did not apply the 5000ms busy timeout.');
+    }
+} catch (error) {
+    fail('SQLite runtime configuration check failed: ' + error.message);
+} finally {
+    if (temporaryDatabase) {
+        try { temporaryDatabase.close(); } catch (error) {
+            fail('Could not close temporary SQLite test database: ' + error.message);
+        }
+    }
+    if (temporaryDirectory) {
+        try { fs.rmSync(temporaryDirectory, { recursive: true, force: true }); } catch (error) {
+            fail('Could not clean up temporary SQLite test directory: ' + error.message);
+        }
+    }
 }
 
 // SQLite databases and sidecar files must be blocked before static serving.
