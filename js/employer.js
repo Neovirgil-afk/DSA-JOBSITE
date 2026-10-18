@@ -538,13 +538,20 @@ function renderApplicants() {
     if (exportButton) exportButton.disabled = applicants.length === 0;
     const total = state.applicants.length;
     const topApplicant = applicants[0];
+    const summary = $('#applicantSummary');
+    const list = $('#applicantsList');
+    if (!summary || !list) {
+        console.error('[Employer] Applicant list containers are missing from the page.');
+        setApplicantActionMessage('The applicant list could not render because part of the page is missing. Refresh and try again.', 'error');
+        return;
+    }
 
-    $('#applicantSummary').innerHTML =
+    summary.innerHTML =
         '<strong>' + applicants.length + '</strong> of <strong>' + total + '</strong> applicants shown' +
         (topApplicant ? ' · <strong>Top result: ' + escapeHtml(topApplicant.full_name) + ' (' + Number(topApplicant.matchScore) + '%)</strong>' : '');
 
     if (!total) {
-        $('#applicantsList').innerHTML = '<div class="employer-empty employer-empty--large"><strong>No applicants yet.</strong><span>Applications will appear here once candidates apply to this job.</span></div>';
+        list.innerHTML = '<div class="employer-empty employer-empty--large"><strong>No applicants yet.</strong><span>Applications will appear here once candidates apply to this job.</span></div>';
         return;
     }
     if (!applicants.length) {
@@ -669,9 +676,12 @@ function renderApplicationHistory(history, appliedAt) {
 
 function setApplicantProfileStatus(status) {
     const label = $('#applicantProfileStatus');
-    label.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-    label.className = 'employer-status employer-status--' + status;
-    $('#applicantProfileStatusSelect').value = status;
+    const select = $('#applicantProfileStatusSelect');
+    if (label) {
+        label.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        label.className = 'employer-status employer-status--' + status;
+    }
+    if (select) select.value = status;
 }
 
 async function viewApplicant(applicationId) {
