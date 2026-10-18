@@ -8747,3 +8747,41 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     touch-action:manipulation;
   }
 }
+
+
+/* Batch 36: predictable spacing inside shared dashboard and profile cards */
+:where(
+  .profile-card,
+  .cc-panel,
+  .application-card,
+  .application-summary,
+  .mobile-panel,
+  .mobile-stat-card,
+  .mobile-quick-card,
+  .category-card
+) > :first-child{
+  margin-top:0;
+}
+:where(
+  .profile-card,
+  .cc-panel,
+  .application-card,
+  .application-summary,
+  .mobile-panel,
+  .mobile-stat-card,
+  .mobile-quick-card,
+  .category-card
+) > :last-child{
+  margin-bottom:0;
+}
+:where(.profile-card-heading,.cc-panel-head,.mobile-panel-heading) :where(h1,h2,h3,h4,p){
+  overflow-wrap:anywhere;
+}
+:where(.profile-card,.cc-panel,.application-card,.mobile-panel,.mobile-quick-card) :where(button,a){
+  max-width:100%;
+}
+@media(max-width:600px){
+  :where(.profile-card,.cc-panel,.application-card,.application-summary,.mobile-panel,.mobile-stat-card,.mobile-quick-card,.category-card) :where(button,a){
+    min-width:0;
+  }
+}
