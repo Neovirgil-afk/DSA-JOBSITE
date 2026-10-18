@@ -8589,3 +8589,29 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     transition-duration:.01ms!important;
   }
 }
+
+/* Batch 32: shared control sizing and narrow-screen overflow protection */
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),select,textarea){
+  max-width:100%;
+  box-sizing:border-box;
+}
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),select){
+  min-height:40px;
+}
+:where(textarea){
+  line-height:1.5;
+}
+:where(button,a,[role="button"]){
+  -webkit-tap-highlight-color:transparent;
+}
+:where(button,a,[role="button"]):focus-visible{
+  border-radius:5px;
+}
+@media(max-width:600px){
+  :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),select,textarea){
+    font-size:max(16px,1em);
+  }
+  :where(table){
+    max-width:100%;
+  }
+}
