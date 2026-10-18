@@ -5,6 +5,13 @@ const authRateLimit = require('./authRateLimit');
 
 const router = express.Router();
 
+// Authentication and current-user responses contain private account data.
+router.use((req, res, next) => {
+    res.set('Cache-Control', 'private, no-store, max-age=0');
+    res.set('Pragma', 'no-cache');
+    next();
+});
+
 function establishSession(req, userId, maxAge, callback) {
     req.session.regenerate((regenerateError) => {
         if (regenerateError) return callback(regenerateError);
