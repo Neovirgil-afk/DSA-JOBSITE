@@ -566,18 +566,44 @@ router.put('/profile', (req, res) => {
             return res.status(401).json({ error: 'Not logged in.' });
         }
 
-        const fullName = String(req.body?.full_name || '').trim();
-        const education = String(req.body?.education || '').trim();
-        const degree = String(req.body?.degree || '').trim();
-        const location = String(req.body?.location || '').trim();
-        const targetJob = String(req.body?.target_job || '').trim();
+        const currentUser = db.prepare(
+            'SELECT role FROM users WHERE id = ?'
+        ).get(req.session.userId);
 
-        if (targetJob.length > 160) {
-            return res.status(400).json({ error: 'Target job must be 160 characters or fewer.' });
+        if (!currentUser || currentUser.role !== 'candidate') {
+            return res.status(403).json({ error: 'Only candidate accounts can update the candidate profile.' });
         }
 
-        if (!fullName) {
-            return res.status(400).json({ error: 'Full name is required.' });
+        const body = req.body;
+        if (!body || typeof body !== 'object' || Array.isArray(body)) {
+            return res.status(400).json({ error: 'Profile data must be an object.' });
+        }
+
+        const fields = [
+            ['full_name', 120],
+            ['education', 160],
+            ['degree', 160],
+            ['location', 160],
+            ['target_job', 160]
+        ];
+
+        for (const [field, maxLength] of fields) {
+            if (body[field] !== undefined && body[field] !== null && typeof body[field] !== 'string') {
+                return res.status(400).json({ error: 'Profile fields must contain text values.' });
+            }
+            if (typeof body[field] === 'string' && body[field].trim().length > maxLength) {
+                return res.status(400).json({ error: field.replace(/_/g, ' ') + ' must be ' + maxLength + ' characters or fewer.' });
+            }
+        }
+
+        const fullName = (body.full_name || '').trim();
+        const education = (body.education || '').trim();
+        const degree = (body.degree || '').trim();
+        const location = (body.location || '').trim();
+        const targetJob = (body.target_job || '').trim();
+
+        if (fullName.length < 2) {
+            return res.status(400).json({ error: 'Full name must be at least 2 characters.' });
         }
 
         db.prepare(`
@@ -602,6 +628,10 @@ router.put('/profile', (req, res) => {
             FROM users
             WHERE id = ?
         `).get(req.session.userId);
+
+        if (!profile) {
+            return res.status(401).json({ error: 'Not logged in.' });
+        }
 
         res.json({ success: true, profile });
     } catch (err) {
