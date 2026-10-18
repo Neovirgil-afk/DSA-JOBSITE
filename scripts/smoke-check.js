@@ -134,6 +134,38 @@ for (const endpoint of ['register', 'login']) {
     }
 }
 
+// Exercise the auth limiter itself so the check catches behavior regressions, not only wiring.
+try {
+    const authRateLimit = require('../authRateLimit');
+    let nextCount = 0;
+    const blockedResponse = {
+        statusCode: 200,
+        headers: {},
+        body: null,
+        set(name, value) { this.headers[name] = value; return this; },
+        status(code) { this.statusCode = code; return this; },
+        json(body) { this.body = body; return this; }
+    };
+    const request = { ip: 'smoke-check-auth-limiter', baseUrl: '/api/auth', path: '/login' };
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+        authRateLimit(request, blockedResponse, () => { nextCount += 1; });
+    }
+    authRateLimit(request, blockedResponse, () => { nextCount += 1; });
+    if (nextCount !== 20 || blockedResponse.statusCode !== 429) {
+        fail('Authentication rate limiter must allow 20 attempts and block the next attempt.');
+    }
+    if (!Number(blockedResponse.headers['Retry-After']) || !blockedResponse.body || !blockedResponse.body.error) {
+        fail('Blocked authentication attempts must include Retry-After and a JSON error.');
+    }
+    let separateIpPassed = false;
+    authRateLimit({ ip: 'smoke-check-auth-limiter-other', baseUrl: '/api/auth', path: '/login' }, blockedResponse, () => {
+        separateIpPassed = true;
+    });
+    if (!separateIpPassed) fail('Authentication rate limiting must track clients separately.');
+} catch (error) {
+    fail('Authentication rate limiter behavior check failed: ' + error.message);
+}
+
 // Ensure the lightweight health endpoint remains available for deployment probes.
 if (!/app\.get\(\s*['"]\/api\/health['"]/.test(server)) {
     fail('server.js is missing the /api/health endpoint.');
