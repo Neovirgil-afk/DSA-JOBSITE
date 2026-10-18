@@ -106,6 +106,29 @@ function parseJobPayload(body) {
     };
 }
 
+function validateJobPayload(payload) {
+    const limits = [
+        ['title', 120, 'Job title'],
+        ['description', 10000, 'Description'],
+        ['responsibilities', 5000, 'Responsibilities'],
+        ['qualifications', 5000, 'Qualifications'],
+        ['location', 150, 'Location'],
+        ['salary', 120, 'Salary'],
+        ['workSchedule', 150, 'Work schedule'],
+        ['benefits', 3000, 'Benefits'],
+        ['applicationRequirements', 3000, 'Application requirements'],
+        ['howToApply', 2000, 'How to apply'],
+        ['contactInformation', 500, 'Contact information'],
+        ['category', 100, 'Category']
+    ];
+    for (const [field, max, label] of limits) {
+        if (payload[field].length > max) return label + ' must be ' + max + ' characters or fewer.';
+    }
+    if (payload.skills.length > 50) return 'A job can list no more than 50 required skills.';
+    if (payload.skills.some((skill) => skill.length > 80)) return 'Each required skill must be 80 characters or fewer.';
+    return null;
+}
+
 function ensureSkills(skillNames) {
     const insertSkill = db.prepare('INSERT OR IGNORE INTO skills (name, category) VALUES (?, ?)');
     const findSkill = db.prepare('SELECT id, name FROM skills WHERE name = ? COLLATE NOCASE LIMIT 1');
@@ -473,6 +496,8 @@ router.get('/jobs', requireEmployer, (req, res) => {
 router.post('/jobs', requireEmployer, (req, res) => {
     try {
         const payload = parseJobPayload(req.body);
+        const payloadError = validateJobPayload(payload);
+        if (payloadError) return res.status(400).json({ error: payloadError });
 
         if (payload.applicationDeadline && !isValidDateOnly(payload.applicationDeadline)) {
             return res.status(400).json({
@@ -555,6 +580,8 @@ router.put('/jobs/:id', requireEmployer, (req, res) => {
         }
 
         const payload = parseJobPayload(req.body);
+        const payloadError = validateJobPayload(payload);
+        if (payloadError) return res.status(400).json({ error: payloadError });
 
         if (payload.applicationDeadline && !isValidDateOnly(payload.applicationDeadline)) {
             return res.status(400).json({
