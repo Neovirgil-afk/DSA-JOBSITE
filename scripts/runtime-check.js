@@ -37,8 +37,13 @@ async function main() {
     child.stdout.on('data', (chunk) => { logs += chunk.toString(); });
     child.stderr.on('data', (chunk) => { logs += chunk.toString(); });
 
-    async function request(route) {
+    let sessionCookie = '';
+    async function request(route, options = {}) {
+        const headers = { ...(options.headers || {}) };
+        if (sessionCookie) headers.Cookie = sessionCookie;
         return fetch('http://127.0.0.1:' + port + route, {
+            ...options,
+            headers,
             redirect: 'manual',
             signal: AbortSignal.timeout(2500)
         });
@@ -79,7 +84,54 @@ async function main() {
         const privateApi = await request('/api/resume/current');
         if (![401, 403].includes(privateApi.status)) throw new Error('Unauthenticated resume API should be denied; received ' + privateApi.status + '.');
 
-        console.log('Runtime integration check passed: server health, 6 public pages, 4 private paths, and unauthenticated API protection.');
+        const email = 'runtime-' + process.pid + '-' + Date.now() + '@example.com';
+        const registration = await request('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fullName: 'Runtime Test Candidate',
+                email,
+                password: 'RuntimeTest123!',
+                confirmPassword: 'RuntimeTest123!',
+                education: 'Integration Test School',
+                degree: 'Test Degree',
+                targetJob: 'Software Developer',
+                location: 'Bacoor'
+            })
+        });
+        if (registration.status !== 200) throw new Error('Candidate registration should succeed; received ' + registration.status + ': ' + await registration.text());
+        const registrationBody = await registration.json();
+        if (!registrationBody.success || !registrationBody.userId) throw new Error('Registration response did not include a created candidate account.');
+        const setCookie = registration.headers.get('set-cookie') || '';
+        sessionCookie = setCookie.split(';')[0];
+        if (!sessionCookie.includes('=')) throw new Error('Registration did not establish a session cookie.');
+
+        const me = await request('/api/auth/me');
+        if (me.status !== 200) throw new Error('Newly registered candidate session should work; received ' + me.status + '.');
+
+        const jobsResponse = await request('/api/jobs');
+        if (jobsResponse.status !== 200) throw new Error('Public job search should respond successfully; received ' + jobsResponse.status + '.');
+        const jobsBody = await jobsResponse.json();
+        if (!Array.isArray(jobsBody.jobs) || jobsBody.jobs.length === 0) throw new Error('Fresh database should provide at least one job for the application workflow test.');
+        const job = jobsBody.jobs.find((item) => Number.isInteger(Number(item.id)) && Number(item.id) > 0);
+        if (!job) throw new Error('Job search returned no job with a valid ID.');
+
+        const apply = await request('/api/jobs/' + job.id + '/apply', { method: 'POST' });
+        if (apply.status !== 201) throw new Error('Candidate should be able to apply to an available job; received ' + apply.status + ': ' + await apply.text());
+        const applyBody = await apply.json();
+        if (!applyBody.success || !applyBody.applicationId) throw new Error('Application response did not include an application ID.');
+
+        const applications = await request('/api/applications');
+        if (applications.status !== 200) throw new Error('Candidate should be able to view their applications; received ' + applications.status + '.');
+        const applicationsBody = await applications.json();
+        if (!Array.isArray(applicationsBody.applications) || !applicationsBody.applications.some((item) => Number(item.id) === Number(applyBody.applicationId))) {
+            throw new Error('Submitted application was not returned in the candidate application list.');
+        }
+
+        const duplicateApply = await request('/api/jobs/' + job.id + '/apply', { method: 'POST' });
+        if (duplicateApply.status !== 409) throw new Error('Duplicate applications should be rejected with 409; received ' + duplicateApply.status + '.');
+
+        console.log('Runtime integration check passed: server health, 6 public pages, 4 private paths, API access control, candidate registration/session, job search, application submission/listing, and duplicate-application prevention.');
     } finally {
         if (child.exitCode === null) {
             child.kill('SIGTERM');
