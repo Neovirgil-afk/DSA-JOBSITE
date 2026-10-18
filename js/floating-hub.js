@@ -1,51 +1,42 @@
 'use strict';
 
 (function () {
-    initJobSiteTheme();
+    initEmployeeSidebar();
     if (document.getElementById('jobpathFloatingHub')) return;
 
-    function initJobSiteTheme() {
-        const root = document.documentElement;
-        const storageKey = 'jobsite-theme';
-        let savedTheme = 'light';
-        try {
-            savedTheme = localStorage.getItem(storageKey) === 'dark' ? 'dark' : 'light';
-        } catch (_) { /* Theme still works for this page when storage is unavailable. */ }
+    function initEmployeeSidebar() {
+        const navs = Array.from(document.querySelectorAll('nav.jobsite-global-rail, .mobile-nav-clone.jobsite-global-rail'));
+        if (!navs.length) return;
 
-        function applyTheme(theme) {
-            const isDark = theme === 'dark';
-            root.dataset.theme = isDark ? 'dark' : 'light';
-            const button = document.getElementById('jobsiteThemeToggle');
-            if (button) {
-                button.innerHTML = isDark
-                    ? '<span class="theme-toggle-icon" aria-hidden="true">☀</span><span>Light mode</span>'
-                    : '<span class="theme-toggle-icon" aria-hidden="true">☾</span><span>Dark mode</span>';
-                button.setAttribute('aria-pressed', String(isDark));
-                button.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
-            }
-        }
+        navs.forEach((nav) => { nav.style.visibility = 'hidden'; });
+        const allowed = new Set(['jobs', 'dashboard', 'applications', 'learn', 'profile', 'resume']);
 
-        applyTheme(savedTheme);
-        function mountThemeToggle() {
-            if (!document.body || document.getElementById('jobsiteThemeToggle')) return;
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.id = 'jobsiteThemeToggle';
-            button.className = 'jobsite-theme-toggle';
-            button.addEventListener('click', () => {
-                const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
-                applyTheme(nextTheme);
-                try { localStorage.setItem(storageKey, nextTheme); } catch (_) {}
+        function normalizeNavigation(isCandidate) {
+            navs.forEach((nav) => {
+                if (!isCandidate) {
+                    nav.classList.remove('jobsite-global-rail');
+                    nav.style.visibility = '';
+                    return;
+                }
+                nav.querySelectorAll('a[data-rail]').forEach((link) => {
+                    if (!allowed.has(link.dataset.rail)) link.remove();
+                });
+                const path = window.location.pathname.replace(/\\/$/, '') || '/';
+                nav.querySelectorAll('a[data-rail]').forEach((link) => {
+                    const target = new URL(link.href, window.location.origin).pathname.replace(/\\/$/, '') || '/';
+                    const current = target === path || (link.dataset.rail === 'resume' && path === '/resume-builder.html');
+                    link.classList.toggle('is-current', current);
+                    if (current) link.setAttribute('aria-current', 'page');
+                    else link.removeAttribute('aria-current');
+                });
+                nav.style.visibility = '';
             });
-            document.body.appendChild(button);
-            applyTheme(root.dataset.theme || savedTheme);
         }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', mountThemeToggle, { once: true });
-        } else {
-            mountThemeToggle();
-        }
+        fetch('/api/auth/me', { credentials: 'include' })
+            .then((response) => response.ok ? response.json() : null)
+            .then((data) => normalizeNavigation(Boolean(data && data.user && data.user.role === 'candidate')))
+            .catch(() => normalizeNavigation(false));
     }
     const esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     const fmt = (value) => { const date = new Date(value); return Number.isNaN(date.getTime()) ? '' : date.toLocaleString(); };
