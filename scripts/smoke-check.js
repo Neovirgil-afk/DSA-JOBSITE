@@ -380,6 +380,12 @@ if (!applicationRoutesSource.includes("Cache-Control', 'private, no-store, max-a
     !applicationRoutesSource.includes("Pragma', 'no-cache'")) {
     fail('Private application history responses must disable caching.');
 }
+const jobRoutesValidationSource = read('jobRoutes.js');
+if (!jobRoutesValidationSource.includes("typeof value !== 'string' || value.length > 120") ||
+    !jobRoutesValidationSource.includes("!/^\\\\d{1,3}$/.test(minMatch)") ||
+    !jobRoutesValidationSource.includes('Number(minMatch) > 100')) {
+    fail('Job search filters must reject non-text/oversized values and out-of-range minimum match scores.');
+}
 const jobRoutesPrivacySource = read('jobRoutes.js');
 if ((jobRoutesPrivacySource.match(/Cache-Control', 'private, no-store, max-age=0'/g) || []).length < 3 ||
     (jobRoutesPrivacySource.match(/Pragma', 'no-cache'/g) || []).length < 3) {
