@@ -599,6 +599,23 @@ async function main() {
         });
         if (invalidJobTitle.status !== 400) throw new Error('Job postings must reject a blank title; received ' + invalidJobTitle.status + '.');
 
+        const invalidCreateJobStatus = await request('/api/employer/jobs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: 'Invalid Status Create Test',
+                description: 'Unsupported status values must never publish a job by default.',
+                skills: ['JavaScript'],
+                employmentType: 'Full-time',
+                location: 'Remote',
+                howToApply: 'Apply through JobPath.',
+                status: 'published-and-secret'
+            })
+        });
+        if (invalidCreateJobStatus.status !== 400) {
+            throw new Error('Job creation must reject unsupported statuses rather than silently publishing; received ' + invalidCreateJobStatus.status + '.');
+        }
+
         const invalidJobDeadline = await request('/api/employer/jobs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -667,6 +684,44 @@ async function main() {
         const employerJobsBody = await employerJobs.json();
         if (!employerJobsBody.jobs?.some((item) => Number(item.id) === postedJobId)) throw new Error('Newly posted job was not returned in the employer job list.');
 
+        for (const invalidStatusValue of ['published-and-secret', 42, null, {}]) {
+            const invalidStatusUpdate = await request('/api/employer/jobs/' + postedJobId + '/status', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: invalidStatusValue })
+            });
+            if (invalidStatusUpdate.status !== 400) {
+                throw new Error('Job status endpoint must reject malformed or unsupported status values; received ' + invalidStatusUpdate.status + '.');
+            }
+        }
+        const missingStatusUpdate = await request('/api/employer/jobs/' + postedJobId + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+        });
+        if (missingStatusUpdate.status !== 400) throw new Error('Job status endpoint must reject a missing status value.');
+
+        const malformedJobStatusId = await request('/api/employer/jobs/not-a-number/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'closed' })
+        });
+        if (malformedJobStatusId.status !== 400) throw new Error('Job status endpoint must reject malformed job IDs; received ' + malformedJobStatusId.status + '.');
+
+        const missingJobStatusId = await request('/api/employer/jobs/999999/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'closed' })
+        });
+        if (missingJobStatusId.status !== 404) throw new Error('Job status endpoint must return 404 for a nonexistent posting; received ' + missingJobStatusId.status + '.');
+
+        const jobAfterInvalidStatusUpdates = await request('/api/employer/jobs');
+        const jobAfterInvalidStatusUpdatesBody = await jobAfterInvalidStatusUpdates.json();
+        const unchangedStatusJob = jobAfterInvalidStatusUpdatesBody.jobs?.find((item) => Number(item.id) === postedJobId);
+        if (!unchangedStatusJob || unchangedStatusJob.status !== 'active') {
+            throw new Error('Rejected status updates must leave the existing job active and unchanged.');
+        }
+
         const invalidJobEdit = await request('/api/employer/jobs/' + postedJobId, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -697,6 +752,23 @@ async function main() {
             })
         });
         if (invalidDeadlineEdit.status !== 400) throw new Error('Job updates must reject past deadlines on active postings; received ' + invalidDeadlineEdit.status + '.');
+
+        const invalidJobStatusEdit = await request('/api/employer/jobs/' + postedJobId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: 'Runtime Integration Developer',
+                description: 'A temporary job posting used only by the automated integration check.',
+                skills: ['JavaScript', 'Node.js'],
+                employmentType: 'Full-time',
+                location: 'Remote',
+                howToApply: 'Apply through JobPath.',
+                status: 'published-and-secret'
+            })
+        });
+        if (invalidJobStatusEdit.status !== 400) {
+            throw new Error('Job edits must reject unsupported statuses instead of silently switching the posting to active; received ' + invalidJobStatusEdit.status + '.');
+        }
 
         const jobAfterRejectedEdits = await request('/api/employer/jobs');
         const jobAfterRejectedEditsBody = await jobAfterRejectedEdits.json();
