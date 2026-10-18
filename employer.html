@@ -17,14 +17,33 @@
 .job-salary-separator{padding-bottom:12px;color:#697386;font-size:13px}
 .job-field-hint{display:block;margin-top:8px;color:#697386;font-size:11px;line-height:1.5}
 .job-schedule-field{min-width:0}
-.job-choice-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
-.job-choice{appearance:none;border:1px solid #dfe3ee;border-radius:10px;background:#fff;color:#374151;padding:9px 13px;font:600 12px Inter,sans-serif;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.job-choice-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.job-choice{appearance:none;border:1px solid #dfe3ee;border-radius:10px;background:#fff;color:#374151;padding:10px 14px;font:600 12px Inter,sans-serif;cursor:pointer;transition:background .15s,border-color .15s,color .15s;min-height:38px}
 .job-choice:hover{border-color:#a5a0f4;background:#f7f6ff}
 .job-choice.is-selected,.job-choice[aria-pressed="true"]{border-color:#6257d9;background:#eeecff;color:#4338ca;box-shadow:inset 0 0 0 1px #6257d9}
-.job-day-choices{padding-bottom:4px}
-.job-schedule-subheading{display:block;margin-top:18px;font-size:13px;font-weight:700;color:#374151}
-.job-schedule-preview{margin:10px 0 0;padding:10px 12px;border-radius:9px;background:#f7f7fc;color:#5b6475;font-size:12px;line-height:1.5}
-@media(max-width:520px){.job-salary-range{gap:16px}.job-money-input{flex-basis:100%}.job-salary-separator{display:none}.job-choice{padding:9px 11px}}
+.job-day-choices{padding:2px 0 8px}
+.job-schedule-subheading{display:block;margin-top:22px;font-size:13px;font-weight:700;color:#374151}
+.job-hours-entry{display:flex;align-items:end;flex-wrap:wrap;gap:12px;margin-top:10px}
+.job-time-input{display:flex;flex:1 1 170px;min-width:0;flex-direction:column;gap:7px}
+.job-time-input>span{font-size:12px;font-weight:600;color:#697386}
+.job-time-input input{width:100%;min-width:0;min-height:42px;box-sizing:border-box;padding:10px 12px;border:1px solid #dfe3ee;border-radius:10px;background:#fff;color:#273044;font:500 13px Inter,sans-serif}
+.job-time-input input:focus{outline:none;border-color:#aaa4f0;box-shadow:0 0 0 3px rgba(79,70,229,.08)}
+.job-time-separator{padding-bottom:13px;color:#697386;font-size:13px}
+.job-flexible-toggle{flex:0 0 auto}
+.job-schedule-preview{margin:14px 0 0;padding:13px 15px;border-radius:10px;background:#f7f7fc;color:#5b6475;font-size:12px;line-height:1.6}
+.job-money-input input{min-height:42px}
+.employer-modal-dialog > .employer-form{padding:30px 34px 34px}
+.employer-modal-dialog .employer-form-grid{gap:24px 22px}
+.employer-modal-dialog .employer-form-section{margin:14px 0 0;padding-top:17px}
+.employer-modal-dialog .employer-form-section h3{font-size:14px;margin-bottom:2px}
+.employer-modal-dialog .employer-field{gap:9px}
+.employer-modal-dialog .employer-field > span{font-size:12px}
+.employer-modal-dialog .employer-field input,.employer-modal-dialog .employer-field textarea,.employer-modal-dialog .employer-field select{padding:12px 13px;min-height:42px}
+.employer-modal-dialog .employer-field textarea{min-height:100px;line-height:1.65}
+.employer-modal-dialog .employer-form-message{margin:16px 0}
+.employer-modal-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:12px}
+@media(max-width:700px){.employer-modal-dialog > .employer-form{padding:24px 20px 26px}.employer-modal-dialog .employer-form-grid{gap:20px}.employer-modal-dialog .employer-form-section{margin-top:10px;padding-top:14px}}
+@media(max-width:520px){.job-salary-range{gap:16px}.job-money-input{flex-basis:100%}.job-salary-separator{display:none}.job-choice{padding:9px 11px}.job-hours-entry{align-items:stretch}.job-time-input{flex-basis:100%}.job-time-separator{display:none}.job-flexible-toggle{align-self:flex-start}}
 </style>
 </head>
 <body class="employer-page">
@@ -429,13 +448,11 @@
             <button type="button" class="job-choice" data-schedule-day="Sun" aria-pressed="false">Sun</button>
           </div>
           <span class="job-schedule-subheading">Working Hours</span>
-          <div class="job-choice-group" id="jobScheduleTimes" role="group" aria-label="Choose working hours">
-            <button type="button" class="job-choice" data-time-preset="8 AM–5 PM" aria-pressed="false">8 AM–5 PM</button>
-            <button type="button" class="job-choice" data-time-preset="9 AM–5 PM" aria-pressed="false">9 AM–5 PM</button>
-            <button type="button" class="job-choice" data-time-preset="9 AM–6 PM" aria-pressed="false">9 AM–6 PM</button>
-            <button type="button" class="job-choice" data-time-preset="10 AM–7 PM" aria-pressed="false">10 AM–7 PM</button>
-            <button type="button" class="job-choice" data-time-preset="24 hours" aria-pressed="false">24 hours</button>
-            <button type="button" class="job-choice" data-time-preset="Flexible hours" aria-pressed="false">Flexible</button>
+          <div class="job-hours-entry">
+            <label class="job-time-input"><span>Start time</span><input id="jobScheduleStart" type="time" aria-label="Work start time"></label>
+            <span class="job-time-separator" aria-hidden="true">to</span>
+            <label class="job-time-input"><span>End time</span><input id="jobScheduleEnd" type="time" aria-label="Work end time"></label>
+            <button type="button" class="job-choice job-flexible-toggle" id="jobScheduleFlexible" aria-pressed="false">Flexible hours</button>
           </div>
           <p class="job-schedule-preview" id="jobSchedulePreview" aria-live="polite">Choose work days and hours. You can leave this blank if the schedule is flexible.</p>
           <input type="hidden" id="jobSchedule" value="">
