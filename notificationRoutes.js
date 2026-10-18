@@ -3,6 +3,13 @@ const express = require('express');
 const { db } = require('./database');
 const { requireAuth } = require('./auth');
 const router = express.Router();
+
+// Notification data is private; apply no-cache headers to success and error responses.
+router.use((req, res, next) => {
+  res.set('Cache-Control', 'private, no-store, max-age=0');
+  res.set('Pragma', 'no-cache');
+  next();
+});
 router.get('/', requireAuth, (req,res) => {
  try {
   const id=Number(req.session.userId);
