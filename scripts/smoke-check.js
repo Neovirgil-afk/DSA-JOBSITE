@@ -185,7 +185,7 @@ if (!resumeSignatureSource.includes("limits: { fileSize: 5 * 1024 * 1024 }") ||
 }
 
 // Private feature APIs must consistently prevent caching of user-specific responses.
-for (const privateRouteFile of ['jobRoutes.js', 'resumeRoutes.js', 'employerRoutes.js', 'messageRoutes.js', 'notificationRoutes.js', 'interviewRoutes.js']) {
+for (const privateRouteFile of ['jobRoutes.js', 'resumeRoutes.js', 'employerRoutes.js', 'messageRoutes.js', 'notificationRoutes.js', 'interviewRoutes.js', 'learningRoutes.js', 'analyticsRoutes.js']) {
     const privateRouteSource = read(privateRouteFile);
     if (!privateRouteSource.includes('private, no-store, max-age=0') ||
         !privateRouteSource.includes('no-cache')) {
