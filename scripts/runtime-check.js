@@ -1323,7 +1323,23 @@ async function main() {
         const badResumeBody = await badResumeUpload.json();
         if (!String(badResumeBody.error || '').includes('does not match')) throw new Error('Fake PDF rejection should explain the file-content mismatch.');
 
-        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, candidate-isolated application history and saved jobs, saved-job idempotency and isolation, search-filter validation, private cache headers, and duplicate prevention, employer job posting/applicant management and status validation, interview scheduling validation, interview lifecycle and role checks, private interview responses, invalid status rejection, and cross-employer authorization, resume draft persistence and validation, real PDF and DOCX extraction, profile skill persistence, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection.');
+        // Failed uploads must not replace the last valid resume or its detected skills.
+        const resumeAfterRejectedUpload = await request('/api/resume/current');
+        const resumeAfterRejectedUploadBody = await resumeAfterRejectedUpload.json();
+        if (resumeAfterRejectedUpload.status !== 200 || resumeAfterRejectedUploadBody.resume?.original_name !== 'runtime-resume-replacement.docx') {
+            throw new Error('A rejected resume upload must not replace the latest valid resume metadata.');
+        }
+        const profileAfterRejectedUpload = await request('/api/auth/profile');
+        const profileAfterRejectedUploadBody = await profileAfterRejectedUpload.json();
+        const skillsAfterRejectedUpload = profileAfterRejectedUploadBody.profile?.skills || [];
+        if (!skillsAfterRejectedUpload.some((skill) => skill.source === 'resume' && /python/i.test(skill.name))) {
+            throw new Error('A rejected resume upload must preserve the last valid resume-derived skills.');
+        }
+        if (!skillsAfterRejectedUpload.some((skill) => skill.source === 'manual' && skill.name.toLowerCase() === customSkillName.toLowerCase())) {
+            throw new Error('A rejected resume upload must preserve manual candidate skills.');
+        }
+
+        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, candidate-isolated application history and saved jobs, saved-job idempotency and isolation, search-filter validation, private cache headers, and duplicate prevention, employer job posting/applicant management and status validation, interview scheduling validation, interview lifecycle and role checks, private interview responses, invalid status rejection, and cross-employer authorization, resume draft persistence and validation, PDF/DOCX extraction and replacement skill synchronization, manual skill preservation, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection. server health, 6 public pages, access controls, candidate/employer account workflows, candidate-isolated application history and saved jobs, saved-job idempotency and isolation, search-filter validation, private cache headers, and duplicate prevention, employer job posting/applicant management and status validation, interview scheduling validation, interview lifecycle and role checks, private interview responses, invalid status rejection, and cross-employer authorization, resume draft persistence and validation, real PDF and DOCX extraction, profile skill persistence, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection.');
     } finally {
         if (child.exitCode === null) {
             child.kill('SIGTERM');
