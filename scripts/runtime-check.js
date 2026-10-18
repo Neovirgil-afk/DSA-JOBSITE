@@ -1116,6 +1116,21 @@ async function main() {
         const currentAfterDocx = await request('/api/resume/current');
         const currentAfterDocxBody = await currentAfterDocx.json();
         if (currentAfterDocxBody.resume?.original_name !== 'runtime-resume.docx') throw new Error('DOCX upload metadata was not saved as the latest resume.');
+        if (currentAfterDocx.headers.get('cache-control') && !/private/i.test(currentAfterDocx.headers.get('cache-control'))) {
+            throw new Error('Resume metadata responses must not be publicly cached.');
+        }
+
+        // Resume replacement should make the newest uploaded file the one served to the candidate.
+        const latestResumeFile = await request('/api/resume/file');
+        if (latestResumeFile.status !== 200) throw new Error('Candidate should be able to retrieve the newest uploaded resume.');
+        const latestResumeBytes = Buffer.from(await latestResumeFile.arrayBuffer());
+        if (latestResumeBytes.length === 0 || latestResumeBytes.subarray(0, 2).toString('ascii') !== 'PK') {
+            throw new Error('Resume file endpoint should serve the latest DOCX archive after a replacement upload.');
+        }
+        const latestResumeCache = latestResumeFile.headers.get('cache-control') || '';
+        if (!/private/i.test(latestResumeCache) || !/no-store/i.test(latestResumeCache)) {
+            throw new Error('Resume file responses must not be publicly cached.');
+        }
 
         // Resume access is candidate-only, even when an employer is authenticated.
         sessionCookie = employerCookie;
