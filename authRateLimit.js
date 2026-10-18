@@ -5,6 +5,7 @@
 const windows = new Map();
 const WINDOW_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 20;
+const MAX_TRACKED_KEYS = 10000;
 
 function authRateLimit(req, res, next) {
     const now = Date.now();
@@ -12,7 +13,22 @@ function authRateLimit(req, res, next) {
     const key = ip + ':' + req.baseUrl + req.path;
     let entry = windows.get(key);
 
-    if (!entry || now >= entry.resetAt) {
+    if (!entry) {
+        // Prune stale entries before admitting a new key. Never clear active
+        // limits wholesale: doing so would let clients bypass throttling.
+        if (windows.size >= MAX_TRACKED_KEYS) {
+            for (const [storedKey, storedEntry] of windows) {
+                if (now >= storedEntry.resetAt) windows.delete(storedKey);
+            }
+            if (windows.size >= MAX_TRACKED_KEYS) {
+                return res.status(503).json({
+                    error: 'Authentication is temporarily unavailable. Please try again shortly.'
+                });
+            }
+        }
+        entry = { count: 0, resetAt: now + WINDOW_MS };
+        windows.set(key, entry);
+    } else if (now >= entry.resetAt) {
         entry = { count: 0, resetAt: now + WINDOW_MS };
         windows.set(key, entry);
     }
@@ -26,15 +42,6 @@ function authRateLimit(req, res, next) {
     }
 
     entry.count += 1;
-
-    // Bound memory use if many different IPs hit the authentication endpoints.
-    if (windows.size > 10000) {
-        for (const [storedKey, storedEntry] of windows) {
-            if (now >= storedEntry.resetAt) windows.delete(storedKey);
-        }
-        if (windows.size > 10000) windows.clear();
-    }
-
     next();
 }
 
