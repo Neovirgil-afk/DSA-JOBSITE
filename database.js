@@ -4,9 +4,15 @@ const path = require('path');
 const fs = require('fs');
 const Database = require('better-sqlite3');
 
-const DB_PATH = path.join(__dirname, 'jobpath.db');
+// Set JOBPATH_DB_PATH to a persistent-disk file path in production (for
+// example, /var/data/jobpath.db on a mounted Render disk). Keep the project
+// directory as the default for local development.
+const DB_PATH = process.env.JOBPATH_DB_PATH
+    ? path.resolve(process.env.JOBPATH_DB_PATH)
+    : path.join(__dirname, 'jobpath.db');
 const SCHEMA_PATH = path.join(__dirname, 'schema.sql');
 
+fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 const dbExisted = fs.existsSync(DB_PATH);
 
 const db = new Database(DB_PATH);
