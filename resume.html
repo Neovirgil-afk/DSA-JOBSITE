@@ -22,6 +22,26 @@
 .resume-heading h1{font-family:var(--font-display);font-size:clamp(32px,4vw,44px);letter-spacing:-.025em;color:var(--navy)}
 .resume-heading .subtitle{max-width:760px;margin:12px 0 0;color:var(--muted);font-size:15px;line-height:1.7}
 .resume-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch}
+/* Resume upload companion panel */
+.resume-upload-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.82fr);gap:18px;align-items:stretch}
+.resume-upload-layout>.resume-card{height:100%}
+.resume-quote-card{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;min-height:100%;padding:30px;background:linear-gradient(145deg,#211b4a 0%,#37316f 56%,#514b91 100%);border-radius:16px;color:#fff;box-shadow:0 16px 36px -25px rgba(30,24,78,.65)}
+.resume-quote-card:before,.resume-quote-card:after{content:"";position:absolute;z-index:-1;border:1px solid rgba(255,255,255,.12);border-radius:50%}
+.resume-quote-card:before{width:260px;height:260px;right:-105px;top:-105px}
+.resume-quote-card:after{width:190px;height:190px;right:-70px;top:-70px}
+.resume-quote-mark{font-family:Georgia,serif;font-size:66px;line-height:.8;color:#c8c2ff;opacity:.95}
+.resume-quote-eyebrow{margin:20px 0 12px;color:#c8c2ff;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+.resume-quote-card blockquote{max-width:440px;margin:0;font-family:var(--font-display);font-size:clamp(23px,2.5vw,32px);font-weight:700;line-height:1.35;letter-spacing:-.025em}
+.resume-quote-card blockquote em{color:#d2ceff;font-style:normal}
+.resume-quote-attribution{margin-top:16px;color:#d8d6ed;font-size:12px}
+.resume-quote-divider{height:1px;margin:26px 0 20px;background:rgba(255,255,255,.16)}
+.resume-quote-footer{display:flex;align-items:center;gap:12px}
+.resume-quote-icon{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;border:1px solid rgba(255,255,255,.2);border-radius:12px;background:rgba(255,255,255,.08);font-size:18px}
+.resume-quote-footer strong,.resume-quote-footer span{display:block}
+.resume-quote-footer strong{font-size:12px}
+.resume-quote-footer span{margin-top:4px;color:#d8d6ed;font-size:11px;line-height:1.5}
+@media(max-width:800px){.resume-upload-layout{grid-template-columns:1fr}.resume-quote-card{min-height:300px}.resume-quote-card blockquote{font-size:27px}}
+
 .resume-card{min-width:0;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:28px;box-shadow:var(--shadow-card)}
 .resume-card-header{margin-bottom:20px}
 .resume-card h2{font-family:var(--font-display);font-size:21px;color:var(--navy)}
@@ -356,7 +376,7 @@ input[type=file]{display:none}
 <main class="resume-main">
 <div class="wrap">
 <section class="resume-heading"><p class="eyebrow">CAREER MATCHING</p><h1>Analyze your resume.</h1><p class="subtitle">Upload your resume to review its content and discover career paths that fit your experience, education, projects, and strengths across different industries.</p></section>
-<div class="resume-grid">
+<div class="resume-upload-layout">
 <section class="resume-card">
 <div class="resume-card-header"><h2>Upload Resume</h2><p class="resume-card-description">PDF or DOCX only · Maximum file size: 5MB</p></div>
 <label class="dropzone" id="dropzone" for="resumeFile">
@@ -367,6 +387,18 @@ input[type=file]{display:none}
 <div class="file-row"><div class="file-name" id="fileName">No file selected</div><span class="file-type">RESUME</span></div>
 <button class="scan-button" id="scanButton" disabled>Scan Resume</button><div class="status" id="status"></div>
 </section>
+<aside class="resume-quote-card" aria-label="Career inspiration">
+<div>
+<div class="resume-quote-mark" aria-hidden="true">“</div>
+<p class="resume-quote-eyebrow">A little career perspective</p>
+<blockquote>Your next opportunity might be closer than you <em>think.</em></blockquote>
+<p class="resume-quote-attribution">Your experience is more than a job title.</p>
+</div>
+<div>
+<div class="resume-quote-divider"></div>
+<div class="resume-quote-footer"><div class="resume-quote-icon" aria-hidden="true">✦</div><div><strong>Every skill has a place.</strong><span>Upload your resume to explore career paths across different industries.</span></div></div>
+</div>
+</aside>
 <section class="resume-card career-fit-card">
 <div class="resume-card-header"><h2>Career Fit Suggestions</h2><p class="resume-card-description">Explore career paths that fit the experience, education, projects, and strengths shown in your resume.</p></div>
 <div id="careerRecommendations" class="career-recommendations"><div class="empty">Suggested career directions will appear here after analysis.</div></div>
