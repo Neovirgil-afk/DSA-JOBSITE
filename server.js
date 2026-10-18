@@ -1,5 +1,11 @@
 require('dotenv').config();
 
+// Fail fast before loading the database or route modules in production.
+if (process.env.NODE_ENV === 'production' && !String(process.env.SESSION_SECRET || '').trim()) {
+    throw new Error('SESSION_SECRET must be configured in production.');
+}
+
+
 
 const express = require('express');
 const session = require('express-session');
@@ -25,10 +31,6 @@ const adminRoutes = require('./adminRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-if (process.env.NODE_ENV === 'production' && !String(process.env.SESSION_SECRET || '').trim()) {
-    throw new Error('SESSION_SECRET must be configured in production.');
-}
 
 // Seed the database with skills/jobs/demo user if empty.
 seedIfNeeded(db);
