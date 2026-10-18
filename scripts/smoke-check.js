@@ -261,8 +261,8 @@ try {
 }
 
 const interviewRoutesOwnershipSource = read('interviewRoutes.js');
-if (!/j\.employer_id\s*!==\s*Number\(user\.id\)/.test(interviewRoutesOwnershipSource) || !/user\.role==='employer'/.test(interviewRoutesOwnershipSource)) {
-    fail('Employer interview updates must verify ownership through the associated job.');
+if (!/SELECT i\.id,a\.user_id AS candidate_id,j\.title AS job_title,j\.employer_id FROM interviews i JOIN applications a ON a\.id=i\.application_id JOIN jobs j ON j\.id=a\.job_id WHERE i\.id=\?/.test(interviewRoutesOwnershipSource) || !/user\.role==='employer'&&Number\(row\.employer_id\)!==Number\(user\.id\)/.test(interviewRoutesOwnershipSource)) {
+    fail('Employer interview updates must load the associated job owner and reject updates by other employers.');
 }
 if (!/router\.use\(\(req,res,next\)=>\{\s*res\.set\(['"]Cache-Control['"],['"]private, no-store, max-age=0['"]\);\s*res\.set\(['"]Pragma['"],['"]no-cache['"]\);\s*next\(\);\s*\}\)/.test(interviewRoutesOwnershipSource)) {
     fail('All interview API responses must disable caching of private scheduling and status data.');
@@ -298,8 +298,8 @@ if ((jobRoutesPrivacySource.match(/Cache-Control', 'private, no-store, max-age=0
 }
 
 const interviewRoutesSource = read('interviewRoutes.js');
-if (!interviewRoutesSource.includes("Cache-Control', 'private, no-store, max-age=0'") ||
-    !interviewRoutesSource.includes("Pragma', 'no-cache'") ||
+if (!interviewRoutesSource.includes("private, no-store, max-age=0") ||
+    !interviewRoutesSource.includes("no-cache") ||
     !interviewRoutesSource.includes("typeof payload[field] !== 'string'") ||
     !interviewRoutesSource.includes("typeof payload.status !== 'string'")) {
     fail('Interview endpoints must prevent caching of private schedules and validate text inputs.');
