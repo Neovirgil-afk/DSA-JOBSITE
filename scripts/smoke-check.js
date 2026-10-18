@@ -184,6 +184,15 @@ if (!resumeSignatureSource.includes("limits: { fileSize: 5 * 1024 * 1024 }") ||
     fail('Resume uploads must keep the 5MB size cap and restrict extensions to PDF and DOCX.');
 }
 
+// Private feature APIs must consistently prevent caching of user-specific responses.
+for (const privateRouteFile of ['jobRoutes.js', 'resumeRoutes.js', 'employerRoutes.js', 'messageRoutes.js', 'notificationRoutes.js', 'interviewRoutes.js']) {
+    const privateRouteSource = read(privateRouteFile);
+    if (!privateRouteSource.includes('private, no-store, max-age=0') ||
+        !privateRouteSource.includes('no-cache')) {
+        fail(privateRouteFile + ' must apply private no-cache headers to sensitive responses.');
+    }
+}
+
 // Admin responses contain sensitive operational and account information.
 const adminRoutesPrivacySource = read('adminRoutes.js');
 if (!adminRoutesPrivacySource.includes("res.set('Cache-Control','private, no-store, max-age=0')") ||
