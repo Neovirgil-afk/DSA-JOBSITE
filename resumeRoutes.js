@@ -427,12 +427,6 @@ function recommendCareersFromResume(resumeText) {
  return output;
 }
 
-function createResumeOverview(text, degree) {
- const clean=String(text||'').replace(/\\s+/g,' ').trim();
- const sections=['experience','work experience','employment history','education','projects','certifications','skills','volunteer experience','summary','objective'].filter(s=>new RegExp('\\b'+s+'\\b','i').test(clean));
- return (degree?'Education signal: '+degree+'\\n':'')+(sections.length?'Resume sections/topics found: '+[...new Set(sections)].join(', ')+'\\n\\n':'')+'Resume text preview:\\n'+clean.slice(0,1800)+(clean.length>1800?'…':'');
-}
-
 router.post('/analyze', requireAuth, requireCandidate, (req, res) => {
  upload.single('resume')(req,res,async(err)=>{
   if(err)return handleUploadErrors(err,req,res,()=>{});
