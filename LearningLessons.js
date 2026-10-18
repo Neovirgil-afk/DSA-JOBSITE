@@ -235,6 +235,45 @@ function expandCurriculum() {
 
 expandCurriculum();
 
+function addAppliedAssessmentQuestions() {
+  const technicalSkills = new Set(['HTML', 'CSS', 'JavaScript', 'Git', 'SQL', 'Python', 'Java', 'React', 'Node.js', 'Network Security', 'Penetration Testing', 'AWS']);
+  for (const [skill, quiz] of Object.entries(QUIZZES)) {
+    const technical = technicalSkills.has(skill);
+    quiz.push(
+      [
+        'Applied scenario: your first attempt using ' + skill + ' appears to work. What should you do before considering the task complete?',
+        technical
+          ? ['Test representative and boundary cases, compare results with expected behavior, and investigate failures', 'Assume it is correct because no immediate error appeared', 'Test only the easiest input and ignore the rest', 'Remove validation so the result looks simpler']
+          : ['Compare results with the stated audience and objective, check the evidence, and investigate unexpected outcomes', 'Assume it worked because content was published', 'Use the biggest available number even if it does not measure the goal', 'Ignore audience feedback if the plan was followed'],
+        0,
+        technical
+          ? 'A successful-looking first run is not proof. Validate normal cases, edge cases, and expected behavior before relying on the result.'
+          : 'Completion should be judged against the intended audience and objective using evidence, not by activity alone.'
+      ],
+      [
+        'Applied scenario: a shortcut for ' + skill + ' depends on an assumption nobody has checked. What is the best response?',
+        technical
+          ? ['Check the assumption against requirements and evidence, then test the shortcut safely before adopting it', 'Adopt it immediately because shortcuts are always more efficient', 'Remove the requirement that makes the shortcut difficult', 'Hide the uncertainty from the team']
+          : ['Check whether the assumption is supported by audience or performance evidence before changing the plan', 'Adopt it immediately because opinions are enough', 'Change several things at once so the cause of results is unclear', 'Ignore evidence that disagrees with the assumption'],
+        0,
+        'A professional decision should make its assumptions explicit and verify them before the shortcut or strategy is trusted.'
+      ],
+      [
+        'Applied scenario: how should you decide whether your ' + skill + ' work is successful?',
+        technical
+          ? ['Use clear acceptance criteria and observable evidence, including relevant failure cases', 'Judge it only by how quickly it was completed', 'Count the number of tools or features used', 'Assume success if another person does not report a problem']
+          : ['Compare meaningful outcome metrics with the objective and a suitable baseline', 'Count only how many posts, emails, or tasks were produced', 'Choose whichever metric looks most impressive after the work', 'Ignore the baseline and the intended audience'],
+        0,
+        technical
+          ? 'Define what correct behavior means and use observable tests or evidence to check it.'
+          : 'The right success measure reflects the goal and provides context; output volume alone does not prove impact.'
+      ]
+    );
+  }
+}
+
+addAppliedAssessmentQuestions();
+
 function findLessonKey(skill) {
   const requested = String(skill || '').trim().toLowerCase();
   if (!requested) return null;
