@@ -673,6 +673,7 @@ function renderApplicants() {
                 (applicant.missingSkills || []).slice(0, 5).map((skill) => '<span class="match-missing">' + escapeHtml(skill) + '</span>').join('') + '</div></div>' +
                 '<div class="employer-applicant-actions"><button type="button" class="employer-secondary-button" data-view-applicant="' + applicant.application_id + '">View Profile</button>' +
                 (applicant.email ? '<button type="button" class="employer-secondary-button employer-copy-email" data-copy-applicant-email="' + escapeHtml(applicant.application_id) + '" data-email="' + escapeHtml(applicant.email) + '">Copy email</button>' : '') +
+                '<button type="button" class="employer-secondary-button" data-message-applicant="' + Number(applicant.application_id) + '" data-applicant-name="' + escapeHtml(applicant.full_name) + '">Message</button>' +
                 '<select class="employer-inline-select" data-application-status="' + applicant.application_id + '">' +
                 ['new','reviewing','shortlisted','interview','hired','rejected'].map((status) => '<option value="' + status + '"' + (applicant.status === status ? ' selected' : '') + '>' + status.charAt(0).toUpperCase() + status.slice(1) + '</option>').join('') +
                 '</select></div></div></article>';
@@ -1269,10 +1270,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (select) updateJobStatus(select.dataset.jobStatus, select.value);
     });
 
-    $('#applicantsList').addEventListener('click', (event) => {
+    $('#applicantsList').addEventListener('click', async (event) => {
         const copyButton = event.target.closest('[data-copy-applicant-email]');
         if (copyButton) {
             copyApplicantEmail(copyButton);
+            return;
+        }
+
+        const messageButton = event.target.closest('[data-message-applicant]');
+        if (messageButton) {
+            const applicationId = Number(messageButton.dataset.messageApplicant);
+            const name = messageButton.dataset.applicantName || 'this applicant';
+            const body = window.prompt('Message to ' + name + ':');
+            if (body === null) return;
+            if (!body.trim()) {
+                setApplicantActionMessage('Enter a message before sending.', 'error');
+                return;
+            }
+            messageButton.disabled = true;
+            try {
+                await api('/api/messages/' + applicationId, {
+                    method: 'POST',
+                    body: JSON.stringify({ body: body.trim() })
+                });
+                setApplicantActionMessage('Message sent to ' + name + '.', 'success');
+            } catch (error) {
+                setApplicantActionMessage(error.message || 'Could not send the message.', 'error');
+            } finally {
+                messageButton.disabled = false;
+            }
             return;
         }
 
