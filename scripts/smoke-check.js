@@ -406,6 +406,7 @@ if ((notificationRoutesSource.match(/Cache-Control', 'private, no-store, max-age
 
 const messageRoutesSource = read('messageRoutes.js');
 if (!messageRoutesSource.includes("typeof payload.body !== 'string'") ||
+    !messageRoutesSource.includes('Array.isArray(req.body)') ||
     !messageRoutesSource.includes('ORDER BY m.id DESC LIMIT 500') ||
     !messageRoutesSource.includes('.all(appId).reverse()')) {
     fail('Messages must validate text payloads and load the newest conversation messages.');
