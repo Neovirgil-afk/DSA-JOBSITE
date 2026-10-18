@@ -249,8 +249,10 @@ router.get('/companies', (req, res) => {
 
 router.get('/:id', (req, res) => {
     try {
-        const jobId = parseInt(req.params.id, 10);
-        if (Number.isNaN(jobId)) return res.status(400).json({ error: 'Invalid job id.' });
+        const jobId = Number(req.params.id);
+        if (!Number.isInteger(jobId) || jobId <= 0) {
+            return res.status(400).json({ error: 'Invalid job id.' });
+        }
 
         const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(jobId);
         if (!job) return res.status(404).json({ error: 'Job not found.' });
