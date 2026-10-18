@@ -5,26 +5,26 @@
     if (document.getElementById('jobpathFloatingHub')) return;
 
     function initEmployeeSidebar() {
-        const initialNavs = Array.from(document.querySelectorAll('nav.jobsite-global-rail, .mobile-nav-clone.jobsite-global-rail'));
-        if (!initialNavs.length) return;
-
-        initialNavs.forEach((nav) => { nav.style.visibility = 'hidden'; });
         const allowed = new Set(['jobs', 'dashboard', 'applications', 'learn', 'profile', 'resume']);
-
         let isCandidateUser = false;
+        let roleResolved = false;
 
-        function normalizeNavigation(isCandidate) {
-            isCandidateUser = isCandidate;
+        function normalizeNavigation() {
             const navs = Array.from(document.querySelectorAll('nav.jobsite-global-rail, .mobile-nav-clone.jobsite-global-rail'));
             navs.forEach((nav) => {
-                if (!isCandidate) {
-                    nav.classList.remove('jobsite-global-rail');
+                // This link must never appear in the persistent employee sidebar,
+                // even if the auth lookup fails or a page creates its nav later.
+                nav.querySelectorAll('a[data-rail="employer"], a[href="/employer.html"][data-label="For Employers"]').forEach((link) => link.remove());
+
+                if (!roleResolved) {
+                    nav.style.visibility = 'hidden';
+                    return;
+                }
+                if (!isCandidateUser) {
                     nav.style.visibility = '';
                     return;
                 }
 
-                // Keep only the six approved employee links as direct sidebar items.
-                // This also removes untagged links/buttons and the "For Employers" item.
                 Array.from(nav.children).forEach((item) => {
                     if (!(item.matches('a[data-rail]') && allowed.has(item.dataset.rail))) item.remove();
                 });
@@ -43,17 +43,22 @@
             });
         }
 
-        // Some pages/scripts build or clone navigation after initial page load.
-        // Re-apply the six-link rule whenever a sidebar is changed.
-        const sidebarObserver = new MutationObserver(() => {
-            if (isCandidateUser) normalizeNavigation(true);
-        });
+        // Observe from the start because some pages add/clone navigation later.
+        const sidebarObserver = new MutationObserver(() => normalizeNavigation());
         sidebarObserver.observe(document.documentElement, { childList: true, subtree: true });
+        normalizeNavigation();
 
         fetch('/api/auth/me', { credentials: 'include' })
             .then((response) => response.ok ? response.json() : null)
-            .then((data) => normalizeNavigation(Boolean(data && data.user && data.user.role === 'candidate')))
-            .catch(() => normalizeNavigation(false));
+            .then((data) => {
+                isCandidateUser = Boolean(data && data.user && ['candidate', 'employee'].includes(data.user.role));
+                roleResolved = true;
+                normalizeNavigation();
+            })
+            .catch(() => {
+                roleResolved = true;
+                normalizeNavigation();
+            });
     }
     const esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     const fmt = (value) => { const date = new Date(value); return Number.isNaN(date.getTime()) ? '' : date.toLocaleString(); };
