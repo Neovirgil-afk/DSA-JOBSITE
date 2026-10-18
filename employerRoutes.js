@@ -663,6 +663,9 @@ router.patch('/jobs/:id/status', requireEmployer, (req, res) => {
 router.get('/jobs/:id/applicants', requireEmployer, (req, res) => {
     try {
         const jobId = Number(req.params.id);
+        if (!Number.isInteger(jobId) || jobId <= 0) {
+            return res.status(400).json({ error: 'Invalid job id.' });
+        }
         const job = getEmployerJob(jobId, req.employer.id);
 
         if (!job) {
