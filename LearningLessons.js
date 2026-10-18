@@ -227,8 +227,8 @@ function expandCurriculum() {
   for (const [skill, topics] of Object.entries(LESSONS)) {
     const task = PRACTICE_TASKS[skill] || ('Apply ' + skill + ' to a realistic work scenario. Define the problem, explain your choices, test edge cases, and describe how you would verify that the result is correct.');
     LESSONS[skill] = topics.flatMap(([title, content], index) => [
-      [title, content + '\\n\\nDeeper understanding: connect this idea to the other concepts in ' + skill + ' rather than memorizing a definition. Identify what the concept changes, when it is useful, and what can go wrong when it is applied without checking assumptions.'],
-      ['Applied challenge ' + (index + 1) + ': ' + title, 'Work through this challenge before moving on. ' + task + '\\n\\nDeliverable: write your own solution or reasoning in your study notes. Include the decision you made, one alternative you considered, a limitation or edge case, and how you would verify the result. A familiar term or copied definition is not enough; demonstrate how you would use it.']
+      [title, content + '\n\nDeeper understanding: connect this idea to the other concepts in ' + skill + ' rather than memorizing a definition. Identify what the concept changes, when it is useful, and what can go wrong when it is applied without checking assumptions.'],
+      ['Applied challenge ' + (index + 1) + ': ' + title, 'Work through this challenge before moving on. ' + task + '\n\nDeliverable: write your own solution or reasoning in your study notes. Include the decision you made, one alternative you considered, a limitation or edge case, and how you would verify the result. A familiar term or copied definition is not enough; demonstrate how you would use it.']
     ]);
   }
 }
