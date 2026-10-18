@@ -153,7 +153,17 @@ function setField(id, value) {
 }
 
 const selectedScheduleDays = new Set();
-let selectedScheduleTime = '';
+let selectedScheduleFlexible = false;
+
+function formatScheduleTime(value) {
+    if (!value) return '';
+    const parts = value.split(':').map(Number);
+    if (parts.length < 2 || parts.some((part) => !Number.isFinite(part))) return value;
+    const [hour, minute] = parts;
+    const suffix = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return displayHour + ':' + String(minute).padStart(2, '0') + ' ' + suffix;
+}
 
 function buildJobSalary() {
     const min = $('#jobSalaryMin').value.trim();
@@ -169,21 +179,38 @@ function updateSchedulePreview() {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].filter((day) => selectedScheduleDays.has(day));
     const preview = $('#jobSchedulePreview');
     const hidden = $('#jobSchedule');
+    const start = $('#jobScheduleStart')?.value || '';
+    const end = $('#jobScheduleEnd')?.value || '';
+    const flexibleButton = $('#jobScheduleFlexible');
     if (!preview || !hidden) return;
+
     const dayText = days.length === 7 ? 'Every day' : days.join(', ');
+    const timeText = selectedScheduleFlexible
+        ? 'Flexible hours'
+        : start && end
+            ? formatScheduleTime(start) + '–' + formatScheduleTime(end)
+            : start
+                ? 'Starts at ' + formatScheduleTime(start)
+                : end
+                    ? 'Ends at ' + formatScheduleTime(end)
+                    : '';
     const parts = [];
     if (dayText) parts.push(dayText);
-    if (selectedScheduleTime) parts.push(selectedScheduleTime);
+    if (timeText) parts.push(timeText);
     hidden.value = parts.join(' · ');
-    preview.textContent = parts.length ? parts.join(' · ') : 'Choose work days and hours. You can leave this blank if the schedule is flexible.';
+    preview.textContent = parts.length ? parts.join(' · ') : 'Choose work days and set start/end times, or select Flexible hours.';
+    if (flexibleButton) {
+        flexibleButton.classList.toggle('is-selected', selectedScheduleFlexible);
+        flexibleButton.setAttribute('aria-pressed', String(selectedScheduleFlexible));
+    }
+
     document.querySelectorAll('[data-schedule-preset]').forEach((button) => {
-        const preset = button.dataset.schedulePreset;
         const presetDays = {
             mwf: ['Mon', 'Wed', 'Fri'],
             weekdays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
             weekends: ['Sat', 'Sun'],
             everyday: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        }[preset] || [];
+        }[button.dataset.schedulePreset] || [];
         const active = presetDays.length === days.length && presetDays.every((day) => selectedScheduleDays.has(day));
         button.classList.toggle('is-selected', active);
         button.setAttribute('aria-pressed', String(active));
@@ -193,22 +220,32 @@ function updateSchedulePreview() {
         button.classList.toggle('is-selected', active);
         button.setAttribute('aria-pressed', String(active));
     });
-    document.querySelectorAll('[data-time-preset]').forEach((button) => {
-        const active = button.dataset.timePreset === selectedScheduleTime;
-        button.classList.toggle('is-selected', active);
-        button.setAttribute('aria-pressed', String(active));
-    });
 }
 
 function restoreJobSchedule(value) {
     selectedScheduleDays.clear();
-    selectedScheduleTime = '';
+    selectedScheduleFlexible = false;
+    setField('jobScheduleStart', '');
+    setField('jobScheduleEnd', '');
     const text = String(value || '');
     const dayAliases = { Monday: 'Mon', Tuesday: 'Tue', Wednesday: 'Wed', Thursday: 'Thu', Friday: 'Fri', Saturday: 'Sat', Sunday: 'Sun' };
     const dayMatches = text.match(/Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Mon|Tue|Wed|Thu|Fri|Sat|Sun/g) || [];
     dayMatches.forEach((day) => selectedScheduleDays.add(dayAliases[day] || day));
-    const timeOptions = ['8 AM–5 PM', '9 AM–5 PM', '9 AM–6 PM', '10 AM–7 PM', '24 hours', 'Flexible hours'];
-    selectedScheduleTime = timeOptions.find((time) => text.toLowerCase().includes(time.toLowerCase())) || '';
+
+    if (/flexible/i.test(text)) {
+        selectedScheduleFlexible = true;
+    } else {
+        const timeMatch = text.match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)\s*[–-]\s*(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
+        if (timeMatch) {
+            const to24Hour = (hourText, minuteText, suffix) => {
+                let hour = Number(hourText) % 12;
+                if (suffix.toUpperCase() === 'PM') hour += 12;
+                return String(hour).padStart(2, '0') + ':' + String(Number(minuteText || 0)).padStart(2, '0');
+            };
+            setField('jobScheduleStart', to24Hour(timeMatch[1], timeMatch[2], timeMatch[3]));
+            setField('jobScheduleEnd', to24Hour(timeMatch[4], timeMatch[5], timeMatch[6]));
+        }
+    }
     updateSchedulePreview();
 }
 
@@ -1083,11 +1120,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateSchedulePreview();
         });
     });
-    document.querySelectorAll('[data-time-preset]').forEach((button) => {
-        button.addEventListener('click', () => {
-            selectedScheduleTime = selectedScheduleTime === button.dataset.timePreset ? '' : button.dataset.timePreset;
-            updateSchedulePreview();
-        });
+    $('#jobScheduleStart')?.addEventListener('change', () => {
+        selectedScheduleFlexible = false;
+        updateSchedulePreview();
+    });
+    $('#jobScheduleEnd')?.addEventListener('change', () => {
+        selectedScheduleFlexible = false;
+        updateSchedulePreview();
+    });
+    $('#jobScheduleFlexible')?.addEventListener('click', () => {
+        selectedScheduleFlexible = !selectedScheduleFlexible;
+        if (selectedScheduleFlexible) {
+            setField('jobScheduleStart', '');
+            setField('jobScheduleEnd', '');
+        }
+        updateSchedulePreview();
     });
 
     $('#openPostJob').addEventListener('click', () => openJobEditor());
