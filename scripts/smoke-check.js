@@ -558,7 +558,6 @@ if (!/app\.get\(\s*['"]\/api\/health['"][\s\S]*?db\.prepare\(['"]SELECT 1['"]\)\
 }
 
 // Private application history responses must not be cached, even when the route errors.
-const applicationRoutesSource = read('applicationRoutes.js');
 if (!applicationRoutesSource.includes("router.use((req, res, next) => {") ||
     !applicationRoutesSource.includes("res.set('Cache-Control', 'private, no-store, max-age=0')") ||
     !applicationRoutesSource.includes("res.set('Pragma', 'no-cache')")) {
