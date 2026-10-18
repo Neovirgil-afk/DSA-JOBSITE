@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }catch(error){status($('#ccTargetJobStatus'),error.message||'Could not update target job.','error');}
   finally{if(button)button.disabled=false;}
  });
- $('#ccInterviewForm').addEventListener('submit',async ev=>{ev.preventDefault();const f=new FormData(ev.currentTarget);const payload={applicationId:Number(f.get('applicationId')),scheduledAt:new Date(f.get('scheduledAt')).toISOString(),durationMinutes:Number(f.get('durationMinutes')),interviewType:f.get('interviewType'),locationOrLink:f.get('locationOrLink'),notes:f.get('notes')};try{await api('/api/interviews',{method:'POST',body:JSON.stringify(payload)});ev.currentTarget.reset();status($('#ccInterviewStatus'),'Interview scheduled and candidate notified.','success');await loadInterviews();await loadNotifications();}catch(e){status($('#ccInterviewStatus'),e.message,'error');}});
+ $('#ccInterviewForm').addEventListener('submit',async ev=>{ev.preventDefault();const form=ev.currentTarget;const f=new FormData(form);const payload={applicationId:Number(f.get('applicationId')),scheduledAt:new Date(f.get('scheduledAt')).toISOString(),durationMinutes:Number(f.get('durationMinutes')),interviewType:f.get('interviewType'),locationOrLink:f.get('locationOrLink'),notes:f.get('notes')};try{await api('/api/interviews',{method:'POST',body:JSON.stringify(payload)});form.reset();status($('#ccInterviewStatus'),'Interview scheduled and candidate notified.','success');await loadInterviews();await loadNotifications();}catch(e){status($('#ccInterviewStatus'),e.message,'error');}});
  function configureRoleNavigation(role){
    const rail=document.querySelector('nav.jobsite-global-rail');
    if(!rail||role!=='employer')return;
