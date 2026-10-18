@@ -78,6 +78,15 @@ app.use('/uploads', (req, res) => {
     res.sendStatus(404);
 });
 
+// Never expose SQLite database files or their write-ahead log files through static serving.
+app.use((req, res, next) => {
+    const requestedFile = path.basename(req.path).toLowerCase();
+    if (/\\.(?:db|sqlite|sqlite3)(?:-(?:wal|shm))?$/.test(requestedFile)) {
+        return res.sendStatus(404);
+    }
+    next();
+});
+
 app.use(express.static(__dirname));
 
 app.use('/api/auth', authRoutes);
