@@ -17,6 +17,8 @@ const dbExisted = fs.existsSync(DB_PATH);
 
 const db = new Database(DB_PATH);
 db.pragma('foreign_keys = ON');
+// WAL lets readers continue while a transaction writes to the local SQLite database.
+db.pragma('journal_mode = WAL');
 // Wait briefly for concurrent writes instead of failing immediately with SQLITE_BUSY.
 db.pragma('busy_timeout = 5000');
 
