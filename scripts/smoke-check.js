@@ -59,6 +59,28 @@ checkHtml('resume-builder.html', ['fullName', 'email', 'phone', 'location', 'sum
 checkHtml('career-center.html', ['ccTargetJobForm', 'ccTargetJobInput', 'ccLearningPathBody'], ['js/career-center.js', 'js/floating-hub.js']);
 checkHtml('applications.html', ['applicationsList', 'exportApplications'], ['js/applications.js', 'js/floating-hub.js']);
 
+// Check the shared stylesheet for unbalanced CSS blocks.
+const stylesheet = read('style.css');
+if (stylesheet) {
+    let depth = 0;
+    let lowestDepth = 0;
+    for (const character of stylesheet) {
+        if (character === '{') depth += 1;
+        if (character === '}') depth -= 1;
+        if (depth < lowestDepth) lowestDepth = depth;
+    }
+    if (depth !== 0 || lowestDepth < 0) fail('style.css contains unbalanced braces (final depth: ' + depth + ').');
+}
+
+// Confirm the documented local quality-check and startup commands exist.
+try {
+    const packageJson = JSON.parse(read('package.json'));
+    if (!packageJson.scripts || !packageJson.scripts.start) fail('package.json is missing the start script.');
+    if (!packageJson.scripts || !packageJson.scripts.check) fail('package.json is missing the check script.');
+} catch (error) {
+    fail('Could not parse package.json: ' + error.message);
+}
+
 const server = read('server.js');
 for (const route of ['messageRoutes', 'notificationRoutes', 'employerRoutes', 'authRoutes']) if (!server.includes("require('./" + route + "')")) fail('server.js is missing route module ' + route);
 
