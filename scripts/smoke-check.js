@@ -200,6 +200,14 @@ if (!/app\.use\(\s*['"]\/uploads['"]\s*,\s*\(req,\s*res\)\s*=>\s*\{\s*res\.sendS
     fail('Direct requests to /uploads must be blocked before public static-file serving.');
 }
 
+// Verify baseline browser security headers are applied by the server.
+if (!/res\.setHeader\(['"]X-Content-Type-Options['"],\s*['"]nosniff['"]\)/.test(server) ||
+    !/res\.setHeader\(['"]X-Frame-Options['"],\s*['"]DENY['"]\)/.test(server) ||
+    !/res\.setHeader\(['"]Referrer-Policy['"],\s*['"]strict-origin-when-cross-origin['"]\)/.test(server) ||
+    !/res\.setHeader\(['"]Permissions-Policy['"],\s*['"]camera=\(\), microphone=\(\), geolocation=\(\)['"]\)/.test(server)) {
+    fail('Server must apply baseline browser security headers.');
+}
+
 // Ensure the lightweight health endpoint remains available for deployment probes.
 if (!/app\.get\(\s*['"]\/api\/health['"]/.test(server)) {
     fail('server.js is missing the /api/health endpoint.');
