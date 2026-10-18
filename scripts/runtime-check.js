@@ -216,6 +216,15 @@ async function main() {
         const afterLogout = await request('/api/auth/me');
         if (afterLogout.status !== 401) throw new Error('Logged-out users must not access the current-user endpoint.');
 
+        const reloginResponse = await request('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password: 'RuntimeTest123!' })
+        });
+        if (reloginResponse.status !== 200) throw new Error('Candidate should be able to log in again after logout; received ' + reloginResponse.status + '.');
+        sessionCookie = (reloginResponse.headers.get('set-cookie') || '').split(';')[0];
+        if (!sessionCookie.includes('=')) throw new Error('Relogin did not create a session cookie.');
+
         const jobsResponse = await request('/api/jobs');
         if (jobsResponse.status !== 200) throw new Error('Public job search should respond successfully; received ' + jobsResponse.status + '.');
         const jobsBody = await jobsResponse.json();
