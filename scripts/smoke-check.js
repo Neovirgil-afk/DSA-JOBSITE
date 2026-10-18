@@ -84,7 +84,20 @@ try {
 }
 
 const server = read('server.js');
-for (const route of ['messageRoutes', 'notificationRoutes', 'employerRoutes', 'authRoutes']) if (!server.includes("require('./" + route + "')")) fail('server.js is missing route module ' + route);
+const routeImports = [...server.matchAll(/const\\s+(\\w+Routes)\\s*=\\s*require\\(['"]\\.\\/([^'"]+)['"]\\)/g)];
+if (routeImports.length === 0) {
+    fail('server.js does not declare any route modules.');
+} else {
+    for (const match of routeImports) {
+        const routeName = match[1];
+        const routePath = match[2];
+        if (!fs.existsSync(path.join(root, routePath + '.js'))) {
+            fail('server.js imports missing route module: ' + routePath + '.js');
+        }
+        const mountPattern = new RegExp('app\\\\.use\\\\([^\\\\n]*\\\\b' + routeName + '\\\\s*\\\\)');
+        if (!mountPattern.test(server)) fail('server.js imports but does not mount route module ' + routeName + '.');
+    }
+}
 
 if (failures.length) {
     console.error('JobPath smoke check FAILED');
