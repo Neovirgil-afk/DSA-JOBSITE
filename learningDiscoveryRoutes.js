@@ -7,6 +7,13 @@ const { db } = require('./database');
 
 const router = express.Router();
 
+// Discovery responses can include personalized skill and career recommendations.
+router.use((req, res, next) => {
+    res.set('Cache-Control', 'private, no-store, max-age=0');
+    res.set('Pragma', 'no-cache');
+    next();
+});
+
 // Broad topics expand into practical subskills, including interests outside a user's target career.
 const TOPIC_MAP = [
     { match: ['graphic design', 'visual design'], skills: ['Color Theory', 'Typography', 'Layout Design', 'Figma', 'Photoshop'] },
