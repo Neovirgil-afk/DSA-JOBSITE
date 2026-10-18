@@ -1762,14 +1762,39 @@ function initHeader() {
    EDIT PERSONAL INFORMATION (NAME IS READ-ONLY)
    ========================================================= */
 const personalInfoEditor = document.querySelector('#personalInfoEditor');
+const personalInfoModal = document.querySelector('#personalInfoModal');
 const editPersonalInfoButton = document.querySelector('#editPersonalInfoButton');
 const cancelPersonalInfoButton = document.querySelector('#cancelPersonalInfoButton');
+const closePersonalInfoButton = document.querySelector('#closePersonalInfoButton');
+const personalInfoBackdrop = document.querySelector('#personalInfoBackdrop');
 const personalInfoMessage = document.querySelector('#personalInfoMessage');
 const savePersonalInfoButton = document.querySelector('#savePersonalInfoButton');
+const personalInfoReadonlyName = document.querySelector('#personalInfoReadonlyName');
+let previousPersonalInfoBodyOverflow = '';
+
+function openPersonalInfoEditor() {
+    if (!personalInfoEditor || !personalInfoModal) return;
+    document.querySelector('#editProfileEducation').value = profileData?.education || '';
+    document.querySelector('#editProfileDegree').value = profileData?.degree || '';
+    document.querySelector('#editProfileTargetJob').value = profileData?.target_job || '';
+    document.querySelector('#editProfileLocation').value = profileData?.location || '';
+    if (personalInfoReadonlyName) {
+        personalInfoReadonlyName.textContent = (profileData?.full_name || 'Your account name') + ' · cannot be changed here';
+    }
+    if (personalInfoMessage) {
+        personalInfoMessage.textContent = '';
+        personalInfoMessage.className = '';
+    }
+    personalInfoModal.hidden = false;
+    previousPersonalInfoBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.requestAnimationFrame(() => document.querySelector('#editProfileEducation')?.focus());
+}
 
 function closePersonalInfoEditor() {
-    if (personalInfoEditor) personalInfoEditor.hidden = true;
-    if (editPersonalInfoButton) editPersonalInfoButton.hidden = false;
+    if (personalInfoModal) personalInfoModal.hidden = true;
+    document.body.style.overflow = previousPersonalInfoBodyOverflow;
+    if (editPersonalInfoButton) editPersonalInfoButton.focus();
     if (personalInfoMessage) {
         personalInfoMessage.textContent = '';
         personalInfoMessage.className = '';
@@ -1777,23 +1802,16 @@ function closePersonalInfoEditor() {
 }
 
 if (editPersonalInfoButton && personalInfoEditor) {
-    editPersonalInfoButton.addEventListener('click', () => {
-        document.querySelector('#editProfileEducation').value = profileData?.education || '';
-        document.querySelector('#editProfileDegree').value = profileData?.degree || '';
-        document.querySelector('#editProfileTargetJob').value = profileData?.target_job || '';
-        document.querySelector('#editProfileLocation').value = profileData?.location || '';
-        personalInfoEditor.hidden = false;
-        editPersonalInfoButton.hidden = true;
-        document.querySelector('#editProfileEducation')?.focus();
-        if (personalInfoMessage) {
-            personalInfoMessage.textContent = '';
-            personalInfoMessage.className = '';
-        }
-    });
+    editPersonalInfoButton.addEventListener('click', openPersonalInfoEditor);
 }
-if (cancelPersonalInfoButton) {
-    cancelPersonalInfoButton.addEventListener('click', closePersonalInfoEditor);
-}
+if (cancelPersonalInfoButton) cancelPersonalInfoButton.addEventListener('click', closePersonalInfoEditor);
+if (closePersonalInfoButton) closePersonalInfoButton.addEventListener('click', closePersonalInfoEditor);
+if (personalInfoBackdrop) personalInfoBackdrop.addEventListener('click', closePersonalInfoEditor);
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && personalInfoModal && !personalInfoModal.hidden) {
+        closePersonalInfoEditor();
+    }
+});
 if (personalInfoEditor) {
     personalInfoEditor.addEventListener('submit', async (event) => {
         event.preventDefault();
