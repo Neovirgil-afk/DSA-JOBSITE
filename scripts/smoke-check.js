@@ -244,6 +244,9 @@ if (!/app\.get\(\s*['"]\/api\/health['"]/.test(server)) {
 if (!/res\.json\(\s*\{\s*status:\s*['"]ok['"]\s*\}\s*\)/.test(server)) {
     fail('/api/health must return a JSON status of ok.');
 }
+if (!/app\.get\(\s*['"]\/api\/health['"][\s\S]*?db\.prepare\(['"]SELECT 1['"]\)\.get\(\)[\s\S]*?res\.status\(503\)\.json\(/.test(server)) {
+    fail('/api/health must check database connectivity and return 503 when the database is unavailable.');
+}
 
 if (failures.length) {
     console.error('JobPath smoke check FAILED');
