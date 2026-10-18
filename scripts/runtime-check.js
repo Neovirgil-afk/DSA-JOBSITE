@@ -1306,6 +1306,31 @@ async function main() {
         const unchangedInterview = ownerListBody.interviews?.find((item) => Number(item.id) === Number(interviewBody.interviewId));
         if (!unchangedInterview || unchangedInterview.status !== 'completed') throw new Error('Unauthorized requests changed the interview status or owner update did not persist.');
 
+        const cancelInterview = await request('/api/interviews/' + interviewBody.interviewId, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'cancelled' })
+        });
+        if (cancelInterview.status !== 200 || !(await cancelInterview.json()).changed) {
+            throw new Error('Changing an interview to cancelled should report a real status change.');
+        }
+        const repeatCancelInterview = await request('/api/interviews/' + interviewBody.interviewId, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'cancelled' })
+        });
+        const repeatCancelInterviewBody = await repeatCancelInterview.json();
+        if (repeatCancelInterview.status !== 200 || repeatCancelInterviewBody.changed !== false) {
+            throw new Error('Repeating the same interview status should be idempotent.');
+        }
+        sessionCookie = candidateCookie;
+        const cancellationNotificationsResponse = await request('/api/notifications');
+        const cancellationNotificationsBody = await cancellationNotificationsResponse.json();
+        const cancellationNotifications = cancellationNotificationsBody.notifications?.filter((item) => item.title === 'Interview cancelled') || [];
+        if (cancellationNotifications.length !== 1) {
+            throw new Error('Repeated interview cancellation must create exactly one cancellation notification.');
+        }
+
         sessionCookie = candidateCookie;
         // Resume builder must persist a valid draft and reject malformed email addresses.
         const draftResponse = await request('/api/resume/builder', {
