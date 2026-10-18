@@ -29,7 +29,7 @@ router.post('/',requireAuth,(req,res)=>{
    }
   }
   const appId = Number(payload.applicationId), raw = String(payload.scheduledAt || '').trim(), date = new Date(raw);
-  const duration = Number(payload.durationMinutes || 30), type = String(payload.interviewType || 'online').trim();
+  const duration = Number(payload.durationMinutes === undefined ? 30 : payload.durationMinutes), type = String(payload.interviewType || 'online').trim();
   const place = String(payload.locationOrLink || '').trim().slice(0, 500), notes = String(payload.notes || '').trim().slice(0, 2000);
   if(!Number.isInteger(appId)||appId<=0)return res.status(400).json({error:'Choose a valid application.'});
   if(!raw||Number.isNaN(date.getTime())||date.getTime()<=Date.now())return res.status(400).json({error:'Choose a valid future interview date and time.'});
