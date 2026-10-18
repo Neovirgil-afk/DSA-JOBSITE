@@ -278,6 +278,12 @@ const applicationStatusRoute = employerRoutesSource.slice(
     employerRoutesSource.indexOf("router.patch('/applications/:id/status'"),
     employerRoutesSource.indexOf('/* =========================================================', employerRoutesSource.indexOf("router.patch('/applications/:id/status'"))
 );
+if (!applicationStatusRoute.includes("const allowed = ['new', 'reviewing', 'shortlisted', 'interview', 'hired', 'rejected']") ||
+    !applicationStatusRoute.includes("if (!allowed.includes(status))") ||
+    !applicationStatusRoute.includes("if (current.status === status)") ||
+    !applicationStatusRoute.includes('const updateApplication = db.transaction(() => {')) {
+    fail('Employer application status changes must allow only recognized statuses and update status/history atomically without duplicate history for unchanged statuses.');
+}
 if (!applicationStatusRoute.includes("typeof payload.status !== 'string'") ||
     !applicationStatusRoute.includes('Array.isArray(req.body)') ||
     !applicationStatusRoute.includes('j.employer_id = ?') ||
