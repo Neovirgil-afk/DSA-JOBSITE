@@ -570,6 +570,83 @@ router.get('/profile', (req, res) => {
 });
 
 
+
+/* =========================================================
+   UPDATE PERSONAL INFORMATION FROM PROFILE (NAME PROTECTED)
+   ========================================================= */
+router.put('/profile/personal-info', (req, res) => {
+    try {
+        if (!req.session.userId) {
+            return res.status(401).json({ error: 'Not logged in.' });
+        }
+
+        const currentUser = db.prepare(
+            'SELECT role FROM users WHERE id = ?'
+        ).get(req.session.userId);
+
+        if (!currentUser || currentUser.role !== 'candidate') {
+            return res.status(403).json({ error: 'Only candidate accounts can update personal information.' });
+        }
+
+        const body = req.body;
+        if (!body || typeof body !== 'object' || Array.isArray(body)) {
+            return res.status(400).json({ error: 'Personal information must be an object.' });
+        }
+
+        const fields = [
+            ['education', 160],
+            ['degree', 160],
+            ['target_job', 160],
+            ['location', 160]
+        ];
+
+        for (const [field, maxLength] of fields) {
+            if (body[field] !== undefined && body[field] !== null && typeof body[field] !== 'string') {
+                return res.status(400).json({ error: 'Profile fields must contain text values.' });
+            }
+            if (typeof body[field] === 'string' && body[field].trim().length > maxLength) {
+                return res.status(400).json({ error: field.replace(/_/g, ' ') + ' must be ' + maxLength + ' characters or fewer.' });
+            }
+        }
+
+        const education = String(body.education ?? '').trim();
+        const degree = String(body.degree ?? '').trim();
+        const targetJob = String(body.target_job ?? '').trim();
+        const location = String(body.location ?? '').trim();
+
+        db.prepare(`
+            UPDATE users
+            SET education = ?,
+                degree = ?,
+                target_job = ?,
+                location = ?
+            WHERE id = ?
+        `).run(
+            education || null,
+            degree || null,
+            targetJob || null,
+            location || null,
+            req.session.userId
+        );
+
+        const profile = db.prepare(`
+            SELECT id, full_name, email, education, degree, target_job, location
+            FROM users
+            WHERE id = ?
+        `).get(req.session.userId);
+
+        if (!profile) {
+            return res.status(401).json({ error: 'Not logged in.' });
+        }
+
+        res.json({ success: true, profile });
+    } catch (err) {
+        console.error('[PUT /api/auth/profile/personal-info] error:', err);
+        res.status(500).json({ error: 'Failed to update personal information.' });
+    }
+});
+
+
 /* =========================================================
    UPDATE PROFILE FROM RESUME BUILDER
    ========================================================= */
