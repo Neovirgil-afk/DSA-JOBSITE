@@ -736,6 +736,7 @@ async function main() {
             body: JSON.stringify({
                 title: 'Runtime Draft Visibility Check',
                 description: 'Draft job visibility and publication transition integration test.',
+                category: 'Runtime Unpublished Category',
                 skills: ['Python'],
                 employmentType: 'Full-time',
                 location: 'Remote',
@@ -765,6 +766,12 @@ async function main() {
         const publicDraftDetails = await request('/api/jobs/' + draftJobId);
         if (publicDraftDetails.status !== 404) {
             throw new Error('Draft job details must be hidden from public lookup; received ' + publicDraftDetails.status + '.');
+        }
+        const publicCategoriesWithDraft = await request('/api/jobs/categories');
+        if (publicCategoriesWithDraft.status !== 200) throw new Error('Public job categories should load while drafts exist.');
+        const publicCategoriesWithDraftBody = await publicCategoriesWithDraft.json();
+        if (publicCategoriesWithDraftBody.counts?.some((item) => item.category === 'Runtime Unpublished Category')) {
+            throw new Error('Unpublished drafts must not contribute to public job category counts.');
         }
         const saveDraftAsCandidate = await request('/api/jobs/saved/' + draftJobId, { method: 'POST' });
         if (saveDraftAsCandidate.status !== 404) {
