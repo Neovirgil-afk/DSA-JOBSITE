@@ -466,6 +466,30 @@ if (!interviewRoutesSource.includes("private, no-store, max-age=0") ||
     fail('Interview endpoints must prevent caching of private schedules and validate text inputs.');
 }
 
+const interviewScheduleRoute = interviewRoutesSource.slice(
+    interviewRoutesSource.indexOf("router.post('/'"),
+    interviewRoutesSource.indexOf("router.patch('/:id'")
+);
+const interviewUpdateRoute = interviewRoutesSource.slice(
+    interviewRoutesSource.indexOf("router.patch('/:id'")
+);
+if (!interviewScheduleRoute.includes("user.role!=='employer'") ||
+    !interviewScheduleRoute.includes('WHERE a.id=? AND j.employer_id=?') ||
+    !interviewScheduleRoute.includes('date.getTime()<=Date.now()') ||
+    !interviewScheduleRoute.includes('db.transaction(()=>{') ||
+    !interviewScheduleRoute.includes("INSERT INTO application_history(application_id,status) VALUES(?,'interview')")) {
+    fail('Interview scheduling must require an employer, scope the application to that employer, reject past dates, and record status/history transactionally.');
+}
+if (!interviewUpdateRoute.includes("!['scheduled','completed','cancelled'].includes(status)") ||
+    !interviewUpdateRoute.includes("user.role==='employer'&&Number(row.employer_id)!==Number(user.id)") ||
+    !interviewUpdateRoute.includes("if(status==='cancelled')createNotification")) {
+    fail('Interview updates must validate status, enforce employer ownership, and notify candidates when interviews are cancelled.');
+}
+if (!interviewRoutesSource.includes("(?='candidate' AND a.user_id=?) OR (?='employer' AND j.employer_id=?)") ||
+    !interviewRoutesSource.includes("(?='admin')")) {
+    fail('Interview listings must scope results to the signed-in candidate/employer, with admin access handled explicitly.');
+}
+
 const notificationRoutesSource = read('notificationRoutes.js');
 if ((notificationRoutesSource.match(/Cache-Control', 'private, no-store, max-age=0'/g) || []).length < 3 ||
     (notificationRoutesSource.match(/Pragma', 'no-cache'/g) || []).length < 3 ||
