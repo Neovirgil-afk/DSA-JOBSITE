@@ -8785,3 +8785,18 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     min-width:0;
   }
 }
+
+
+/* Batch 37: clearer accessible form validation and status messages */
+:where(input,select,textarea)[aria-invalid="true"]{
+  border-color:var(--danger,#dc2626);
+}
+:where(input,select,textarea)[aria-invalid="true"]:focus-visible{
+  outline-color:var(--danger,#dc2626);
+}
+:where([role="alert"],[role="status"],[aria-live="polite"],[aria-live="assertive"]){
+  overflow-wrap:anywhere;
+}
+:where([role="alert"]:empty,[role="status"]:empty,[aria-live="polite"]:empty,[aria-live="assertive"]:empty){
+  display:none;
+}
