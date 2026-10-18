@@ -586,7 +586,7 @@ if (!interviewScheduleRoute.includes("user.role!=='employer'") ||
 if (!interviewRoutesSource.includes('[15,30,45,60,90,120].includes(duration)') ||
     !interviewRoutesSource.includes("['online','phone','onsite'].includes(type)") ||
     !interviewRoutesSource.includes('const duration = Number(payload.durationMinutes || 30)') ||
-    !interviewRoutesSource.includes("const type = String(payload.interviewType || 'online').trim()")) {
+    !interviewRoutesSource.includes("type = String(payload.interviewType || 'online').trim()")) {
     fail('Interview scheduling must enforce supported durations and interview types before writing records.');
 }
 if (!interviewUpdateRoute.includes("!['scheduled','completed','cancelled'].includes(status)") ||
