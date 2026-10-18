@@ -54,7 +54,7 @@ function checkHtml(relativePath, requiredIds, requiredScripts) {
     }
 }
 
-for (const relativePath of ['database.js', 'server.js', 'authRoutes.js', 'authRateLimit.js', 'employerRoutes.js', 'messageRoutes.js', 'notificationRoutes.js', 'js/employer.js', 'js/profile.js', 'js/resume-builder.js', 'js/career-center.js', 'js/applications.js', 'js/floating-hub.js', 'CareerPathService.js', 'ESCOService.js', 'Graph.js', 'HashTable.js', 'JobMatcher.js', 'JobMatchingService.js', 'LearningLessons.js', 'LearningResources.js', 'MaxHeap.js', 'ResumeScanner.js', 'SkillGapService.js', 'Sorting.js', 'Tree.js', 'psgcService.js', 'referenceData.js', 'seed.js', 'skillsList.js']) checkJavaScript(relativePath);
+for (const relativePath of ['database.js', 'server.js', 'sessionStore.js', 'authRoutes.js', 'authRateLimit.js', 'employerRoutes.js', 'messageRoutes.js', 'notificationRoutes.js', 'js/employer.js', 'js/profile.js', 'js/resume-builder.js', 'js/career-center.js', 'js/applications.js', 'js/floating-hub.js', 'CareerPathService.js', 'ESCOService.js', 'Graph.js', 'HashTable.js', 'JobMatcher.js', 'JobMatchingService.js', 'LearningLessons.js', 'LearningResources.js', 'MaxHeap.js', 'ResumeScanner.js', 'SkillGapService.js', 'Sorting.js', 'Tree.js', 'psgcService.js', 'referenceData.js', 'seed.js', 'skillsList.js']) checkJavaScript(relativePath);
 
 checkHtml('employer.html', ['applicantSummary', 'applicantsList', 'applicantPipelineCounts', 'applicantProfileHistory', 'applicantPrivateNotes'], ['js/employer.js', 'js/floating-hub.js']);
 checkHtml('profile.html', ['targetJobEditor', 'editTargetJob', 'skillSearchInput'], ['js/profile.js', 'js/floating-hub.js']);
@@ -126,6 +126,22 @@ if (routeImports.length === 0) {
 // Guard important production session-cookie and secret settings against accidental removal.
 if (!server.includes("!String(process.env.SESSION_SECRET || '').trim()")) {
     fail('server.js must reject missing, empty, or whitespace-only SESSION_SECRET values in production.');
+}
+// Session data must persist in SQLite rather than Express' default in-memory store.
+const sessionStoreSource = read('sessionStore.js');
+if (!sessionStoreSource.includes('class SQLiteSessionStore extends session.Store') ||
+    !sessionStoreSource.includes('get(sid, callback)') ||
+    !sessionStoreSource.includes('set(sid, sessionData, callback)') ||
+    !sessionStoreSource.includes('touch(sid, sessionData, callback)') ||
+    !sessionStoreSource.includes('destroy(sid, callback)')) {
+    fail('SQLite session store must implement get, set, touch, and destroy.');
+}
+if (!databaseSource.includes('CREATE TABLE IF NOT EXISTS sessions') ||
+    !databaseSource.includes('idx_sessions_expires_at')) {
+    fail('SQLite must create persistent session storage with an expiry index.');
+}
+if (!server.includes('store: new SQLiteSessionStore()')) {
+    fail('Express sessions must use the persistent SQLite store.');
 }
 const sessionSecretGuardIndex = server.indexOf("if (process.env.NODE_ENV === 'production' && !String(process.env.SESSION_SECRET || '').trim())");
 const databaseImportIndex = server.indexOf("const { db } = require('./database');");
