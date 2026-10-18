@@ -325,6 +325,22 @@ async function main() {
         const returnedPdf = Buffer.from(await resumeFileResponse.arrayBuffer());
         if (returnedPdf.subarray(0, 5).toString('ascii') !== '%PDF-') throw new Error('The private resume endpoint did not return the uploaded PDF bytes.');
 
+        // Resume access is candidate-only, even when an employer is authenticated.
+        sessionCookie = employerCookie;
+        const employerResumeFile = await request('/api/resume/file');
+        if (employerResumeFile.status !== 403) throw new Error('Employer accounts must not retrieve candidate resume files; received ' + employerResumeFile.status + '.');
+        const employerResumeScan = await request('/api/resume/scan', { method: 'POST' });
+        if (employerResumeScan.status !== 403) throw new Error('Employer accounts must not use candidate resume scanning; received ' + employerResumeScan.status + '.');
+        sessionCookie = candidateCookie;
+
+        // Enforce the server-side 5MB upload limit, not only the browser UI limit.
+        const oversizedForm = new FormData();
+        oversizedForm.append('resume', new Blob([Buffer.alloc(5 * 1024 * 1024 + 1)], { type: 'application/pdf' }), 'oversized-resume.pdf');
+        const oversizedResponse = await request('/api/resume/scan', { method: 'POST', body: oversizedForm });
+        if (oversizedResponse.status !== 400) throw new Error('Resume uploads larger than 5MB must be rejected; received ' + oversizedResponse.status + '.');
+        const oversizedBody = await oversizedResponse.json();
+        if (!String(oversizedBody.error || '').includes('5MB')) throw new Error('Oversized resume rejection should explain the 5MB limit.');
+
         const invalidResumeForm = new FormData();
         invalidResumeForm.append('resume', new Blob(['this is not a real PDF or DOCX file'], { type: 'application/pdf' }), 'fake-resume.pdf');
         const badResumeUpload = await request('/api/resume/scan', {
@@ -335,7 +351,7 @@ async function main() {
         const badResumeBody = await badResumeUpload.json();
         if (!String(badResumeBody.error || '').includes('does not match')) throw new Error('Fake PDF rejection should explain the file-content mismatch.');
 
-        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, applications and duplicate prevention, employer job posting/applicant management, interview scheduling, resume draft persistence and validation, real PDF text extraction and skill detection, authenticated resume file retrieval, and forged upload rejection.');
+        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, applications and duplicate prevention, employer job posting/applicant management, interview scheduling, resume draft persistence and validation, real PDF text extraction and skill detection, authenticated resume file retrieval, role-based resume access, 5MB upload limits, and forged upload rejection.');
     } finally {
         if (child.exitCode === null) {
             child.kill('SIGTERM');
