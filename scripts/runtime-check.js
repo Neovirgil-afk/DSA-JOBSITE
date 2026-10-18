@@ -468,7 +468,41 @@ async function main() {
         const interviewBody = await interviewResponse.json();
         if (!interviewBody.success || !interviewBody.interviewId) throw new Error('Interview scheduling response did not include an interview ID.');
 
+        const interviewCache = interviewResponse.headers.get('cache-control') || '';
+        if (!/private/i.test(interviewCache) || !/no-store/i.test(interviewCache)) {
+            throw new Error('Interview scheduling responses must not be publicly cached.');
+        }
+        for (const invalidPayload of [
+            { applicationId: employerApplicationId, scheduledAt: 'not-a-date', durationMinutes: 30, interviewType: 'online', locationOrLink: 'https://example.com/interview' },
+            { applicationId: employerApplicationId, scheduledAt: new Date(Date.now() + 86400000).toISOString(), durationMinutes: 17, interviewType: 'online', locationOrLink: 'https://example.com/interview' },
+            { applicationId: employerApplicationId, scheduledAt: new Date(Date.now() + 86400000).toISOString(), durationMinutes: 30, interviewType: 'online', locationOrLink: 'javascript:alert(1)' },
+            { applicationId: 99999999, scheduledAt: new Date(Date.now() + 86400000).toISOString(), durationMinutes: 30, interviewType: 'online', locationOrLink: 'https://example.com/interview' }
+        ]) {
+            const invalidInterview = await request('/api/interviews', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(invalidPayload)
+            });
+            if (![400, 404].includes(invalidInterview.status)) {
+                throw new Error('Invalid interview scheduling input should return 400 or 404; received ' + invalidInterview.status + '.');
+            }
+        }
+
         sessionCookie = candidateCookie;
+        const candidateCannotScheduleInterview = await request('/api/interviews', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                applicationId: employerApplicationId,
+                scheduledAt: new Date(Date.now() + 86400000).toISOString(),
+                durationMinutes: 30,
+                interviewType: 'online',
+                locationOrLink: 'https://example.com/not-authorized'
+            })
+        });
+        if (candidateCannotScheduleInterview.status !== 403) {
+            throw new Error('Candidate accounts must not schedule interviews; received ' + candidateCannotScheduleInterview.status + '.');
+        }
         const candidateInterviews = await request('/api/interviews');
         if (candidateInterviews.status !== 200) throw new Error('Candidate should be able to view their scheduled interviews; received ' + candidateInterviews.status + ': ' + await candidateInterviews.text());
         const candidateInterviewsBody = await candidateInterviews.json();
@@ -505,8 +539,16 @@ async function main() {
         if (foreignInterviewUpdate.status !== 404) throw new Error('Another employer must not update an interview for a job it does not own; received ' + foreignInterviewUpdate.status + '.');
 
         sessionCookie = employerCookie;
+        const invalidInterviewStatus = await request('/api/interviews/' + interviewBody.interviewId, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'hired' })
+        });
+        if (invalidInterviewStatus.status !== 400) throw new Error('Invalid interview status must return 400; received ' + invalidInterviewStatus.status + '.');
         const interviewOwnerList = await request('/api/interviews');
         if (interviewOwnerList.status !== 200) throw new Error('Interview owner should still be able to view interviews after denied cross-company access.');
+        const ownerCache = interviewOwnerList.headers.get('cache-control') || '';
+        if (!/private/i.test(ownerCache) || !/no-store/i.test(ownerCache)) throw new Error('Interview lists must not be publicly cached.');
         const ownerListBody = await interviewOwnerList.json();
         const unchangedInterview = ownerListBody.interviews?.find((item) => Number(item.id) === Number(interviewBody.interviewId));
         if (!unchangedInterview || unchangedInterview.status === 'cancelled') throw new Error('Unauthorized employer request changed the interview status.');
@@ -638,7 +680,7 @@ async function main() {
         const badResumeBody = await badResumeUpload.json();
         if (!String(badResumeBody.error || '').includes('does not match')) throw new Error('Fake PDF rejection should explain the file-content mismatch.');
 
-        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, candidate-isolated application history and saved jobs, saved-job idempotency and isolation, search-filter validation, private cache headers, and duplicate prevention, employer job posting/applicant management, interview scheduling and cross-employer authorization, resume draft persistence and validation, real PDF and DOCX extraction, profile skill persistence, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection.');
+        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, candidate-isolated application history and saved jobs, saved-job idempotency and isolation, search-filter validation, private cache headers, and duplicate prevention, employer job posting/applicant management, interview scheduling validation, private interview responses, invalid status rejection, and cross-employer authorization, resume draft persistence and validation, real PDF and DOCX extraction, profile skill persistence, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection.');
     } finally {
         if (child.exitCode === null) {
             child.kill('SIGTERM');
