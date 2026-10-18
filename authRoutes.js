@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const { db } = require('./database');
 const authRateLimit = require('./authRateLimit');
+const SkillTaxonomy = require('./SkillTaxonomy');
 
 const router = express.Router();
 
@@ -774,10 +775,15 @@ router.put('/profile/skills', (req, res) => {
                 const findSkill = db.prepare('SELECT id FROM skills WHERE name = ? COLLATE NOCASE LIMIT 1');
                 const createSkill = db.prepare('INSERT OR IGNORE INTO skills (name, category) VALUES (?, ?)');
                 for (const name of cleanedSkillNames) {
-                    let existing = findSkill.get(name);
+                    // Resolve common alternate names to the canonical skill so career matching
+                    // does not treat "book keeper" and "Bookkeeping" as unrelated skills.
+                    const alias = SkillTaxonomy.findAlias(name);
+                    const resolvedName = alias ? alias.canonical : name;
+                    let existing = findSkill.get(resolvedName);
                     if (!existing) {
-                        createSkill.run(name, 'Custom');
-                        existing = findSkill.get(name);
+                        const category = alias ? alias.category : SkillTaxonomy.inferSkillCategory(name);
+                        createSkill.run(resolvedName, category === 'Other' ? 'Custom' : category);
+                        existing = findSkill.get(resolvedName);
                     }
                     if (existing) validSkillIds.add(Number(existing.id));
                 }
