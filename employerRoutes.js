@@ -796,7 +796,12 @@ router.get('/applicants/:id/resume', requireEmployer, (req, res) => {
 });
 
 router.patch('/applications/:id/status', requireEmployer, (req, res) => {
-    const status = clean(req.body.status);
+    const payload = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
+    if (typeof payload.status !== 'string') {
+        return res.status(400).json({ error: 'Application status must be a text value.' });
+    }
+
+    const status = clean(payload.status);
     const allowed = ['new', 'reviewing', 'shortlisted', 'interview', 'hired', 'rejected'];
 
     if (!allowed.includes(status)) {
