@@ -260,6 +260,11 @@ try {
     fail('Authentication rate limiter behavior check failed: ' + error.message);
 }
 
+const resumeRoutesPrivacySource = read('resumeRoutes.js');
+if (!/router\.use\(\(req, res, next\) => \{\s*res\.set\(['"]Cache-Control['"], ['"]private, no-store, max-age=0['"]\);\s*res\.set\(['"]Pragma['"], ['"]no-cache['"]\);\s*next\(\);\s*\}\)/.test(resumeRoutesPrivacySource)) {
+    fail('Resume API responses must disable caching of resume drafts, file metadata, and scan results.');
+}
+
 const employerRoutesPrivacySource = read('employerRoutes.js');
 if (!/router\.use\(\(req, res, next\) => \{\s*res\.set\(['"]Cache-Control['"], ['"]private, no-store, max-age=0['"]\);\s*res\.set\(['"]Pragma['"], ['"]no-cache['"]\);\s*next\(\);\s*\}\)/.test(employerRoutesPrivacySource)) {
     fail('Employer API responses must disable caching of private dashboard, applicant, and company data.');
