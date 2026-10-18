@@ -176,6 +176,13 @@ if (!resumeBuilderSaveRoute ||
     fail('Resume builder must ignore malformed entries in education, experience, projects, and certifications.');
 }
 
+if (!/function cleanText\(value, maxLength\)/.test(resumeRoutesSource) ||
+    !/\.slice\(0, maxLength\)/.test(resumeRoutesSource) ||
+    !/cleanText\(data\.summary, 3000\)/.test(resumeRoutesSource) ||
+    !/cleanText\(item\.description, 2000\)/.test(resumeRoutesSource)) {
+    fail('Resume builder text fields must be normalized and length-limited before saving.');
+}
+
 if (!/limits:\s*\{\s*fileSize:\s*5\s*\*\s*1024\s*\*\s*1024\s*\}/.test(resumeRoutesSource)) {
     fail('Resume uploads must retain the 5MB file-size limit.');
 }
