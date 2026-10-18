@@ -615,6 +615,18 @@ function formatApplicantDate(value) {
     return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
+function updateBulkMessageControls() {
+    const count = $('#messageAllApplicantsCount');
+    const button = $('#sendMessageAllApplicants');
+    const textarea = $('#messageAllApplicantsBody');
+    if (!count || !button || !textarea) return;
+    const total = state.applicants.length;
+    count.textContent = total + ' applicant' + (total === 1 ? '' : 's') + ' will receive this message.';
+    button.disabled = total === 0 || !textarea.value.trim();
+    const job = state.jobs.find((item) => Number(item.id) === Number(state.activeJobId));
+    button.textContent = job ? 'Send to all for this job' : 'Select a job first';
+}
+
 function renderApplicantPipelineCounts() {
     const statuses = ['all', 'new', 'reviewing', 'shortlisted', 'interview', 'hired', 'rejected'];
     statuses.forEach((status) => {
@@ -633,6 +645,7 @@ function renderApplicantPipelineCounts() {
 
 function renderApplicants() {
     renderApplicantPipelineCounts();
+    updateBulkMessageControls();
     const applicants = getFilteredApplicants();
     const exportButton = $('#exportApplicants');
     if (exportButton) exportButton.disabled = applicants.length === 0;
@@ -683,6 +696,7 @@ function renderApplicants() {
 async function loadApplicants(jobId) {
     if (!jobId) {
         state.applicants = [];
+        updateBulkMessageControls();
         const summary = $('#applicantSummary');
         const list = $('#applicantsList');
         if (summary) summary.textContent = '';
@@ -1218,6 +1232,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderApplicants();
     });
 
+    $('#messageAllApplicantsBody')?.addEventListener('input', updateBulkMessageControls);
+    $('#messageAllApplicantsForm')?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const textarea = $('#messageAllApplicantsBody');
+        const button = $('#sendMessageAllApplicants');
+        const body = String(textarea?.value || '').trim();
+        const jobId = Number(state.activeJobId);
+        if (!Number.isInteger(jobId) || jobId <= 0 || !state.applicants.length || !body) {
+            setApplicantActionMessage('Select a job with applicants and enter a message first.', 'error');
+            return;
+        }
+        const job = state.jobs.find((item) => Number(item.id) === jobId);
+        const confirmed = window.confirm('Send this message to all ' + state.applicants.length + ' applicants for "' + (job?.title || 'this job') + '"? This cannot be undone.');
+        if (!confirmed) return;
+        button.disabled = true;
+        button.textContent = 'Sending…';
+        setApplicantActionMessage('Sending message to all applicants…');
+        try {
+            const result = await api('/api/messages/job/' + jobId + '/broadcast', {
+                method: 'POST',
+                body: JSON.stringify({ body })
+            });
+            textarea.value = '';
+            updateBulkMessageControls();
+            setApplicantActionMessage('Message sent to ' + result.sent + ' applicants for ' + (result.jobTitle || 'this job') + '.', 'success');
+        } catch (error) {
+            setApplicantActionMessage(error.message || 'Could not send the message to all applicants.', 'error');
+        } finally {
+            updateBulkMessageControls();
+        }
+    });
     $('#exportApplicants')?.addEventListener('click', exportFilteredApplicants);
     $('#applicantPrivateNotes')?.addEventListener('input', updateApplicantNotesCount);
     $('#saveApplicantNotes')?.addEventListener('click', saveApplicantNotes);
