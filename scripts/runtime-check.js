@@ -195,6 +195,19 @@ async function main() {
         const setCookie = registration.headers.get('set-cookie') || '';
         sessionCookie = setCookie.split(';')[0];
         if (!sessionCookie.includes('=')) throw new Error('Registration did not establish a session cookie.');
+        if (!/HttpOnly/i.test(setCookie) || !/SameSite=Lax/i.test(setCookie)) {
+            throw new Error('Session cookies must be HttpOnly and SameSite=Lax.');
+        }
+        for (const [header, expected] of [
+            ['x-content-type-options', 'nosniff'],
+            ['x-frame-options', 'DENY'],
+            ['referrer-policy', 'strict-origin-when-cross-origin'],
+            ['permissions-policy', 'camera=(), microphone=(), geolocation=()']
+        ]) {
+            if ((registration.headers.get(header) || '').toLowerCase() !== expected.toLowerCase()) {
+                throw new Error('Expected security header ' + header + ' to be ' + expected + '.');
+            }
+        }
 
         const me = await request('/api/auth/me');
         if (me.status !== 200) throw new Error('Newly registered candidate session should work; received ' + me.status + '.');
