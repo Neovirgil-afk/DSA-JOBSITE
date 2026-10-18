@@ -284,6 +284,12 @@ if (!applicationStatusRoute.includes("const allowed = ['new', 'reviewing', 'shor
     !applicationStatusRoute.includes('const updateApplication = db.transaction(() => {')) {
     fail('Employer application status changes must allow only recognized statuses and update status/history atomically without duplicate history for unchanged statuses.');
 }
+if (!applicationStatusRoute.includes('if (result.changed) {') ||
+    !applicationStatusRoute.includes('userId: result.candidateId') ||
+    !applicationStatusRoute.includes("type: 'application_status'") ||
+    !applicationStatusRoute.includes("'/applications.html?applicationId=' + encodeURIComponent(result.applicationId)")) {
+    fail('Employer status-change notifications must only be sent for actual changes and link to the affected candidate application.');
+}
 if (!applicationStatusRoute.includes("typeof payload.status !== 'string'") ||
     !applicationStatusRoute.includes('Array.isArray(req.body)') ||
     !applicationStatusRoute.includes('j.employer_id = ?') ||
