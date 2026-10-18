@@ -529,6 +529,32 @@ async function main() {
         const firstCandidateAfterReadBody = await firstCandidateAfterRead.json();
         const markedReadNotification = firstCandidateAfterReadBody.notifications?.find((item) => Number(item.id) === Number(firstApplicationNotification.id));
         if (!markedReadNotification?.read_at) throw new Error('Mark-as-read must persist on the owner’s notification.');
+        const originalReadAt = markedReadNotification.read_at;
+        const repeatedOwnNotificationRead = await request('/api/notifications/' + firstApplicationNotification.id + '/read', { method: 'PATCH' });
+        if (repeatedOwnNotificationRead.status !== 200) throw new Error('Marking an already-read notification should remain safe.');
+        const notificationAfterRepeatedRead = await request('/api/notifications');
+        const notificationAfterRepeatedReadBody = await notificationAfterRepeatedRead.json();
+        const repeatedReadRecord = notificationAfterRepeatedReadBody.notifications?.find((item) => Number(item.id) === Number(firstApplicationNotification.id));
+        if (!repeatedReadRecord?.read_at || repeatedReadRecord.read_at !== originalReadAt) {
+            throw new Error('Marking an already-read notification must preserve its original read timestamp.');
+        }
+        const firstCandidateReadAll = await request('/api/notifications/read-all', { method: 'POST' });
+        if (firstCandidateReadAll.status !== 200) throw new Error('Candidate should be able to mark all their notifications as read.');
+        const firstCandidateReadAllBody = await firstCandidateReadAll.json();
+        if (!firstCandidateReadAllBody.success || !Number.isInteger(firstCandidateReadAllBody.updated) || firstCandidateReadAllBody.updated < 0) {
+            throw new Error('First candidate mark-all-read response should include a valid updated count.');
+        }
+        const firstCandidateNotificationsAfterReadAll = await request('/api/notifications');
+        const firstCandidateNotificationsAfterReadAllBody = await firstCandidateNotificationsAfterReadAll.json();
+        if (firstCandidateNotificationsAfterReadAllBody.unreadCount !== 0 ||
+            firstCandidateNotificationsAfterReadAllBody.notifications?.some((item) => !item.read_at)) {
+            throw new Error('Mark-all-read should clear every unread notification for the first candidate.');
+        }
+        const repeatedFirstCandidateReadAll = await request('/api/notifications/read-all', { method: 'POST' });
+        const repeatedFirstCandidateReadAllBody = await repeatedFirstCandidateReadAll.json();
+        if (repeatedFirstCandidateReadAll.status !== 200 || repeatedFirstCandidateReadAllBody.updated !== 0) {
+            throw new Error('Repeated mark-all-read should be idempotent and report zero updated records.');
+        }
 
         const duplicateApply = await request('/api/jobs/' + job.id + '/apply', { method: 'POST' });
         if (duplicateApply.status !== 409) throw new Error('Duplicate applications should be rejected with 409; received ' + duplicateApply.status + '.');
