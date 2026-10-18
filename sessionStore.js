@@ -1,25 +1,24 @@
 'use strict';
 
 const session = require('express-session');
-const { db } = require('./database');
-
 // Store sessions in SQLite instead of Express' in-memory store, which loses
 // sessions on restart and is unsuitable for production.
 class SQLiteSessionStore extends session.Store {
-    constructor(database = db) {
+    constructor(database) {
         super();
-        this.getStatement = database.prepare(
+        const sessionDatabase = database || require('./database').db;
+        this.getStatement = sessionDatabase.prepare(
             'SELECT session_data, expires_at FROM sessions WHERE sid = ?'
         );
-        this.setStatement = database.prepare(
+        this.setStatement = sessionDatabase.prepare(
             'INSERT INTO sessions (sid, session_data, expires_at) VALUES (?, ?, ?) ' +
             'ON CONFLICT(sid) DO UPDATE SET session_data = excluded.session_data, ' +
             'expires_at = excluded.expires_at'
         );
-        this.deleteStatement = database.prepare('DELETE FROM sessions WHERE sid = ?');
-        this.deleteExpiredStatement = database.prepare('DELETE FROM sessions WHERE expires_at <= ?');
+        this.deleteStatement = sessionDatabase.prepare('DELETE FROM sessions WHERE sid = ?');
+        this.deleteExpiredStatement = sessionDatabase.prepare('DELETE FROM sessions WHERE expires_at <= ?');
         this.deleteExpiredStatement.run(Date.now());
-        this.touchStatement = database.prepare('UPDATE sessions SET expires_at = ? WHERE sid = ?');
+        this.touchStatement = sessionDatabase.prepare('UPDATE sessions SET expires_at = ? WHERE sid = ?');
     }
 
     expirationFor(sessionData) {
