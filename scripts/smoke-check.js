@@ -407,7 +407,7 @@ if (!applicationRoutesSource.includes("Cache-Control', 'private, no-store, max-a
 }
 const jobRoutesValidationSource = read('jobRoutes.js');
 if (!jobRoutesValidationSource.includes("typeof value !== 'string' || value.length > 120") ||
-    !jobRoutesValidationSource.includes("!/^\\\\d{1,3}$/.test(minMatch)") ||
+    !jobRoutesValidationSource.includes("!/^\\d{1,3}$/.test(minMatch)") ||
     !jobRoutesValidationSource.includes('Number(minMatch) > 100')) {
     fail('Job search filters must reject non-text/oversized values and out-of-range minimum match scores.');
 }
