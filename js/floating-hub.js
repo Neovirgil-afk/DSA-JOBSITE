@@ -5,13 +5,14 @@
     if (document.getElementById('jobpathFloatingHub')) return;
 
     function initEmployeeSidebar() {
-        const navs = Array.from(document.querySelectorAll('nav.jobsite-global-rail, .mobile-nav-clone.jobsite-global-rail'));
-        if (!navs.length) return;
+        const initialNavs = Array.from(document.querySelectorAll('nav.jobsite-global-rail, .mobile-nav-clone.jobsite-global-rail'));
+        if (!initialNavs.length) return;
 
-        navs.forEach((nav) => { nav.style.visibility = 'hidden'; });
+        initialNavs.forEach((nav) => { nav.style.visibility = 'hidden'; });
         const allowed = new Set(['jobs', 'dashboard', 'applications', 'learn', 'profile', 'resume']);
 
         function normalizeNavigation(isCandidate) {
+            const navs = Array.from(document.querySelectorAll('nav.jobsite-global-rail, .mobile-nav-clone.jobsite-global-rail'));
             navs.forEach((nav) => {
                 if (!isCandidate) {
                     nav.classList.remove('jobsite-global-rail');
@@ -21,9 +22,11 @@
                 nav.querySelectorAll('a[data-rail]').forEach((link) => {
                     if (!allowed.has(link.dataset.rail)) link.remove();
                 });
-                const path = window.location.pathname.replace(/\\/$/, '') || '/';
+                const rawPath = window.location.pathname;
+                const path = (rawPath.length > 1 && rawPath.endsWith('/')) ? rawPath.slice(0, -1) : rawPath;
                 nav.querySelectorAll('a[data-rail]').forEach((link) => {
-                    const target = new URL(link.href, window.location.origin).pathname.replace(/\\/$/, '') || '/';
+                    const rawTarget = new URL(link.href, window.location.origin).pathname;
+                    const target = (rawTarget.length > 1 && rawTarget.endsWith('/')) ? rawTarget.slice(0, -1) : rawTarget;
                     const current = target === path || (link.dataset.rail === 'resume' && path === '/resume-builder.html');
                     link.classList.toggle('is-current', current);
                     if (current) link.setAttribute('aria-current', 'page');
