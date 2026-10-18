@@ -231,9 +231,16 @@ router.get('/file', requireAuth, requireCandidate, (req, res) => {
             return res.status(404).json({ error: 'Resume file not found.' });
         }
 
+        const safeFilename = path.basename(String(resume.original_name || 'resume.pdf'))
+            .replace(/[\\r\\n"]/g, '')
+            .slice(0, 180) || 'resume.pdf';
+
         res.sendFile(filePath, {
             headers: {
-                'Content-Disposition': `inline; filename="${resume.original_name.replace(/"/g, '')}"`
+                'Content-Disposition': `inline; filename="${safeFilename}"`,
+                'Cache-Control': 'private, no-store, max-age=0',
+                'Pragma': 'no-cache',
+                'X-Content-Type-Options': 'nosniff'
             }
         });
     } catch (error) {
