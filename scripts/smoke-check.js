@@ -174,6 +174,10 @@ try {
 
 // Protect resume uploads against unexpectedly large or unsupported files.
 const resumeRoutesSource = read('resumeRoutes.js');
+if (!/process\.env\.JOBPATH_UPLOAD_DIR\s*\?\s*path\.resolve\(process\.env\.JOBPATH_UPLOAD_DIR\)/.test(resumeRoutesSource) ||
+    !/fs\.mkdirSync\(UPLOAD_DIR,\s*\{\s*recursive:\s*true\s*\}\)/.test(resumeRoutesSource)) {
+    fail('Resume uploads must support a configurable storage directory and create it when needed.');
+}
 
 // Resume builder list fields may contain malformed values from manual/API clients.
 const resumeBuilderSaveRoute = resumeRoutesSource.match(/router\.put\(\s*['"]\/builder['"]([\s\S]*?)(?=\nrouter\.(?:get|post|put|delete)\()/);
