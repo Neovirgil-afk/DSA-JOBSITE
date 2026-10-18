@@ -133,6 +133,9 @@ async function main() {
 
         // Exercise the employer side and verify candidate/employer data is linked correctly.
         const candidateCookie = sessionCookie;
+        // Use a separate unauthenticated client for employer registration so session regeneration
+        // cannot invalidate the candidate session used later in the cross-role workflow.
+        sessionCookie = '';
         const employerEmail = 'runtime-employer-' + process.pid + '-' + Date.now() + '@example.com';
         const employerRegistration = await request('/api/employer/register', {
             method: 'POST',
