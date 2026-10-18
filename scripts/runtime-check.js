@@ -199,6 +199,22 @@ async function main() {
         const me = await request('/api/auth/me');
         if (me.status !== 200) throw new Error('Newly registered candidate session should work; received ' + me.status + '.');
 
+        // Invalid credentials and malformed options must be rejected before valid sign-in.
+        sessionCookie = '';
+        const badPasswordResponse = await request('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password: 'WrongRuntimePassword!' })
+        });
+        if (badPasswordResponse.status !== 401) throw new Error('Incorrect password must be rejected with 401; received ' + badPasswordResponse.status + '.');
+
+        const malformedRememberResponse = await request('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password: 'RuntimeTest123!', rememberMe: 'false' })
+        });
+        if (malformedRememberResponse.status !== 400) throw new Error('Non-boolean rememberMe must be rejected with 400; received ' + malformedRememberResponse.status + '.');
+
         // Exercise sign-in and sign-out independently of the registration session.
         sessionCookie = '';
         const loginResponse = await request('/api/auth/login', {
@@ -274,6 +290,9 @@ async function main() {
         sessionCookie = employerCookie;
         const employerMe = await request('/api/employer/me');
         if (employerMe.status !== 200) throw new Error('Employer session should be authorized; received ' + employerMe.status + '.');
+
+        const employerProfileAccess = await request('/api/auth/profile');
+        if (employerProfileAccess.status !== 403) throw new Error('Employer accounts must not access candidate profile data; received ' + employerProfileAccess.status + '.');
 
         const postedJobResponse = await request('/api/employer/jobs', {
             method: 'POST',
