@@ -44,7 +44,7 @@ function checkHtml(relativePath, requiredIds, requiredScripts) {
     if (duplicates.size) fail(relativePath + ' contains duplicate IDs: ' + [...duplicates].join(', '));
     for (const id of requiredIds) if (!seen.has(id)) fail(relativePath + ' is missing required element #' + id);
     if (!source.includes('style.css')) fail(relativePath + ' does not link to style.css.');
-    if (!/<meta\\s+[^>]*name=[\"']viewport[\"']/i.test(source)) fail(relativePath + ' is missing a viewport meta tag.');
+    if (!/<meta\s+[^>]*name=["']viewport["']/i.test(source)) fail(relativePath + ' is missing a viewport meta tag.');
     for (const scriptPath of requiredScripts) {
         const scriptName = scriptPath.split('/').pop();
         const hasScript = [...source.matchAll(/\bsrc=["']([^"']+)["']/gi)].some((match) => match[1].split(/[?#]/)[0].replace(/^\//, '') === scriptPath);
