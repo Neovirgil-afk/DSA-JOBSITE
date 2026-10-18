@@ -193,6 +193,31 @@ if (!authRoutesSource.includes(String.raw`/^[^\s@]+@[^\s@]+\.[^\s@]+$/`)) {
     fail('Registration must use a valid email pattern that rejects whitespace and requires an @ and domain separator.');
 }
 const employerRoutesSource = read('employerRoutes.js');
+const applicationStatusRoute = employerRoutesSource.slice(
+    employerRoutesSource.indexOf("router.patch('/applications/:id/status'"),
+    employerRoutesSource.indexOf('/* =========================================================', employerRoutesSource.indexOf("router.patch('/applications/:id/status'"))
+);
+if (!applicationStatusRoute.includes("typeof payload.status !== 'string'") ||
+    !applicationStatusRoute.includes('Array.isArray(req.body)') ||
+    !applicationStatusRoute.includes('j.employer_id = ?') ||
+    !applicationStatusRoute.includes('UPDATE applications SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?') ||
+    !applicationStatusRoute.includes('INSERT INTO application_history (application_id, status) VALUES (?, ?)')) {
+    fail('Application status updates must validate text payloads, scope lookup to the employer\'s jobs, and record status history.');
+}
+const applicantDetailRoute = employerRoutesSource.slice(
+    employerRoutesSource.indexOf("router.get('/applicants/:id'"),
+    employerRoutesSource.indexOf("router.get('/applicants/:id/resume'")
+);
+if (!applicantDetailRoute.includes('WHERE a.id = ? AND j.employer_id = ?')) {
+    fail('Applicant detail access must be restricted to applications for the current employer\'s jobs.');
+}
+const applicantResumeRoute = employerRoutesSource.slice(
+    employerRoutesSource.indexOf("router.get('/applicants/:id/resume'"),
+    employerRoutesSource.indexOf("router.patch('/applications/:id/status'")
+);
+if (!applicantResumeRoute.includes('WHERE a.id = ? AND j.employer_id = ?')) {
+    fail('Applicant resume access must be restricted to applications for the current employer\'s jobs.');
+}
 if (!employerRoutesSource.includes(String.raw`/^[^\s@]+@[^\s@]+\.[^\s@]+$/`)) {
     fail('Employer registration must use a valid email pattern that rejects whitespace and requires an @ and domain separator.');
 }
