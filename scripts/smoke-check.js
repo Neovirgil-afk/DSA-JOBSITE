@@ -188,7 +188,7 @@ const resumeFileRoute = resumeRoutesSource.match(/router\.get\(\s*['"]\/file['"]
 if (!resumeFileRoute || !/requireAuth/.test(resumeFileRoute[1]) || !/requireCandidate/.test(resumeFileRoute[1]) || !/res\.sendFile\(/.test(resumeFileRoute[1])) {
     fail('Resume file delivery must remain authenticated, candidate-only, and use the private file endpoint.');
 }
-if (!/if \\(req\\.file\\?\\.path\\)/.test(resumeRoutesSource) || !/fs\\.unlinkSync\\(req\\.file\\.path\\)/.test(resumeRoutesSource)) {
+if (!/req\.file\?\.path/.test(resumeRoutesSource) || !/fs\.unlinkSync\(req\.file\.path\)/.test(resumeRoutesSource)) {
     fail('Failed resume scans must clean up the uploaded file.');
 }
 
