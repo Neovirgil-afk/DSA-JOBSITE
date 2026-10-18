@@ -5,7 +5,6 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const net = require('node:net');
-const zlib = require('node:zlib');
 
 function listenOnAvailablePort() {
     return new Promise((resolve, reject) => {
