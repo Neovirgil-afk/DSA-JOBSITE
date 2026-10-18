@@ -2304,7 +2304,7 @@ export function initAuth() {
                     // a candidate-facing page, not when they are already on the
                     // shared messaging/interviews/notifications page.
                     const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
-                    if (currentPath !== '/career-center.html') {
+                    if (currentPath !== '/career-center.html' && currentPath !== '/employer-career-center.html') {
                         window.location.replace('/employer.html');
                         return;
                     }
