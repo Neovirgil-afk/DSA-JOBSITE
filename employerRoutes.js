@@ -216,10 +216,10 @@ router.post('/register', authRateLimit, (req, res) => {
                 'INSERT INTO company_profiles (company_name, description, email, phone, website, user_id) VALUES (?, ?, ?, ?, ?, ?)'
             ).run(
                 cleanCompany,
-                clean(companyDescription),
-                clean(companyEmail) || cleanEmail,
-                clean(companyPhone),
-                clean(companyWebsite),
+                clean(companyDescription).slice(0, 2000),
+                clean(companyEmail).slice(0, 254) || cleanEmail,
+                clean(companyPhone).slice(0, 40),
+                clean(companyWebsite).slice(0, 2048),
                 userInfo.lastInsertRowid
             );
 
