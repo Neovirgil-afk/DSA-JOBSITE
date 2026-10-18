@@ -8962,3 +8962,88 @@ body .site-header nav.jobsite-global-rail > a[data-rail="employer"],
 body .site-header nav.main-nav > a[data-rail="employer"] {
   display: none !important;
 }
+
+
+/* Clickable company cards and their open-job listings */
+.company-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 100%;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.company-card:hover {
+  transform: translateY(-3px);
+  border-color: #d9d5f5;
+  box-shadow: 0 16px 32px rgba(35,25,90,.10);
+}
+.company-card .company-meta { margin-top: auto; padding-top: 18px; }
+.company-view-jobs {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 20px;
+  padding: 10px 15px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--indigo-tint);
+  color: var(--indigo-dark);
+  font-weight: 700;
+  font-size: 13px;
+  transition: background .16s ease, color .16s ease, transform .16s ease;
+}
+.company-view-jobs:hover { background: var(--indigo); color: #fff; transform: translateY(-1px); }
+.company-view-jobs:disabled { opacity: .65; cursor: wait; }
+.company-jobs-panel { margin: 0 0 44px; }
+.company-back-button {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: #fff; color: var(--ink); padding: 10px 15px;
+  font-size: 13px; font-weight: 700; margin-bottom: 22px;
+}
+.company-back-button:hover { border-color: var(--indigo); color: var(--indigo); }
+.company-jobs-heading {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 20px; padding: 26px; margin-bottom: 18px;
+  border: 1px solid var(--line); border-radius: 20px; background: #fff;
+}
+.company-jobs-heading h2 { font-size: clamp(23px, 3vw, 30px); margin-bottom: 10px; }
+.company-jobs-heading p:not(.resource-eyebrow) { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.65; }
+.company-jobs-heading .resource-eyebrow { margin: 0 0 10px; }
+.company-jobs-count {
+  flex: 0 0 auto; padding: 9px 12px; border-radius: 999px;
+  background: var(--teal-tint); color: #087f72; font-size: 12px; font-weight: 800;
+}
+.company-job-list { display: grid; gap: 12px; }
+.company-job-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 22px;
+  padding: 20px 22px; border: 1px solid var(--line); border-radius: 16px;
+  background: #fff; transition: border-color .16s ease, box-shadow .16s ease;
+}
+.company-job-card:hover { border-color: #d9d5f5; box-shadow: 0 10px 24px rgba(35,25,90,.06); }
+.company-job-main { min-width: 0; }
+.company-job-main h3 { font-size: 17px; margin-bottom: 5px; overflow-wrap: anywhere; }
+.company-job-main > p { margin: 0 0 12px; color: var(--muted); font-size: 13px; }
+.company-job-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--muted); font-size: 12px; }
+.company-job-meta strong { color: #087f72; font-weight: 700; }
+.company-job-view {
+  display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto;
+  padding: 10px 14px; border-radius: 999px; background: var(--indigo);
+  color: #fff; font-size: 12px; font-weight: 700;
+}
+.company-job-view:hover { background: var(--indigo-dark); }
+.company-no-jobs {
+  text-align: center; padding: 42px 24px; border: 1px dashed #d7d7e4;
+  border-radius: 18px; background: #fff;
+}
+.company-no-jobs > span { font-size: 30px; }
+.company-no-jobs h3 { font-size: 19px; margin: 12px 0 8px; }
+.company-no-jobs p { max-width: 480px; margin: 0 auto 14px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.company-no-jobs a { color: var(--indigo); font-weight: 700; font-size: 13px; }
+.company-jobs-error { padding: 12px 15px; border-radius: 12px; background: #fff1f2; color: #be123c; font-size: 13px; }
+@media (max-width: 700px) {
+  .company-jobs-heading { flex-direction: column; padding: 20px; }
+  .company-job-card { align-items: flex-start; flex-direction: column; padding: 18px; }
+  .company-job-view { align-self: flex-start; }
+  .company-view-jobs { margin-top: 16px; }
+}
