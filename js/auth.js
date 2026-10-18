@@ -2299,7 +2299,20 @@ export function initAuth() {
             ) {
 
                 if (data.user.role === 'employer') {
-                    window.location.replace('/employer.html');
+                    // Employers are allowed to use their dedicated Career Center.
+                    // Redirect them to the employer dashboard only when they open
+                    // a candidate-facing page, not when they are already on the
+                    // shared messaging/interviews/notifications page.
+                    const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+                    if (currentPath !== '/career-center.html') {
+                        window.location.replace('/employer.html');
+                        return;
+                    }
+                    isAuthenticated = true;
+                    currentUser = data.user;
+                    updateHeaderAfterLogin({
+                        fullName: data.user.full_name || data.user.fullName
+                    });
                     return;
                 }
 
