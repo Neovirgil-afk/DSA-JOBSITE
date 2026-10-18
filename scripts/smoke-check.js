@@ -260,6 +260,14 @@ try {
     fail('Authentication rate limiter behavior check failed: ' + error.message);
 }
 
+const messageRoutesPrivacySource = read('messageRoutes.js');
+if (!/router\.use\(\(req,res,next\)=>\{\s*res\.set\(['"]Cache-Control['"],['"]private, no-store, max-age=0['"]\);\s*res\.set\(['"]Pragma['"],['"]no-cache['"]\);\s*next\(\);\s*\}\)/.test(messageRoutesPrivacySource)) {
+    fail('Private conversation and message API responses must disable caching.');
+}
+if (!/function access\(appId,user\)[\s\S]*?a\.user_id=\?\)[\s\S]*?j\.employer_id=\?/.test(messageRoutesPrivacySource)) {
+    fail('Messaging must restrict conversations to the candidate or employer who owns the application.');
+}
+
 const resumeRoutesPrivacySource = read('resumeRoutes.js');
 if (!/router\.use\(\(req, res, next\) => \{\s*res\.set\(['"]Cache-Control['"], ['"]private, no-store, max-age=0['"]\);\s*res\.set\(['"]Pragma['"], ['"]no-cache['"]\);\s*next\(\);\s*\}\)/.test(resumeRoutesPrivacySource)) {
     fail('Resume API responses must disable caching of resume drafts, file metadata, and scan results.');
