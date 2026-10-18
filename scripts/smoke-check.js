@@ -585,6 +585,7 @@ if (!interviewScheduleRoute.includes("user.role!=='employer'") ||
 }
 if (!interviewRoutesSource.includes('[15,30,45,60,90,120].includes(duration)') ||
     !interviewRoutesSource.includes("['online','phone','onsite'].includes(type)") ||
+    !interviewRoutesSource.includes("(type==='online'||type==='onsite')&&!place") ||
     !interviewRoutesSource.includes('duration = Number(payload.durationMinutes === undefined ? 30 : payload.durationMinutes)') ||
     !interviewRoutesSource.includes("type = String(payload.interviewType || 'online').trim()")) {
     fail('Interview scheduling must enforce supported durations and interview types before writing records.');
