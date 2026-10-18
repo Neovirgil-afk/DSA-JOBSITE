@@ -53,7 +53,7 @@ function checkHtml(relativePath, requiredIds, requiredScripts) {
     }
 }
 
-for (const relativePath of ['server.js', 'authRoutes.js', 'employerRoutes.js', 'messageRoutes.js', 'notificationRoutes.js', 'js/employer.js', 'js/profile.js', 'js/resume-builder.js', 'js/career-center.js', 'js/applications.js', 'js/floating-hub.js', 'CareerPathService.js', 'ESCOService.js', 'Graph.js', 'HashTable.js', 'JobMatcher.js', 'JobMatchingService.js', 'LearningLessons.js', 'LearningResources.js', 'MaxHeap.js', 'ResumeScanner.js', 'SkillGapService.js', 'Sorting.js', 'Tree.js', 'psgcService.js', 'referenceData.js', 'seed.js', 'skillsList.js']) checkJavaScript(relativePath);
+for (const relativePath of ['server.js', 'authRoutes.js', 'authRateLimit.js', 'employerRoutes.js', 'messageRoutes.js', 'notificationRoutes.js', 'js/employer.js', 'js/profile.js', 'js/resume-builder.js', 'js/career-center.js', 'js/applications.js', 'js/floating-hub.js', 'CareerPathService.js', 'ESCOService.js', 'Graph.js', 'HashTable.js', 'JobMatcher.js', 'JobMatchingService.js', 'LearningLessons.js', 'LearningResources.js', 'MaxHeap.js', 'ResumeScanner.js', 'SkillGapService.js', 'Sorting.js', 'Tree.js', 'psgcService.js', 'referenceData.js', 'seed.js', 'skillsList.js']) checkJavaScript(relativePath);
 
 checkHtml('employer.html', ['applicantSummary', 'applicantsList', 'applicantPipelineCounts', 'applicantProfileHistory', 'applicantPrivateNotes'], ['js/employer.js', 'js/floating-hub.js']);
 checkHtml('profile.html', ['targetJobEditor', 'editTargetJob', 'skillSearchInput'], ['js/profile.js', 'js/floating-hub.js']);
@@ -97,6 +97,20 @@ if (routeImports.length === 0) {
         const mountPattern = new RegExp('app\\.use\\([^\\n]*\\b' + routeName + '\\s*\\)');
         if (!mountPattern.test(server)) fail('server.js imports but does not mount route module ' + routeName + '.');
     }
+}
+
+// Guard important production session-cookie and secret settings against accidental removal.
+if (!/process\.env\.NODE_ENV\s*===\s*['"]production['"]\s*&&\s*!process\.env\.SESSION_SECRET/.test(server)) {
+    fail('server.js must require SESSION_SECRET in production.');
+}
+if (!/httpOnly:\s*true/.test(server)) {
+    fail('Session cookies must remain HttpOnly.');
+}
+if (!/sameSite:\s*['"]lax['"]/.test(server)) {
+    fail('Session cookies must retain SameSite=Lax.');
+}
+if (!/secure:\s*process\.env\.NODE_ENV\s*===\s*['"]production['"]/.test(server)) {
+    fail('Session cookies must use the secure flag in production.');
 }
 
 // Ensure the lightweight health endpoint remains available for deployment probes.
