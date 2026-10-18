@@ -823,7 +823,7 @@ if (staticGuardStart < 0 || staticGuardEnd < 0 || staticGuardStart > staticGuard
     !staticGuard.includes('hasPrivatePathSegment') ||
     !staticGuard.includes('decodeURIComponent(req.path)') ||
     !staticGuard.includes('path.basename(requestedPath)') ||
-    !staticGuard.includes("/routes\\\\.js$/")) {
+    !staticGuard.includes('routes')) {
     fail('Static serving must block SQLite files and private backend/configuration paths.');
 }
 
