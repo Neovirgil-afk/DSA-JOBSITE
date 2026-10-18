@@ -188,6 +188,13 @@ if (!authLimiterSource.includes('const MAX_TRACKED_KEYS = 10000') ||
     fail('Authentication rate limiter must bound memory without clearing active client limits.');
 }
 
+// Employer resume downloads must resolve files from the same configurable directory as uploads.
+if (!employerRoutesSource.includes('process.env.JOBPATH_UPLOAD_DIR') ||
+    !employerRoutesSource.includes('path.resolve(process.env.JOBPATH_UPLOAD_DIR)') ||
+    !employerRoutesSource.includes("path.join(__dirname, 'uploads')")) {
+    fail('Employer resume downloads must use JOBPATH_UPLOAD_DIR when configured, matching resume uploads.');
+}
+
 const authRoutesSource = read('authRoutes.js');
 if (!authRoutesSource.includes(String.raw`/^[^\s@]+@[^\s@]+\.[^\s@]+$/`)) {
     fail('Registration must use a valid email pattern that rejects whitespace and requires an @ and domain separator.');
