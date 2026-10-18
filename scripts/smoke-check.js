@@ -683,6 +683,18 @@ if (!/app\.get\(\s*['"]\/api\/health['"][\s\S]*?db\.prepare\(['"]SELECT 1['"]\)\
     fail('/api/health must check database connectivity and return 503 when the database is unavailable.');
 }
 
+// Application history must be limited to the signed-in candidate and their own records.
+const applicationListRoute = applicationRoutesSource.slice(
+    applicationRoutesSource.indexOf("router.get('/'"),
+    applicationRoutesSource.indexOf('module.exports = router')
+);
+if (!applicationListRoute.includes('req.session.userId') ||
+    !applicationListRoute.includes("user.role !== 'candidate'") ||
+    !applicationListRoute.includes('WHERE a.user_id = ?') ||
+    !applicationListRoute.includes('WHERE application_id = ?')) {
+    fail('Application history must enforce candidate-only access and scope applications and status history to the signed-in user.');
+}
+
 // Private application history responses must not be cached, even when the route errors.
 if (!applicationRoutesSource.includes("router.use((req, res, next) => {") ||
     !applicationRoutesSource.includes("res.set('Cache-Control', 'private, no-store, max-age=0')") ||
