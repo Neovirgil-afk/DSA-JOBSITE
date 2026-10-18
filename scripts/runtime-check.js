@@ -231,6 +231,10 @@ async function main() {
         sessionCookie = '';
         const afterLogout = await request('/api/auth/me');
         if (afterLogout.status !== 401) throw new Error('Logged-out users must not access the current-user endpoint.');
+        const profileAfterLogout = await request('/api/auth/profile');
+        if (profileAfterLogout.status !== 401) throw new Error('Logged-out users must not access candidate profile data.');
+        const applicationHistoryAfterLogout = await request('/api/applications');
+        if (applicationHistoryAfterLogout.status !== 401) throw new Error('Logged-out users must not access application history.');
 
         const reloginResponse = await request('/api/auth/login', {
             method: 'POST',
@@ -364,6 +368,33 @@ async function main() {
         if (!/private/i.test(secondCandidateCacheControl) || !/no-store/i.test(secondCandidateCacheControl)) {
             throw new Error('Second candidate application history must also be non-cacheable.');
         }
+        const secondCandidateProfileResponse = await request('/api/auth/profile');
+        if (secondCandidateProfileResponse.status !== 200) throw new Error('Second candidate should be able to load their own profile.');
+        const secondCandidateProfileBody = await secondCandidateProfileResponse.json();
+        if (secondCandidateProfileBody.profile?.full_name !== 'Runtime Second Candidate' ||
+            secondCandidateProfileBody.profile?.email?.toLowerCase() !== secondCandidateEmail.toLowerCase()) {
+            throw new Error('Candidate profile endpoint returned another user’s identity.');
+        }
+        const foreignApplicationDetail = await request('/api/auth/applications/' + applyBody.applicationId);
+        if (foreignApplicationDetail.status !== 404) throw new Error('Candidate must not access another candidate’s application details; received ' + foreignApplicationDetail.status + '.');
+        const secondProfileUpdate = await request('/api/auth/profile', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ full_name: 'Runtime Second Candidate Updated', location: 'Las Piñas' })
+        });
+        if (secondProfileUpdate.status !== 200) throw new Error('Candidate should be able to update their own profile; received ' + secondProfileUpdate.status + '.');
+        const secondProfileUpdateBody = await secondProfileUpdate.json();
+        if (secondProfileUpdateBody.profile?.full_name !== 'Runtime Second Candidate Updated') {
+            throw new Error('Profile update did not return the updated candidate identity.');
+        }
+        sessionCookie = firstCandidateCookie;
+        const firstCandidateProfileAfterOtherUpdate = await request('/api/auth/profile');
+        const firstCandidateProfileAfterOtherUpdateBody = await firstCandidateProfileAfterOtherUpdate.json();
+        if (firstCandidateProfileAfterOtherUpdateBody.profile?.full_name !== 'Runtime Test Candidate' ||
+            firstCandidateProfileAfterOtherUpdateBody.profile?.email?.toLowerCase() !== email.toLowerCase()) {
+            throw new Error('Updating one candidate profile changed or exposed another candidate profile.');
+        }
+        sessionCookie = secondCandidateCookie;
         // Notifications are private per account, and foreign notification IDs cannot be changed.
         const secondCandidateNotificationsResponse = await request('/api/notifications');
         if (secondCandidateNotificationsResponse.status !== 200) throw new Error('Second candidate should be able to load their notifications.');
