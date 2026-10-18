@@ -36,6 +36,10 @@ router.post('/',requireAuth,(req,res)=>{
   if(![15,30,45,60,90,120].includes(duration))return res.status(400).json({error:'Choose an interview duration between 15 and 120 minutes.'});
   if(!['online','phone','onsite'].includes(type))return res.status(400).json({error:'Choose online, phone, or onsite.'});
   if((type==='online'||type==='onsite')&&!place)return res.status(400).json({error:type==='online'?'Enter the interview link.':'Enter the interview location.'});
+  if(type==='online'){
+   try{const link=new URL(place);if(!['http:','https:'].includes(link.protocol)||!link.hostname)return res.status(400).json({error:'Enter a valid http or https interview link.'});}
+   catch{return res.status(400).json({error:'Enter a valid http or https interview link.'});}
+  }
   const app=db.prepare("SELECT a.id,a.user_id AS candidate_id,a.status,j.id AS job_id,j.title AS job_title,j.employer_id FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.id=? AND j.employer_id=?").get(appId,user.id);
   if(!app)return res.status(404).json({error:'Application not found for your company.'});
   const interviewId=db.transaction(()=>{
