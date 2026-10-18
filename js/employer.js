@@ -1013,6 +1013,15 @@ async function saveJob(event) {
     message.className = 'employer-form-message show success';
 
     try {
+        const minimumSalary = $('#jobSalaryMin').value.trim();
+        const maximumSalary = $('#jobSalaryMax').value.trim();
+        if (minimumSalary && maximumSalary && Number(minimumSalary) > Number(maximumSalary)) {
+            message.textContent = 'Maximum monthly pay must be greater than or equal to minimum monthly pay.';
+            message.className = 'employer-form-message show error';
+            $('#jobSalaryMax').focus();
+            return;
+        }
+
         const payload = getJobFormPayload();
         const editingId = state.editingJobId;
 
