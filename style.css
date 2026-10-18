@@ -8800,3 +8800,30 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 :where([role="alert"]:empty,[role="status"]:empty,[aria-live="polite"]:empty,[aria-live="assertive"]:empty){
   display:none;
 }
+
+
+/* Batch 38: stronger controls for high-contrast and forced-colors settings */
+@media(prefers-contrast:more){
+  :where(a,button,input,select,textarea,[role="button"]){
+    outline-offset:3px;
+  }
+  :where(input,select,textarea){
+    border-width:2px;
+  }
+  :where(button,a,[role="button"]){
+    text-decoration-thickness:from-font;
+  }
+}
+@media(forced-colors:active){
+  :where(a,button,input,select,textarea,[role="button"]):focus-visible{
+    outline:2px solid Highlight;
+    outline-offset:3px;
+  }
+  :where(input,select,textarea)[aria-invalid="true"]{
+    border:2px solid Mark;
+  }
+  :where(button,[role="button"]):disabled,
+  :where(button,[role="button"])[aria-disabled="true"]{
+    border:1px solid GrayText;
+  }
+}
