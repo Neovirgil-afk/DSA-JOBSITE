@@ -248,6 +248,21 @@ async function main() {
         const job = jobsBody.jobs.find((item) => Number.isInteger(Number(item.id)) && Number(item.id) > 0);
         if (!job) throw new Error('Job search returned no job with a valid ID.');
 
+        for (const id of ['0', 'not-a-number']) {
+            const invalidApply = await request('/api/jobs/' + id + '/apply', { method: 'POST' });
+            if (invalidApply.status !== 400) throw new Error('Invalid application job ID should return 400: ' + id);
+        }
+        const nonexistentApply = await request('/api/jobs/99999999/apply', { method: 'POST' });
+        if (nonexistentApply.status !== 404) throw new Error('Applying to a nonexistent job should return 404.');
+        const recommendedJobsResponse = await request('/api/jobs/recommended');
+        if (recommendedJobsResponse.status !== 200) throw new Error('Candidate should be able to retrieve recommended jobs; received ' + recommendedJobsResponse.status + '.');
+        const recommendedCache = recommendedJobsResponse.headers.get('cache-control') || '';
+        if (!/private/i.test(recommendedCache) || !/no-store/i.test(recommendedCache)) {
+            throw new Error('Personalized job recommendations must be private and non-cacheable.');
+        }
+        const recommendedJobs = await recommendedJobsResponse.json();
+        if (!Array.isArray(recommendedJobs.jobs)) throw new Error('Recommended jobs response should contain a jobs array.');
+
         // Validate search filters and saved-job behavior.
         for (const path of ['/api/jobs?minMatch=101', '/api/jobs?minMatch=abc', '/api/jobs?q=' + 'x'.repeat(121)]) {
             const response = await request(path);
