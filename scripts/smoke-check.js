@@ -276,6 +276,14 @@ if (!/app\.use\(\s*['"]\/uploads['"]\s*,\s*\(req,\s*res\)\s*=>\s*\{\s*res\.sendS
     fail('Direct requests to /uploads must be blocked before public static-file serving.');
 }
 
+// SQLite databases and sidecar files must be blocked before static serving.
+const databaseFileBlockIndex = server.indexOf('Never expose SQLite database files');
+if (databaseFileBlockIndex < 0 || staticFilesIndex < 0 || databaseFileBlockIndex > staticFilesIndex ||
+    !/path\\.basename\\(req\\.path\\)\\.toLowerCase\\(\\)/.test(server) ||
+    !/\\\\\\.\\(?:db\\|sqlite\\|sqlite3\\)\\(\?:-\\(\?:wal\\|shm\\)\\)\?\$/.test(server)) {
+    fail('SQLite database files and sidecar files must be blocked before public static-file serving.');
+}
+
 // Verify baseline browser security headers are applied by the server.
 if (!/res\.setHeader\(['"]X-Content-Type-Options['"],\s*['"]nosniff['"]\)/.test(server) ||
     !/res\.setHeader\(['"]X-Frame-Options['"],\s*['"]DENY['"]\)/.test(server) ||
