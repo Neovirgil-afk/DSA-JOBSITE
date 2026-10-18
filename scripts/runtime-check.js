@@ -451,6 +451,39 @@ async function main() {
         });
         if (statusResponse.status !== 200) throw new Error('Employer should be able to shortlist its applicant; received ' + statusResponse.status + ': ' + await statusResponse.text());
 
+        const statusBody = await statusResponse.json();
+        if (!statusBody.success || statusBody.status !== 'shortlisted' || statusBody.changed !== true) {
+            throw new Error('Application status update should confirm a real status change.');
+        }
+        const repeatedStatusResponse = await request('/api/employer/applications/' + employerApplicationId + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'shortlisted' })
+        });
+        if (repeatedStatusResponse.status !== 200) throw new Error('Repeating the same application status should be safe.');
+        const repeatedStatusBody = await repeatedStatusResponse.json();
+        if (repeatedStatusBody.changed !== false) throw new Error('Repeating an unchanged application status should not create a new status change.');
+        for (const invalidStatus of ['unknown-status', 42]) {
+            const invalidStatusResponse = await request('/api/employer/applications/' + employerApplicationId + '/status', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: invalidStatus })
+            });
+            if (invalidStatusResponse.status !== 400) throw new Error('Invalid application status should return 400.');
+        }
+        const invalidApplicationId = await request('/api/employer/applications/not-a-number/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'reviewing' })
+        });
+        if (invalidApplicationId.status !== 400) throw new Error('Invalid application ID should return 400.');
+        const candidateCannotChangeApplicationStatus = await request('/api/employer/applications/' + employerApplicationId + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'hired' })
+        });
+        if (candidateCannotChangeApplicationStatus.status !== 403) throw new Error('Candidates must not change employer application statuses.');
+
         const scheduledAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
         const interviewResponse = await request('/api/interviews', {
             method: 'POST',
@@ -531,6 +564,12 @@ async function main() {
         sessionCookie = secondEmployerCookie;
         const foreignApplicantsResponse = await request('/api/employer/jobs/' + postedJobId + '/applicants');
         if (foreignApplicantsResponse.status !== 404) throw new Error('Another employer must not access applicants for a job it does not own; received ' + foreignApplicantsResponse.status + '.');
+        const foreignApplicationStatusUpdate = await request('/api/employer/applications/' + employerApplicationId + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'hired' })
+        });
+        if (foreignApplicationStatusUpdate.status !== 404) throw new Error('Another employer must not change an application for a job it does not own; received ' + foreignApplicationStatusUpdate.status + '.');
         const foreignInterviewUpdate = await request('/api/interviews/' + interviewBody.interviewId, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -680,7 +719,7 @@ async function main() {
         const badResumeBody = await badResumeUpload.json();
         if (!String(badResumeBody.error || '').includes('does not match')) throw new Error('Fake PDF rejection should explain the file-content mismatch.');
 
-        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, candidate-isolated application history and saved jobs, saved-job idempotency and isolation, search-filter validation, private cache headers, and duplicate prevention, employer job posting/applicant management, interview scheduling validation, private interview responses, invalid status rejection, and cross-employer authorization, resume draft persistence and validation, real PDF and DOCX extraction, profile skill persistence, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection.');
+        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, candidate-isolated application history and saved jobs, saved-job idempotency and isolation, search-filter validation, private cache headers, and duplicate prevention, employer job posting/applicant management and status validation, interview scheduling validation, private interview responses, invalid status rejection, and cross-employer authorization, resume draft persistence and validation, real PDF and DOCX extraction, profile skill persistence, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection.');
     } finally {
         if (child.exitCode === null) {
             child.kill('SIGTERM');
