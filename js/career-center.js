@@ -92,6 +92,9 @@ document.addEventListener('DOMContentLoaded', async () => {
    rail.querySelectorAll('a[data-rail]').forEach(link=>{
     const keep=link.dataset.rail==='dashboard'||link.dataset.rail==='messages';
     link.hidden=!keep;
+    // Explicit display is needed because the site's navigation CSS sets display
+    // on links and can otherwise override the browser's [hidden] presentation.
+    link.style.display=keep?'':'none';
     if(link.dataset.rail==='dashboard'){link.href='/employer.html';link.textContent='Employer Dashboard';link.dataset.label='Employer Dashboard';link.title='Employer Dashboard';}
     if(link.dataset.rail==='messages'){link.href='/career-center.html#messages';link.textContent='Career Center';link.dataset.label='Career Center';link.title='Messages, interviews, and notifications';}
    });
