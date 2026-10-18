@@ -183,6 +183,15 @@ if (!/router\.post\(\s*['"]\/scan['"],\s*requireAuth,\s*requireCandidate/.test(r
     fail('Resume scanning must remain authenticated and use the expected resume upload field.');
 }
 
+// Ensure the resume download route checks authentication and candidate role before serving files.
+const resumeFileRoute = resumeRoutesSource.match(/router\\.get\\(\\s*['"]\\/file['"]([\\s\\S]*?)(?=\\nrouter\\.get\\(|\\nrouter\\.post\\()/);
+if (!resumeFileRoute || !/requireAuth/.test(resumeFileRoute[1]) || !/requireCandidate/.test(resumeFileRoute[1]) || !/res\\.sendFile\\(/.test(resumeFileRoute[1])) {
+    fail('Resume file delivery must remain authenticated, candidate-only, and use the private file endpoint.');
+}
+if (!/if \\(req\\.file\\?\\.path\\)/.test(resumeRoutesSource) || !/fs\\.unlinkSync\\(req\\.file\\.path\\)/.test(resumeRoutesSource)) {
+    fail('Failed resume scans must clean up the uploaded file.');
+}
+
 // Resume uploads live under the project root, so deny direct public requests before static serving.
 const uploadsBlockIndex = server.indexOf("app.use('/uploads'");
 const staticFilesIndex = server.indexOf('app.use(express.static(__dirname))');
