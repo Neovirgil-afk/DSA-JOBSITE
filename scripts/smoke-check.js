@@ -491,6 +491,16 @@ if (!savedJobRoutesSource.includes("router.post('/saved/:id', requireAuth, requi
     !savedJobRoutesSource.includes("return res.status(400).json({ error: 'Invalid job id.' });")) {
     fail('Saved-job routes must reject non-integer and non-positive job IDs.');
 }
+// Public job details must reject malformed IDs such as "12abc" and non-positive values.
+const jobDetailRouteSource = jobRoutesValidationSource.slice(
+    jobRoutesValidationSource.indexOf("router.get('/:id'"),
+    jobRoutesValidationSource.indexOf('/* =========================================================\n   JOB APPLICATIONS')
+);
+if (!jobDetailRouteSource.includes('Number(req.params.id)') ||
+    !jobDetailRouteSource.includes('!Number.isInteger(jobId) || jobId <= 0') ||
+    !jobDetailRouteSource.includes("return res.status(400).json({ error: 'Invalid job id.' });")) {
+    fail('Job detail routes must reject malformed and non-positive job IDs.');
+}
 const applicationSubmissionSource = jobRoutesValidationSource;
 if (!applicationSubmissionSource.includes("router.post('/:id/apply'") ||
     !applicationSubmissionSource.includes("err.code === 'SQLITE_CONSTRAINT_UNIQUE'") ||
