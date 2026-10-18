@@ -211,6 +211,26 @@ if (serverSecuritySource.indexOf("if (process.env.NODE_ENV === 'production'") < 
     fail('Production must reject a missing SESSION_SECRET before loading the application.');
 }
 
+// Prevent public static hosting from exposing resume uploads, databases, or backend files.
+const uploadsGuardIndex = serverSecuritySource.indexOf("app.use('/uploads'");
+const staticGuardIndex = serverSecuritySource.indexOf('const privateStaticFiles = new Set([');
+const privateFileMiddlewareIndex = serverSecuritySource.indexOf('const isDatabaseFile =');
+const staticServingIndex = serverSecuritySource.indexOf('app.use(express.static(__dirname))');
+if (uploadsGuardIndex < 0 || staticServingIndex < 0 || uploadsGuardIndex > staticServingIndex) {
+    fail('Resume uploads must be blocked before public static-file serving.');
+}
+if (staticGuardIndex < 0 || privateFileMiddlewareIndex < staticGuardIndex ||
+    staticServingIndex < 0 || privateFileMiddlewareIndex > staticServingIndex ||
+    !serverSecuritySource.includes(/\\.(?:db|sqlite|sqlite3)(?:-(?:wal|shm))?$/.source) ||
+    !serverSecuritySource.includes('/routes\\\\.js$/')) {
+    fail('Public static serving must deny database files and backend route source files.');
+}
+for (const privateFile of ["'.env'", "'package.json'", "'package-lock.json'", "'schema.sql'", "'server.js'"]) {
+    if (!serverSecuritySource.includes(privateFile)) {
+        fail('Public static-file denylist is missing ' + privateFile + '.');
+    }
+}
+
 // Admin responses contain sensitive operational and account information.
 const adminRoutesPrivacySource = read('adminRoutes.js');
 if (!adminRoutesPrivacySource.includes("res.set('Cache-Control','private, no-store, max-age=0')") ||
