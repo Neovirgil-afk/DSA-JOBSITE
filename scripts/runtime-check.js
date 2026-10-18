@@ -586,13 +586,36 @@ async function main() {
             body: JSON.stringify({ status: 'hired' })
         });
         if (invalidInterviewStatus.status !== 400) throw new Error('Invalid interview status must return 400; received ' + invalidInterviewStatus.status + '.');
+
+        const invalidInterviewId = await request('/api/interviews/not-a-number', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'completed' })
+        });
+        if (invalidInterviewId.status !== 400) throw new Error('Invalid interview ID must return 400; received ' + invalidInterviewId.status + '.');
+        sessionCookie = candidateCookie;
+        const candidateCannotUpdateInterview = await request('/api/interviews/' + interviewBody.interviewId, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'completed' })
+        });
+        if (candidateCannotUpdateInterview.status !== 403) throw new Error('Candidates must not update interview status; received ' + candidateCannotUpdateInterview.status + '.');
+        sessionCookie = employerCookie;
+        const completeInterview = await request('/api/interviews/' + interviewBody.interviewId, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'completed' })
+        });
+        if (completeInterview.status !== 200) throw new Error('Interview owner should be able to mark an interview completed; received ' + completeInterview.status + '.');
+        const completeInterviewBody = await completeInterview.json();
+        if (!completeInterviewBody.success || completeInterviewBody.status !== 'completed') throw new Error('Interview completion response did not confirm the new status.');
         const interviewOwnerList = await request('/api/interviews');
         if (interviewOwnerList.status !== 200) throw new Error('Interview owner should still be able to view interviews after denied cross-company access.');
         const ownerCache = interviewOwnerList.headers.get('cache-control') || '';
         if (!/private/i.test(ownerCache) || !/no-store/i.test(ownerCache)) throw new Error('Interview lists must not be publicly cached.');
         const ownerListBody = await interviewOwnerList.json();
         const unchangedInterview = ownerListBody.interviews?.find((item) => Number(item.id) === Number(interviewBody.interviewId));
-        if (!unchangedInterview || unchangedInterview.status === 'cancelled') throw new Error('Unauthorized employer request changed the interview status.');
+        if (!unchangedInterview || unchangedInterview.status !== 'completed') throw new Error('Unauthorized requests changed the interview status or owner update did not persist.');
 
         sessionCookie = candidateCookie;
         // Resume builder must persist a valid draft and reject malformed email addresses.
@@ -721,7 +744,7 @@ async function main() {
         const badResumeBody = await badResumeUpload.json();
         if (!String(badResumeBody.error || '').includes('does not match')) throw new Error('Fake PDF rejection should explain the file-content mismatch.');
 
-        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, candidate-isolated application history and saved jobs, saved-job idempotency and isolation, search-filter validation, private cache headers, and duplicate prevention, employer job posting/applicant management and status validation, interview scheduling validation, private interview responses, invalid status rejection, and cross-employer authorization, resume draft persistence and validation, real PDF and DOCX extraction, profile skill persistence, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection.');
+        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, candidate-isolated application history and saved jobs, saved-job idempotency and isolation, search-filter validation, private cache headers, and duplicate prevention, employer job posting/applicant management and status validation, interview scheduling validation, interview lifecycle and role checks, private interview responses, invalid status rejection, and cross-employer authorization, resume draft persistence and validation, real PDF and DOCX extraction, profile skill persistence, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection.');
     } finally {
         if (child.exitCode === null) {
             child.kill('SIGTERM');
