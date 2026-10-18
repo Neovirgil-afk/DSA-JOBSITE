@@ -61,11 +61,12 @@ router.patch('/:id',requireAuth,(req,res)=>{
   const id = Number(req.params.id), status = String(payload.status || '').trim();
   if(!Number.isInteger(id)||id<=0)return res.status(400).json({error:'Invalid interview id.'});
   if(!['scheduled','completed','cancelled'].includes(status))return res.status(400).json({error:'Invalid interview status.'});
-  const row=db.prepare('SELECT i.id,a.user_id AS candidate_id,j.title AS job_title,j.employer_id FROM interviews i JOIN applications a ON a.id=i.application_id JOIN jobs j ON j.id=a.job_id WHERE i.id=?').get(id);
+  const row=db.prepare('SELECT i.id,i.status AS current_status,a.user_id AS candidate_id,j.title AS job_title,j.employer_id FROM interviews i JOIN applications a ON a.id=i.application_id JOIN jobs j ON j.id=a.job_id WHERE i.id=?').get(id);
   if(!row||(user.role==='employer'&&Number(row.employer_id)!==Number(user.id)))return res.status(404).json({error:'Interview not found.'});
-  db.prepare('UPDATE interviews SET status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(status,id);
-  if(status==='cancelled')createNotification({userId:row.candidate_id,type:'interview',title:'Interview cancelled',body:'The interview for '+row.job_title+' was cancelled.',link:'/career-center.html#interviews'});
-  res.json({success:true,status});
+  const changed=row.current_status!==status;
+  if(changed)db.prepare('UPDATE interviews SET status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(status,id);
+  if(changed&&status==='cancelled')createNotification({userId:row.candidate_id,type:'interview',title:'Interview cancelled',body:'The interview for '+row.job_title+' was cancelled.',link:'/career-center.html#interviews'});
+  res.json({success:true,status,changed});
  }catch(e){console.error('[interviews] update:',e);res.status(500).json({error:'Failed to update interview.'});}
 });
 module.exports=router;
