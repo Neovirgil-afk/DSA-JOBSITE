@@ -17,6 +17,8 @@ const dbExisted = fs.existsSync(DB_PATH);
 
 const db = new Database(DB_PATH);
 db.pragma('foreign_keys = ON');
+// Wait briefly for concurrent writes instead of failing immediately with SQLITE_BUSY.
+db.pragma('busy_timeout = 5000');
 
 // Always (re)apply schema — CREATE TABLE IF NOT EXISTS makes this safe on every boot.
 const schema = fs.readFileSync(SCHEMA_PATH, 'utf8');
