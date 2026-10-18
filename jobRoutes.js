@@ -76,6 +76,17 @@ function getExperienceLevel(jobTitle) {
 router.get('/', (req, res) => {
     try {
         const { q, category, location, employmentType, minMatch } = req.query;
+        const textFilters = { q, category, location, employmentType };
+        for (const [field, value] of Object.entries(textFilters)) {
+            if (value !== undefined && (typeof value !== 'string' || value.length > 120)) {
+                return res.status(400).json({ error: 'Job search filters must be text values of 120 characters or fewer.' });
+            }
+        }
+        if (minMatch !== undefined && minMatch !== '' &&
+            (typeof minMatch !== 'string' || !/^\\d{1,3}$/.test(minMatch) ||
+             Number(minMatch) < 0 || Number(minMatch) > 100)) {
+            return res.status(400).json({ error: 'Minimum match must be a number from 0 to 100.' });
+        }
 
         let jobs = searchJobs({ q, category, location });
 
