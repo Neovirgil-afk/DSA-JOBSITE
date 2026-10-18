@@ -201,6 +201,20 @@ if (!employerRoutesSource.includes("Buffer.byteLength(password, 'utf8') > 72") |
     !employerRoutesSource.includes('no more than 72 UTF-8 bytes')) {
     fail('Employer registration must enforce bcrypt’s 72-byte password limit to prevent silent password truncation.');
 }
+const employerRegistrationSource = employerRoutesSource.slice(
+    employerRoutesSource.indexOf("router.post('/register'"),
+    employerRoutesSource.indexOf("router.post('/login'", employerRoutesSource.indexOf("router.post('/register'"))
+);
+for (const required of [
+    'clean(companyDescription).slice(0, 2000)',
+    'clean(companyEmail).slice(0, 254)',
+    'clean(companyPhone).slice(0, 40)',
+    'clean(companyWebsite).slice(0, 2048)'
+]) {
+    if (!employerRegistrationSource.includes(required)) {
+        fail('Employer registration must bound company profile field length: ' + required);
+    }
+}
 // Employer resume downloads must resolve files from the same configurable directory as uploads.
 if (!employerRoutesSource.includes('process.env.JOBPATH_UPLOAD_DIR') ||
     !employerRoutesSource.includes('path.resolve(process.env.JOBPATH_UPLOAD_DIR)') ||
