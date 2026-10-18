@@ -27,7 +27,8 @@ router.post('/:applicationId',requireAuth,(req,res)=>{
  try{
   const u=getUser(Number(req.session.userId));if(!u||!['candidate','employer'].includes(u.role))return res.status(403).json({error:'Messaging is available to candidates and employers.'});
   const payload = req.body && typeof req.body === 'object' ? req.body : {};
-  const appId = Number(req.params.applicationId), body = String(payload.body ?? '').trim();
+  if (typeof payload.body !== 'string') return res.status(400).json({error:'Message must be text.'});
+  const appId = Number(req.params.applicationId), body = payload.body.trim();
   if(!Number.isInteger(appId)||appId<=0)return res.status(400).json({error:'Invalid application id.'});
   if(!body)return res.status(400).json({error:'Message cannot be empty.'});if(body.length>2000)return res.status(400).json({error:'Messages must be 2,000 characters or fewer.'});
   const app=access(appId,u);if(!app)return res.status(404).json({error:'Conversation not found.'});
