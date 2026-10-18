@@ -222,7 +222,7 @@ if (uploadsGuardIndex < 0 || staticServingIndex < 0 || uploadsGuardIndex > stati
 if (staticGuardIndex < 0 || privateFileMiddlewareIndex < staticGuardIndex ||
     staticServingIndex < 0 || privateFileMiddlewareIndex > staticServingIndex ||
     !serverSecuritySource.includes(/\\.(?:db|sqlite|sqlite3)(?:-(?:wal|shm))?$/.source) ||
-    !serverSecuritySource.includes('/routes\\\\.js$/')) {
+    !serverSecuritySource.includes('/routes\\.js$/')) {
     fail('Public static serving must deny database files and backend route source files.');
 }
 for (const privateFile of ["'.env'", "'package.json'", "'package-lock.json'", "'schema.sql'", "'server.js'"]) {
