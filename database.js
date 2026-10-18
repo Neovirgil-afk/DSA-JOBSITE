@@ -22,6 +22,16 @@ db.pragma('journal_mode = WAL');
 // Wait briefly for concurrent writes instead of failing immediately with SQLITE_BUSY.
 db.pragma('busy_timeout = 5000');
 
+// Persistent session storage shared by all requests and retained across restarts.
+db.exec(`
+    CREATE TABLE IF NOT EXISTS sessions (
+        sid TEXT PRIMARY KEY,
+        session_data TEXT NOT NULL,
+        expires_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
+`);
+
 // Always (re)apply schema — CREATE TABLE IF NOT EXISTS makes this safe on every boot.
 const schema = fs.readFileSync(SCHEMA_PATH, 'utf8');
 db.exec(schema);
