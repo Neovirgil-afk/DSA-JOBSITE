@@ -152,12 +152,72 @@ function setField(id, value) {
     if (element) element.value = value ?? '';
 }
 
+const selectedScheduleDays = new Set();
+let selectedScheduleTime = '';
+
+function buildJobSalary() {
+    const min = $('#jobSalaryMin').value.trim();
+    const max = $('#jobSalaryMax').value.trim();
+    const money = (value) => Number(value).toLocaleString('en-PH', { maximumFractionDigits: 0 });
+    if (min && max) return '₱' + money(min) + '–₱' + money(max) + '/month';
+    if (min) return 'From ₱' + money(min) + '/month';
+    if (max) return 'Up to ₱' + money(max) + '/month';
+    return '';
+}
+
+function updateSchedulePreview() {
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].filter((day) => selectedScheduleDays.has(day));
+    const preview = $('#jobSchedulePreview');
+    const hidden = $('#jobSchedule');
+    if (!preview || !hidden) return;
+    const dayText = days.length === 7 ? 'Every day' : days.join(', ');
+    const parts = [];
+    if (dayText) parts.push(dayText);
+    if (selectedScheduleTime) parts.push(selectedScheduleTime);
+    hidden.value = parts.join(' · ');
+    preview.textContent = parts.length ? parts.join(' · ') : 'Choose work days and hours. You can leave this blank if the schedule is flexible.';
+    document.querySelectorAll('[data-schedule-preset]').forEach((button) => {
+        const preset = button.dataset.schedulePreset;
+        const presetDays = {
+            mwf: ['Mon', 'Wed', 'Fri'],
+            weekdays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+            weekends: ['Sat', 'Sun'],
+            everyday: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        }[preset] || [];
+        const active = presetDays.length === days.length && presetDays.every((day) => selectedScheduleDays.has(day));
+        button.classList.toggle('is-selected', active);
+        button.setAttribute('aria-pressed', String(active));
+    });
+    document.querySelectorAll('[data-schedule-day]').forEach((button) => {
+        const active = selectedScheduleDays.has(button.dataset.scheduleDay);
+        button.classList.toggle('is-selected', active);
+        button.setAttribute('aria-pressed', String(active));
+    });
+    document.querySelectorAll('[data-time-preset]').forEach((button) => {
+        const active = button.dataset.timePreset === selectedScheduleTime;
+        button.classList.toggle('is-selected', active);
+        button.setAttribute('aria-pressed', String(active));
+    });
+}
+
+function restoreJobSchedule(value) {
+    selectedScheduleDays.clear();
+    selectedScheduleTime = '';
+    const text = String(value || '');
+    const dayAliases = { Monday: 'Mon', Tuesday: 'Tue', Wednesday: 'Wed', Thursday: 'Thu', Friday: 'Fri', Saturday: 'Sat', Sunday: 'Sun' };
+    const dayMatches = text.match(/Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Mon|Tue|Wed|Thu|Fri|Sat|Sun/g) || [];
+    dayMatches.forEach((day) => selectedScheduleDays.add(dayAliases[day] || day));
+    const timeOptions = ['8 AM–5 PM', '9 AM–5 PM', '9 AM–6 PM', '10 AM–7 PM', '24 hours', 'Flexible hours'];
+    selectedScheduleTime = timeOptions.find((time) => text.toLowerCase().includes(time.toLowerCase())) || '';
+    updateSchedulePreview();
+}
+
 function getJobFormPayload() {
     return {
         title: $('#jobTitle').value.trim(),
         category: $('#jobCategory').value.trim(),
         employmentType: $('#jobEmploymentType').value,
-        salary: $('#jobSalary').value.trim(),
+        salary: buildJobSalary(),
         location: $('#jobLocation').value.trim(),
         workSchedule: $('#jobSchedule').value.trim(),
         applicationDeadline: $('#jobDeadline').value,
@@ -185,9 +245,12 @@ function openJobEditor(job = null) {
     setField('jobTitle', job?.title || '');
     setField('jobCategory', job?.category || '');
     setField('jobEmploymentType', job?.employment_type || '');
-    setField('jobSalary', job?.salary || '');
+    const salaryParts = String(job?.salary || '').match(/[\\d,]+/g) || [];
+    setField('jobSalaryMin', salaryParts[0] ? Number(salaryParts[0].replace(/,/g, '')) : '');
+    setField('jobSalaryMax', salaryParts[1] ? Number(salaryParts[1].replace(/,/g, '')) : '');
     setField('jobLocation', job?.location || '');
     setField('jobSchedule', job?.work_schedule || '');
+    restoreJobSchedule(job?.work_schedule || '');
     setField('jobDeadline', job?.application_deadline || '');
     setField('jobStatus', job?.status || 'active');
     setField('jobDescription', job?.description || '');
@@ -989,6 +1052,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('#employerRegisterForm').addEventListener('submit', handleRegister);
     $('#companyForm').addEventListener('submit', saveCompany);
     $('#jobEditorForm').addEventListener('submit', saveJob);
+
+    document.querySelectorAll('[data-schedule-preset]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const presets = {
+                mwf: ['Mon', 'Wed', 'Fri'],
+                weekdays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+                weekends: ['Sat', 'Sun'],
+                everyday: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            };
+            selectedScheduleDays.clear();
+            (presets[button.dataset.schedulePreset] || []).forEach((day) => selectedScheduleDays.add(day));
+            updateSchedulePreview();
+        });
+    });
+    document.querySelectorAll('[data-schedule-day]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const day = button.dataset.scheduleDay;
+            if (selectedScheduleDays.has(day)) selectedScheduleDays.delete(day);
+            else selectedScheduleDays.add(day);
+            updateSchedulePreview();
+        });
+    });
+    document.querySelectorAll('[data-time-preset]').forEach((button) => {
+        button.addEventListener('click', () => {
+            selectedScheduleTime = selectedScheduleTime === button.dataset.timePreset ? '' : button.dataset.timePreset;
+            updateSchedulePreview();
+        });
+    });
 
     $('#openPostJob').addEventListener('click', () => openJobEditor());
     $('#refreshEmployerAnalytics').addEventListener('click', loadAnalytics);
