@@ -210,6 +210,11 @@ if (!/req\.file\?\.path/.test(resumeRoutesSource) || !/fs\.unlinkSync\(req\.file
     fail('Failed resume scans must clean up the uploaded file.');
 }
 
+if (!/Failed to scan resume\. Please check the file and try again\./.test(resumeRoutesSource) ||
+    /Failed to scan resume\. '\s*\+\s*error\.message/.test(resumeRoutesSource)) {
+    fail('Resume scan failures must return a generic client error without exposing internal exception details.');
+}
+
 // Resume uploads live under the project root, so deny direct public requests before static serving.
 const uploadsBlockIndex = server.indexOf("app.use('/uploads'");
 const staticFilesIndex = server.indexOf('app.use(express.static(__dirname))');
