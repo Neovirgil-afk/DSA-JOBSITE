@@ -215,7 +215,8 @@ if (!employerLoginRouteSource.includes('establishSession(req, user.id,') ||
     !employerRoutesSource.includes('req.session.regenerate((regenerateError) =>')) {
     fail('Employer login must regenerate the session ID after successful authentication to help prevent session fixation.');
 }
-const employerRoutesSource = read('employerRoutes.js');
+// Reuse employerRoutesSource declared by the existing employer registration checks.
+
 if (!employerRoutesSource.includes("Buffer.byteLength(password, 'utf8') > 72") ||
     !employerRoutesSource.includes('no more than 72 UTF-8 bytes')) {
     fail('Employer registration must enforce bcrypt’s 72-byte password limit to prevent silent password truncation.');
