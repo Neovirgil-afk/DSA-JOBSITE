@@ -193,6 +193,24 @@ for (const privateRouteFile of ['jobRoutes.js', 'resumeRoutes.js', 'employerRout
     }
 }
 
+// Keep baseline browser security headers and production session-secret validation in place.
+const serverSecuritySource = read('server.js');
+for (const securityHeader of [
+    "res.setHeader('X-Content-Type-Options', 'nosniff')",
+    "res.setHeader('X-Frame-Options', 'DENY')",
+    "res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')",
+    "res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')"
+]) {
+    if (!serverSecuritySource.includes(securityHeader)) {
+        fail('Server is missing baseline security header: ' + securityHeader);
+    }
+}
+if (serverSecuritySource.indexOf("if (process.env.NODE_ENV === 'production'") < 0 ||
+    serverSecuritySource.indexOf('SESSION_SECRET must be configured in production.') < 0 ||
+    serverSecuritySource.indexOf("if (process.env.NODE_ENV === 'production'") > serverSecuritySource.indexOf("const express = require('express')")) {
+    fail('Production must reject a missing SESSION_SECRET before loading the application.');
+}
+
 // Admin responses contain sensitive operational and account information.
 const adminRoutesPrivacySource = read('adminRoutes.js');
 if (!adminRoutesPrivacySource.includes("res.set('Cache-Control','private, no-store, max-age=0')") ||
