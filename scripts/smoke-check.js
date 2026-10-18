@@ -357,6 +357,11 @@ if (!/router\.use\(\(req,res,next\)=>\{\s*res\.set\(['"]Cache-Control['"],['"]pr
     fail('All interview API responses must disable caching of private scheduling and status data.');
 }
 
+const authRoutesPrivacySource = read('authRoutes.js');
+if (!/router\.use\(\(req, res, next\) => \{\s*res\.set\(['"]Cache-Control['"], ['"]private, no-store, max-age=0['"]\);\s*res\.set\(['"]Pragma['"], ['"]no-cache['"]\);\s*next\(\);\s*\}\)/.test(authRoutesPrivacySource)) {
+    fail('Authentication and account endpoints must disable caching for private responses.');
+}
+
 const messageRoutesPrivacySource = read('messageRoutes.js');
 if (!/router\.use\(\(req,res,next\)=>\{\s*res\.set\(['"]Cache-Control['"],['"]private, no-store, max-age=0['"]\);\s*res\.set\(['"]Pragma['"],['"]no-cache['"]\);\s*next\(\);\s*\}\)/.test(messageRoutesPrivacySource)) {
     fail('Private conversation and message API responses must disable caching.');
