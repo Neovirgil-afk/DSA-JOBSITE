@@ -126,6 +126,11 @@ if (routeImports.length === 0) {
 if (!server.includes("!String(process.env.SESSION_SECRET || '').trim()")) {
     fail('server.js must reject missing, empty, or whitespace-only SESSION_SECRET values in production.');
 }
+const sessionSecretGuardIndex = server.indexOf("if (process.env.NODE_ENV === 'production' && !String(process.env.SESSION_SECRET || '').trim())");
+const databaseImportIndex = server.indexOf("const { db } = require('./database');");
+if (sessionSecretGuardIndex < 0 || databaseImportIndex < 0 || sessionSecretGuardIndex > databaseImportIndex) {
+    fail('Production session secret validation must run before the database module is loaded.');
+}
 if (!/httpOnly:\s*true/.test(server)) {
     fail('Session cookies must remain HttpOnly.');
 }
