@@ -693,6 +693,35 @@ async function main() {
         if (otherCandidateJobApplicationStatusBody.applied !== false || otherCandidateJobApplicationStatusBody.application !== null) {
             throw new Error('Application status endpoint must not expose another candidate’s application.');
         }
+
+        const invalidApplicationStatusId = await request('/api/jobs/not-a-number/application');
+        if (invalidApplicationStatusId.status !== 400) throw new Error('Application status checks must reject malformed job IDs; received ' + invalidApplicationStatusId.status + '.');
+
+        // Closed jobs must reject new applications without creating application records.
+        sessionCookie = employerCookie;
+        const closeJobForApplicationCheck = await request('/api/employer/jobs/' + postedJobId + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'closed' })
+        });
+        if (closeJobForApplicationCheck.status !== 200) throw new Error('Job owner should be able to close a job before application rejection checks; received ' + closeJobForApplicationCheck.status + '.');
+
+        sessionCookie = secondCandidateCookie;
+        const applyToClosedJob = await request('/api/jobs/' + postedJobId + '/apply', { method: 'POST' });
+        if (applyToClosedJob.status !== 400) throw new Error('Closed jobs must reject new applications with 400; received ' + applyToClosedJob.status + '.');
+        const closedJobApplicationStatus = await request('/api/jobs/' + postedJobId + '/application');
+        const closedJobApplicationStatusBody = await closedJobApplicationStatus.json();
+        if (closedJobApplicationStatus.status !== 200 || closedJobApplicationStatusBody.applied !== false || closedJobApplicationStatusBody.application !== null) {
+            throw new Error('A rejected application to a closed job must not create an application record.');
+        }
+
+        sessionCookie = employerCookie;
+        const reopenJobAfterApplicationCheck = await request('/api/employer/jobs/' + postedJobId + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'active' })
+        });
+        if (reopenJobAfterApplicationCheck.status !== 200) throw new Error('Job owner should be able to reopen a job after the closed-job application test; received ' + reopenJobAfterApplicationCheck.status + '.');
         sessionCookie = candidateCookie;
 
         sessionCookie = employerCookie;
