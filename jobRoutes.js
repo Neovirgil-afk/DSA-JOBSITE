@@ -83,7 +83,7 @@ router.get('/', (req, res) => {
             }
         }
         if (minMatch !== undefined && minMatch !== '' &&
-            (typeof minMatch !== 'string' || !/^\\d{1,3}$/.test(minMatch) ||
+            (typeof minMatch !== 'string' || !/^\d{1,3}$/.test(minMatch) ||
              Number(minMatch) < 0 || Number(minMatch) > 100)) {
             return res.status(400).json({ error: 'Minimum match must be a number from 0 to 100.' });
         }
