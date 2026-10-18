@@ -42,6 +42,17 @@
 .employer-modal-dialog .employer-field textarea{min-height:100px;line-height:1.65}
 .employer-modal-dialog .employer-form-message{margin:16px 0}
 .employer-modal-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:12px}
+.employer-bulk-message{display:grid;gap:14px;margin:18px 0 22px;padding:18px;border:1px solid #e0e3f0;border-radius:14px;background:#fafaff}
+.employer-bulk-message>div:first-child strong{display:block;color:#273044;font-size:14px}
+.employer-bulk-message>div:first-child p{margin:5px 0 0;color:#697386;font-size:12px;line-height:1.55}
+.employer-bulk-message .employer-field{display:grid;gap:7px}
+.employer-bulk-message .employer-field>span{font-size:12px;font-weight:600;color:#374151}
+.employer-bulk-message textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:82px;padding:11px 12px;border:1px solid #dfe3ee;border-radius:10px;font:500 13px Inter,sans-serif;line-height:1.6}
+.employer-bulk-message textarea:focus{outline:none;border-color:#aaa4f0;box-shadow:0 0 0 3px rgba(79,70,229,.08)}
+.employer-bulk-message-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.employer-bulk-message-actions small{color:#697386;font-size:12px}
+.employer-bulk-message-actions button:disabled{opacity:.5;cursor:not-allowed}
+
 @media(max-width:700px){.employer-modal-dialog > .employer-form{padding:24px 20px 26px}.employer-modal-dialog .employer-form-grid{gap:20px}.employer-modal-dialog .employer-form-section{margin-top:10px;padding-top:14px}}
 @media(max-width:520px){.job-salary-range{gap:16px}.job-money-input{flex-basis:100%}.job-salary-separator{display:none}.job-choice{padding:9px 11px}.job-hours-entry{align-items:stretch}.job-time-input{flex-basis:100%}.job-time-separator{display:none}.job-flexible-toggle{align-self:flex-start}}
 </style>
@@ -263,6 +274,20 @@
             <button type="button" data-pipeline-status="rejected" aria-pressed="false"><span>Rejected</span><strong data-pipeline-count="rejected">0</strong></button>
           </div>
           <div id="applicantActionMessage" class="employer-action-feedback" role="status" aria-live="polite" hidden></div>
+          <form id="messageAllApplicantsForm" class="employer-bulk-message">
+            <div>
+              <strong>Message applicants for this job</strong>
+              <p>Send one message to every applicant for the selected job, or use the Message button on an individual applicant.</p>
+            </div>
+            <label class="employer-field">
+              <span>Message to all applicants</span>
+              <textarea id="messageAllApplicantsBody" rows="3" maxlength="2000" placeholder="Write an update, interview invitation, or next steps..." required></textarea>
+            </label>
+            <div class="employer-bulk-message-actions">
+              <small id="messageAllApplicantsCount">0 applicants will receive this message.</small>
+              <button type="submit" class="btn btn-primary btn-small" id="sendMessageAllApplicants" disabled>Send to all for this job</button>
+            </div>
+          </form>
           <div class="employer-applicant-tools" aria-label="Applicant filters and sorting">
             <label class="employer-applicant-search">
               <span class="sr-only">Search applicants</span>
