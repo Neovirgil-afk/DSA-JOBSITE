@@ -89,7 +89,17 @@ function searchJobs({ q, category, location }) {
         );
     }
     if (category) {
-        jobs = jobs.filter((job) => (job.category || '').toLowerCase() === category.toLowerCase());
+        const requestedCategory = category.trim().toLowerCase();
+        const categoryGroups = {
+            'business': ['business', 'business & finance', 'business development', 'human resources', 'project management'],
+            'design': ['design', 'engineering & design'],
+            'healthcare': ['healthcare', 'healthcare administration'],
+            'education': ['education', 'education & technology'],
+            'marketing': ['marketing'],
+            'it & software': ['it & software'],
+        };
+        const acceptedCategories = categoryGroups[requestedCategory] || [requestedCategory];
+        jobs = jobs.filter((job) => acceptedCategories.includes((job.category || '').trim().toLowerCase()));
     }
     if (location) {
         const loc = location.toLowerCase();
