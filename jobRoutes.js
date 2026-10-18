@@ -233,7 +233,7 @@ router.get('/companies', (req, res) => {
                 cp.company_size,
                 cp.location,
                 cp.website,
-                COUNT(DISTINCT CASE WHEN j.status = 'active' AND (j.application_deadline IS NULL OR date(j.application_deadline) >= date('now')) THEN j.id END) AS open_jobs
+                COUNT(DISTINCT CASE WHEN j.status = 'active' AND (j.application_deadline IS NULL OR date(j.application_deadline) >= date('now', '+8 hours')) THEN j.id END) AS open_jobs
             FROM company_profiles cp
             LEFT JOIN jobs j ON j.company = cp.company_name
             GROUP BY cp.id
