@@ -583,10 +583,10 @@ if (!interviewScheduleRoute.includes("user.role!=='employer'") ||
     !interviewScheduleRoute.includes("INSERT INTO application_history(application_id,status) VALUES(?,'interview')")) {
     fail('Interview scheduling must require an employer, scope the application to that employer, reject past dates, and record status/history transactionally.');
 }
-if (!interviewScheduleRoute.includes("![15,30,45,60,90,120].includes(duration)") ||
-    !interviewScheduleRoute.includes("!['online','phone','onsite'].includes(type)") ||
-    !interviewScheduleRoute.includes("const duration = Number(payload.durationMinutes || 30)") ||
-    !interviewScheduleRoute.includes("const type = String(payload.interviewType || 'online').trim()")) {
+if (!interviewRoutesSource.includes('[15,30,45,60,90,120].includes(duration)') ||
+    !interviewRoutesSource.includes("['online','phone','onsite'].includes(type)") ||
+    !interviewRoutesSource.includes('const duration = Number(payload.durationMinutes || 30)') ||
+    !interviewRoutesSource.includes("const type = String(payload.interviewType || 'online').trim()")) {
     fail('Interview scheduling must enforce supported durations and interview types before writing records.');
 }
 if (!interviewUpdateRoute.includes("!['scheduled','completed','cancelled'].includes(status)") ||
