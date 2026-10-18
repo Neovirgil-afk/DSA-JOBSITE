@@ -478,6 +478,26 @@ if (!employerApplicantListRoute.includes('Number(req.params.id)') ||
     fail('Employer applicant lists must reject malformed and non-positive job IDs.');
 }
 
+const employerIdValidationRoutes = [
+    { route: "router.put('/jobs/:id'", variable: 'jobId', message: 'Invalid job id.' },
+    { route: "router.patch('/jobs/:id/status'", variable: 'jobId', message: 'Invalid job id.' },
+    { route: "router.get('/applicants/:id'", variable: 'applicationId', message: 'Invalid application id.' },
+    { route: "router.get('/applicants/:id/resume'", variable: 'applicationId', message: 'Invalid application id.' },
+    { route: "router.patch('/applications/:id/status'", variable: 'applicationId', message: 'Invalid application id.' }
+];
+for (const check of employerIdValidationRoutes) {
+    const routeStart = employerRoutesPrivacySource.indexOf(check.route);
+    const routeEnd = employerRoutesPrivacySource.indexOf('\n});', routeStart);
+    const routeSource = routeStart >= 0 && routeEnd >= 0
+        ? employerRoutesPrivacySource.slice(routeStart, routeEnd)
+        : '';
+    if (!routeSource.includes('Number(req.params.id)') ||
+        !routeSource.includes('!Number.isInteger(' + check.variable + ') || ' + check.variable + ' <= 0') ||
+        !routeSource.includes("return res.status(400).json({ error: '" + check.message + "' });")) {
+        fail(check.route + ' must reject malformed and non-positive IDs.');
+    }
+}
+
 if (!/router\.use\(\(req, res, next\) => \{\s*res\.set\(['"]Cache-Control['"], ['"]private, no-store, max-age=0['"]\);\s*res\.set\(['"]Pragma['"], ['"]no-cache['"]\);\s*next\(\);\s*\}\)/.test(employerRoutesPrivacySource)) {
     fail('Employer API responses must disable caching of private dashboard, applicant, and company data.');
 }
