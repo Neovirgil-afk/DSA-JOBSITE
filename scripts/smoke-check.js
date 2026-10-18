@@ -486,6 +486,17 @@ if (!employerApplicantListRoute.includes('Number(req.params.id)') ||
     fail('Employer applicant lists must reject malformed and non-positive job IDs.');
 }
 
+const employerApplicantResumeRoute = employerRoutesPrivacySource.slice(
+    employerRoutesPrivacySource.indexOf("router.get('/applicants/:id/resume'"),
+    employerRoutesPrivacySource.indexOf("router.patch('/applications/:id/status'")
+);
+if (!employerApplicantResumeRoute.includes("j.employer_id = ?") ||
+    !employerApplicantResumeRoute.includes("path.basename(application.stored_name)") ||
+    !employerApplicantResumeRoute.includes("Cache-Control', 'private, no-store, max-age=0") ||
+    !employerApplicantResumeRoute.includes("X-Content-Type-Options', 'nosniff")) {
+    fail('Applicant resume downloads must enforce employer ownership, constrain the file path, and disable caching.');
+}
+
 const employerIdValidationRoutes = [
     { route: "router.put('/jobs/:id'", variable: 'jobId', message: 'Invalid job id.' },
     { route: "router.patch('/jobs/:id/status'", variable: 'jobId', message: 'Invalid job id.' },
