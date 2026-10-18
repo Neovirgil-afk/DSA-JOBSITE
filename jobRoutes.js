@@ -433,6 +433,8 @@ router.get('/:id/application', requireAuth, requireCandidate, (req, res) => {
             'SELECT id, status, applied_at, updated_at FROM applications WHERE job_id = ? AND user_id = ?'
         ).get(jobId, req.session.userId);
 
+        res.set('Cache-Control', 'private, no-store, max-age=0');
+        res.set('Pragma', 'no-cache');
         res.json({
             applied: Boolean(application),
             application: application || null
