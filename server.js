@@ -14,6 +14,7 @@ const path = require('path');
 const { db } = require('./database');
 const SQLiteSessionStore = require('./sessionStore');
 const { seedIfNeeded } = require('./seed');
+const { seedDemoData } = require('./scripts/seed-demo-data');
 
 const authRoutes = require('./authRoutes');
 const jobRoutes = require('./jobRoutes');
@@ -35,6 +36,15 @@ const PORT = process.env.PORT || 3000;
 
 // Seed the database with skills/jobs/demo user if empty.
 seedIfNeeded(db);
+
+// Keep the fictional demo employers, candidates, jobs, applications, and conversations
+// available automatically for local development. Production stays opt-in because
+// these accounts share a known demo password.
+if (process.env.NODE_ENV !== 'production' || process.env.DEMO_SEED_ALLOW_PRODUCTION === '1') {
+    seedDemoData();
+} else {
+    console.log('[demo-seed] Skipped in production. Set DEMO_SEED_ALLOW_PRODUCTION=1 to enable demo accounts.');
+}
 
 // Optional administrator bootstrap: set ADMIN_EMAIL in the environment,
 // create/sign up that account, then restart the server to grant admin access.
