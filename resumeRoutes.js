@@ -236,7 +236,7 @@ router.get('/file', requireAuth, requireCandidate, (req, res) => {
         }
 
         const safeFilename = path.basename(String(resume.original_name || 'resume.pdf'))
-            .replace(/[\\r\\n"]/g, '')
+            .replace(/[\r\n"]/g, '')
             .slice(0, 180) || 'resume.pdf';
 
         res.sendFile(filePath, {
