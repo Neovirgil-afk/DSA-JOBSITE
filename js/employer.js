@@ -717,6 +717,7 @@ async function loadApplicants(jobId) {
         const summary = $('#applicantSummary');
         if (summary) summary.textContent = 'Unable to load applicants.';
         renderApplicantPipelineCounts();
+        updateBulkMessageControls();
     }
 }
 function renderApplicantTags(selector, skills, emptyText) {
