@@ -259,7 +259,7 @@ input[type=file]{display:none}
     }
 }
 
-</style>
+.career-fit-card{grid-column:1/-1}.resume-overview{padding:14px 15px;border:1px solid var(--line);border-radius:12px;background:#fafaff;color:var(--ink);font-size:13px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere}.career-recommendations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}.career-recommendation{padding:15px;border:1px solid var(--line);border-radius:13px;background:#fff;min-width:0}.career-recommendation-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.career-recommendation h3{font:700 14px Poppins,sans-serif;color:var(--navy);margin:0}.career-field{display:inline-block;margin-top:5px;font-size:10px;font-weight:700;color:var(--indigo)}.career-confidence{flex:0 0 auto;padding:5px 8px;border-radius:99px;background:var(--indigo-tint);color:var(--indigo-dark);font-size:10px;font-weight:800}.career-recommendation p{font-size:11px;line-height:1.65;color:var(--muted);margin:10px 0}.career-evidence{display:flex;flex-wrap:wrap;gap:5px}.career-evidence span{padding:4px 7px;border-radius:7px;background:#f2f3f7;color:#41445a;font-size:9px;line-height:1.4}.career-fit-note{margin-top:12px;line-height:1.65}@media(max-width:760px){.career-recommendations{grid-template-columns:1fr}.career-fit-card{grid-column:auto}}</style>
 
 <style>
 /* Final Skill Gap / learning resource polish */
@@ -355,7 +355,7 @@ input[type=file]{display:none}
 </div>
 <main class="resume-main">
 <div class="wrap">
-<section class="resume-heading"><p class="eyebrow">CAREER MATCHING</p><h1>Analyze your resume.</h1><p class="subtitle">Upload your resume and JobSite will scan it for known skills, save the detected skills to your profile, and calculate which jobs match your current skill set.</p></section>
+<section class="resume-heading"><p class="eyebrow">CAREER MATCHING</p><h1>Analyze your resume.</h1><p class="subtitle">Upload your resume to review its content and discover career paths that fit your experience, education, projects, and strengths across different industries.</p></section>
 <div class="resume-grid">
 <section class="resume-card">
 <div class="resume-card-header"><h2>Upload Resume</h2><p class="resume-card-description">PDF or DOCX only · Maximum file size: 5MB</p></div>
@@ -367,13 +367,14 @@ input[type=file]{display:none}
 <div class="file-row"><div class="file-name" id="fileName">No file selected</div><span class="file-type">RESUME</span></div>
 <button class="scan-button" id="scanButton" disabled>Scan Resume</button><div class="status" id="status"></div>
 </section>
-<section class="resume-card">
-<div class="resume-card-header"><h2>Detected Skills</h2><p class="resume-card-description">Skills found in your uploaded resume and saved to your JobSite profile.</p></div>
-<div class="skills" id="skills"><span class="empty">Upload a resume to begin.</span></div>
-<a class="manage-link" href="/profile.html">Manage skills <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+<section class="resume-card career-fit-card">
+<div class="resume-card-header"><h2>Career Fit Suggestions</h2><p class="resume-card-description">Suggestions are based on resume content such as experience, education, projects, and recurring topics—not the old skills detector.</p></div>
+<div id="resumeOverview" class="resume-overview"><span class="empty">Upload a resume to get an overview.</span></div>
+<div id="careerRecommendations" class="career-recommendations"><div class="empty">Suggested career directions will appear here after analysis.</div></div>
+<p class="resume-card-description career-fit-note">These are exploratory suggestions, not a hiring decision. Each suggestion explains what evidence in your resume may be relevant.</p>
 </section>
 <section class="resume-card jobs-card">
-<div class="resume-card-header"><div><h2>Recommended Jobs</h2><p class="resume-card-description">Jobs are ranked according to how many required skills you currently have.</p></div></div>
+<div class="resume-card-header"><div><h2>Recommended Jobs</h2><p class="resume-card-description">Explore available openings as another way to consider your next step.</p></div></div>
 <div class="job-list" id="jobs"><div class="empty">Your recommendations will appear here after scanning.</div></div>
 <div id="careerPath" class="career-path"></div>
 </section>
