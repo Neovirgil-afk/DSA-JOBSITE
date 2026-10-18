@@ -422,6 +422,11 @@ if (!applicationSubmissionSource.includes("router.post('/:id/apply'") ||
     !applicationSubmissionSource.includes("You already applied to this job.")) {
     fail('Job applications must handle duplicate submissions safely, including database uniqueness conflicts.');
 }
+if (!applicationSubmissionSource.includes("router.post('/:id/apply', requireAuth, requireCandidate") ||
+    !applicationSubmissionSource.includes("if (!user || user.role !== 'candidate')") ||
+    !applicationSubmissionSource.includes("if (job.status !== 'active')")) {
+    fail('Job applications must require authentication, restrict access to candidates, and reject inactive jobs.');
+}
 if (!applicationSubmissionSource.includes("job.application_deadline && !isValidDateOnly(job.application_deadline)") ||
     !applicationSubmissionSource.includes("isPastDeadline(job.application_deadline)") ||
     !applicationSubmissionSource.includes("The application deadline has passed.")) {
