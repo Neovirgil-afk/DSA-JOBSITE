@@ -8940,3 +8940,18 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   cursor: pointer;
 }
 .auth-remember span { line-height: 1.4; }
+
+
+/* Keep the Resume Analyzer icon visible and recognizable in the employee sidebar. */
+@media (min-width: 900px) {
+  body .site-header nav.main-nav.jobsite-global-rail > a[data-rail="resume"]::before {
+    content: "▤" !important;
+    font-family: "Segoe UI Symbol", "Arial Unicode MS", sans-serif !important;
+    font-size: 21px !important;
+    font-weight: 700 !important;
+    display: grid !important;
+    place-items: center !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
