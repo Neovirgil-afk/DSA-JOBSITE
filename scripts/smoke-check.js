@@ -215,6 +215,10 @@ for (const required of [
         fail('Employer registration must bound company profile field length: ' + required);
     }
 }
+if (!employerRegistrationSource.includes('typeof value !== \'string\'') ||
+    !employerRegistrationSource.includes('Company profile fields must contain text values.')) {
+    fail('Optional employer company profile fields must reject non-text values.');
+}
 // Employer resume downloads must resolve files from the same configurable directory as uploads.
 if (!employerRoutesSource.includes('process.env.JOBPATH_UPLOAD_DIR') ||
     !employerRoutesSource.includes('path.resolve(process.env.JOBPATH_UPLOAD_DIR)') ||
