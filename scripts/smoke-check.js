@@ -413,6 +413,14 @@ try {
     }
 }
 
+// Keep local and production SQLite databases out of Git.
+const gitignoreSource = read('.gitignore');
+if (!gitignoreSource.includes('*.db') ||
+    !gitignoreSource.includes('*.sqlite') ||
+    !gitignoreSource.includes('*.sqlite3')) {
+    fail('.gitignore must exclude SQLite database files and journals.');
+}
+
 // Static serving must not expose database files or private backend/configuration files.
 const staticGuardStart = server.indexOf('const privateStaticFiles = new Set([');
 const staticGuardEnd = server.indexOf('app.use(express.static(__dirname))');
