@@ -445,6 +445,11 @@ if (!messageRoutesSource.includes("typeof payload.body !== 'string'") ||
 
 // Protect resume uploads against unexpectedly large or unsupported files.
 const resumeRoutesSource = read('resumeRoutes.js');
+if (!resumeRoutesSource.includes("path.basename(String(req.file.originalname || 'resume.pdf'))") ||
+    !resumeRoutesSource.includes(".slice(0, 180) || 'resume.pdf'") ||
+    !resumeRoutesSource.includes(".replace(/[\\r\\n\"]/g, '')")) {
+    fail('Uploaded resume filenames must be stored as bounded basenames without line breaks or quotes.');
+}
 if (!/process\.env\.JOBPATH_UPLOAD_DIR\s*\?\s*path\.resolve\(process\.env\.JOBPATH_UPLOAD_DIR\)/.test(resumeRoutesSource) ||
     !/fs\.mkdirSync\(UPLOAD_DIR,\s*\{\s*recursive:\s*true\s*\}\)/.test(resumeRoutesSource)) {
     fail('Resume uploads must support a configurable storage directory and create it when needed.');
