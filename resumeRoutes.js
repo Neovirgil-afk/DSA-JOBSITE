@@ -271,12 +271,17 @@ router.get('/file', requireAuth, requireCandidate, (req, res) => {
             .replace(/[\r\n"]/g, '')
             .slice(0, 180) || 'resume.pdf';
 
+        // This endpoint is intentionally embeddable only by this same site,
+        // so the Profile page can show the user's resume in its preview modal.
+        res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+
         res.sendFile(filePath, {
             headers: {
                 'Content-Disposition': `inline; filename="${safeFilename}"`,
                 'Cache-Control': 'private, no-store, max-age=0',
                 'Pragma': 'no-cache',
-                'X-Content-Type-Options': 'nosniff'
+                'X-Content-Type-Options': 'nosniff',
+                'X-Frame-Options': 'SAMEORIGIN'
             }
         });
     } catch (error) {
