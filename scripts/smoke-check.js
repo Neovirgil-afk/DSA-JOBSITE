@@ -93,6 +93,12 @@ if (!/process\.env\.JOBPATH_DB_PATH\s*\?\s*path\.resolve\(process\.env\.JOBPATH_
 }
 
 const server = read('server.js');
+if (!/httpServer\.close\(\s*\(error\)\s*=>/.test(server) ||
+    !/db\.close\(\)/.test(server) ||
+    !/process\.on\(['"]SIGTERM['"]/.test(server) ||
+    !/process\.on\(['"]SIGINT['"]/.test(server)) {
+    fail('The server must gracefully close its HTTP listener and SQLite connection on SIGTERM and SIGINT.');
+}
 const routeImports = [...server.matchAll(/const\s+(\w+Routes)\s*=\s*require\(['"]\.\/([^'"]+)['"]\)/g)];
 if (routeImports.length === 0) {
     fail('server.js does not declare any route modules.');
