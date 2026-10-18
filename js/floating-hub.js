@@ -11,7 +11,10 @@
         initialNavs.forEach((nav) => { nav.style.visibility = 'hidden'; });
         const allowed = new Set(['jobs', 'dashboard', 'applications', 'learn', 'profile', 'resume']);
 
+        let isCandidateUser = false;
+
         function normalizeNavigation(isCandidate) {
+            isCandidateUser = isCandidate;
             const navs = Array.from(document.querySelectorAll('nav.jobsite-global-rail, .mobile-nav-clone.jobsite-global-rail'));
             navs.forEach((nav) => {
                 if (!isCandidate) {
@@ -19,11 +22,13 @@
                     nav.style.visibility = '';
                     return;
                 }
-                nav.querySelectorAll('a[data-rail]').forEach((link) => {
-                    if (!allowed.has(link.dataset.rail)) link.remove();
+
+                // Keep only the six approved employee links as direct sidebar items.
+                // This also removes untagged links/buttons and the "For Employers" item.
+                Array.from(nav.children).forEach((item) => {
+                    if (!(item.matches('a[data-rail]') && allowed.has(item.dataset.rail))) item.remove();
                 });
-                // Resources is a desktop dropdown, not one of the six employee destinations.
-                nav.querySelectorAll('.nav-dropdown').forEach((dropdown) => dropdown.remove());
+
                 const rawPath = window.location.pathname;
                 const path = (rawPath.length > 1 && rawPath.endsWith('/')) ? rawPath.slice(0, -1) : rawPath;
                 nav.querySelectorAll('a[data-rail]').forEach((link) => {
@@ -37,6 +42,13 @@
                 nav.style.visibility = '';
             });
         }
+
+        // Some pages/scripts build or clone navigation after initial page load.
+        // Re-apply the six-link rule whenever a sidebar is changed.
+        const sidebarObserver = new MutationObserver(() => {
+            if (isCandidateUser) normalizeNavigation(true);
+        });
+        sidebarObserver.observe(document.documentElement, { childList: true, subtree: true });
 
         fetch('/api/auth/me', { credentials: 'include' })
             .then((response) => response.ok ? response.json() : null)
