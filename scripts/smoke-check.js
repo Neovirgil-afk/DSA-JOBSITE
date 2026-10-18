@@ -179,6 +179,11 @@ if (!resumeSignatureSource.includes('function hasValidResumeSignature(filePath, 
     fail('Resume uploads must validate PDF/DOCX file signatures and reject mismatched files before scanning.');
 }
 
+if (!resumeSignatureSource.includes("limits: { fileSize: 5 * 1024 * 1024 }") ||
+    !resumeSignatureSource.includes("const allowed = ['.pdf', '.docx']")) {
+    fail('Resume uploads must keep the 5MB size cap and restrict extensions to PDF and DOCX.');
+}
+
 // The authentication limiter must fail closed at capacity rather than clearing active limits.
 const authLimiterSource = read('authRateLimit.js');
 if (!authLimiterSource.includes('const MAX_TRACKED_KEYS = 10000') ||
