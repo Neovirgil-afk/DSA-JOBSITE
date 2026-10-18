@@ -131,7 +131,100 @@ async function main() {
         const duplicateApply = await request('/api/jobs/' + job.id + '/apply', { method: 'POST' });
         if (duplicateApply.status !== 409) throw new Error('Duplicate applications should be rejected with 409; received ' + duplicateApply.status + '.');
 
-        console.log('Runtime integration check passed: server health, 6 public pages, 4 private paths, API access control, candidate registration/session, job search, application submission/listing, and duplicate-application prevention.');
+        // Exercise the employer side and verify candidate/employer data is linked correctly.
+        const candidateCookie = sessionCookie;
+        const employerEmail = 'runtime-employer-' + process.pid + '-' + Date.now() + '@example.com';
+        const employerRegistration = await request('/api/employer/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fullName: 'Runtime Test Employer',
+                email: employerEmail,
+                password: 'RuntimeEmployer123!',
+                confirmPassword: 'RuntimeEmployer123!',
+                companyName: 'Runtime Test Company ' + process.pid
+            })
+        });
+        if (employerRegistration.status !== 200) throw new Error('Employer registration should succeed; received ' + employerRegistration.status + ': ' + await employerRegistration.text());
+        const employerBody = await employerRegistration.json();
+        if (!employerBody.success || employerBody.role !== 'employer') throw new Error('Employer registration did not create an employer account.');
+        const employerCookieHeader = employerRegistration.headers.get('set-cookie') || '';
+        const employerCookie = employerCookieHeader.split(';')[0];
+        if (!employerCookie.includes('=')) throw new Error('Employer registration did not establish a session cookie.');
+
+        sessionCookie = employerCookie;
+        const employerMe = await request('/api/employer/me');
+        if (employerMe.status !== 200) throw new Error('Employer session should be authorized; received ' + employerMe.status + '.');
+
+        const postedJobResponse = await request('/api/employer/jobs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: 'Runtime Integration Developer',
+                description: 'A temporary job posting used only by the automated integration check.',
+                skills: ['JavaScript', 'Node.js'],
+                employmentType: 'Full-time',
+                location: 'Remote',
+                howToApply: 'Apply through JobPath.',
+                status: 'active'
+            })
+        });
+        if (postedJobResponse.status !== 201) throw new Error('Employer should be able to publish a job; received ' + postedJobResponse.status + ': ' + await postedJobResponse.text());
+        const postedJobBody = await postedJobResponse.json();
+        const postedJobId = Number(postedJobBody.job?.id);
+        if (!postedJobBody.success || !Number.isInteger(postedJobId) || postedJobId <= 0) throw new Error('Employer job posting response did not include a valid job.');
+
+        const employerJobs = await request('/api/employer/jobs');
+        if (employerJobs.status !== 200) throw new Error('Employer should be able to view company jobs; received ' + employerJobs.status + '.');
+        const employerJobsBody = await employerJobs.json();
+        if (!employerJobsBody.jobs?.some((item) => Number(item.id) === postedJobId)) throw new Error('Newly posted job was not returned in the employer job list.');
+
+        sessionCookie = candidateCookie;
+        const applyToEmployerJob = await request('/api/jobs/' + postedJobId + '/apply', { method: 'POST' });
+        if (applyToEmployerJob.status !== 201) throw new Error('Candidate should be able to apply to the employer-created job; received ' + applyToEmployerJob.status + ': ' + await applyToEmployerJob.text());
+        const employerJobApplication = await applyToEmployerJob.json();
+        const employerApplicationId = Number(employerJobApplication.applicationId);
+        if (!Number.isInteger(employerApplicationId) || employerApplicationId <= 0) throw new Error('Application to employer-created job did not return a valid application ID.');
+
+        sessionCookie = employerCookie;
+        const applicantsResponse = await request('/api/employer/jobs/' + postedJobId + '/applicants');
+        if (applicantsResponse.status !== 200) throw new Error('Employer should be able to view applicants for its own job; received ' + applicantsResponse.status + ': ' + await applicantsResponse.text());
+        const applicantsBody = await applicantsResponse.json();
+        if (!applicantsBody.applicants?.some((item) => Number(item.application_id) === employerApplicationId)) throw new Error('Candidate application was not visible to the job owner.');
+
+        const statusResponse = await request('/api/employer/applications/' + employerApplicationId + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'shortlisted' })
+        });
+        if (statusResponse.status !== 200) throw new Error('Employer should be able to shortlist its applicant; received ' + statusResponse.status + ': ' + await statusResponse.text());
+
+        const scheduledAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+        const interviewResponse = await request('/api/interviews', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                applicationId: employerApplicationId,
+                scheduledAt,
+                durationMinutes: 30,
+                interviewType: 'online',
+                locationOrLink: 'https://example.com/runtime-interview',
+                notes: 'Temporary automated integration test.'
+            })
+        });
+        if (interviewResponse.status !== 201) throw new Error('Employer should be able to schedule an interview for its applicant; received ' + interviewResponse.status + ': ' + await interviewResponse.text());
+        const interviewBody = await interviewResponse.json();
+        if (!interviewBody.success || !interviewBody.interviewId) throw new Error('Interview scheduling response did not include an interview ID.');
+
+        sessionCookie = candidateCookie;
+        const candidateInterviews = await request('/api/interviews');
+        if (candidateInterviews.status !== 200) throw new Error('Candidate should be able to view their scheduled interviews; received ' + candidateInterviews.status + ': ' + await candidateInterviews.text());
+        const candidateInterviewsBody = await candidateInterviews.json();
+        if (!candidateInterviewsBody.interviews?.some((item) => Number(item.id) === Number(interviewBody.interviewId))) {
+            throw new Error('Scheduled interview was not visible to the candidate.');
+        }
+
+        console.log('Runtime integration check passed: server health, 6 public pages, private-file and API access controls, candidate registration/session, job search/application/history, duplicate prevention, employer registration/session, job posting/listing, applicant visibility/status updates, and interview scheduling/visibility.');
     } finally {
         if (child.exitCode === null) {
             child.kill('SIGTERM');
