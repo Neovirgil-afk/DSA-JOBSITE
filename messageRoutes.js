@@ -4,6 +4,12 @@ const {db}=require('./database');
 const {requireAuth}=require('./auth');
 const {createNotification}=require('./notificationService');
 const router=express.Router();
+// Conversations and message contents are private to the application participants.
+router.use((req,res,next)=>{
+ res.set('Cache-Control','private, no-store, max-age=0');
+ res.set('Pragma','no-cache');
+ next();
+});
 function getUser(id){return db.prepare('SELECT id,role,full_name FROM users WHERE id=?').get(id);}
 function access(appId,user){return db.prepare("SELECT a.id,a.user_id AS candidate_id,j.employer_id,j.title AS job_title,j.company FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.id=? AND ((?='candidate' AND a.user_id=?) OR (?='employer' AND j.employer_id=?))").get(appId,user.role,user.id,user.role,user.id);}
 router.get('/',requireAuth,(req,res)=>{
