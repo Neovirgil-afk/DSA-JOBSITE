@@ -199,6 +199,43 @@ async function main() {
         const me = await request('/api/auth/me');
         if (me.status !== 200) throw new Error('Newly registered candidate session should work; received ' + me.status + '.');
 
+        // Registration must normalize email casing and prevent duplicate accounts.
+        const duplicateRegistration = await request('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fullName: 'Duplicate Runtime Candidate',
+                email: '  ' + email.toUpperCase() + '  ',
+                password: 'RuntimeTest123!',
+                confirmPassword: 'RuntimeTest123!',
+                education: 'Integration Test School',
+                degree: 'Test Degree',
+                targetJob: 'Software Developer',
+                location: 'Bacoor'
+            })
+        });
+        if (duplicateRegistration.status !== 409) {
+            throw new Error('Registration must reject duplicate emails even with different casing and surrounding whitespace; received ' + duplicateRegistration.status + '.');
+        }
+
+        const malformedRegistration = await request('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fullName: 'Invalid Email Candidate',
+                email: 'not-an-email',
+                password: 'RuntimeTest123!',
+                confirmPassword: 'RuntimeTest123!',
+                education: 'Integration Test School',
+                degree: 'Test Degree',
+                targetJob: 'Software Developer',
+                location: 'Bacoor'
+            })
+        });
+        if (malformedRegistration.status !== 400) {
+            throw new Error('Registration must reject malformed email addresses with 400; received ' + malformedRegistration.status + '.');
+        }
+
         // Invalid credentials and malformed options must be rejected before valid sign-in.
         sessionCookie = '';
         const badPasswordResponse = await request('/api/auth/login', {
@@ -220,7 +257,7 @@ async function main() {
         const loginResponse = await request('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password: 'RuntimeTest123!' })
+            body: JSON.stringify({ email: email.toUpperCase(), password: 'RuntimeTest123!' })
         });
         if (loginResponse.status !== 200) throw new Error('Candidate login failed; received ' + loginResponse.status + '.');
         sessionCookie = (loginResponse.headers.get('set-cookie') || '').split(';')[0];
