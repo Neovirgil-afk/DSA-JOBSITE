@@ -104,6 +104,32 @@ app.get('/api/health', (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+const httpServer = app.listen(PORT, () => {
     console.log(`[server] JobPath API running on http://localhost:${PORT}`);
 });
+
+// Close the HTTP listener before SQLite so in-flight requests can finish
+// during Render restarts and other graceful process shutdowns.
+let isShuttingDown = false;
+function shutdown(signal) {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+    console.log(`[server] ${signal} received; shutting down gracefully.`);
+
+    httpServer.close((error) => {
+        if (error) {
+            console.error('[server] HTTP shutdown failed:', error);
+            process.exitCode = 1;
+        }
+
+        try {
+            db.close();
+        } catch (closeError) {
+            console.error('[server] Database close failed:', closeError);
+            process.exitCode = 1;
+        }
+    });
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
