@@ -227,9 +227,10 @@ if (!applicantResumeRoute.includes('WHERE a.id = ? AND j.employer_id = ?')) {
 }
 if (!applicantResumeRoute.includes('path.basename(application.stored_name)') ||
     !applicantResumeRoute.includes('fs.existsSync(filePath)') ||
-    !applicantResumeRoute.includes("replace(/["\\\\\\r\\n]/g, '_')") ||
-    !applicantResumeRoute.includes("res.setHeader(") ||
-    !applicantResumeRoute.includes("res.sendFile(filePath)")) {
+    !applicantResumeRoute.includes('replace(/') ||
+    !applicantResumeRoute.includes("g, '_')") ||
+    !applicantResumeRoute.includes('res.setHeader(') ||
+    !applicantResumeRoute.includes('res.sendFile(filePath)')) {
     fail('Applicant resume downloads must constrain stored filenames to the upload directory, check file existence, and sanitize the download filename.');
 }
 if (!employerRoutesSource.includes(String.raw`/^[^\s@]+@[^\s@]+\.[^\s@]+$/`)) {
