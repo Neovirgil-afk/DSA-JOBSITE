@@ -408,6 +408,57 @@ async function main() {
         const employerProfileAccess = await request('/api/auth/profile');
         if (employerProfileAccess.status !== 403) throw new Error('Employer accounts must not access candidate profile data; received ' + employerProfileAccess.status + '.');
 
+        // Company profile validation should reject malformed payloads without changing stored data.
+        const malformedCompanyProfile = await request('/api/employer/company', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ companyName: 42 })
+        });
+        if (malformedCompanyProfile.status !== 400) throw new Error('Company profile updates must reject non-text fields; received ' + malformedCompanyProfile.status + '.');
+
+        const invalidJobTitle = await request('/api/employer/jobs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: '   ',
+                description: 'Invalid title test',
+                skills: ['JavaScript'],
+                employmentType: 'Full-time',
+                location: 'Remote',
+                howToApply: 'Apply through JobPath.'
+            })
+        });
+        if (invalidJobTitle.status !== 400) throw new Error('Job postings must reject a blank title; received ' + invalidJobTitle.status + '.');
+
+        const invalidJobDeadline = await request('/api/employer/jobs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: 'Invalid Deadline Test',
+                description: 'Invalid deadline test',
+                skills: ['JavaScript'],
+                employmentType: 'Full-time',
+                location: 'Remote',
+                howToApply: 'Apply through JobPath.',
+                applicationDeadline: '2026-02-31'
+            })
+        });
+        if (invalidJobDeadline.status !== 400) throw new Error('Job postings must reject impossible calendar deadlines; received ' + invalidJobDeadline.status + '.');
+
+        const oversizedJobTitle = await request('/api/employer/jobs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: 'T'.repeat(121),
+                description: 'Overlong title test',
+                skills: ['JavaScript'],
+                employmentType: 'Full-time',
+                location: 'Remote',
+                howToApply: 'Apply through JobPath.'
+            })
+        });
+        if (oversizedJobTitle.status !== 400) throw new Error('Job postings must reject titles longer than 120 characters; received ' + oversizedJobTitle.status + '.');
+
         const postedJobResponse = await request('/api/employer/jobs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -564,6 +615,55 @@ async function main() {
         if (!secondEmployerCookie.includes('=')) throw new Error('Second employer registration did not establish a session cookie.');
 
         sessionCookie = secondEmployerCookie;
+
+        const foreignCompanyUpdate = await request('/api/employer/company', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ companyName: employerBody.companyName })
+        });
+        if (foreignCompanyUpdate.status !== 409) throw new Error('Company profile updates must reject a name already owned by another employer; received ' + foreignCompanyUpdate.status + '.');
+
+        const secondEmployerJobs = await request('/api/employer/jobs');
+        if (secondEmployerJobs.status !== 200) throw new Error('Second employer should be able to load its own job list.');
+        const secondEmployerJobsBody = await secondEmployerJobs.json();
+        if (secondEmployerJobsBody.jobs?.some((item) => Number(item.id) === postedJobId)) {
+            throw new Error('Employer job listings must not expose another company’s postings.');
+        }
+
+        const foreignJobUpdate = await request('/api/employer/jobs/' + postedJobId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: 'Unauthorized Edit',
+                description: 'Should not be allowed',
+                skills: ['JavaScript'],
+                employmentType: 'Full-time',
+                location: 'Remote',
+                howToApply: 'Apply through JobPath.'
+            })
+        });
+        if (foreignJobUpdate.status !== 404) throw new Error('An employer must not update another company’s job; received ' + foreignJobUpdate.status + '.');
+
+        const invalidJobIdUpdate = await request('/api/employer/jobs/not-a-number', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: 'Invalid ID Edit',
+                description: 'Invalid ID test',
+                skills: ['JavaScript'],
+                employmentType: 'Full-time',
+                location: 'Remote',
+                howToApply: 'Apply through JobPath.'
+            })
+        });
+        if (invalidJobIdUpdate.status !== 400) throw new Error('Employer job updates must reject malformed job IDs; received ' + invalidJobIdUpdate.status + '.');
+
+        const ownerCompanyBefore = await request('/api/employer/me');
+        const ownerCompanyBeforeBody = await ownerCompanyBefore.json();
+        if (ownerCompanyBeforeBody.company?.company_name !== employerBody.companyName) {
+            throw new Error('A rejected cross-company profile update changed the owner’s company profile.');
+        }
+
         const foreignApplicantsResponse = await request('/api/employer/jobs/' + postedJobId + '/applicants');
         if (foreignApplicantsResponse.status !== 404) throw new Error('Another employer must not access applicants for a job it does not own; received ' + foreignApplicantsResponse.status + '.');
         const foreignApplicationStatusUpdate = await request('/api/employer/applications/' + employerApplicationId + '/status', {
