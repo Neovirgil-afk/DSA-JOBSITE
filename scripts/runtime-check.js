@@ -930,6 +930,13 @@ async function main() {
             body: JSON.stringify({ status: 'closed' })
         });
         if (closeJobForApplicationCheck.status !== 200) throw new Error('Job owner should be able to close a job before application rejection checks; received ' + closeJobForApplicationCheck.status + '.');
+        const companiesWithClosedJob = await request('/api/jobs/companies');
+        if (companiesWithClosedJob.status !== 200) throw new Error('Public company listing should remain available when a job is closed.');
+        const companiesWithClosedJobBody = await companiesWithClosedJob.json();
+        const closedJobCompany = companiesWithClosedJobBody.companies?.find((item) => item.company_name === employerBody.companyName);
+        if (closedJobCompany && Number(closedJobCompany.open_jobs) !== 0) {
+            throw new Error('Public company open-job counts must exclude closed postings.');
+        }
 
         sessionCookie = secondCandidateCookie;
         const applyToClosedJob = await request('/api/jobs/' + postedJobId + '/apply', { method: 'POST' });
@@ -969,6 +976,12 @@ async function main() {
             body: JSON.stringify({ status: 'active' })
         });
         if (reopenJobAfterApplicationCheck.status !== 200) throw new Error('Job owner should be able to reopen a job after the closed-job application test; received ' + reopenJobAfterApplicationCheck.status + '.');
+        const companiesWithReopenedJob = await request('/api/jobs/companies');
+        const companiesWithReopenedJobBody = await companiesWithReopenedJob.json();
+        const reopenedJobCompany = companiesWithReopenedJobBody.companies?.find((item) => item.company_name === employerBody.companyName);
+        if (!reopenedJobCompany || Number(reopenedJobCompany.open_jobs) < 1) {
+            throw new Error('Public company open-job counts should include a reopened active posting without an expired deadline.');
+        }
         sessionCookie = candidateCookie;
 
         sessionCookie = employerCookie;
