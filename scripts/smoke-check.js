@@ -788,6 +788,26 @@ if (!/app\.get\(\s*['"]\/api\/health['"][\s\S]*?db\.prepare\(['"]SELECT 1['"]\)\
     fail('/api/health must check database connectivity and return 503 when the database is unavailable.');
 }
 
+// Learning assessments must be candidate-only, validate submissions, and preserve verified progress.
+const learningRoutesSource = read('learningRoutes.js');
+const assessmentRouteStart = learningRoutesSource.indexOf("router.post('/assessment/complete'");
+const assessmentRouteEnd = learningRoutesSource.indexOf('module.exports = router', assessmentRouteStart);
+const assessmentRoute = learningRoutesSource.slice(assessmentRouteStart, assessmentRouteEnd);
+if (assessmentRouteStart < 0 || assessmentRouteEnd < 0 ||
+    !learningRoutesSource.includes("router.get('/catalog', requireAuth, requireCandidate") ||
+    !learningRoutesSource.includes("router.get('/recommended', requireAuth, requireCandidate") ||
+    !assessmentRoute.includes('requireAuth, requireCandidate') ||
+    !assessmentRoute.includes('gradeQuiz(req.body?.skill, req.body?.answers)') ||
+    !assessmentRoute.includes('db.transaction(') ||
+    !assessmentRoute.includes("learning_progress.status = 'verified' OR excluded.status = 'verified'") ||
+    !assessmentRoute.includes("if (result.passed)") ||
+    !assessmentRoute.includes("INSERT INTO user_skills (user_id, skill_id, source)")) {
+    fail('Learning routes must protect candidate access, validate assessment submissions, save progress transactionally, and preserve verified skill status.');
+}
+if (!assessmentRoute.includes("status: 'needs_review'") && !assessmentRoute.includes("'needs_review'")) {
+    fail('Failed learning assessments must be saved as needing review rather than verified.');
+}
+
 // Application history must be limited to the signed-in candidate and their own records.
 const applicationListRoute = applicationRoutesSource.slice(
     applicationRoutesSource.indexOf("router.get('/'"),
