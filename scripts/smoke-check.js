@@ -483,6 +483,14 @@ if (!jobRoutesValidationSource.includes("typeof value !== 'string' || value.leng
     !jobRoutesValidationSource.includes('Number(minMatch) > 100')) {
     fail('Job search filters must reject non-text/oversized values and out-of-range minimum match scores.');
 }
+// Saved-job mutations must reject malformed IDs instead of parseInt accepting prefixes like "12abc".
+const savedJobRoutesSource = jobRoutesValidationSource;
+if (!savedJobRoutesSource.includes("router.post('/saved/:id', requireAuth, requireCandidate") ||
+    !savedJobRoutesSource.includes("router.delete('/saved/:id', requireAuth, requireCandidate") ||
+    (savedJobRoutesSource.match(/if \(!Number\.isInteger\(jobId\) \|\| jobId <= 0\)/g) || []).length < 3 ||
+    !savedJobRoutesSource.includes("return res.status(400).json({ error: 'Invalid job id.' });")) {
+    fail('Saved-job routes must reject non-integer and non-positive job IDs.');
+}
 const applicationSubmissionSource = jobRoutesValidationSource;
 if (!applicationSubmissionSource.includes("router.post('/:id/apply'") ||
     !applicationSubmissionSource.includes("err.code === 'SQLITE_CONSTRAINT_UNIQUE'") ||
