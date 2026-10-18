@@ -260,6 +260,12 @@ try {
     fail('Authentication rate limiter behavior check failed: ' + error.message);
 }
 
+const notificationRoutesSource = read('notificationRoutes.js');
+if ((notificationRoutesSource.match(/Cache-Control', 'private, no-store, max-age=0'/g) || []).length < 3 ||
+    (notificationRoutesSource.match(/Pragma', 'no-cache'/g) || []).length < 3) {
+    fail('Private notification responses must disable browser and intermediary caching.');
+}
+
 const messageRoutesSource = read('messageRoutes.js');
 if (!messageRoutesSource.includes("typeof payload.body !== 'string'") ||
     !messageRoutesSource.includes('ORDER BY m.id DESC LIMIT 500') ||
