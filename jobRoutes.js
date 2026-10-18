@@ -153,7 +153,10 @@ router.get('/saved', requireAuth, requireCandidate, (req, res) => {
 
 router.post('/saved/:id', requireAuth, requireCandidate, (req, res) => {
     try {
-        const jobId = parseInt(req.params.id, 10);
+        const jobId = Number(req.params.id);
+        if (!Number.isInteger(jobId) || jobId <= 0) {
+            return res.status(400).json({ error: 'Invalid job id.' });
+        }
         const job = db.prepare('SELECT id FROM jobs WHERE id = ?').get(jobId);
 
         if (!job) {
@@ -174,7 +177,10 @@ router.post('/saved/:id', requireAuth, requireCandidate, (req, res) => {
 
 router.delete('/saved/:id', requireAuth, requireCandidate, (req, res) => {
     try {
-        const jobId = parseInt(req.params.id, 10);
+        const jobId = Number(req.params.id);
+        if (!Number.isInteger(jobId) || jobId <= 0) {
+            return res.status(400).json({ error: 'Invalid job id.' });
+        }
 
         db.prepare(`
             DELETE FROM saved_jobs
