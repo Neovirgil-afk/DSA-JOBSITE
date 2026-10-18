@@ -762,6 +762,10 @@ async function main() {
         if (publicJobsWithDraftBody.jobs?.some((item) => Number(item.id) === draftJobId)) {
             throw new Error('Draft postings must not appear in public candidate job search.');
         }
+        const publicDraftDetails = await request('/api/jobs/' + draftJobId);
+        if (publicDraftDetails.status !== 404) {
+            throw new Error('Draft job details must be hidden from public lookup; received ' + publicDraftDetails.status + '.');
+        }
         sessionCookie = employerCookie;
         const publishDraftResponse = await request('/api/employer/jobs/' + draftJobId + '/status', {
             method: 'PATCH',
@@ -776,6 +780,14 @@ async function main() {
         const publicJobsAfterDraftPublishedBody = await publicJobsAfterDraftPublished.json();
         if (!publicJobsAfterDraftPublishedBody.jobs?.some((item) => Number(item.id) === draftJobId)) {
             throw new Error('Publishing a draft should make the job available in public candidate search.');
+        }
+        const publishedDraftDetails = await request('/api/jobs/' + draftJobId);
+        if (publishedDraftDetails.status !== 200) {
+            throw new Error('Published draft details should become available in public lookup; received ' + publishedDraftDetails.status + '.');
+        }
+        const publishedDraftDetailsBody = await publishedDraftDetails.json();
+        if (publishedDraftDetailsBody.job?.status !== 'active') {
+            throw new Error('Public job details should expose the published active status after a draft is published.');
         }
         sessionCookie = employerCookie;
 
