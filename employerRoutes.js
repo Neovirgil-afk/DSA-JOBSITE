@@ -906,7 +906,7 @@ router.put('/company', requireEmployer, (req, res) => {
             return res.status(404).json({ error: 'Company profile not found.' });
         }
 
-        const companyName = clean(req.body.companyName) || current.company_name;
+        const companyName = clean(req.body.companyName).slice(0, 160) || current.company_name;
 
         const duplicate = db.prepare(
             'SELECT id FROM company_profiles WHERE company_name = ? COLLATE NOCASE AND id != ?'
