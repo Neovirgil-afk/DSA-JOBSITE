@@ -276,6 +276,14 @@ if (!employerLoginRouteSource.includes('establishSession(req, user.id,') ||
     fail('Employer login must regenerate the session ID after successful authentication to help prevent session fixation.');
 }
 // Reuse employerRoutesSource declared by the existing employer registration checks.
+if (!employerRoutesSource.includes('function validateJobPayload(payload)') ||
+    !employerRoutesSource.includes("['title', 120, 'Job title']") ||
+    !employerRoutesSource.includes("['description', 10000, 'Description']") ||
+    !employerRoutesSource.includes("payload.skills.length > 50") ||
+    !employerRoutesSource.includes("skill.length > 80") ||
+    (employerRoutesSource.match(/validateJobPayload\(payload\)/g) || []).length < 3) {
+    fail('Employer job creation and updates must enforce field-size limits and cap the number and length of required skills.');
+}
 
 if (!employerRoutesSource.includes("Buffer.byteLength(password, 'utf8') > 72") ||
     !employerRoutesSource.includes('no more than 72 UTF-8 bytes')) {
