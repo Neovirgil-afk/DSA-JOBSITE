@@ -8827,3 +8827,23 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     border:1px solid GrayText;
   }
 }
+
+
+/* Batch 39: reduce accidental horizontal scrolling on narrow screens */
+@media(max-width:600px){
+  :where(.profile-card,.cc-panel,.application-card,.application-summary,.mobile-panel,.mobile-stat-card,.mobile-quick-card,.category-card){
+    overflow-wrap:anywhere;
+  }
+  :where(.profile-card,.cc-panel,.application-card,.application-summary,.mobile-panel,.mobile-stat-card,.mobile-quick-card,.category-card) :where(img,video,iframe){
+    max-width:100%;
+  }
+  :where(.profile-card,.cc-panel,.application-card,.application-summary,.mobile-panel,.mobile-stat-card,.mobile-quick-card,.category-card) :where(pre,code){
+    overflow-wrap:anywhere;
+    white-space:pre-wrap;
+  }
+  :where(.profile-card,.cc-panel,.application-card,.application-summary,.mobile-panel,.mobile-stat-card,.mobile-quick-card,.category-card) :where(table){
+    display:block;
+    max-width:100%;
+    overflow-x:auto;
+  }
+}
