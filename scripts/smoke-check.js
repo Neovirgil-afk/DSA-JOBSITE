@@ -468,6 +468,16 @@ if (!/router\.use\(\(req, res, next\) => \{\s*res\.set\(['"]Cache-Control['"], [
 }
 
 const employerRoutesPrivacySource = read('employerRoutes.js');
+const employerApplicantListRoute = employerRoutesPrivacySource.slice(
+    employerRoutesPrivacySource.indexOf("router.get('/jobs/:id/applicants'"),
+    employerRoutesPrivacySource.indexOf("router.get('/applicants/:id'")
+);
+if (!employerApplicantListRoute.includes('Number(req.params.id)') ||
+    !employerApplicantListRoute.includes('!Number.isInteger(jobId) || jobId <= 0') ||
+    !employerApplicantListRoute.includes("return res.status(400).json({ error: 'Invalid job id.' });")) {
+    fail('Employer applicant lists must reject malformed and non-positive job IDs.');
+}
+
 if (!/router\.use\(\(req, res, next\) => \{\s*res\.set\(['"]Cache-Control['"], ['"]private, no-store, max-age=0['"]\);\s*res\.set\(['"]Pragma['"], ['"]no-cache['"]\);\s*next\(\);\s*\}\)/.test(employerRoutesPrivacySource)) {
     fail('Employer API responses must disable caching of private dashboard, applicant, and company data.');
 }
