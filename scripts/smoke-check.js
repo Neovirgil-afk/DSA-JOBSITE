@@ -399,8 +399,9 @@ if (!interviewRoutesSource.includes("private, no-store, max-age=0") ||
 
 const notificationRoutesSource = read('notificationRoutes.js');
 if ((notificationRoutesSource.match(/Cache-Control', 'private, no-store, max-age=0'/g) || []).length < 3 ||
-    (notificationRoutesSource.match(/Pragma', 'no-cache'/g) || []).length < 3) {
-    fail('Private notification responses must disable browser and intermediary caching.');
+    (notificationRoutesSource.match(/Pragma', 'no-cache'/g) || []).length < 3 ||
+    !/router\.use\(\(req,\s*res,\s*next\)\s*=>\s*\{[\s\S]*?Cache-Control', 'private, no-store, max-age=0'[\s\S]*?Pragma', 'no-cache'[\s\S]*?next\(\);\s*\}\);/.test(notificationRoutesSource)) {
+    fail('All private notification responses, including errors, must disable browser and intermediary caching at router level.');
 }
 
 const messageRoutesSource = read('messageRoutes.js');
