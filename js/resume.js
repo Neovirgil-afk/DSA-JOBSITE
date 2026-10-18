@@ -5,7 +5,8 @@ const dropzone = document.querySelector('#dropzone');
 const fileName = document.querySelector('#fileName');
 const scanButton = document.querySelector('#scanButton');
 const statusBox = document.querySelector('#status');
-const skillsBox = document.querySelector('#skills');
+const resumeOverviewBox = document.querySelector('#resumeOverview');
+const careerRecommendationsBox = document.querySelector('#careerRecommendations');
 const jobsBox = document.querySelector('#jobs');
 const careerPathBox = document.querySelector('#careerPath');
 
@@ -34,16 +35,11 @@ function updateSelectedFile() {
     scanButton.disabled = !file;
 }
 
-function renderSkills(skills) {
-    if (!skills.length) {
-        skillsBox.innerHTML = '<span class="empty">No known skills were detected. You can add skills manually from your profile.</span>';
-        return;
-    }
-
-    skillsBox.innerHTML = skills
-        .map((skill) => `<span class="skill">${escapeHTML(skill)}</span>`)
-        .join('');
+function renderCareerRecommendations(careers) {
+ if(!Array.isArray(careers)||!careers.length){careerRecommendationsBox.innerHTML='<div class="empty">There is not enough specific evidence to suggest careers yet. Try a resume with more detail about your education, experience, projects, or training.</div>';return;}
+ careerRecommendationsBox.innerHTML=careers.map(c=>`<article class="career-recommendation"><div class="career-recommendation-top"><div><h3>${escapeHTML(c.title)}</h3><span class="career-field">${escapeHTML(c.field)}</span></div><span class="career-confidence">${escapeHTML(c.confidence)}</span></div><p>${escapeHTML(c.why)}</p>${Array.isArray(c.evidence)&&c.evidence.length?'<div class="career-evidence">'+c.evidence.map(e=>'<span>'+escapeHTML(e)+'</span>').join('')+'</div>':''}</article>`).join('');
 }
+
 
 function renderJobs(jobs) {
     if (!jobs.length) {
@@ -244,10 +240,10 @@ async function scanResume() {
 
     scanButton.disabled = true;
     scanButton.textContent = 'Scanning...';
-    setStatus('Reading your resume and detecting skills...', 'info');
+    setStatus('Reading your resume and comparing it with career paths across different industries...', 'info');
 
     try {
-        const response = await fetch('/api/resume/scan', {
+        const response = await fetch('/api/resume/analyze', {
             method: 'POST',
             body: formData,
             credentials: 'include'
@@ -263,12 +259,10 @@ async function scanResume() {
             throw new Error(data.error || 'Failed to scan resume.');
         }
 
-        renderSkills(Array.isArray(data.detectedSkills) ? data.detectedSkills : []);
-
-        const count = Array.isArray(data.detectedSkills) ? data.detectedSkills.length : 0;
+        resumeOverviewBox.textContent = data.resumeOverview || 'The resume was read, but an overview could not be created.';
+        renderCareerRecommendations(Array.isArray(data.recommendedCareers) ? data.recommendedCareers : []);
         const warning = data.warning ? ` ${data.warning}` : '';
-        setStatus(`Resume analyzed successfully. ${count} skill${count === 1 ? '' : 's'} detected and saved to your profile.${warning}`, 'success');
-
+        setStatus('Resume analyzed successfully. Suggestions use resume text; your profile skills were not changed.' + warning, 'success');
         await loadRecommendations();
     } catch (error) {
         console.error('[resume] scan error:', error);
