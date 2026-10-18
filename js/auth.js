@@ -390,6 +390,34 @@ export function initAuth() {
 
     createAuthModal();
 
+    /* Bind login immediately after creating the modal. Keep this before
+       reference-data and session initialization so unrelated startup failures
+       cannot leave the primary login/signup buttons inert. */
+    /* =====================================================
+       AUTH BUTTONS (LOGIN / SIGNUP)
+       Use delegated handling so buttons remain functional
+       even if the header is rebuilt or nested SVG/text is clicked.
+       ===================================================== */
+
+    document.addEventListener('click', (event) => {
+        const trigger = event.target instanceof Element
+            ? event.target.closest('[data-auth-open]')
+            : null;
+
+        if (!trigger) return;
+
+        event.preventDefault();
+
+        const requestedMode = trigger.dataset.authOpen === 'signup'
+            ? 'signup'
+            : 'login';
+
+        openAuth(requestedMode);
+    });
+
+
+
+
 
     /* =====================================================
        ELEMENTS
@@ -1612,29 +1640,6 @@ export function initAuth() {
                 '&#039;'
             );
     }
-
-
-    /* =====================================================
-       AUTH BUTTONS (LOGIN / SIGNUP)
-       Use delegated handling so buttons remain functional
-       even if the header is rebuilt or nested SVG/text is clicked.
-       ===================================================== */
-
-    document.addEventListener('click', (event) => {
-        const trigger = event.target instanceof Element
-            ? event.target.closest('[data-auth-open]')
-            : null;
-
-        if (!trigger) return;
-
-        event.preventDefault();
-
-        const requestedMode = trigger.dataset.authOpen === 'signup'
-            ? 'signup'
-            : 'login';
-
-        openAuth(requestedMode);
-    });
 
 
     /* =====================================================
