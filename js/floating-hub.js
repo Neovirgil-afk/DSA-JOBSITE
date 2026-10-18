@@ -7,14 +7,15 @@
     function initEmployeeSidebar() {
         // Keep the exact same six destination links for guests and signed-in users.
         // Navigation is presentation-only; access to protected pages remains enforced by the server.
-        const allowed = new Set(['jobs', 'dashboard', 'applications', 'learn', 'profile', 'resume']);
+        const allowed = new Set(['jobs', 'dashboard', 'applications', 'learn', 'profile', 'resume', 'companies']);
         const aliases = {
             jobs: new Set(['/']),
             dashboard: new Set(['/career-center.html', '/dashboard.html']),
             applications: new Set(['/applications.html', '/my-applications.html']),
             learn: new Set(['/learning.html', '/learn.html']),
             profile: new Set(['/profile.html']),
-            resume: new Set(['/resume.html', '/resume-builder.html', '/resume-analyzer.html'])
+            resume: new Set(['/resume.html', '/resume-builder.html', '/resume-analyzer.html']),
+            companies: new Set(['/companies.html'])
         };
 
         function normalizePath(pathname) {
@@ -31,6 +32,7 @@
 
                 // Retain the same six destinations regardless of authentication state.
                 Array.from(nav.children).forEach((item) => {
+                    if (item.matches('div.jobsite-resources-dropdown')) return; // Keep Resume Tips, Interview Prep, and Career Guides.
                     if (!(item.matches('a[data-rail]') && allowed.has(item.dataset.rail))) item.remove();
                 });
 
