@@ -17,6 +17,30 @@ function listenOnAvailablePort() {
     });
 }
 
+function makeTextPdf(lines) {
+    const stream = 'BT /F1 12 Tf 50 760 Td ' + lines.map((line, index) =>
+        (index ? '0 -18 Td ' : '') + '(' + line.replace(/\\\\/g, '\\\\\\\\').replace(/\\(/g, '\\\\(').replace(/\\)/g, '\\\\)') + ') Tj'
+    ).join(' ') + ' ET';
+    const objects = [
+        '<< /Type /Catalog /Pages 2 0 R >>',
+        '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+        '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+        '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+        '<< /Length ' + Buffer.byteLength(stream, 'ascii') + ' >>\\nstream\\n' + stream + '\\nendstream'
+    ];
+    let pdf = '%PDF-1.4\\n';
+    const offsets = [0];
+    for (let index = 0; index < objects.length; index++) {
+        offsets.push(Buffer.byteLength(pdf, 'ascii'));
+        pdf += (index + 1) + ' 0 obj\\n' + objects[index] + '\\nendobj\\n';
+    }
+    const xrefOffset = Buffer.byteLength(pdf, 'ascii');
+    pdf += 'xref\\n0 ' + (objects.length + 1) + '\\n0000000000 65535 f \\n';
+    for (const offset of offsets.slice(1)) pdf += String(offset).padStart(10, '0') + ' 00000 n \\n';
+    pdf += 'trailer\\n<< /Size ' + (objects.length + 1) + ' /Root 1 0 R >>\\nstartxref\\n' + xrefOffset + '\\n%%EOF';
+    return Buffer.from(pdf, 'ascii');
+}
+
 async function main() {
     const port = await listenOnAvailablePort();
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'jobpath-runtime-'));
@@ -272,6 +296,35 @@ async function main() {
         const reloadAfterInvalid = await reloadAfterInvalidResponse.json();
         if (reloadAfterInvalid.resume?.fullName !== 'Email Optional Test') throw new Error('Resume builder failed to preserve the last valid draft after validation.');
 
+        // Exercise the real PDF parser and skill detector using a generated text PDF.
+        const pdfLines = [
+            'Runtime Candidate Resume',
+            'candidate@example.com',
+            'Software Developer',
+            'JavaScript Node.js React HTML CSS Git SQL Python',
+            'Experienced building web applications and testing APIs with clear documentation.',
+            'Education: Integration Test School, Bachelor of Computer Science.',
+            'Projects: JobPath candidate hiring application workflow and portfolio.'
+        ];
+        const pdfForm = new FormData();
+        pdfForm.append('resume', new Blob([makeTextPdf(pdfLines)], { type: 'application/pdf' }), 'runtime-resume.pdf');
+        const pdfScanResponse = await request('/api/resume/scan', { method: 'POST', body: pdfForm });
+        if (pdfScanResponse.status !== 200) throw new Error('A valid text PDF should scan successfully; received ' + pdfScanResponse.status + ': ' + await pdfScanResponse.text());
+        const pdfScanBody = await pdfScanResponse.json();
+        if (!pdfScanBody.success || !Array.isArray(pdfScanBody.detectedSkills) || pdfScanBody.detectedSkills.length === 0) {
+            throw new Error('The real PDF scan did not detect any skills.');
+        }
+        if (pdfScanBody.extracted?.email !== 'candidate@example.com') throw new Error('The PDF scanner did not extract the expected email address.');
+        const resumeStatusResponse = await request('/api/resume/current');
+        if (resumeStatusResponse.status !== 200) throw new Error('Candidate resume metadata should be available after scanning.');
+        const resumeStatusBody = await resumeStatusResponse.json();
+        if (resumeStatusBody.resume?.original_name !== 'runtime-resume.pdf') throw new Error('Scanned PDF metadata was not saved.');
+        const resumeFileResponse = await request('/api/resume/file');
+        if (resumeFileResponse.status !== 200) throw new Error('Candidate could not retrieve their uploaded PDF.');
+        if (!(resumeFileResponse.headers.get('content-type') || '').includes('application/pdf')) throw new Error('Uploaded PDF was returned with an unexpected content type.');
+        const returnedPdf = Buffer.from(await resumeFileResponse.arrayBuffer());
+        if (returnedPdf.subarray(0, 5).toString('ascii') !== '%PDF-') throw new Error('The private resume endpoint did not return the uploaded PDF bytes.');
+
         const invalidResumeForm = new FormData();
         invalidResumeForm.append('resume', new Blob(['this is not a real PDF or DOCX file'], { type: 'application/pdf' }), 'fake-resume.pdf');
         const badResumeUpload = await request('/api/resume/scan', {
@@ -282,7 +335,7 @@ async function main() {
         const badResumeBody = await badResumeUpload.json();
         if (!String(badResumeBody.error || '').includes('does not match')) throw new Error('Fake PDF rejection should explain the file-content mismatch.');
 
-        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, applications and duplicate prevention, employer job posting/applicant management, interview scheduling, resume draft persistence and validation, and resume scanner missing-file handling.');
+        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, applications and duplicate prevention, employer job posting/applicant management, interview scheduling, resume draft persistence and validation, real PDF text extraction and skill detection, authenticated resume file retrieval, and forged upload rejection.');
     } finally {
         if (child.exitCode === null) {
             child.kill('SIGTERM');
