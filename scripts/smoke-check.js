@@ -192,6 +192,10 @@ const authRoutesSource = read('authRoutes.js');
 if (!authRoutesSource.includes(String.raw`/^[^\s@]+@[^\s@]+\.[^\s@]+$/`)) {
     fail('Registration must use a valid email pattern that rejects whitespace and requires an @ and domain separator.');
 }
+if (!authRoutesSource.includes("Buffer.byteLength(password, 'utf8') > 72") ||
+    !authRoutesSource.includes('no more than 72 UTF-8 bytes')) {
+    fail('Registration must enforce bcrypt’s 72-byte password limit to prevent silent password truncation.');
+}
 const employerRoutesSource = read('employerRoutes.js');
 // Employer resume downloads must resolve files from the same configurable directory as uploads.
 if (!employerRoutesSource.includes('process.env.JOBPATH_UPLOAD_DIR') ||
