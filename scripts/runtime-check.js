@@ -667,6 +667,20 @@ async function main() {
             throw new Error('Employer job listings must not expose another company’s postings.');
         }
 
+        const secondEmployerAnalytics = await request('/api/employer/analytics');
+        if (secondEmployerAnalytics.status !== 200) throw new Error('Second employer should be able to load its analytics.');
+        const secondEmployerAnalyticsBody = await secondEmployerAnalytics.json();
+        if (secondEmployerAnalyticsBody.jobs?.some((item) => Number(item.id) === postedJobId) || Number(secondEmployerAnalyticsBody.stats?.totalApplicants || 0) !== 0) {
+            throw new Error('Employer analytics must not include another company’s jobs or applicants.');
+        }
+
+        const invalidJobStatus = await request('/api/employer/jobs/' + postedJobId + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'published-and-secret' })
+        });
+        if (invalidJobStatus.status !== 400) throw new Error('Job status updates must reject unsupported statuses; received ' + invalidJobStatus.status + '.');
+
         const foreignJobUpdate = await request('/api/employer/jobs/' + postedJobId, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -705,6 +719,14 @@ async function main() {
 
         const foreignApplicantsResponse = await request('/api/employer/jobs/' + postedJobId + '/applicants');
         if (foreignApplicantsResponse.status !== 404) throw new Error('Another employer must not access applicants for a job it does not own; received ' + foreignApplicantsResponse.status + '.');
+        const foreignApplicantDetail = await request('/api/employer/applicants/' + employerApplicationId);
+        if (foreignApplicantDetail.status !== 404) throw new Error('Another employer must not access applicant profile details for a foreign application; received ' + foreignApplicantDetail.status + '.');
+        const foreignJobStatusUpdate = await request('/api/employer/jobs/' + postedJobId + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'closed' })
+        });
+        if (foreignJobStatusUpdate.status !== 404) throw new Error('Another employer must not change the status of a foreign job; received ' + foreignJobStatusUpdate.status + '.');
         const foreignApplicationStatusUpdate = await request('/api/employer/applications/' + employerApplicationId + '/status', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
