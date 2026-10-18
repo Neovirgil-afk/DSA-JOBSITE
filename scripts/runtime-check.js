@@ -227,7 +227,59 @@ async function main() {
             throw new Error('Scheduled interview was not visible to the candidate.');
         }
 
-        console.log('Runtime integration check passed: server health, 6 public pages, private-file and API access controls, candidate registration/session, job search/application/history, duplicate prevention, employer registration/session, job posting/listing, applicant visibility/status updates, and interview scheduling/visibility.');
+        // Resume builder must persist a valid draft and reject malformed email addresses.
+        const draftResponse = await request('/api/resume/builder', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ resume: {
+                fullName: 'Runtime Test Candidate',
+                email: 'candidate@example.com',
+                phone: '09170000000',
+                location: 'Bacoor',
+                summary: 'Automated integration check',
+                education: [{ school: 'Test School', degree: 'Test Degree', year: '2025' }],
+                experience: [],
+                projects: [{ name: 'Test Project', description: 'Integration test project' }],
+                certifications: []
+            } })
+        });
+        if (draftResponse.status !== 200) throw new Error('Candidate should be able to save a resume draft; received ' + draftResponse.status + ': ' + await draftResponse.text());
+        const savedDraft = await draftResponse.json();
+        if (!savedDraft.success || savedDraft.resume?.email !== 'candidate@example.com') throw new Error('Resume builder did not return the saved draft.');
+
+        const loadDraftResponse = await request('/api/resume/builder');
+        if (loadDraftResponse.status !== 200) throw new Error('Candidate should be able to reload their resume draft; received ' + loadDraftResponse.status + '.');
+        const loadedDraft = await loadDraftResponse.json();
+        if (loadedDraft.resume?.fullName !== 'Runtime Test Candidate' || loadedDraft.resume?.education?.[0]?.school !== 'Test School') {
+            throw new Error('Resume draft did not persist correctly across requests.');
+        }
+
+        const invalidDraftResponse = await request('/api/resume/builder', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ resume: { fullName: 'Invalid Email Test', email: 'not-an-email' } })
+        });
+        if (invalidDraftResponse.status !== 400) throw new Error('Resume builder should reject malformed email addresses with 400; received ' + invalidDraftResponse.status + '.');
+
+        const emptyDraftResponse = await request('/api/resume/builder', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ resume: { fullName: 'Email Optional Test', email: '' } })
+        });
+        if (emptyDraftResponse.status !== 200) throw new Error('Resume builder should allow a blank optional email; received ' + emptyDraftResponse.status + '.');
+
+        const reloadAfterInvalidResponse = await request('/api/resume/builder');
+        const reloadAfterInvalid = await reloadAfterInvalidResponse.json();
+        if (reloadAfterInvalid.resume?.fullName !== 'Email Optional Test') throw new Error('Resume builder failed to preserve the last valid draft after validation.');
+
+        const badResumeUpload = await request('/api/resume/scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'multipart/form-data' },
+            body: 'this is not a real PDF or DOCX file'
+        });
+        if (badResumeUpload.status !== 400) throw new Error('Resume scanner should reject requests without a valid uploaded file; received ' + badResumeUpload.status + '.');
+
+        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, applications and duplicate prevention, employer job posting/applicant management, interview scheduling, resume draft persistence and validation, and resume scanner missing-file handling.');
     } finally {
         if (child.exitCode === null) {
             child.kill('SIGTERM');
