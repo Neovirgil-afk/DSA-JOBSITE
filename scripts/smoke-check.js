@@ -34,7 +34,7 @@ function checkHtml(relativePath, requiredIds, requiredScripts) {
     const source = read(relativePath);
     if (!source) return;
     checkedPages += 1;
-    const ids = [...source.matchAll(/\\bid=["']([^"']+)["']/g)].map((match) => match[1]);
+    const ids = [...source.matchAll(/\bid=["']([^"']+)["']/g)].map((match) => match[1]);
     const seen = new Set();
     const duplicates = new Set();
     for (const id of ids) {
