@@ -6,6 +6,13 @@ const { requireAuth } = require('./auth');
 
 const router = express.Router();
 
+// Application history is private and must never be cached, including error responses.
+router.use((req, res, next) => {
+    res.set('Cache-Control', 'private, no-store, max-age=0');
+    res.set('Pragma', 'no-cache');
+    next();
+});
+
 router.get('/', requireAuth, (req, res) => {
     try {
         const user = db.prepare(
