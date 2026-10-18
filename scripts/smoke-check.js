@@ -197,6 +197,10 @@ if (!authRoutesSource.includes("Buffer.byteLength(password, 'utf8') > 72") ||
     fail('Registration must enforce bcrypt’s 72-byte password limit to prevent silent password truncation.');
 }
 const employerRoutesSource = read('employerRoutes.js');
+if (!employerRoutesSource.includes("Buffer.byteLength(password, 'utf8') > 72") ||
+    !employerRoutesSource.includes('no more than 72 UTF-8 bytes')) {
+    fail('Employer registration must enforce bcrypt’s 72-byte password limit to prevent silent password truncation.');
+}
 // Employer resume downloads must resolve files from the same configurable directory as uploads.
 if (!employerRoutesSource.includes('process.env.JOBPATH_UPLOAD_DIR') ||
     !employerRoutesSource.includes('path.resolve(process.env.JOBPATH_UPLOAD_DIR)') ||
