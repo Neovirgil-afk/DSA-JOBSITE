@@ -260,6 +260,43 @@ async function main() {
             throw new Error('Submitted application was not returned in the candidate application list.');
         }
 
+        const applicationCacheControl = applications.headers.get('cache-control') || '';
+        if (!/private/i.test(applicationCacheControl) || !/no-store/i.test(applicationCacheControl)) {
+            throw new Error('Candidate application history must be marked private and non-cacheable.');
+        }
+
+        // A second candidate must see only their own application history.
+        sessionCookie = '';
+        const secondCandidateEmail = 'runtime-second-candidate-' + process.pid + '-' + Date.now() + '@example.com';
+        const secondCandidateRegistration = await request('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fullName: 'Runtime Second Candidate',
+                email: secondCandidateEmail,
+                password: 'RuntimeTest123!',
+                confirmPassword: 'RuntimeTest123!',
+                education: 'Second Integration School',
+                degree: 'Test Degree',
+                targetJob: 'Software Developer',
+                location: 'Bacoor'
+            })
+        });
+        if (secondCandidateRegistration.status !== 200) throw new Error('Second candidate registration should succeed; received ' + secondCandidateRegistration.status + ': ' + await secondCandidateRegistration.text());
+        const secondCandidateCookie = (secondCandidateRegistration.headers.get('set-cookie') || '').split(';')[0];
+        if (!secondCandidateCookie.includes('=')) throw new Error('Second candidate registration did not establish a session cookie.');
+        sessionCookie = secondCandidateCookie;
+        const secondCandidateApplicationsResponse = await request('/api/applications');
+        if (secondCandidateApplicationsResponse.status !== 200) throw new Error('Second candidate should be able to view their own application history.');
+        const secondCandidateApplications = await secondCandidateApplicationsResponse.json();
+        if (!Array.isArray(secondCandidateApplications.applications) || secondCandidateApplications.applications.some((item) => Number(item.id) === Number(applyBody.applicationId))) {
+            throw new Error('Candidate application history exposed another candidate\'s application.');
+        }
+        const secondCandidateCacheControl = secondCandidateApplicationsResponse.headers.get('cache-control') || '';
+        if (!/private/i.test(secondCandidateCacheControl) || !/no-store/i.test(secondCandidateCacheControl)) {
+            throw new Error('Second candidate application history must also be non-cacheable.');
+        }
+        sessionCookie = candidateCookie;
         const duplicateApply = await request('/api/jobs/' + job.id + '/apply', { method: 'POST' });
         if (duplicateApply.status !== 409) throw new Error('Duplicate applications should be rejected with 409; received ' + duplicateApply.status + '.');
 
@@ -290,6 +327,13 @@ async function main() {
         sessionCookie = employerCookie;
         const employerMe = await request('/api/employer/me');
         if (employerMe.status !== 200) throw new Error('Employer session should be authorized; received ' + employerMe.status + '.');
+
+        const employerApplicationsAccess = await request('/api/applications');
+        if (employerApplicationsAccess.status !== 403) throw new Error('Employer accounts must not access candidate application history; received ' + employerApplicationsAccess.status + '.');
+        const employerApplicationsCacheControl = employerApplicationsAccess.headers.get('cache-control') || '';
+        if (!/private/i.test(employerApplicationsCacheControl) || !/no-store/i.test(employerApplicationsCacheControl)) {
+            throw new Error('Application API responses, including access-denied responses, must not be publicly cached.');
+        }
 
         const employerProfileAccess = await request('/api/auth/profile');
         if (employerProfileAccess.status !== 403) throw new Error('Employer accounts must not access candidate profile data; received ' + employerProfileAccess.status + '.');
@@ -524,7 +568,7 @@ async function main() {
         const badResumeBody = await badResumeUpload.json();
         if (!String(badResumeBody.error || '').includes('does not match')) throw new Error('Fake PDF rejection should explain the file-content mismatch.');
 
-        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, applications and duplicate prevention, employer job posting/applicant management, interview scheduling and cross-employer authorization, resume draft persistence and validation, real PDF and DOCX extraction, profile skill persistence, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection.');
+        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, candidate-isolated application history, private cache headers, and duplicate prevention, employer job posting/applicant management, interview scheduling and cross-employer authorization, resume draft persistence and validation, real PDF and DOCX extraction, profile skill persistence, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection.');
     } finally {
         if (child.exitCode === null) {
             child.kill('SIGTERM');
