@@ -192,6 +192,19 @@ const authRoutesSource = read('authRoutes.js');
 if (!authRoutesSource.includes(String.raw`/^[^\s@]+@[^\s@]+\.[^\s@]+$/`)) {
     fail('Registration must use a valid email pattern that rejects whitespace and requires an @ and domain separator.');
 }
+const profileUpdateStart = authRoutesSource.indexOf("router.put('/profile'");
+const profileSkillsStart = authRoutesSource.indexOf("router.put('/profile/skills'", profileUpdateStart);
+const profileUpdateSource = profileUpdateStart >= 0 && profileSkillsStart > profileUpdateStart
+    ? authRoutesSource.slice(profileUpdateStart, profileSkillsStart)
+    : '';
+if (!profileUpdateSource.includes("currentUser.role !== 'candidate'") ||
+    !profileUpdateSource.includes("typeof body[field] !== 'string'") ||
+    !profileUpdateSource.includes("['full_name', 120]") ||
+    !profileUpdateSource.includes("['target_job', 160]") ||
+    !profileUpdateSource.includes('Array.isArray(body)')) {
+    fail('Candidate profile updates must enforce candidate role, object/text inputs, and bounded field lengths.');
+}
+
 const logoutStart = authRoutesSource.indexOf("router.post('/logout'");
 const logoutEnd = authRoutesSource.indexOf("router.get('/me'", logoutStart);
 const logoutSource = logoutStart >= 0 && logoutEnd > logoutStart
