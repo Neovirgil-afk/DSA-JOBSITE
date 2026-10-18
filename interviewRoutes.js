@@ -18,7 +18,12 @@ router.get('/',requireAuth,(req,res)=>{
 router.post('/',requireAuth,(req,res)=>{
  try{
   const user=getUser(Number(req.session.userId));if(!user||user.role!=='employer')return res.status(403).json({error:'Only employers can schedule interviews.'});
-  const payload = req.body && typeof req.body === 'object' ? req.body : {};
+  const payload = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
+  for (const field of ['scheduledAt', 'interviewType', 'locationOrLink', 'notes']) {
+   if (payload[field] !== undefined && payload[field] !== null && typeof payload[field] !== 'string') {
+    return res.status(400).json({error:'Interview date, type, location/link, and notes must be text values.'});
+   }
+  }
   const appId = Number(payload.applicationId), raw = String(payload.scheduledAt || '').trim(), date = new Date(raw);
   const duration = Number(payload.durationMinutes || 30), type = String(payload.interviewType || 'online').trim();
   const place = String(payload.locationOrLink || '').trim().slice(0, 500), notes = String(payload.notes || '').trim().slice(0, 2000);
@@ -40,7 +45,10 @@ router.post('/',requireAuth,(req,res)=>{
 router.patch('/:id',requireAuth,(req,res)=>{
  try{
   const user=getUser(Number(req.session.userId));if(!user||!['employer','admin'].includes(user.role))return res.status(403).json({error:'Only employers or admins can update interview status.'});
-  const payload = req.body && typeof req.body === 'object' ? req.body : {};
+  const payload = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
+  if (payload.status !== undefined && typeof payload.status !== 'string') {
+   return res.status(400).json({error:'Interview status must be a text value.'});
+  }
   const id = Number(req.params.id), status = String(payload.status || '').trim();
   if(!Number.isInteger(id)||id<=0)return res.status(400).json({error:'Invalid interview id.'});
   if(!['scheduled','completed','cancelled'].includes(status))return res.status(400).json({error:'Invalid interview status.'});
