@@ -208,14 +208,36 @@ h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.15; }
 }
 @media (min-width: 900px) { .header-actions { display: flex; } }
 .login-link {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  font-weight: 500;
-  font-size: 15px;
-  color: var(--ink);
+  padding: 10px 20px;
+  border: 1px solid rgba(79, 70, 229, 0.24);
+  border-radius: 999px;
+  background: #fff;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14.5px;
+  line-height: 1.2;
+  color: var(--indigo);
+  white-space: nowrap;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 }
-.login-link:hover { color: var(--indigo); }
+.login-link:hover {
+  color: var(--indigo-dark);
+  background: var(--indigo-tint);
+  border-color: rgba(79, 70, 229, 0.42);
+  box-shadow: 0 6px 16px -10px rgba(79, 70, 229, 0.55);
+  transform: translateY(-1px);
+}
+.login-link:active {
+  transform: translateY(0);
+}
+.login-link:focus-visible {
+  outline: 3px solid var(--indigo);
+  outline-offset: 3px;
+}
 
 .btn {
   display: inline-flex;
