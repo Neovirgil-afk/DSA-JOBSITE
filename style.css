@@ -9047,3 +9047,38 @@ body .site-header nav.main-nav > a[data-rail="employer"] {
   .company-job-view { align-self: flex-start; }
   .company-view-jobs { margin-top: 16px; }
 }
+
+
+/* Fix oversized/overflowing application cards, badges and filter controls. */
+body.applications-page .applications-main,
+body.applications-page .applications-main .wrap,
+body.applications-page .applications-list,
+body.applications-page .application-card,
+body.applications-page .application-card-main,
+body.applications-page .application-card-side{box-sizing:border-box;min-width:0;max-width:100%}
+body.applications-page .application-card{gap:clamp(12px,2vw,22px);padding:clamp(14px,2vw,22px);overflow:hidden}
+body.applications-page .application-card-main{flex:1 1 0;overflow-wrap:anywhere;word-break:normal}
+body.applications-page .application-card h2{font-size:clamp(16px,2vw,21px);line-height:1.3;overflow-wrap:anywhere}
+body.applications-page .application-card p,
+body.applications-page .application-card small,
+body.applications-page .application-card span{max-width:100%;overflow-wrap:anywhere}
+body.applications-page .application-card-side{flex:0 1 180px}
+body.applications-page .application-status,
+body.applications-page [class*="prep"] span,
+body.applications-page [class*="badge"]{max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.4}
+body.applications-page .applications-controls{min-width:0;max-width:100%;box-sizing:border-box}
+body.applications-page .applications-controls>*,
+body.applications-page .applications-controls label,
+body.applications-page .applications-controls input,
+body.applications-page .applications-controls select{min-width:0;max-width:100%;box-sizing:border-box}
+body.applications-page .applications-controls label{overflow-wrap:anywhere}
+@media(max-width:899px){
+ body.applications-page .application-card{width:100%;flex-direction:column;align-items:stretch;gap:12px;padding:15px}
+ body.applications-page .application-card-side{width:100%;flex:1 1 auto;align-items:flex-start}
+ body.applications-page .application-card h2{font-size:18px;line-height:1.3}
+}
+@media(max-width:420px){
+ body.applications-page .applications-main{padding-right:12px;padding-left:12px}
+ body.applications-page .application-card{padding:13px}
+ body.applications-page .application-status{font-size:11px;padding:5px 8px}
+}
