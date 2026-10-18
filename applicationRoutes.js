@@ -36,6 +36,8 @@ router.get('/', requireAuth, (req, res) => {
             application.history = historyQuery.all(application.id);
         });
 
+        res.set('Cache-Control', 'private, no-store, max-age=0');
+        res.set('Pragma', 'no-cache');
         res.json({ success: true, applications });
     } catch (err) {
         console.error('[GET /api/applications] error:', err);
