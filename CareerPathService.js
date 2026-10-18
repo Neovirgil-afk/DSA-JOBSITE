@@ -10,26 +10,72 @@ const { getLearningResources } = require('./LearningResources');
  * are added to the job database before their database career path is seeded.
  */
 const DEFAULT_CAREER_PATHS = {
-    'Marketing Specialist': [
-        'Digital Marketing',
-        'Market Research',
-        'Content Marketing',
-        'Social Media Marketing',
-        'SEO',
-        'Email Marketing',
-        'Data Analytics',
-    ],
+    'Marketing Specialist': ['Digital Marketing', 'Market Research', 'Content Marketing', 'Social Media Marketing', 'SEO', 'Email Marketing', 'Data Analytics'],
+    'Digital Marketing Specialist': ['Digital Marketing', 'Market Research', 'Content Marketing', 'Social Media Marketing', 'SEO', 'Email Marketing', 'Data Analytics'],
+    'SEO Specialist': ['Digital Marketing', 'Market Research', 'SEO', 'Content Marketing', 'Data Analytics'],
+    'Content Writer': ['Market Research', 'Content Marketing', 'SEO', 'Digital Marketing'],
+    'Social Media Specialist': ['Digital Marketing', 'Market Research', 'Social Media Marketing', 'Content Marketing', 'Data Analytics'],
+    'Frontend Developer': ['HTML', 'CSS', 'JavaScript', 'Git', 'React'],
+    'UI Developer': ['HTML', 'CSS', 'JavaScript', 'Git', 'React'],
+    'Full Stack Developer': ['HTML', 'CSS', 'JavaScript', 'Git', 'React', 'Node.js', 'SQL'],
+    'Backend Developer': ['JavaScript', 'Node.js', 'SQL', 'Git', 'Network Security'],
+    'Node.js Developer': ['JavaScript', 'Node.js', 'SQL', 'Git', 'Network Security'],
+    'Java Developer': ['Java', 'SQL', 'Git', 'Network Security'],
+    'Data Analyst': ['SQL', 'Python', 'Data Analytics', 'Market Research'],
+    'Data Scientist': ['Python', 'SQL', 'Data Analytics', 'Market Research'],
+    'Cybersecurity Analyst': ['Network Security', 'Penetration Testing', 'AWS', 'Git'],
+    'Security Engineer': ['Network Security', 'Penetration Testing', 'AWS', 'Git'],
+    'Penetration Tester': ['Network Security', 'Penetration Testing', 'Git'],
+    'Cloud Engineer': ['AWS', 'Network Security', 'Git', 'Node.js'],
+    'Business Analyst': ['Market Research', 'Data Analytics', 'SQL', 'Digital Marketing'],
+    'Marketing Analyst': ['Market Research', 'Data Analytics', 'Digital Marketing', 'SQL']
 };
+
+// Match exact titles first, then common role-title variants. Avoid choosing a random
+// career path just because a job record happens to have some unrelated skills attached.
+function getRoleSpecificPath(title) {
+    const normalized = String(title || '').trim().toLowerCase();
+    if (!normalized) return null;
+
+    const exact = Object.keys(DEFAULT_CAREER_PATHS).find((role) => role.toLowerCase() === normalized);
+    if (exact) return DEFAULT_CAREER_PATHS[exact];
+
+    const roleMatchers = [
+        [/frontend|front-end|front end|ui developer/, 'Frontend Developer'],
+        [/full.?stack/, 'Full Stack Developer'],
+        [/backend|back-end|back end|node\.js developer/, 'Backend Developer'],
+        [/java developer|spring boot/, 'Java Developer'],
+        [/data analyst|business intelligence|bi analyst/, 'Data Analyst'],
+        [/data scientist|machine learning/, 'Data Scientist'],
+        [/cyber.?security|security analyst|security engineer/, 'Cybersecurity Analyst'],
+        [/penetration tester|pentester/, 'Penetration Tester'],
+        [/cloud engineer|cloud administrator/, 'Cloud Engineer'],
+        [/seo specialist|seo analyst/, 'SEO Specialist'],
+        [/content writer|copywriter|content specialist/, 'Content Writer'],
+        [/social media/, 'Social Media Specialist'],
+        [/marketing analyst/, 'Marketing Analyst'],
+        [/marketing/, 'Marketing Specialist'],
+        [/business analyst/, 'Business Analyst']
+    ];
+
+    const match = roleMatchers.find(([pattern]) => pattern.test(normalized));
+    return match ? DEFAULT_CAREER_PATHS[match[1]] : null;
+}
 
 function getCareerPathForJob(jobId, userSkillNames = []) {
     const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(jobId);
     if (!job) return null;
 
+    const roleSpecificPath = getRoleSpecificPath(job.title);
     const pathRow = db.prepare('SELECT * FROM career_paths WHERE job_id = ? LIMIT 1').get(jobId);
 
     let skillNames = [];
 
-    if (pathRow) {
+    // Prefer an ordered path curated for the actual target role. Database paths remain
+    // the fallback for roles that do not have a matching curriculum template.
+    if (roleSpecificPath?.length) {
+        skillNames = roleSpecificPath;
+    } else if (pathRow) {
         const stepRows = db.prepare(`
             SELECT s.name, cps.step_order FROM career_path_skills cps
             JOIN skills s ON s.id = cps.skill_id
