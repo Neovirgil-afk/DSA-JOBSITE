@@ -9380,3 +9380,59 @@ html body.applications-page .applications-controls {
     padding: 8px !important;
   }
 }
+
+
+/* Balanced inner breathing room for application cards: keep content away from edges. */
+html body.applications-page .application-card {
+  padding: 22px !important;
+  gap: 20px !important;
+}
+html body.applications-page .application-card > .application-card-main {
+  padding: 2px 4px !important;
+}
+html body.applications-page .application-card > .application-card-side {
+  padding: 2px 0 2px 4px !important;
+  gap: 10px !important;
+}
+html body.applications-page .application-card .application-next-step,
+html body.applications-page .application-card .application-interview-prep,
+html body.applications-page .application-card .application-interview-notes,
+html body.applications-page .application-card .application-timeline-mini {
+  padding: 14px !important;
+  margin: 8px 0 !important;
+}
+html body.applications-page .application-card .application-interview-prep-tasks label {
+  padding: 6px 0 !important;
+}
+html body.applications-page .application-card .application-interview-notes textarea {
+  padding: 10px 12px !important;
+}
+html body.applications-page .application-card .application-card-side > .application-status {
+  margin-bottom: 4px !important;
+  padding: 6px 11px !important;
+}
+html body.applications-page .application-card .application-card-main h2 {
+  margin: 6px 0 9px !important;
+}
+@media (max-width: 899px) {
+  html body.applications-page .application-card {
+    padding: 18px !important;
+    gap: 14px !important;
+  }
+  html body.applications-page .application-card > .application-card-main,
+  html body.applications-page .application-card > .application-card-side {
+    padding: 0 !important;
+  }
+}
+@media (max-width: 480px) {
+  html body.applications-page .application-card {
+    padding: 16px !important;
+    gap: 12px !important;
+  }
+  html body.applications-page .application-card .application-next-step,
+  html body.applications-page .application-card .application-interview-prep,
+  html body.applications-page .application-card .application-interview-notes,
+  html body.applications-page .application-card .application-timeline-mini {
+    padding: 12px !important;
+  }
+}
