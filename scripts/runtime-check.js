@@ -989,6 +989,16 @@ async function main() {
             throw new Error('Application status update should confirm a real status change.');
         }
         sessionCookie = candidateCookie;
+        const candidateNotificationsAfterShortlist = await request('/api/notifications');
+        if (candidateNotificationsAfterShortlist.status !== 200) throw new Error('Candidate should be able to retrieve status-update notifications.');
+        const candidateNotificationsAfterShortlistBody = await candidateNotificationsAfterShortlist.json();
+        const shortlistNotifications = candidateNotificationsAfterShortlistBody.notifications?.filter((item) =>
+            item.type === 'application_status' && String(item.link || '').includes('applicationId=' + employerApplicationId)
+        ) || [];
+        if (shortlistNotifications.length !== 1 || shortlistNotifications[0].read_at ||
+            !String(shortlistNotifications[0].body || '').toLowerCase().includes('shortlisted')) {
+            throw new Error('A real application status change should create one unread candidate notification with the updated status.');
+        }
         const candidateHistoryAfterShortlist = await request('/api/applications');
         const candidateHistoryAfterShortlistBody = await candidateHistoryAfterShortlist.json();
         const shortlistedApplication = candidateHistoryAfterShortlistBody.applications?.find((item) => Number(item.id) === employerApplicationId);
@@ -1018,6 +1028,14 @@ async function main() {
         const applicationAfterRepeatedStatus = historyAfterRepeatedStatusBody.applications?.find((item) => Number(item.id) === employerApplicationId);
         if (!applicationAfterRepeatedStatus || applicationAfterRepeatedStatus.history?.length !== historyCountBeforeRepeat) {
             throw new Error('Repeating the same application status must not add a duplicate history entry.');
+        }
+        const notificationsAfterRepeatedStatus = await request('/api/notifications');
+        const notificationsAfterRepeatedStatusBody = await notificationsAfterRepeatedStatus.json();
+        const shortlistNotificationsAfterRepeat = notificationsAfterRepeatedStatusBody.notifications?.filter((item) =>
+            item.type === 'application_status' && String(item.link || '').includes('applicationId=' + employerApplicationId)
+        ) || [];
+        if (shortlistNotificationsAfterRepeat.length !== 1) {
+            throw new Error('Repeating an unchanged application status must not create duplicate notifications.');
         }
         sessionCookie = employerCookie;
         for (const invalidStatus of ['unknown-status', 42, null, {}, '']) {
