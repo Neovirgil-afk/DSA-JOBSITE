@@ -413,6 +413,19 @@ try {
     }
 }
 
+// Static serving must not expose database files or private backend/configuration files.
+const staticGuardStart = server.indexOf('const privateStaticFiles = new Set([');
+const staticGuardEnd = server.indexOf('app.use(express.static(__dirname))');
+const staticGuard = server.slice(staticGuardStart, staticGuardEnd);
+if (staticGuardStart < 0 || staticGuardEnd < 0 || staticGuardStart > staticGuardEnd ||
+    !staticGuard.includes('/\\\\.(?:db|sqlite|sqlite3)(?:-(?:wal|shm))?$/') ||
+    !staticGuard.includes("'server.js'") ||
+    !staticGuard.includes("'database.js'") ||
+    !staticGuard.includes("'package-lock.json'") ||
+    !staticGuard.includes('hasPrivatePathSegment')) {
+    fail('Static serving must block SQLite files and private backend/configuration paths.');
+}
+
 // SQLite databases and sidecar files must be blocked before static serving.
 const databaseFileBlockIndex = server.indexOf('Never expose SQLite database files');
 const databaseFileGuard = server.slice(databaseFileBlockIndex, staticFilesIndex);
