@@ -372,9 +372,57 @@
         });
 
         if ($('saveResume')) $('saveResume').addEventListener('click', save);
-        if ($('printResume')) $('printResume').addEventListener('click', function () {
-            window.print();
-        });
+
+        if ($('printResume')) {
+            $('printResume').addEventListener('click', function () {
+                window.print();
+            });
+        }
+
+        if ($('savePdfResume')) {
+            $('savePdfResume').addEventListener('click', function () {
+                var button = $('savePdfResume');
+                var status = $('builderStatus');
+                var paper = $('resumePaper');
+
+                if (typeof window.html2pdf !== 'function') {
+                    if (status) status.textContent = 'PDF tool could not load. Check your internet connection and try again.';
+                    return;
+                }
+
+                if (!paper) {
+                    if (status) status.textContent = 'Resume preview is not ready yet.';
+                    return;
+                }
+
+                var resumeName = ($('fullName').value || 'resume')
+                    .trim()
+                    .replace(/[^a-z0-9_-]+/gi, '-')
+                    .replace(/^-+|-+$/g, '') || 'resume';
+                var originalLabel = button.textContent;
+
+                button.disabled = true;
+                button.textContent = 'Preparing PDF...';
+                if (status) status.textContent = 'Creating your PDF download...';
+
+                window.html2pdf().set({
+                    margin: [0.65, 0.65, 0.65, 0.65],
+                    filename: resumeName + '-resume.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+                    pagebreak: { mode: ['css', 'legacy'], avoid: ['.resume-item'] }
+                }).from(paper).save().then(function () {
+                    if (status) status.textContent = 'PDF downloaded.';
+                }).catch(function (error) {
+                    console.error('[Resume Builder] PDF download failed:', error);
+                    if (status) status.textContent = 'Could not create the PDF. Please try Print Resume instead.';
+                }).finally(function () {
+                    button.disabled = false;
+                    button.textContent = originalLabel;
+                });
+            });
+        }
 
         renderPreview();
         load();
