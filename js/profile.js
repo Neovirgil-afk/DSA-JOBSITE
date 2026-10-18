@@ -1395,6 +1395,8 @@ async function loadSavedResume() {
                 'Upload a resume to use it for job applications.';
 
             viewButton.hidden = true;
+            const uploadButton = document.querySelector('#profileResumeUploadButton');
+            if (uploadButton) uploadButton.textContent = 'Upload Resume';
             return;
         }
 
@@ -1405,6 +1407,9 @@ async function loadSavedResume() {
             'Your resume is saved to your profile.';
 
         viewButton.hidden = false;
+
+        const uploadButton = document.querySelector('#profileResumeUploadButton');
+        if (uploadButton) uploadButton.textContent = 'Replace Resume';
 
         viewButton.onclick = () => {
             const modal = createResumePreview();
@@ -1447,6 +1452,84 @@ async function loadSavedResume() {
             error
         );
     }
+}
+
+
+/* =========================================================
+   PROFILE RESUME UPLOAD
+   ========================================================= */
+
+function initProfileResumeUpload() {
+    const uploadButton = document.querySelector('#profileResumeUploadButton');
+    const fileInput = document.querySelector('#profileResumeUploadInput');
+    const message = document.querySelector('#profileResumeUploadMessage');
+
+    if (!uploadButton || !fileInput || !message) return;
+
+    uploadButton.addEventListener('click', () => {
+        if (!uploadButton.disabled) fileInput.click();
+    });
+
+    fileInput.addEventListener('change', async () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+
+        const extension = file.name.split('.').pop().toLowerCase();
+        if (!['pdf', 'docx'].includes(extension)) {
+            message.textContent = 'Please choose a PDF or DOCX file.';
+            message.style.color = '#c0392b';
+            fileInput.value = '';
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            message.textContent = 'Your resume must be 5 MB or smaller.';
+            message.style.color = '#c0392b';
+            fileInput.value = '';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('resume', file);
+
+        uploadButton.disabled = true;
+        fileInput.disabled = true;
+        uploadButton.textContent = 'Uploading…';
+        message.textContent = 'Uploading and saving your resume…';
+        message.style.color = '#697386';
+
+        try {
+            const response = await fetch('/api/resume/scan', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            });
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || 'Unable to upload your resume. Please try again.');
+            }
+
+            message.textContent = result.warning
+                ? 'Resume saved. Some text may not have been readable by the analyzer.'
+                : 'Resume uploaded and saved to your profile.';
+            message.style.color = '#16834b';
+
+            await loadSavedResume();
+            window.__jobsiteResumeUploaded = true;
+            renderProfileCompletion();
+        } catch (error) {
+            message.textContent = error.message || 'Unable to upload your resume. Please try again.';
+            message.style.color = '#c0392b';
+        } finally {
+            uploadButton.disabled = false;
+            fileInput.disabled = false;
+            fileInput.value = '';
+            if (uploadButton.textContent === 'Uploading…') {
+                uploadButton.textContent = 'Upload Resume';
+            }
+        }
+    });
 }
 
 
@@ -2086,6 +2169,7 @@ document.addEventListener(
 
         initHeader();
 
+        initProfileResumeUpload();
         loadProfile();
     }
 );
