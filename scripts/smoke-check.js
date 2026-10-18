@@ -280,7 +280,7 @@ if (!/app\.use\(\s*['"]\/uploads['"]\s*,\s*\(req,\s*res\)\s*=>\s*\{\s*res\.sendS
 const databaseFileBlockIndex = server.indexOf('Never expose SQLite database files');
 if (databaseFileBlockIndex < 0 || staticFilesIndex < 0 || databaseFileBlockIndex > staticFilesIndex ||
     !/path\\.basename\\(req\\.path\\)\\.toLowerCase\\(\\)/.test(server) ||
-    !/\\\\\\.\\(?:db\\|sqlite\\|sqlite3\\)\\(\?:-\\(\?:wal\\|shm\\)\\)\?\$/.test(server)) {
+    !server.includes(String.raw`/\\.(?:db|sqlite|sqlite3)(?:-(?:wal|shm))?$/.test(requestedFile)`)) {
     fail('SQLite database files and sidecar files must be blocked before public static-file serving.');
 }
 
