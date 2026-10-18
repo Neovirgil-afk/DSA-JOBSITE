@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "check": "node scripts/smoke-check.js && node scripts/runtime-check.js"
+    "check": "node scripts/smoke-check.js && node scripts/runtime-check.js",
+    "seed:demo": "node scripts/seed-demo-data.js"
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.9",
