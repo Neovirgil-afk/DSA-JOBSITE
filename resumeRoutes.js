@@ -90,6 +90,12 @@ router.get('/builder', requireAuth, requireCandidate, (req, res) => {
     }
 });
 
+function cleanText(value, maxLength) {
+    if (value === null || value === undefined) return '';
+    if (typeof value !== 'string' && typeof value !== 'number') return '';
+    return String(value).trim().slice(0, maxLength);
+}
+
 router.put('/builder', requireAuth, requireCandidate, (req, res) => {
     try {
         const data = req.body?.resume;
@@ -101,19 +107,19 @@ router.put('/builder', requireAuth, requireCandidate, (req, res) => {
         }
 
         const clean = {
-            fullName: String(data.fullName || '').trim(),
-            email: String(data.email || '').trim(),
-            phone: String(data.phone || '').trim(),
-            location: String(data.location || '').trim(),
-            summary: String(data.summary || '').trim(),
+            fullName: cleanText(data.fullName, 120),
+            email: cleanText(data.email, 254),
+            phone: cleanText(data.phone, 40),
+            location: cleanText(data.location, 160),
+            summary: cleanText(data.summary, 3000),
             education: Array.isArray(data.education)
                 ? data.education
                     .filter((item) => item && typeof item === 'object' && !Array.isArray(item))
                     .slice(0, 8)
                     .map((item) => ({
-                    school: String(item.school || '').trim(),
-                    degree: String(item.degree || '').trim(),
-                    year: String(item.year || '').trim()
+                    school: cleanText(item.school, 180),
+                    degree: cleanText(item.degree, 180),
+                    year: cleanText(item.year, 30)
                 }))
                 : [],
             experience: Array.isArray(data.experience)
@@ -121,10 +127,10 @@ router.put('/builder', requireAuth, requireCandidate, (req, res) => {
                     .filter((item) => item && typeof item === 'object' && !Array.isArray(item))
                     .slice(0, 8)
                     .map((item) => ({
-                    title: String(item.title || '').trim(),
-                    company: String(item.company || '').trim(),
-                    duration: String(item.duration || '').trim(),
-                    description: String(item.description || '').trim()
+                    title: cleanText(item.title, 180),
+                    company: cleanText(item.company, 180),
+                    duration: cleanText(item.duration, 100),
+                    description: cleanText(item.description, 2000)
                 }))
                 : [],
             projects: Array.isArray(data.projects)
@@ -132,8 +138,8 @@ router.put('/builder', requireAuth, requireCandidate, (req, res) => {
                     .filter((item) => item && typeof item === 'object' && !Array.isArray(item))
                     .slice(0, 8)
                     .map((item) => ({
-                    name: String(item.name || '').trim(),
-                    description: String(item.description || '').trim()
+                    name: cleanText(item.name, 180),
+                    description: cleanText(item.description, 2000)
                 }))
                 : [],
             certifications: Array.isArray(data.certifications)
@@ -141,9 +147,9 @@ router.put('/builder', requireAuth, requireCandidate, (req, res) => {
                     .filter((item) => item && typeof item === 'object' && !Array.isArray(item))
                     .slice(0, 8)
                     .map((item) => ({
-                    name: String(item.name || '').trim(),
-                    issuer: String(item.issuer || '').trim(),
-                    year: String(item.year || '').trim()
+                    name: cleanText(item.name, 180),
+                    issuer: cleanText(item.issuer, 180),
+                    year: cleanText(item.year, 30)
                 }))
                 : []
         };
