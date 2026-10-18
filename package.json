@@ -4,7 +4,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "check": "node scripts/smoke-check.js"
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.9",
