@@ -91,7 +91,7 @@ const privateStaticFiles = new Set([
     'auth.js',
     'authRateLimit.js',
     'authRoutes.js',
-    'CAREER_PLATFORM_SETUP.md',
+    'career_platform_setup.md',
     'database.js',
     'DEPLOYMENT.md',
     'employerRoutes.js',
@@ -114,7 +114,12 @@ const privateStaticFiles = new Set([
 ]);
 
 app.use((req, res, next) => {
-    const requestedPath = decodeURIComponent(req.path).toLowerCase();
+    let requestedPath;
+    try {
+        requestedPath = decodeURIComponent(req.path).toLowerCase();
+    } catch (error) {
+        return res.sendStatus(404);
+    }
     const requestedFile = path.basename(requestedPath);
     const hasPrivatePathSegment = requestedPath.split('/').some((segment) =>
         segment === '.git' || segment === 'node_modules' || segment === 'scripts' ||
