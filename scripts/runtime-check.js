@@ -199,6 +199,23 @@ async function main() {
         const me = await request('/api/auth/me');
         if (me.status !== 200) throw new Error('Newly registered candidate session should work; received ' + me.status + '.');
 
+        // Exercise sign-in and sign-out independently of the registration session.
+        sessionCookie = '';
+        const loginResponse = await request('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password: 'RuntimeTest123!' })
+        });
+        if (loginResponse.status !== 200) throw new Error('Candidate login failed; received ' + loginResponse.status + '.');
+        sessionCookie = (loginResponse.headers.get('set-cookie') || '').split(';')[0];
+        if (!sessionCookie.includes('=')) throw new Error('Login did not create a session cookie.');
+
+        const logoutResponse = await request('/api/auth/logout', { method: 'POST' });
+        if (logoutResponse.status !== 200) throw new Error('Candidate logout failed; received ' + logoutResponse.status + '.');
+        sessionCookie = '';
+        const afterLogout = await request('/api/auth/me');
+        if (afterLogout.status !== 401) throw new Error('Logged-out users must not access the current-user endpoint.');
+
         const jobsResponse = await request('/api/jobs');
         if (jobsResponse.status !== 200) throw new Error('Public job search should respond successfully; received ' + jobsResponse.status + '.');
         const jobsBody = await jobsResponse.json();
