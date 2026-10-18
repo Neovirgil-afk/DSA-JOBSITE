@@ -311,6 +311,21 @@ async function main() {
         const secondCandidateCookie = (secondCandidateRegistration.headers.get('set-cookie') || '').split(';')[0];
         if (!secondCandidateCookie.includes('=')) throw new Error('Second candidate registration did not establish a session cookie.');
         sessionCookie = secondCandidateCookie;
+        const secondCandidateSavedJobsResponse = await request('/api/jobs/saved');
+        if (secondCandidateSavedJobsResponse.status !== 200) throw new Error('Second candidate should be able to retrieve saved jobs.');
+        const secondCandidateSavedJobs = await secondCandidateSavedJobsResponse.json();
+        if (!Array.isArray(secondCandidateSavedJobs.jobs) || secondCandidateSavedJobs.jobs.some((item) => Number(item.id) === Number(job.id))) {
+            throw new Error('Saved-job list exposed another candidate\'s saved job.');
+        }
+        const crossCandidateUnsave = await request('/api/jobs/saved/' + job.id, { method: 'DELETE' });
+        if (crossCandidateUnsave.status !== 200) throw new Error('Second candidate unsave request should complete safely.');
+        sessionCookie = firstCandidateCookie;
+        const firstCandidateSavedJobsAfterUnsave = await request('/api/jobs/saved');
+        const firstCandidateSavedJobsAfterUnsaveBody = await firstCandidateSavedJobsAfterUnsave.json();
+        if (!Array.isArray(firstCandidateSavedJobsAfterUnsaveBody.jobs) || !firstCandidateSavedJobsAfterUnsaveBody.jobs.some((item) => Number(item.id) === Number(job.id))) {
+            throw new Error('One candidate was able to remove another candidate\'s saved job.');
+        }
+        sessionCookie = secondCandidateCookie;
         const secondCandidateApplicationsResponse = await request('/api/applications');
         if (secondCandidateApplicationsResponse.status !== 200) throw new Error('Second candidate should be able to view their own application history.');
         const secondCandidateApplications = await secondCandidateApplicationsResponse.json();
@@ -324,6 +339,8 @@ async function main() {
         sessionCookie = firstCandidateCookie;
         const duplicateApply = await request('/api/jobs/' + job.id + '/apply', { method: 'POST' });
         if (duplicateApply.status !== 409) throw new Error('Duplicate applications should be rejected with 409; received ' + duplicateApply.status + '.');
+        const employerSavedJobsAccess = await request('/api/jobs/saved');
+        if (employerSavedJobsAccess.status !== 403) throw new Error('Employer accounts must not access candidate saved-job features; received ' + employerSavedJobsAccess.status + '.');
 
         // Exercise the employer side and verify candidate/employer data is linked correctly.
         const candidateCookie = sessionCookie;
@@ -593,7 +610,7 @@ async function main() {
         const badResumeBody = await badResumeUpload.json();
         if (!String(badResumeBody.error || '').includes('does not match')) throw new Error('Fake PDF rejection should explain the file-content mismatch.');
 
-        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, candidate-isolated application history, private cache headers, and duplicate prevention, employer job posting/applicant management, interview scheduling and cross-employer authorization, resume draft persistence and validation, real PDF and DOCX extraction, profile skill persistence, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection.');
+        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, candidate-isolated application history and saved jobs, saved-job idempotency and isolation, search-filter validation, private cache headers, and duplicate prevention, employer job posting/applicant management, interview scheduling and cross-employer authorization, resume draft persistence and validation, real PDF and DOCX extraction, profile skill persistence, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection.');
     } finally {
         if (child.exitCode === null) {
             child.kill('SIGTERM');
