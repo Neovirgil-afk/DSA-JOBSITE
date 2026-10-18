@@ -814,7 +814,7 @@ const analyticsRoute = analyticsSource.slice(analyticsSource.indexOf("router.get
 if (!analyticsRoute.includes('requireAuth') ||
     !analyticsRoute.includes("u.role!=='candidate'") ||
     !analyticsRoute.includes('WHERE user_id=?') ||
-    !analyticsRoute.includes('LIMIT 5')) {
+    !analyticsRoute.includes('.slice(0,5)')) {
     fail('Career analytics must require authentication, reject non-candidates, scope personal data to the user, and bound recommendations.');
 }
 const adminSource = read('adminRoutes.js');
