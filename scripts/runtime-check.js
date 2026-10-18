@@ -766,6 +766,15 @@ async function main() {
         if (publicDraftDetails.status !== 404) {
             throw new Error('Draft job details must be hidden from public lookup; received ' + publicDraftDetails.status + '.');
         }
+        const saveDraftAsCandidate = await request('/api/jobs/saved/' + draftJobId, { method: 'POST' });
+        if (saveDraftAsCandidate.status !== 404) {
+            throw new Error('Candidates must not be able to save unpublished drafts; received ' + saveDraftAsCandidate.status + '.');
+        }
+        const savedJobsWhileDraftExists = await request('/api/jobs/saved');
+        const savedJobsWhileDraftExistsBody = await savedJobsWhileDraftExists.json();
+        if (savedJobsWhileDraftExistsBody.jobs?.some((item) => Number(item.id) === draftJobId)) {
+            throw new Error('Unpublished draft jobs must not appear in a candidate’s saved-job list.');
+        }
         sessionCookie = employerCookie;
         const publishDraftResponse = await request('/api/employer/jobs/' + draftJobId + '/status', {
             method: 'PATCH',
