@@ -8651,3 +8651,63 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     font-size:9px;
   }
 }
+
+
+/* Batch 34: consistent card sizing and section rhythm */
+:where(
+  .profile-card,
+  .cc-panel,
+  .application-card,
+  .application-summary,
+  .application-status-tile,
+  .mobile-panel,
+  .mobile-stat-card,
+  .mobile-quick-card,
+  .category-card
+){
+  box-sizing:border-box;
+  min-width:0;
+}
+:where(
+  .profile-card,
+  .cc-panel,
+  .application-card,
+  .mobile-panel,
+  .mobile-quick-card,
+  .category-card
+) :where(h1,h2,h3,h4){
+  overflow-wrap:anywhere;
+}
+:where(
+  .profile-card-heading,
+  .cc-panel-head,
+  .mobile-panel-heading,
+  .section-head
+){
+  min-width:0;
+}
+:where(
+  .profile-card,
+  .cc-panel,
+  .application-card,
+  .mobile-panel,
+  .mobile-stat-card,
+  .mobile-quick-card,
+  .category-card
+) :where(p,li,small){
+  overflow-wrap:anywhere;
+}
+@media(max-width:600px){
+  :where(
+    .profile-card,
+    .cc-panel,
+    .application-card,
+    .application-summary,
+    .mobile-panel,
+    .mobile-stat-card,
+    .mobile-quick-card,
+    .category-card
+  ){
+    max-width:100%;
+  }
+}
