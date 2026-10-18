@@ -499,6 +499,17 @@ if (!notificationReadAllRoute.includes('WHERE user_id=? AND read_at IS NULL') ||
     fail('Mark-all-read must affect only the authenticated user\'s unread notifications and report the update count.');
 }
 
+if (!messageRoutesSource.includes("function access(appId,user)") ||
+    !messageRoutesSource.includes("a.user_id=?) OR (?='employer' AND j.employer_id=?)") ||
+    !messageRoutesSource.includes('WHERE application_id=? AND recipient_id=? AND read_at IS NULL')) {
+    fail('Messaging must verify conversation participant ownership and mark read receipts only for the authenticated recipient.');
+}
+if (!messageRoutesSource.includes('if(body.length>2000)') ||
+    !messageRoutesSource.includes('if(!body)') ||
+    !messageRoutesSource.includes('const recipientId=u.role===\'candidate\'?app.employer_id:app.candidate_id') ||
+    !messageRoutesSource.includes('INSERT INTO messages(application_id,sender_id,recipient_id,body) VALUES(?,?,?,?)')) {
+    fail('Message sending must reject empty or oversized text and derive sender/recipient from the verified application participants.');
+}
 const messageRoutesSource = read('messageRoutes.js');
 if (!messageRoutesSource.includes("typeof payload.body !== 'string'") ||
     !messageRoutesSource.includes('Array.isArray(req.body)') ||
