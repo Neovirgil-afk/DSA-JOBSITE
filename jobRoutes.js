@@ -119,7 +119,7 @@ router.get('/', (req, res) => {
 router.get('/categories', (req, res) => {
     try {
         const flatTree = getCategoryTree();
-        const counts = db.prepare('SELECT category, COUNT(*) AS count FROM jobs GROUP BY category').all();
+        const counts = db.prepare("SELECT category, COUNT(*) AS count FROM jobs WHERE status = 'active' AND (application_deadline IS NULL OR date(application_deadline) >= date('now')) GROUP BY category").all();
         res.json({ tree: flatTree, counts });
     } catch (err) {
         console.error('[GET /api/jobs/categories] error:', err);
