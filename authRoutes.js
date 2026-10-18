@@ -295,15 +295,19 @@ router.post('/login', authRateLimit, (req, res) => {
    ========================================================= */
 
 router.post('/logout', (req, res) => {
+    req.session.destroy((error) => {
+        if (error) {
+            console.error('[logout] session destruction failed:', error);
+            return res.status(500).json({ error: 'Could not log out. Please try again.' });
+        }
 
-    req.session.destroy(() => {
-
-        res.json({
-            success: true
+        res.clearCookie('jobpath.sid', {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production'
         });
-
+        return res.json({ success: true });
     });
-
 });
 
 
