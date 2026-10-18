@@ -149,6 +149,15 @@ if (!/express\.json\(\s*\{\s*limit:\s*['"]1mb['"]\s*\}\s*\)/.test(server)) {
 if (!/express\.urlencoded\(\s*\{\s*extended:\s*true\s*,\s*limit:\s*['"]1mb['"]\s*\}\s*\)/.test(server)) {
     fail('URL-encoded request bodies must retain the 1mb size limit.');
 }
+const resumeRoutesSource = read('resumeRoutes.js');
+if (!resumeRoutesSource.includes('function hasValidResumeSignature(filePath, originalName)') ||
+    !resumeRoutesSource.includes("header.subarray(0, 5).toString('ascii') === '%PDF-'") ||
+    !resumeRoutesSource.includes('header[0] === 0x50 && header[1] === 0x4b') ||
+    !resumeRoutesSource.includes('The file content does not match a valid PDF or DOCX resume.') ||
+    !resumeRoutesSource.includes('fs.unlinkSync(req.file.path)')) {
+    fail('Resume uploads must validate PDF/DOCX file signatures and reject mismatched files before scanning.');
+}
+
 const authRoutesSource = read('authRoutes.js');
 const logoutStart = authRoutesSource.indexOf("router.post('/logout'");
 const logoutEnd = authRoutesSource.indexOf("router.get('/me'", logoutStart);
