@@ -490,6 +490,20 @@ if (!interviewRoutesSource.includes("(?='candidate' AND a.user_id=?) OR (?='empl
     fail('Interview listings must scope results to the signed-in candidate/employer, with admin access handled explicitly.');
 }
 
+const learningPlannerRoutesSource = read('learningPlannerRoutes.js');
+if (!learningPlannerRoutesSource.includes("const VALID_STATUSES = new Set(['not_started', 'in_progress', 'completed'])") ||
+    !learningPlannerRoutesSource.includes("if (!VALID_STATUSES.has(status))") ||
+    !learningPlannerRoutesSource.includes("WHERE id = ? AND user_id = ?") ||
+    !learningPlannerRoutesSource.includes("DELETE FROM learning_plans WHERE id = ? AND user_id = ?")) {
+    fail('Learning Planner must restrict statuses and scope reads, updates, and deletes to the signed-in candidate.');
+}
+if (!learningPlannerRoutesSource.includes("title.length > 120") ||
+    !learningPlannerRoutesSource.includes(".slice(0, 80)") ||
+    !learningPlannerRoutesSource.includes(".slice(0, 500)") ||
+    !learningPlannerRoutesSource.includes("req.session.userId")) {
+    fail('Learning Planner must bound goal fields and associate saved goals with the authenticated candidate.');
+}
+
 const notificationRoutesSource = read('notificationRoutes.js');
 if ((notificationRoutesSource.match(/Cache-Control', 'private, no-store, max-age=0'/g) || []).length < 3 ||
     (notificationRoutesSource.match(/Pragma', 'no-cache'/g) || []).length < 3 ||
