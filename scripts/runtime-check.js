@@ -362,6 +362,42 @@ async function main() {
             throw new Error('Scheduled interview was not visible to the candidate.');
         }
 
+        // A different employer must not see applicants or alter another company's interview.
+        sessionCookie = '';
+        const secondEmployerEmail = 'runtime-other-employer-' + process.pid + '-' + Date.now() + '@example.com';
+        const secondEmployerRegistration = await request('/api/employer/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fullName: 'Runtime Other Employer',
+                email: secondEmployerEmail,
+                password: 'RuntimeEmployer123!',
+                confirmPassword: 'RuntimeEmployer123!',
+                companyName: 'Runtime Other Company ' + process.pid
+            })
+        });
+        if (secondEmployerRegistration.status !== 200) throw new Error('Second employer registration should succeed; received ' + secondEmployerRegistration.status + ': ' + await secondEmployerRegistration.text());
+        const secondEmployerCookie = (secondEmployerRegistration.headers.get('set-cookie') || '').split(';')[0];
+        if (!secondEmployerCookie.includes('=')) throw new Error('Second employer registration did not establish a session cookie.');
+
+        sessionCookie = secondEmployerCookie;
+        const foreignApplicantsResponse = await request('/api/employer/jobs/' + postedJobId + '/applicants');
+        if (foreignApplicantsResponse.status !== 404) throw new Error('Another employer must not access applicants for a job it does not own; received ' + foreignApplicantsResponse.status + '.');
+        const foreignInterviewUpdate = await request('/api/interviews/' + interviewBody.interviewId, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'cancelled' })
+        });
+        if (foreignInterviewUpdate.status !== 404) throw new Error('Another employer must not update an interview for a job it does not own; received ' + foreignInterviewUpdate.status + '.');
+
+        sessionCookie = employerCookie;
+        const interviewOwnerList = await request('/api/interviews');
+        if (interviewOwnerList.status !== 200) throw new Error('Interview owner should still be able to view interviews after denied cross-company access.');
+        const ownerListBody = await interviewOwnerList.json();
+        const unchangedInterview = ownerListBody.interviews?.find((item) => Number(item.id) === Number(interviewBody.interviewId));
+        if (!unchangedInterview || unchangedInterview.status === 'cancelled') throw new Error('Unauthorized employer request changed the interview status.');
+
+        sessionCookie = candidateCookie;
         // Resume builder must persist a valid draft and reject malformed email addresses.
         const draftResponse = await request('/api/resume/builder', {
             method: 'PUT',
@@ -488,7 +524,7 @@ async function main() {
         const badResumeBody = await badResumeUpload.json();
         if (!String(badResumeBody.error || '').includes('does not match')) throw new Error('Fake PDF rejection should explain the file-content mismatch.');
 
-        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, applications and duplicate prevention, employer job posting/applicant management, interview scheduling, resume draft persistence and validation, real PDF and DOCX extraction, profile skill persistence, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection.');
+        console.log('Runtime integration check passed: server health, 6 public pages, access controls, candidate/employer account workflows, applications and duplicate prevention, employer job posting/applicant management, interview scheduling and cross-employer authorization, resume draft persistence and validation, real PDF and DOCX extraction, profile skill persistence, authenticated resume retrieval, role-based access, upload size limits, and forged upload rejection.');
     } finally {
         if (child.exitCode === null) {
             child.kill('SIGTERM');
