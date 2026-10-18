@@ -10,6 +10,8 @@ router.get('/',requireAuth,(req,res)=>{
   const user=getUser(Number(req.session.userId));
   if(!user||!['candidate','employer','admin'].includes(user.role))return res.status(403).json({error:'This account cannot access interviews.'});
   const rows=db.prepare("SELECT i.id,i.application_id,i.scheduled_at,i.duration_minutes,i.interview_type,i.location_or_link,i.notes,i.status,i.created_at,j.title AS job_title,j.company,u.full_name AS candidate_name,u.id AS candidate_id,j.employer_id FROM interviews i JOIN applications a ON a.id=i.application_id JOIN jobs j ON j.id=a.job_id JOIN users u ON u.id=a.user_id WHERE (?='admin') OR (?='candidate' AND a.user_id=?) OR (?='employer' AND j.employer_id=?) ORDER BY datetime(i.scheduled_at) ASC LIMIT 200").all(user.role,user.role,user.id,user.role,user.id);
+  res.set('Cache-Control', 'private, no-store, max-age=0');
+  res.set('Pragma', 'no-cache');
   res.json({success:true,interviews:rows});
  }catch(e){console.error('[interviews] list:',e);res.status(500).json({error:'Failed to load interviews.'});}
 });
