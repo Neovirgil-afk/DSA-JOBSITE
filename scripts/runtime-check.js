@@ -752,6 +752,28 @@ async function main() {
             throw new Error('A rejected application to a closed job must not create an application record.');
         }
 
+        // Draft postings are private/unpublished and must also reject applications.
+        sessionCookie = employerCookie;
+        const setDraftForApplicationCheck = await request('/api/employer/jobs/' + postedJobId + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'draft' })
+        });
+        if (setDraftForApplicationCheck.status !== 200) {
+            throw new Error('Job owner should be able to move a posting to draft; received ' + setDraftForApplicationCheck.status + '.');
+        }
+
+        sessionCookie = secondCandidateCookie;
+        const applyToDraftJob = await request('/api/jobs/' + postedJobId + '/apply', { method: 'POST' });
+        if (applyToDraftJob.status !== 400) {
+            throw new Error('Draft jobs must reject applications with 400; received ' + applyToDraftJob.status + '.');
+        }
+        const draftJobApplicationStatus = await request('/api/jobs/' + postedJobId + '/application');
+        const draftJobApplicationStatusBody = await draftJobApplicationStatus.json();
+        if (draftJobApplicationStatus.status !== 200 || draftJobApplicationStatusBody.applied !== false || draftJobApplicationStatusBody.application !== null) {
+            throw new Error('A rejected application to a draft job must not create an application record.');
+        }
+
         sessionCookie = employerCookie;
         const reopenJobAfterApplicationCheck = await request('/api/employer/jobs/' + postedJobId + '/status', {
             method: 'PATCH',
