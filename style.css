@@ -8908,3 +8908,139 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     overflow-x:auto;
   }
 }
+
+
+/* Keep-me-logged-in control: compact, accessible and consistent with JobSite. */
+.auth-remember {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 8px 0 6px;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #F8F8FC;
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease;
+}
+.auth-remember:hover {
+  background: var(--indigo-tint);
+  border-color: #C7C5F8;
+}
+.auth-remember input {
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: var(--indigo);
+  cursor: pointer;
+}
+.auth-remember span { line-height: 1.4; }
+
+/* Global dark mode toggle. Preference is saved in this browser. */
+.jobsite-theme-toggle {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 12000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 0 15px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 8px 28px rgba(20, 22, 43, .15);
+  font: 600 12px/1 var(--font-body);
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+.jobsite-theme-toggle:hover { transform: translateY(-2px); }
+.jobsite-theme-toggle .theme-toggle-icon { font-size: 17px; line-height: 1; }
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #F0F2FA;
+  --muted: #A7AEC2;
+  --line: #30364B;
+  --cream: #111522;
+  --indigo-tint: #29294B;
+  --amber-tint: #3B3020;
+  --teal-tint: #153632;
+  --pink-tint: #3A202D;
+  --blue-tint: #1D2D49;
+  --green-tint: #1C3428;
+  --navy: #090D18;
+  --shadow-card: 0 18px 40px -18px rgba(0, 0, 0, .55);
+}
+html[data-theme="dark"] body { background: #111522; color: var(--ink); }
+html[data-theme="dark"] .site-header,
+html[data-theme="dark"] .site-footer,
+html[data-theme="dark"] .mobile-app-topbar,
+html[data-theme="dark"] .mobile-bottom-nav,
+html[data-theme="dark"] .mobile-page-bottom-nav,
+html[data-theme="dark"] .employer-header,
+html[data-theme="dark"] .employer-mobile-shell-header { background: #171C2D !important; color: var(--ink); border-color: var(--line) !important; }
+html[data-theme="dark"] .main-nav a,
+html[data-theme="dark"] .nav-dropdown-btn,
+html[data-theme="dark"] .login-link,
+html[data-theme="dark"] .footer-links a { color: var(--ink); }
+html[data-theme="dark"] .nav-dropdown-panel,
+html[data-theme="dark"] .auth-modal,
+html[data-theme="dark"] .employer-auth-card,
+html[data-theme="dark"] .employer-card,
+html[data-theme="dark"] .employer-stat-card,
+html[data-theme="dark"] .employer-analytics-stat,
+html[data-theme="dark"] .job-card,
+html[data-theme="dark"] .results-grid article,
+html[data-theme="dark"] .mobile-panel,
+html[data-theme="dark"] .mobile-stat-card,
+html[data-theme="dark"] .mobile-quick-card,
+html[data-theme="dark"] .resource-section,
+html[data-theme="dark"] .learning-content-card,
+html[data-theme="dark"] .learning-sidebar,
+html[data-theme="dark"] .cc-card,
+html[data-theme="dark"] .cc-panel,
+html[data-theme="dark"] .profile-card,
+html[data-theme="dark"] .resume-card,
+html[data-theme="dark"] .application-card {
+  background-color: #191F31 !important;
+  color: var(--ink);
+  border-color: var(--line) !important;
+}
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+  background-color: #111626;
+  color: var(--ink);
+  border-color: #3A4158;
+}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder { color: #8D95AC; }
+html[data-theme="dark"] .auth-remember { background: #20263A; border-color: #3A4158; color: var(--ink); }
+html[data-theme="dark"] .auth-remember:hover { background: #29294B; border-color: #7772EA; }
+html[data-theme="dark"] .auth-employer-link { background: #20263A; border-color: #3A4158; color: var(--ink); }
+html[data-theme="dark"] .auth-employer-link:hover { background: #29294B; border-color: #7772EA; }
+html[data-theme="dark"] .jobsite-theme-toggle { background: #20263A; color: var(--ink); border-color: #3A4158; }
+html[data-theme="dark"] .nav-dropdown-panel a:hover,
+html[data-theme="dark"] .main-nav a:hover { background: #29294B; }
+html[data-theme="dark"] .hero,
+html[data-theme="dark"] .categories-section,
+html[data-theme="dark"] .cta-banner,
+html[data-theme="dark"] .resource-content,
+html[data-theme="dark"] .employer-main,
+html[data-theme="dark"] .cc-page { background-color: #111522; color: var(--ink); }
+html[data-theme="dark"] .auth-overlay { background: rgba(3, 5, 12, .78); }
+html[data-theme="dark"] .auth-field input,
+html[data-theme="dark"] .employer-field input,
+html[data-theme="dark"] .employer-field textarea { color: var(--ink); }
+html[data-theme="dark"] .employer-loading-screen { background: #111522; color: var(--ink); }
+@media (max-width: 520px) {
+  .jobsite-theme-toggle { left: 12px; bottom: 12px; min-height: 40px; padding: 0 12px; }
+}
