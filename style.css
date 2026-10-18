@@ -8711,3 +8711,39 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     max-width:100%;
   }
 }
+
+
+/* Batch 35: easier-to-tap mobile navigation and secondary actions */
+@media(max-width:600px){
+  :where(
+    .mobile-page-bottom-nav a,
+    .employer-mobile-bottom-nav a,
+    .mobile-page-header-action,
+    .profile-back-button,
+    .profile-resume-button,
+    .profile-resume-link-button,
+    .profile-learning-button,
+    .applications-clear-filters,
+    .employer-secondary-button,
+    .employer-text-button
+  ){
+    box-sizing:border-box;
+    min-height:40px;
+  }
+  :where(.mobile-page-bottom-nav a,.employer-mobile-bottom-nav a){
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  :where(
+    .mobile-page-header-action,
+    .profile-back-button,
+    .profile-resume-button,
+    .profile-resume-link-button,
+    .profile-learning-button,
+    .applications-clear-filters,
+    .employer-secondary-button
+  ){
+    touch-action:manipulation;
+  }
+}
