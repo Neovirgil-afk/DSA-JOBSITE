@@ -8615,3 +8615,39 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     max-width:100%;
   }
 }
+
+/* Batch 33: mobile-safe page gutters and fixed navigation clearance */
+@media(max-width:600px){
+  body{
+    overflow-wrap:break-word;
+  }
+  .wrap{
+    width:min(100% - 28px, 100%);
+  }
+  main{
+    min-width:0;
+  }
+  img,video,canvas,svg{
+    max-width:100%;
+  }
+  .mobile-page-bottom-nav{
+    padding-bottom:max(6px, env(safe-area-inset-bottom));
+  }
+  body:has(.mobile-page-bottom-nav){
+    padding-bottom:calc(76px + env(safe-area-inset-bottom));
+  }
+  #jobpathFloatingHub{
+    bottom:calc(82px + env(safe-area-inset-bottom));
+  }
+}
+@media(max-width:380px){
+  .wrap{
+    width:calc(100% - 22px);
+  }
+  .mobile-page-bottom-nav a{
+    min-width:0;
+  }
+  .mobile-page-bottom-nav small{
+    font-size:9px;
+  }
+}
