@@ -22,6 +22,8 @@
                 nav.querySelectorAll('a[data-rail]').forEach((link) => {
                     if (!allowed.has(link.dataset.rail)) link.remove();
                 });
+                // Resources is a desktop dropdown, not one of the six employee destinations.
+                nav.querySelectorAll('.nav-dropdown').forEach((dropdown) => dropdown.remove());
                 const rawPath = window.location.pathname;
                 const path = (rawPath.length > 1 && rawPath.endsWith('/')) ? rawPath.slice(0, -1) : rawPath;
                 nav.querySelectorAll('a[data-rail]').forEach((link) => {
