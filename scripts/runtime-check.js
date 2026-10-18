@@ -673,7 +673,27 @@ async function main() {
         if (applyToEmployerJob.status !== 201) throw new Error('Candidate should be able to apply to the employer-created job; received ' + applyToEmployerJob.status + ': ' + await applyToEmployerJob.text());
         const employerJobApplication = await applyToEmployerJob.json();
         const employerApplicationId = Number(employerJobApplication.applicationId);
+
         if (!Number.isInteger(employerApplicationId) || employerApplicationId <= 0) throw new Error('Application to employer-created job did not return a valid application ID.');
+
+        // The job application status endpoint must reflect only the signed-in candidate's application.
+        const ownJobApplicationStatus = await request('/api/jobs/' + postedJobId + '/application');
+        if (ownJobApplicationStatus.status !== 200) throw new Error('Candidate should be able to check their application status for a job; received ' + ownJobApplicationStatus.status + '.');
+        const ownJobApplicationStatusBody = await ownJobApplicationStatus.json();
+        if (ownJobApplicationStatusBody.applied !== true || Number(ownJobApplicationStatusBody.application?.id) !== employerApplicationId) {
+            throw new Error('Application status endpoint should return the signed-in candidate’s own application.');
+        }
+        const ownApplicationCache = ownJobApplicationStatus.headers.get('cache-control') || '';
+        if (!/private/i.test(ownApplicationCache) || !/no-store/i.test(ownApplicationCache)) throw new Error('Job application status responses must not be publicly cached.');
+
+        sessionCookie = secondCandidateCookie;
+        const otherCandidateJobApplicationStatus = await request('/api/jobs/' + postedJobId + '/application');
+        if (otherCandidateJobApplicationStatus.status !== 200) throw new Error('A candidate with no application should receive an application-status response.');
+        const otherCandidateJobApplicationStatusBody = await otherCandidateJobApplicationStatus.json();
+        if (otherCandidateJobApplicationStatusBody.applied !== false || otherCandidateJobApplicationStatusBody.application !== null) {
+            throw new Error('Application status endpoint must not expose another candidate’s application.');
+        }
+        sessionCookie = candidateCookie;
 
         sessionCookie = employerCookie;
         const applicantsResponse = await request('/api/employer/jobs/' + postedJobId + '/applicants');
@@ -1033,7 +1053,37 @@ async function main() {
         const profileAfterDocxBody = await profileAfterDocx.json();
         const profileSkills = profileAfterDocxBody.profile?.skills || [];
         if (!profileSkills.some((skill) => skill.source === 'resume')) throw new Error('Resume-detected skills were not persisted to the candidate profile.');
+
         if (!profileSkills.some((skill) => /javascript/i.test(skill.name))) throw new Error('Expected JavaScript skill was not present in the saved candidate profile.');
+
+        // Manual skill edits must validate payload shape and preserve resume-derived skills.
+        const malformedSkillsResponse = await request('/api/auth/profile/skills', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ skillIds: 'not-an-array', skillNames: ['Manual QA'] })
+        });
+        if (malformedSkillsResponse.status !== 400) throw new Error('Skill management must reject non-array skillIds; received ' + malformedSkillsResponse.status + '.');
+
+        const customSkillName = 'Runtime Custom Skill ' + process.pid;
+        const saveManualSkillsResponse = await request('/api/auth/profile/skills', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ skillIds: [], skillNames: [customSkillName, '  ' + customSkillName.toLowerCase() + '  ', '   '] })
+        });
+        if (saveManualSkillsResponse.status !== 200) throw new Error('Candidate should be able to save valid custom skills; received ' + saveManualSkillsResponse.status + ': ' + await saveManualSkillsResponse.text());
+        const savedManualSkillsBody = await saveManualSkillsResponse.json();
+        const matchingCustomSkills = (savedManualSkillsBody.skills || []).filter((skill) => skill.name.toLowerCase() === customSkillName.toLowerCase());
+        if (matchingCustomSkills.length !== 1 || matchingCustomSkills[0].source !== 'manual') throw new Error('Custom skills should be trimmed, deduplicated case-insensitively, and saved as manual skills.');
+        if (!(savedManualSkillsBody.skills || []).some((skill) => skill.source === 'resume' && /javascript/i.test(skill.name))) throw new Error('Saving manual skills must preserve resume-derived skills.');
+
+        sessionCookie = secondCandidateCookie;
+        const otherCandidateProfileAfterSkillEdit = await request('/api/auth/profile');
+        if (otherCandidateProfileAfterSkillEdit.status !== 200) throw new Error('Second candidate should still be able to load their own profile after another candidate edits skills.');
+        const otherCandidateProfileAfterSkillEditBody = await otherCandidateProfileAfterSkillEdit.json();
+        if ((otherCandidateProfileAfterSkillEditBody.profile?.skills || []).some((skill) => skill.name.toLowerCase() === customSkillName.toLowerCase())) {
+            throw new Error('Manual skills must remain private to the candidate who saved them.');
+        }
+        sessionCookie = candidateCookie;
         const currentAfterDocx = await request('/api/resume/current');
         const currentAfterDocxBody = await currentAfterDocx.json();
         if (currentAfterDocxBody.resume?.original_name !== 'runtime-resume.docx') throw new Error('DOCX upload metadata was not saved as the latest resume.');
