@@ -1493,7 +1493,10 @@ export function initJobs() {
                 }
             );
         });
-
+    const requestedJobId = new URLSearchParams(window.location.search).get('job');
+    if (requestedJobId && /^\\d+$/.test(requestedJobId)) {
+        openJobDetails(requestedJobId);
+    }
 
     loadInitialJobs();
 }
