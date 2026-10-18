@@ -364,7 +364,42 @@ async function main() {
         if (!/private/i.test(secondCandidateCacheControl) || !/no-store/i.test(secondCandidateCacheControl)) {
             throw new Error('Second candidate application history must also be non-cacheable.');
         }
+        // Notifications are private per account, and foreign notification IDs cannot be changed.
+        const secondCandidateNotificationsResponse = await request('/api/notifications');
+        if (secondCandidateNotificationsResponse.status !== 200) throw new Error('Second candidate should be able to load their notifications.');
+        const secondCandidateNotificationsBody = await secondCandidateNotificationsResponse.json();
+        if (!Array.isArray(secondCandidateNotificationsBody.notifications)) throw new Error('Notification list should return an array.');
+        const secondNotificationsCache = secondCandidateNotificationsResponse.headers.get('cache-control') || '';
+        if (!/private/i.test(secondNotificationsCache) || !/no-store/i.test(secondNotificationsCache)) {
+            throw new Error('Candidate notifications must be private and non-cacheable.');
+        }
+        const invalidNotificationRead = await request('/api/notifications/not-a-number/read', { method: 'PATCH' });
+        if (invalidNotificationRead.status !== 400) throw new Error('Invalid notification IDs must return 400; received ' + invalidNotificationRead.status + '.');
+
         sessionCookie = firstCandidateCookie;
+        const firstCandidateNotificationsResponse = await request('/api/notifications');
+        if (firstCandidateNotificationsResponse.status !== 200) throw new Error('First candidate should be able to load their notifications.');
+        const firstCandidateNotificationsBody = await firstCandidateNotificationsResponse.json();
+        const firstApplicationNotification = firstCandidateNotificationsBody.notifications?.find((item) =>
+            item.type === 'application' && String(item.body || '').includes(job.title)
+        );
+        if (!firstApplicationNotification) throw new Error('Application submission should create a notification for the candidate.');
+        sessionCookie = secondCandidateCookie;
+        const foreignNotificationRead = await request('/api/notifications/' + firstApplicationNotification.id + '/read', { method: 'PATCH' });
+        if (foreignNotificationRead.status !== 404) throw new Error('A candidate must not mark another candidate’s notification as read; received ' + foreignNotificationRead.status + '.');
+        const secondCandidateAfterForeignReadResponse = await request('/api/notifications');
+        const secondCandidateAfterForeignRead = await secondCandidateAfterForeignReadResponse.json();
+        if (secondCandidateAfterForeignRead.notifications?.some((item) => Number(item.id) === Number(firstApplicationNotification.id))) {
+            throw new Error('Notification list exposed another candidate’s notification.');
+        }
+        sessionCookie = firstCandidateCookie;
+        const ownNotificationRead = await request('/api/notifications/' + firstApplicationNotification.id + '/read', { method: 'PATCH' });
+        if (ownNotificationRead.status !== 200) throw new Error('Candidate should be able to mark their own notification as read.');
+        const firstCandidateAfterRead = await request('/api/notifications');
+        const firstCandidateAfterReadBody = await firstCandidateAfterRead.json();
+        const markedReadNotification = firstCandidateAfterReadBody.notifications?.find((item) => Number(item.id) === Number(firstApplicationNotification.id));
+        if (!markedReadNotification?.read_at) throw new Error('Mark-as-read must persist on the owner’s notification.');
+
         const duplicateApply = await request('/api/jobs/' + job.id + '/apply', { method: 'POST' });
         if (duplicateApply.status !== 409) throw new Error('Duplicate applications should be rejected with 409; received ' + duplicateApply.status + '.');
 
@@ -581,6 +616,16 @@ async function main() {
         if (!statusBody.success || statusBody.status !== 'shortlisted' || statusBody.changed !== true) {
             throw new Error('Application status update should confirm a real status change.');
         }
+        sessionCookie = candidateCookie;
+        const candidateHistoryAfterShortlist = await request('/api/applications');
+        const candidateHistoryAfterShortlistBody = await candidateHistoryAfterShortlist.json();
+        const shortlistedApplication = candidateHistoryAfterShortlistBody.applications?.find((item) => Number(item.id) === employerApplicationId);
+        if (!shortlistedApplication || shortlistedApplication.status !== 'shortlisted' ||
+            !shortlistedApplication.history?.some((entry) => entry.status === 'new') ||
+            !shortlistedApplication.history?.some((entry) => entry.status === 'shortlisted')) {
+            throw new Error('Candidate application history must reflect employer status changes in order.');
+        }
+        sessionCookie = employerCookie;
         const repeatedStatusResponse = await request('/api/employer/applications/' + employerApplicationId + '/status', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
