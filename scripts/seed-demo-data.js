@@ -1,7 +1,7 @@
 'use strict';
 
-// Local presentation seed. Safe to re-run; refuses production by default.
-if (process.env.NODE_ENV === 'production' && process.env.DEMO_SEED_ALLOW_PRODUCTION !== '1') {
+// Local presentation seed. Safe to re-run; refuses production when run directly by default.
+if (require.main === module && process.env.NODE_ENV === 'production' && process.env.DEMO_SEED_ALLOW_PRODUCTION !== '1') {
     console.error('[demo-seed] Refusing to seed demo data in production.');
     process.exit(1);
 }
@@ -119,15 +119,23 @@ const runSeed = db.transaction(() => {
  }
 });
 
-try {
+function seedDemoData() {
  runSeed();
  console.log('[demo-seed] Complete: 5 employers, 5 employees, 15 detailed jobs, 10 applications, and sample conversations.');
  console.log('[demo-seed] Shared password: '+PASSWORD);
  console.log('[demo-seed] Employer emails: '+employers.map(e=>e.email).join(', '));
- console.log('[demo-seed] Employee emails: '+candidates.map(c=>c.email).join(', '));
-} catch (error) {
- console.error('[demo-seed] Failed; transaction rolled back:',error);
- process.exitCode=1;
-} finally {
- db.close();
+ console.log('[demo-seed] Employee emails: '+candidates.map(e=>e.email).join(', '));
 }
+
+if (require.main === module) {
+ try {
+  seedDemoData();
+ } catch (error) {
+  console.error('[demo-seed] Failed; transaction rolled back:',error);
+  process.exitCode=1;
+ } finally {
+  db.close();
+ }
+}
+
+module.exports = { seedDemoData };
