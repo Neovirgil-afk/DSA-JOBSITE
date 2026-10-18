@@ -569,10 +569,13 @@ function syncExpandedJobs(db) {
 
 function seedIfNeeded(db) {
     const jobCount = db.prepare('SELECT COUNT(*) AS c FROM jobs').get().c;
-    if (jobCount > 0) {
+    const userCount = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
+
+    // Never recreate legacy unowned listings on a database that already has accounts.
+    // Employer-owned listings are managed through employer accounts and demo seeding.
+    if (jobCount > 0 || userCount > 0) {
         ensureCompanyProfiles(db);
-        syncExpandedJobs(db);
-        console.log('[seed] Database already populated — syncing company profiles and expanded jobs.');
+        console.log('[seed] Database already populated — syncing company profiles only.');
         return;
     }
 
