@@ -805,6 +805,11 @@ async function main() {
         if (publishedDraftDetailsBody.job?.status !== 'active') {
             throw new Error('Public job details should expose the published active status after a draft is published.');
         }
+        const publicCategoriesAfterPublish = await request('/api/jobs/categories');
+        const publicCategoriesAfterPublishBody = await publicCategoriesAfterPublish.json();
+        if (!publicCategoriesAfterPublishBody.counts?.some((item) => item.category === 'Runtime Unpublished Category' && Number(item.count) >= 1)) {
+            throw new Error('Publishing a draft should add its category to public category counts.');
+        }
         sessionCookie = employerCookie;
 
         for (const invalidStatusValue of ['published-and-secret', 42, null, {}]) {
