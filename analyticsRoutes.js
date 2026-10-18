@@ -4,6 +4,8 @@ const {db}=require('./database');
 const {requireAuth}=require('./auth');
 const {getRankedJobsForUser}=require('./JobMatchingService');
 const router=express.Router();
+// Analytics contain account-specific application and learning progress.
+router.use((req,res,next)=>{res.set('Cache-Control','private, no-store, max-age=0');res.set('Pragma','no-cache');next();});
 router.get('/me',requireAuth,(req,res)=>{
  try{
   const u=db.prepare('SELECT id,role FROM users WHERE id=?').get(Number(req.session.userId));
