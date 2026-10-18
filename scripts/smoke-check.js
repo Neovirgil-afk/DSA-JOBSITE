@@ -84,6 +84,9 @@ try {
 }
 
 const databaseSource = read('database.js');
+if (!/db\.pragma\(['"]busy_timeout\s*=\s*5000['"]\)/.test(databaseSource)) {
+    fail('SQLite must use a busy timeout to handle brief concurrent-write contention.');
+}
 if (!/process\.env\.JOBPATH_DB_PATH\s*\?\s*path\.resolve\(process\.env\.JOBPATH_DB_PATH\)/.test(databaseSource) ||
     !/fs\.mkdirSync\(path\.dirname\(DB_PATH\),\s*\{\s*recursive:\s*true\s*\}\)/.test(databaseSource)) {
     fail('SQLite must support a configurable database path and create its parent directory.');
