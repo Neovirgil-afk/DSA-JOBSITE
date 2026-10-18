@@ -28,7 +28,7 @@
 @media(max-width:900px){.builder-grid{grid-template-columns:1fr}.resume-preview-wrap{position:static}.resume-paper{min-height:500px}.builder-nav{gap:12px}}
 @media(max-width:600px){.builder-two{grid-template-columns:1fr}.builder-card{padding:18px}.resume-paper{padding:30px 26px;min-height:500px}.builder-heading h1{font-size:30px}}
 @media print{
-  @page{size:letter;margin:0.65in}
+  @page{size:letter;margin:0}
   html,body,.builder-page{width:auto!important;min-height:0!important;margin:0!important;padding:0!important;background:#fff!important;color:#111!important}
   .builder-header,.mobile-page-shell-header,.mobile-page-bottom-nav,.jobsite-global-rail,.builder-heading,.builder-form-card,.builder-actions,#jobpathFloatingHub{display:none!important}
   .builder-main{display:block!important;width:auto!important;max-width:none!important;margin:0!important;padding:0!important}
@@ -37,7 +37,7 @@
   .resume-preview-wrap{position:static!important;display:block!important;width:auto!important;margin:0!important;padding:0!important}
   .resume-preview-wrap>.builder-card{display:block!important;width:auto!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:#fff!important}
   .resume-preview-wrap>.builder-card>h2,.resume-preview-wrap>.builder-card>.builder-section-note{display:none!important}
-  .resume-paper{display:block!important;width:auto!important;max-width:none!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;outline:0!important;box-shadow:none!important;background:#fff!important;color:#111!important;overflow:visible!important;font-family:Arial,Helvetica,sans-serif!important;break-inside:auto}
+  .resume-paper{display:block!important;width:auto!important;max-width:none!important;min-height:0!important;margin:0!important;padding:0.65in!important;border:0!important;border-radius:0!important;outline:0!important;box-shadow:none!important;background:#fff!important;color:#111!important;overflow:visible!important;font-family:Arial,Helvetica,sans-serif!important;break-inside:auto}
   .resume-paper h1{color:#111!important}
   .resume-paper h4{color:#222!important;border-bottom:1px solid #999!important}
   .resume-contact,.resume-muted{color:#444!important}
@@ -238,12 +238,13 @@
 <h3>Projects</h3><div id="projectsList"></div><button type="button" class="builder-add" id="addProject" data-add="projects">+ Add project</button>
 <h3>Certifications</h3><div id="certificationsList"></div><button type="button" class="builder-add" id="addCertification" data-add="certifications">+ Add certification</button>
 
-<div class="builder-actions"><button type="button" class="builder-save" id="saveResume">Save Resume</button><button type="button" class="builder-print" id="printResume">Print / Save PDF</button><span class="builder-status" id="builderStatus"></span></div>
+<div class="builder-actions"><button type="button" class="builder-save" id="saveResume">Save Resume</button><button type="button" class="builder-print" id="printResume">Print Resume</button><button type="button" class="builder-print" id="savePdfResume">Download PDF</button><span class="builder-status" id="builderStatus"></span></div>
 </div>
 </section>
 <section class="resume-preview-wrap"><div class="builder-card"><h2>Live Preview</h2><p class="builder-section-note">This is the resume layout employers will eventually see.</p><div class="resume-paper" id="resumePaper"></div></div></section>
 </div></div></main>
-<script src="/js/resume-builder.js?v=20260918-3" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js" defer></script>
+<script src="/js/resume-builder.js?v=20261019-1" defer></script>
 <script src="/js/page-transition.js" defer></script>
 <nav class="mobile-page-bottom-nav" aria-label="Mobile navigation">
   <a href="/"><span>⌂</span><small>Home</small></a>
