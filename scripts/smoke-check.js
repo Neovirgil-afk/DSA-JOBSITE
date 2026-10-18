@@ -204,6 +204,17 @@ if (!loginRouteSource.includes("rememberMe !== undefined && typeof rememberMe !=
     !loginRouteSource.includes('Remember me must be true or false.')) {
     fail('Login must reject non-boolean rememberMe values so string values cannot unexpectedly extend session duration.');
 }
+
+// Both candidate and employer login flows must regenerate session IDs after successful authentication.
+const employerRoutesSource = read('employerRoutes.js');
+const employerLoginRouteSource = employerRoutesSource.slice(
+    employerRoutesSource.indexOf("router.post('/login'"),
+    employerRoutesSource.indexOf("router.get('/me'", employerRoutesSource.indexOf("router.post('/login'"))
+);
+if (!employerLoginRouteSource.includes('establishSession(req, user.id,') ||
+    !employerRoutesSource.includes('req.session.regenerate((regenerateError) =>')) {
+    fail('Employer login must regenerate the session ID after successful authentication to help prevent session fixation.');
+}
 const employerRoutesSource = read('employerRoutes.js');
 if (!employerRoutesSource.includes("Buffer.byteLength(password, 'utf8') > 72") ||
     !employerRoutesSource.includes('no more than 72 UTF-8 bytes')) {
