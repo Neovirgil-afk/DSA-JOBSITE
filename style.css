@@ -8560,3 +8560,32 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 #jobpathFloatingHub .jfh-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media(max-width:600px){#jobpathFloatingHub{right:12px;bottom:14px}#jobpathFloatingHub .jfh-fab{width:48px;height:48px;font-size:20px}#jobpathFloatingHub .jfh-panels{right:-2px;bottom:62px;width:calc(100vw - 24px)}#jobpathFloatingHub .jfh-message-layout{grid-template-columns:110px minmax(0,1fr);height:min(65vh,520px)}#jobpathFloatingHub .jfh-panel>header{padding:12px}#jobpathFloatingHub .jfh-thread{padding:8px 6px}}
 @media(prefers-reduced-motion:reduce){#jobpathFloatingHub .jfh-fab{transition:none}}
+
+/* Batch 31: consistent keyboard focus and form-control states */
+:where(a,button,input,select,textarea,[tabindex]:not([tabindex="-1"])):focus-visible{
+  outline:2px solid var(--indigo,#4f46e5);
+  outline-offset:3px;
+}
+:where(input,select,textarea):focus-visible{
+  border-color:var(--indigo,#4f46e5);
+}
+:where(button,[role="button"],input[type="button"],input[type="submit"],input[type="reset"]):disabled,
+:where(button,[role="button"],input[type="button"],input[type="submit"],input[type="reset"])[aria-disabled="true"]{
+  cursor:not-allowed;
+  opacity:.58;
+}
+:where(input,select,textarea,button){
+  font-family:inherit;
+}
+:where(input,select,textarea):disabled{
+  cursor:not-allowed;
+  opacity:.7;
+}
+@media(prefers-reduced-motion:reduce){
+  :where(a,button,input,select,textarea,[role="button"]){
+    scroll-behavior:auto!important;
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
+}
