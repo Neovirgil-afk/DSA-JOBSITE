@@ -184,8 +184,8 @@ if (!/router\.post\(\s*['"]\/scan['"],\s*requireAuth,\s*requireCandidate/.test(r
 }
 
 // Ensure the resume download route checks authentication and candidate role before serving files.
-const resumeFileRoute = resumeRoutesSource.match(/router\\.get\\(\\s*['"]\\/file['"]([\\s\\S]*?)(?=\\nrouter\\.get\\(|\\nrouter\\.post\\()/);
-if (!resumeFileRoute || !/requireAuth/.test(resumeFileRoute[1]) || !/requireCandidate/.test(resumeFileRoute[1]) || !/res\\.sendFile\\(/.test(resumeFileRoute[1])) {
+const resumeFileRoute = resumeRoutesSource.match(/router\.get\(\s*['"]\/file['"]([\s\S]*?)(?=\nrouter\.get\(|\nrouter\.post\()/);
+if (!resumeFileRoute || !/requireAuth/.test(resumeFileRoute[1]) || !/requireCandidate/.test(resumeFileRoute[1]) || !/res\.sendFile\(/.test(resumeFileRoute[1])) {
     fail('Resume file delivery must remain authenticated, candidate-only, and use the private file endpoint.');
 }
 if (!/if \\(req\\.file\\?\\.path\\)/.test(resumeRoutesSource) || !/fs\\.unlinkSync\\(req\\.file\\.path\\)/.test(resumeRoutesSource)) {
