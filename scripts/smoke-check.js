@@ -336,6 +336,9 @@ if ((jobRoutesPrivacySource.match(/Cache-Control', 'private, no-store, max-age=0
     (jobRoutesPrivacySource.match(/Pragma', 'no-cache'/g) || []).length < 3) {
     fail('Saved jobs, recommendations, and application status must disable caching.');
 }
+if (!/router\.use\(\(req, res, next\) => \{\s*res\.set\(['"]Cache-Control['"], ['"]private, no-store, max-age=0['"]\);\s*res\.set\(['"]Pragma['"], ['"]no-cache['"]\);\s*next\(\);\s*\}\)/.test(jobRoutesPrivacySource)) {
+    fail('Job API responses must disable caching because job listings can contain personalized match scores and skill-gap data.');
+}
 
 const interviewRoutesSource = read('interviewRoutes.js');
 if (!interviewRoutesSource.includes("private, no-store, max-age=0") ||
