@@ -10,6 +10,13 @@ const { SKILLS_LIST } = require('./skillsList');
 
 const router = express.Router();
 
+// Resume drafts, uploaded-file metadata, and scan results contain private data.
+router.use((req, res, next) => {
+    res.set('Cache-Control', 'private, no-store, max-age=0');
+    res.set('Pragma', 'no-cache');
+    next();
+});
+
 function requireCandidate(req, res, next) {
     const user = db.prepare('SELECT role FROM users WHERE id = ?').get(req.session.userId);
     if (!user || user.role !== 'candidate') {
