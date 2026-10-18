@@ -816,7 +816,7 @@ const staticGuardStart = server.indexOf('const privateStaticFiles = new Set([');
 const staticGuardEnd = server.indexOf('app.use(express.static(__dirname))');
 const staticGuard = server.slice(staticGuardStart, staticGuardEnd);
 if (staticGuardStart < 0 || staticGuardEnd < 0 || staticGuardStart > staticGuardEnd ||
-    !staticGuard.includes('/\\.(?:db|sqlite|sqlite3)(?:-(?:wal|shm))?$/') ||
+    !staticGuard.includes('const isDatabaseFile = /\.(?:db|sqlite|sqlite3)(?:-(?:wal|shm))?$/') ||
     !staticGuard.includes("'server.js'") ||
     !staticGuard.includes("'database.js'") ||
     !staticGuard.includes("'package-lock.json'") ||
