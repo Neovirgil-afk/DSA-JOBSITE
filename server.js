@@ -80,10 +80,51 @@ app.use('/uploads', (req, res) => {
     res.sendStatus(404);
 });
 
-// Never expose SQLite database files or their write-ahead log files through static serving.
+// Never expose database files, backend source, package metadata, or deployment docs
+// through the public static-file server.
+const privateStaticFiles = new Set([
+    '.env',
+    '.gitignore',
+    'adminRoutes.js',
+    'analyticsRoutes.js',
+    'applicationRoutes.js',
+    'auth.js',
+    'authRateLimit.js',
+    'authRoutes.js',
+    'CAREER_PLATFORM_SETUP.md',
+    'database.js',
+    'DEPLOYMENT.md',
+    'employerRoutes.js',
+    'interviewRoutes.js',
+    'jobRoutes.js',
+    'learningDiscoveryRoutes.js',
+    'learningPlannerRoutes.js',
+    'learningRoutes.js',
+    'messageRoutes.js',
+    'notificationRoutes.js',
+    'notificationService.js',
+    'package.json',
+    'package-lock.json',
+    'referenceRoutes.js',
+    'resumeRoutes.js',
+    'schema.sql',
+    'seed.js',
+    'server.js',
+    'sessionStore.js',
+]);
+
 app.use((req, res, next) => {
-    const requestedFile = path.basename(req.path).toLowerCase();
-    if (/\\.(?:db|sqlite|sqlite3)(?:-(?:wal|shm))?$/.test(requestedFile)) {
+    const requestedPath = decodeURIComponent(req.path).toLowerCase();
+    const requestedFile = path.basename(requestedPath);
+    const hasPrivatePathSegment = requestedPath.split('/').some((segment) =>
+        segment === '.git' || segment === 'node_modules' || segment === 'scripts' ||
+        segment === 'backup script'
+    );
+    const isDatabaseFile = /\.(?:db|sqlite|sqlite3)(?:-(?:wal|shm))?$/.test(requestedFile);
+    const isPrivateFile = privateStaticFiles.has(requestedFile) ||
+        /routes\.js$/.test(requestedFile);
+
+    if (hasPrivatePathSegment || isDatabaseFile || isPrivateFile) {
         return res.sendStatus(404);
     }
     next();
