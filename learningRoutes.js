@@ -16,6 +16,13 @@ const { getCareerPathForJob } = require('./CareerPathService');
 
 const router = express.Router();
 
+// Learning recommendations and progress are personalized to the signed-in candidate.
+router.use((req, res, next) => {
+    res.set('Cache-Control', 'private, no-store, max-age=0');
+    res.set('Pragma', 'no-cache');
+    next();
+});
+
 router.get('/catalog', requireAuth, requireCandidate, (req, res) => {
     res.json({ lessons: getAvailableLessons() });
 });
