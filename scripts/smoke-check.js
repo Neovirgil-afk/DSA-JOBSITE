@@ -150,6 +150,14 @@ if (!/express\.urlencoded\(\s*\{\s*extended:\s*true\s*,\s*limit:\s*['"]1mb['"]\s
     fail('URL-encoded request bodies must retain the 1mb size limit.');
 }
 const authRoutesSource = read('authRoutes.js');
+const logoutRoute = authRoutesSource.match(/router\\.post\\(\\s*['"]\\/logout['"]([\\s\\S]*?)(?=\\nrouter\\.(?:get|post|put|delete)\\()/);
+if (!logoutRoute ||
+    !/req\\.session\\.destroy\\(\\s*\\(error\\)/.test(logoutRoute[1]) ||
+    !/res\\.status\\(500\\)\\.json\\(/.test(logoutRoute[1]) ||
+    !/res\\.clearCookie\\(['"]jobpath\\.sid['"]/.test(logoutRoute[1])) {
+    fail('Logout must report session-destruction failures and clear the session cookie after success.');
+}
+
 for (const endpoint of ['register', 'login']) {
     const protectedRoute = new RegExp("router\\.post\\(\\s*['\"]/" + endpoint + "['\"]\\s*,\\s*authRateLimit\\s*,");
     if (!protectedRoute.test(authRoutesSource)) {
