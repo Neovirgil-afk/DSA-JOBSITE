@@ -175,6 +175,9 @@ if (!resumeBuilderSaveRoute ||
     (resumeBuilderSaveRoute[1].match(/\.filter\(\(item\) => item && typeof item === 'object' && !Array\.isArray\(item\)\)/g) || []).length < 4) {
     fail('Resume builder must ignore malformed entries in education, experience, projects, and certifications.');
 }
+if (!/!data \|\| typeof data !== 'object' \|\| Array\.isArray\(data\)/.test(resumeRoutesSource)) {
+    fail('Resume builder must reject array payloads instead of saving them as empty resumes.');
+}
 
 if (!/function cleanText\(value, maxLength\)/.test(resumeRoutesSource) ||
     !/\.slice\(0, maxLength\)/.test(resumeRoutesSource) ||
