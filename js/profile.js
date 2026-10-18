@@ -641,12 +641,23 @@ function renderSkillEditor() {
     const search = document.querySelector('#skillSearchInput');
     const query = String(search?.value || '').trim().toLowerCase();
     const results = document.querySelector('#skillSearchResults');
+    const taxonomy = window.JobsiteSkillTaxonomy;
+    const taxonomyMatches = query && taxonomy
+        ? taxonomy.getSkillSuggestions(query, allSkills)
+        : [];
+    const taxonomyRank = new Map(taxonomyMatches.map((skill, index) => [Number(skill.id), index]));
     const matches = allSkills
         .map((skill) => ({ skill, relevance: getSkillRelevance(skill) }))
         .filter(({ skill }) => !query ||
-            String(skill.name || '').toLowerCase().includes(query) ||
-            String(skill.category || '').toLowerCase().includes(query))
+            (taxonomyMatches.length
+                ? taxonomyRank.has(Number(skill.id))
+                : String(skill.name || '').toLowerCase().includes(query) ||
+                  String(skill.category || '').toLowerCase().includes(query)))
         .sort((a, b) => {
+            if (query && taxonomyMatches.length) {
+                const rankDifference = taxonomyRank.get(Number(a.skill.id)) - taxonomyRank.get(Number(b.skill.id));
+                if (rankDifference) return rankDifference;
+            }
             if (query) {
                 const aStarts = String(a.skill.name || '').toLowerCase().startsWith(query) ? 1 : 0;
                 const bStarts = String(b.skill.name || '').toLowerCase().startsWith(query) ? 1 : 0;
@@ -668,16 +679,21 @@ function renderSkillEditor() {
         : '<div class="profile-empty-state"><h3>No matching skills found</h3><p>You can add this skill manually below.</p></div>';
 
     if (results) {
-        const exact = allSkills.some((skill) => String(skill.name || '').toLowerCase() === query);
+        const aliasMatch = taxonomy?.findCanonicalSkill(query, allSkills);
+        const exact = allSkills.some((skill) => String(skill.name || '').toLowerCase() === query) || Boolean(aliasMatch);
         const alreadySelected = [...selectedSkillNames].some((name) => name.toLowerCase() === query) ||
             allSkills.some((skill) => String(skill.name || '').toLowerCase() === query && selectedSkillIds.has(Number(skill.id)));
         const suggestions = query ? matches.slice(0, 6).map(({ skill }) =>
             '<button type="button" role="option" class="profile-skill-suggestion" data-suggest-skill="' +
             Number(skill.id) + '">' + escapeHTML(skill.name) + '<small>' + escapeHTML(skill.category || 'Skill') + '</small></button>'
         ).join('') : '';
+        const inferredCategory = taxonomy ? taxonomy.inferSkillCategory(query) : 'Other';
+        const categoryHint = inferredCategory !== 'Other'
+            ? '<small>Detected field: ' + escapeHTML(inferredCategory) + '</small>'
+            : '<small>Field not recognized yet</small>';
         const addCustom = query && !exact && !alreadySelected
             ? '<button type="button" role="option" class="profile-skill-suggestion profile-skill-suggestion--custom" data-add-custom-skill="' +
-              escapeHTML(search.value.trim()) + '">+ Add “' + escapeHTML(search.value.trim()) + '” as a custom skill</button>'
+              escapeHTML(search.value.trim()) + '"><span>+ Add “' + escapeHTML(search.value.trim()) + '” as a skill</span>' + categoryHint + '</button>'
             : '';
         results.innerHTML = query
             ? (suggestions + addCustom || '<span class="profile-skill-search-empty">No suggestions. You can still add this skill manually.</span>')
