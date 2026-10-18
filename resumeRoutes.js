@@ -100,7 +100,7 @@ router.put('/builder', requireAuth, requireCandidate, (req, res) => {
     try {
         const data = req.body?.resume;
 
-        if (!data || typeof data !== 'object') {
+        if (!data || typeof data !== 'object' || Array.isArray(data)) {
             return res.status(400).json({
                 error: 'Resume data is required.'
             });
