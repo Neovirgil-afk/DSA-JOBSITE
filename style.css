@@ -8955,3 +8955,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     visibility: visible !important;
   }
 }
+
+
+/* The employee sidebar must never show a shortcut to the employer portal. */
+body .site-header nav.jobsite-global-rail > a[data-rail="employer"],
+body .site-header nav.main-nav > a[data-rail="employer"] {
+  display: none !important;
+}
