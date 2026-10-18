@@ -62,6 +62,18 @@ checkHtml('resume-builder.html', ['fullName', 'email', 'phone', 'location', 'sum
 checkHtml('career-center.html', ['ccTargetJobForm', 'ccTargetJobInput', 'ccLearningPathBody'], ['js/career-center.js', 'js/floating-hub.js']);
 checkHtml('applications.html', ['applicationsList', 'exportApplications'], ['js/applications.js', 'js/floating-hub.js']);
 
+// Keep the primary auth controls responsive even if later auth startup work fails.
+const authFrontendSource = read('js/auth.js');
+const authModalCreatedAt = authFrontendSource.indexOf('    createAuthModal();');
+const authClickBoundAt = authFrontendSource.indexOf("document.addEventListener('click', (event) => {");
+const authReferenceLoadAt = authFrontendSource.indexOf('    async function loadReferenceData()');
+if (authModalCreatedAt < 0 || authClickBoundAt < authModalCreatedAt || authReferenceLoadAt < 0 || authClickBoundAt > authReferenceLoadAt) {
+    fail('Login/signup click handling must be bound immediately after modal creation, before reference-data loading.');
+}
+if ((authFrontendSource.match(/AUTH BUTTONS \(LOGIN \/ SIGNUP\)/g) || []).length !== 1) {
+    fail('Login/signup controls must have exactly one delegated click handler.');
+}
+
 // Check the shared stylesheet for unbalanced CSS blocks.
 const stylesheet = read('style.css');
 if (stylesheet) {
